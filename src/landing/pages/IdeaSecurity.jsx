@@ -38,6 +38,14 @@ export default function IdeaSecurityPage() {
     { icon: CheckCircle, title: t.section6Title, content: t.section6Content, color: "text-orange-400" }
   ];
 
+  const guaranteeItems = (() => {
+    const raw = ti('ideaSecurity.guaranteeItems', { returnObjects: true });
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === 'object') return Object.values(raw);
+    if (typeof raw === 'string') return raw.split('\n').map(s => s.trim()).filter(Boolean);
+    return [];
+  })();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
@@ -103,7 +111,7 @@ export default function IdeaSecurityPage() {
             <CardContent className="p-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">{t.guaranteeTitle}</h2>
               <div className="grid md:grid-cols-2 gap-4">
-                {t.guaranteeItems.map((item, index) => (
+                {guaranteeItems.map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-1" />
                     <span className="text-gray-700 dark:text-gray-300">{item}</span>
