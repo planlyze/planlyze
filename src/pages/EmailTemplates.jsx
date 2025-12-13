@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -139,7 +139,7 @@ const defaultTemplates = [
   <p>Great news! Your payment has been approved and <strong>{{credits}} credits</strong> have been added to your account.</p>
   <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 12px; margin: 20px 0; border-radius: 4px;">
     <p style="margin: 0; color: #15803d;"><strong>Payment Details:</strong></p>
-    <p style="margin: 8px 0 0 0; color: #166534;">Amount: ${{amount}}<br>Credits Added: {{credits}}</p>
+    <p style="margin: 8px 0 0 0; color: #166534;">Amount: {{amount}}<br>Credits Added: {{credits}}</p>
   </div>
   <p>You can now use your credits to create comprehensive business analysis reports.</p>
   <a href="{{credits_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #16a34a, #22c55e); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">View Credits</a>
@@ -153,7 +153,7 @@ const defaultTemplates = [
   <p>أخبار رائعة! تمت الموافقة على دفعتك وتمت إضافة <strong>{{credits}} رصيد</strong> إلى حسابك.</p>
   <div style="background: #f0fdf4; border-right: 4px solid #16a34a; padding: 12px; margin: 20px 0; border-radius: 4px;">
     <p style="margin: 0; color: #15803d;"><strong>تفاصيل الدفع:</strong></p>
-    <p style="margin: 8px 0 0 0; color: #166534;">المبلغ: ${{amount}}<br>الأرصدة المضافة: {{credits}}</p>
+    <p style="margin: 8px 0 0 0; color: #166534;">المبلغ: {{amount}}<br>الأرصدة المضافة: {{credits}}</p>
   </div>
   <p>يمكنك الآن استخدام أرصدتك لإنشاء تقارير تحليل عمل شاملة.</p>
   <a href="{{credits_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #16a34a, #22c55e); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">عرض الأرصدة</a>
@@ -217,7 +217,7 @@ export default function EmailTemplates() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
       if (user.role !== 'admin') {
@@ -226,14 +226,14 @@ export default function EmailTemplates() {
         return;
       }
 
-      const existingTemplates = await base44.entities.EmailTemplate.filter({});
+      const existingTemplates = await api.EmailTemplate.filter({});
       
       if (existingTemplates.length === 0) {
         // Initialize default templates
         for (const template of defaultTemplates) {
-          await base44.entities.EmailTemplate.create(template);
+          await api.EmailTemplate.create(template);
         }
-        const newTemplates = await base44.entities.EmailTemplate.filter({});
+        const newTemplates = await api.EmailTemplate.filter({});
         setTemplates(newTemplates);
       } else {
         setTemplates(existingTemplates);
@@ -248,7 +248,7 @@ export default function EmailTemplates() {
 
   const handleSave = async (template) => {
     try {
-      await base44.entities.EmailTemplate.update(template.id, template);
+      await api.EmailTemplate.update(template.id, template);
       toast.success("Template saved successfully");
       setEditingTemplate(null);
       loadData();
@@ -271,7 +271,7 @@ export default function EmailTemplates() {
         testVariables[v] = `[TEST_${v.toUpperCase()}]`;
       });
 
-      const response = await base44.functions.invoke('sendTemplatedEmail', {
+      const response = await api.post('sendTemplatedEmail', {
         userEmail: testEmail,
         templateKey: template.template_key,
         variables: testVariables,

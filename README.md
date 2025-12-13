@@ -29,3 +29,14 @@ export FLASK_APP=main.py
 export FLASK_ENV=development
 # start flask on port 8000 (vite proxy expects backend on 8000)
 flask run --host=0.0.0.0 --port=8000
+
+# 1. Make changes to server/models.py
+# 2. Generate migration
+FLASK_APP=server.app:app python -m flask db migrate -m "Description of changes"
+
+# 3. Review migration file in migrations/versions/
+# 4. Apply to database
+FLASK_APP=server.app:app python -m flask db upgrade
+
+# To rollback (undo last migration):
+FLASK_APP=server.app:app python -m flask db downgrade

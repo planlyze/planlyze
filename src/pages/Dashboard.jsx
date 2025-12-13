@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Analysis } from "@/entities/Analysis";
-import { Transaction } from "@/entities/Transaction";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -29,13 +27,13 @@ export default function Dashboard() {
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
-        const user = await base44.auth.me();
+        const user = await auth.me();
         setCurrentUser(user);
         await loadAnalyses(user.email);
       } catch (error) {
         // Instead of navigating to a LandingPage, initiate a login redirect.
         // This implies the user is not authenticated and needs to log in.
-        await base44.auth.redirectToLogin(window.location.href);
+        window.location.href = "/login";
       }
     };
     checkAuthAndLoadData();

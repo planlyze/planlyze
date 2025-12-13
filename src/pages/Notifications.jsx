@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 
-const Notification = base44.entities.Notification;
+const Notification = api.Notification;
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,14 +52,14 @@ export default function NotificationsPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
       const data = await Notification.filter({ user_email: user.email }, "-created_date", 100);
       setNotifications(data);
     } catch (error) {
       console.error("Error loading notifications:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }

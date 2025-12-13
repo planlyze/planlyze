@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Analysis } from "@/entities/Analysis";
+import { Analysis, User, Transaction, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { createPageUrl }
-from "@/utils";
+import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -17,13 +16,9 @@ import {
   FileSpreadsheet,
   Share2,
 } from "lucide-react";
-import { User } from "@/entities/User";
-import { Transaction } from "@/entities/Transaction";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/common/StarRating";
 import { toast } from "sonner";
-import { getAnalysisByIdAdmin } from "@/functions/getAnalysisByIdAdmin";
-import { exportReport } from "@/functions/exportReport";
 import FloatingAIAssistant from "../components/results/FloatingAIAssistant";
 
 import ExecutiveSummary from "../components/results/ExecutiveSummary";
@@ -83,23 +78,22 @@ export default function AnalysisResult() {
 
     setIsLoading(true);
     try {
-      const user = await User.me();
+      const user = await auth.me();
       setCurrentUser(user);
-      setUserCredits(user.premium_credits || 0);
+      setUserCredits(user.credits || 0);
 
       if (user.role === 'admin' && userEmailParam) {
         // Admin viewing a specific user's report: use backend to bypass RLS
-        const { data } = await getAnalysisByIdAdmin({ id });
-        const item = data?.item;
+        const data = await Analysis.get(id);
 
-        if (!item || item.is_deleted === true || item.created_by !== userEmailParam) {
+        if (!data || data.is_deleted === true || data.user_email !== userEmailParam) {
           navigate(createPageUrl(`Reports?user=${encodeURIComponent(userEmailParam)}`));
           return;
         }
 
-        setAnalysis(item);
-        setRating(item.user_rating ?? null);
-        setFeedback(item.user_feedback ?? "");
+        setAnalysis(data);
+        setRating(data.user_rating ?? null);
+        setFeedback(data.user_feedback ?? "");
         setCanRate(false); // Admins shouldn't rate others' reports
       } else {
         // Owner flow (RLS enforced)
@@ -148,7 +142,7 @@ export default function AnalysisResult() {
     const filename = `${sanitize(analysis.business_idea)}_Planlyze.pdf`;
 
     try {
-      const { data } = await exportReport({ id: analysis.id, analysisId: analysis.id });
+      const reportData = await api.get("/api/analyses/export");
       const blob = new Blob([data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");

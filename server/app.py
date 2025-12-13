@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_migrate import Migrate
 from .models import db
 from server.config import Config
 import os
@@ -17,6 +18,7 @@ def create_app():
     })
     
     db.init_app(app)
+    migrate = Migrate(app, db)
     
     from server.routes.auth import auth_bp
     from server.routes.entities import entities_bp

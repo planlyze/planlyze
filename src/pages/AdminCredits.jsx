@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Transaction } from "@/entities/Transaction";
-import { CreditPackage } from "@/entities/CreditPackage";
+import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,8 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { listAllUsersAdmin } from "@/functions/listAllUsersAdmin";
-import { adjustUserCredits } from "@/functions/adjustUserCredits";
 import PaymentMethodsManager from "../components/admin/PaymentMethodsManager";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
@@ -60,7 +56,7 @@ export default function AdminCredits() {
   const checkAdminAndLoadData = async () => {
     setIsLoading(true);
     try {
-      const currentUser = await base44.auth.me();
+      const currentUser = await auth.me();
       if (!hasPermission(currentUser, PERMISSIONS.VIEW_CREDITS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view credits");
@@ -69,7 +65,7 @@ export default function AdminCredits() {
       await loadData();
     } catch (error) {
       console.error("Error:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +74,7 @@ export default function AdminCredits() {
   const loadData = async () => {
     try {
       // Load all users
-      const usersResp = await listAllUsersAdmin({ limit: 1000, order: '-created_date' });
+      const usersResp = await User.list();
       const usersData = usersResp?.data || usersResp;
       const usersList = usersData?.items || [];
       setUsers(usersList);
@@ -129,7 +125,7 @@ export default function AdminCredits() {
   };
 
   const handleAdjustCredits = async () => {
-    const user = await base44.auth.me();
+    const user = await auth.me();
     if (!hasPermission(user, PERMISSIONS.MANAGE_CREDITS)) {
       toast.error("You don't have permission to manage credits");
       setIsAdjustDialogOpen(false);
@@ -145,11 +141,7 @@ export default function AdminCredits() {
     try {
       const finalAmount = adjustmentType === "add" ? amount : -amount;
       
-      await adjustUserCredits({
-        userEmail: selectedUser.email,
-        credits: finalAmount,
-        notes: adjustmentNotes || `Admin ${adjustmentType === "add" ? "added" : "deducted"} ${amount} credits`
-      });
+      await User.adjustCredits(selectedUser.id, finalAmount, adjustmentNotes || `Admin ${adjustmentType === "add" ? "added" : "deducted"} ${amount} credits`);
 
       // Log the adjustment
       await auditLogger.logCreditAdjustment(

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,7 +30,7 @@ export default function AdminDiscounts() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
       if (user.role !== 'admin') {
@@ -40,8 +40,8 @@ export default function AdminDiscounts() {
       }
 
       const [discountData, packageData] = await Promise.all([
-        base44.entities.DiscountCode.filter({}),
-        base44.entities.CreditPackage.filter({})
+        api.DiscountCode.filter({}),
+        api.CreditPackage.filter({})
       ]);
 
       setDiscounts(discountData);
@@ -90,10 +90,10 @@ export default function AdminDiscounts() {
       };
 
       if (editingDiscount.id) {
-        await base44.entities.DiscountCode.update(editingDiscount.id, data);
+        await api.DiscountCode.update(editingDiscount.id, data);
         toast.success("Discount code updated successfully");
       } else {
-        await base44.entities.DiscountCode.create(data);
+        await api.DiscountCode.create(data);
         toast.success("Discount code created successfully");
       }
 
@@ -109,7 +109,7 @@ export default function AdminDiscounts() {
     if (!confirm(`Delete discount code "${discount.code}"?`)) return;
 
     try {
-      await base44.entities.DiscountCode.delete(discount.id);
+      await api.DiscountCode.delete(discount.id);
       toast.success("Discount code deleted");
       loadData();
     } catch (error) {

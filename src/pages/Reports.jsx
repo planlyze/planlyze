@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Analysis } from "@/entities/Analysis";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,10 +30,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import StarRating from "@/components/common/StarRating";
-import { listAllAnalysesAdmin } from "@/functions/listAllAnalysesAdmin";
 import { motion, AnimatePresence } from "framer-motion";
 import ShareReportModal from "@/components/sharing/ShareReportModal";
-import { exportReport } from "@/functions/exportReport";
 
 const statusIcons = {
   draft: Clock,
@@ -76,7 +73,7 @@ export default function Reports() {
       let fetchedAnalyses = [];
       // If current user is an admin and a specific user was selected in the URL, always fetch via admin function
       if (admin && selectedUserPresent) {
-        const { data } = await listAllAnalysesAdmin({ userEmail });        
+        const { data } = await Analysis.list();        
         fetchedAnalyses = data?.items || [];
       } else {
         // Otherwise, load reports using standard filter for the specified user email
@@ -94,7 +91,7 @@ export default function Reports() {
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
-        const user = await base44.auth.me();
+        const user = await auth.me();
         setCurrentUser(user);
         setIsAdmin(user.role === "admin");
         setMyEmail(user.email);
@@ -110,7 +107,7 @@ export default function Reports() {
 
         await loadAnalyses(emailToLoad, user.role === "admin", user.email, selectedUserPresent);
       } catch (error) {
-        await base44.auth.redirectToLogin(window.location.href);
+        window.location.href = "/login";
       }
     };
     checkAuthAndLoadData();
@@ -137,7 +134,7 @@ export default function Reports() {
   const handleExport = async (analysis) => {
     setExportingId(analysis.id);
     try {
-      const { data } = await exportReport({ analysisId: analysis.id });
+      const reportData = await api.get("/api/analyses/export");
       const blob = new Blob([Buffer.from(data.pdf, 'base64')], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

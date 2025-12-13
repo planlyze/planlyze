@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -89,7 +89,7 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await base44.auth.updateMe({ notification_preferences: preferences });
+      await api.auth.updateMe({ notification_preferences: preferences });
       toast.success(isArabic ? "تم حفظ التفضيلات" : "Preferences saved successfully");
       if (onUpdate) onUpdate(preferences);
     } catch (error) {

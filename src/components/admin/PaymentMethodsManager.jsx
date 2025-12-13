@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Image as ImageIcon } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { toast } from "sonner";
 
 export default function PaymentMethodsManager({ isArabic }) {
@@ -31,7 +31,7 @@ export default function PaymentMethodsManager({ isArabic }) {
   const loadMethods = async () => {
     setIsLoading(true);
     try {
-      const data = await base44.entities.PaymentMethod.list("sort_order");
+      const data = await PaymentMethod.list("sort_order");
       setMethods(data);
     } catch (error) {
       console.error("Error loading payment methods:", error);
@@ -70,10 +70,10 @@ export default function PaymentMethodsManager({ isArabic }) {
   const handleSave = async () => {
     try {
       if (currentMethod) {
-        await base44.entities.PaymentMethod.update(currentMethod.id, formData);
+        await PaymentMethod.update(currentMethod.id, formData);
         toast.success("Payment method updated");
       } else {
-        await base44.entities.PaymentMethod.create(formData);
+        await PaymentMethod.create(formData);
         toast.success("Payment method created");
       }
       setEditDialog(false);
@@ -87,7 +87,7 @@ export default function PaymentMethodsManager({ isArabic }) {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this payment method?")) return;
     try {
-      await base44.entities.PaymentMethod.delete(id);
+      await PaymentMethod.delete(id);
       toast.success("Payment method deleted");
       loadMethods();
     } catch (error) {

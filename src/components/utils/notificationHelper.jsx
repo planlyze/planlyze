@@ -1,14 +1,14 @@
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { logAnalysisCompleted, logAnalysisFailed, logPaymentApproved, logPaymentRejected } from "./activityHelper";
 
-const Notification = base44.entities.Notification;
+const Notification = api.Notification;
 
 /**
  * Sends an email using a template
  */
 async function sendEmail(userEmail, templateKey, variables, language = 'english') {
   try {
-    await base44.functions.invoke('sendTemplatedEmail', {
+    await api.post('sendTemplatedEmail', {
       userEmail,
       templateKey,
       variables,
@@ -61,7 +61,7 @@ export async function notifyAnalysisComplete(userEmail, analysisId, businessIdea
   });
   
   // Send email notification
-  const user = await base44.entities.User.filter({ email: userEmail });
+  const user = await User.filter({ email: userEmail });
   if (user && user.length > 0) {
     await sendEmail(userEmail, 'analysis_completed', {
       user_name: user[0].display_name || user[0].full_name || userEmail.split('@')[0],
@@ -109,7 +109,7 @@ export async function notifyLowCredits(userEmail, remainingCredits, isArabic = f
   });
 
   // Send email notification
-  const user = await base44.entities.User.filter({ email: userEmail });
+  const user = await User.filter({ email: userEmail });
   if (user && user.length > 0) {
     await sendEmail(userEmail, 'low_credits', {
       user_name: user[0].display_name || user[0].full_name || userEmail.split('@')[0],
@@ -123,7 +123,7 @@ export async function notifyLowCredits(userEmail, remainingCredits, isArabic = f
  * Notifies about credit deduction
  */
 export async function notifyCreditDeducted(userEmail, businessIdea, remainingCredits, isArabic = false) {
-  const user = await base44.entities.User.filter({ email: userEmail });
+  const user = await User.filter({ email: userEmail });
   if (user && user.length > 0) {
     await sendEmail(userEmail, 'credit_deducted', {
       user_name: user[0].display_name || user[0].full_name || userEmail.split('@')[0],
@@ -149,7 +149,7 @@ export async function notifySharedReportAccessed(ownerEmail, businessIdea, acces
   });
 
   // Send email notification
-  const user = await base44.entities.User.filter({ email: ownerEmail });
+  const user = await User.filter({ email: ownerEmail });
   if (user && user.length > 0) {
     await sendEmail(ownerEmail, 'shared_report_accessed', {
       user_name: user[0].display_name || user[0].full_name || ownerEmail.split('@')[0],
@@ -193,7 +193,7 @@ export async function notifyPaymentApproved(userEmail, credits, amount = 0, appr
   });
 
   // Send email notification
-  const user = await base44.entities.User.filter({ email: userEmail });
+  const user = await User.filter({ email: userEmail });
   if (user && user.length > 0) {
     const userLanguage = user[0].preferred_language === 'arabic' ? 'arabic' : 'english';
     await sendEmail(userEmail, 'payment_approved', {
@@ -224,7 +224,7 @@ export async function notifyPaymentRejected(userEmail, reason, amount = 0, rejec
   });
 
   // Send email notification
-  const user = await base44.entities.User.filter({ email: userEmail });
+  const user = await User.filter({ email: userEmail });
   if (user && user.length > 0) {
     const userLanguage = user[0].preferred_language === 'arabic' ? 'arabic' : 'english';
     await sendEmail(userEmail, 'payment_rejected', {

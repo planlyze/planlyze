@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -114,7 +114,7 @@ export default function GuidedTour({ user, onComplete }) {
   };
 
   const handleComplete = async () => {
-    await base44.auth.updateMe({ guided_tour_completed: true });
+    await api.auth.updateMe({ guided_tour_completed: true });
     setIsActive(false);
     if (onComplete) onComplete();
   };

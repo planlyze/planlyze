@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth } from "@/api/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -82,7 +82,11 @@ export default function OnboardingTutorial({ user, onComplete }) {
     if (currentStep < tutorialSteps.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      await base44.auth.updateMe({ onboarding_step: nextStep });
+      try {
+        await auth.updateProfile({ onboarding_step: nextStep });
+      } catch (err) {
+        console.error('Error updating onboarding step:', err);
+      }
     } else {
       await handleComplete();
     }
@@ -95,10 +99,14 @@ export default function OnboardingTutorial({ user, onComplete }) {
   };
 
   const handleComplete = async () => {
-    await base44.auth.updateMe({ 
-      onboarding_completed: true,
-      onboarding_step: tutorialSteps.length 
-    });
+    try {
+      await auth.updateProfile({ 
+        onboarding_completed: true,
+        onboarding_step: tutorialSteps.length 
+      });
+    } catch (err) {
+      console.error('Error completing onboarding:', err);
+    }
     setIsOpen(false);
     if (onComplete) onComplete();
   };

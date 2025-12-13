@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,18 +29,18 @@ export default function AuditLogs() {
   const loadLogs = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       if (user.role !== 'admin') {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view audit logs");
         return;
       }
 
-      const allLogs = await base44.entities.AuditLog.filter({}, "-created_date", 1000);
+      const allLogs = await api.AuditLog.filter({}, "-created_date", 1000);
       setLogs(allLogs);
     } catch (error) {
       console.error("Error loading logs:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }

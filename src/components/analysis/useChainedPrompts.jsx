@@ -1,8 +1,6 @@
-import { Analysis } from "@/entities/Analysis";
-import { runChainedAnalysis } from "@/functions/runChainedAnalysis";
+import { Analysis, auth, api } from "@/api/client";
 import { notifyAnalysisComplete, notifyAnalysisFailed } from "@/components/utils/notificationHelper";
 import { logAnalysisCreated } from "@/components/utils/activityHelper";
-import { base44 } from "@/api/base44Client";
 
 // Kicks off the backend chained generation and polls the Analysis to drive progress in UI.
 
@@ -50,7 +48,7 @@ export async function runChainedPrompts({
   // Get user email for notifications
   let userEmail = null;
   try {
-    const user = await base44.auth.me();
+    const user = await auth.me();
     userEmail = user?.email;
     // Log analysis created activity
     if (userEmail) {
@@ -64,7 +62,7 @@ export async function runChainedPrompts({
   try {
     // Attach catch to avoid unhandled rejection surfacing as "Network Error"
     // eslint-disable-next-line no-void
-    void runChainedAnalysis({
+    void api.post('/api/analyses/chain', {
       analysisId,
       business_idea: businessIdea,
       industry,

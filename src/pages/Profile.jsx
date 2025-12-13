@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User } from "@/entities/User";
+import { User } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

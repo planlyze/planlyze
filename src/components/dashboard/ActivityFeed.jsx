@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, AI, User } from "@/api/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,8 +8,7 @@ import {
   FileText, 
   CheckCircle2, 
   XCircle, 
-  CreditCard, 
-  User, 
+  CreditCard,   
   Clock,
   Sparkles,
   AlertCircle
@@ -70,10 +69,10 @@ export default function ActivityFeed({ userEmail, isArabic = false, limit = 10, 
       let data;
       if (showPublic) {
         // For admin or public view, get all activities
-        data = await base44.entities.ActivityFeed.list("-created_date", limit);
+        data = await api.ActivityFeed.list("-created_date", limit);
       } else {
         // For user view, get only their activities
-        data = await base44.entities.ActivityFeed.filter(
+        data = await api.ActivityFeed.filter(
           { user_email: userEmail },
           "-created_date",
           limit
