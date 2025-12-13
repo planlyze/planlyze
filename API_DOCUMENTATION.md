@@ -4,7 +4,7 @@
 
 View all available APIs with full documentation and test them directly:
 
-**URL:** http://localhost:3000/api/docs
+**URL:** http://localhost:3000/apidocs
 
 The Swagger UI provides:
 - 📋 Complete list of all endpoints
@@ -93,7 +93,7 @@ curl -X GET http://localhost:3000/api/auth/me \
 
 ## Testing with Swagger
 
-1. Visit http://localhost:3000/api/docs
+1. Visit http://localhost:3000/apidocs
 2. Click "Authorize" button
 3. Enter your JWT token (without "Bearer" prefix)
 4. Click "Authorize"
