@@ -1,9 +1,19 @@
-import { base44 } from './base44Client';
+export { 
+  Analysis,
+  Transaction,
+  CreditPackage,
+  Payment,
+  EmailTemplate,
+  PaymentMethod,
+  DiscountCode,
+  Role,
+  AuditLog,
+  ActivityFeed,
+  Notification,
+  ReportShare,
+  ChatConversation,
+  Referral,
+  User
+} from './client';
 
-
-export const Query = base44.entities.Query;
-
-
-
-// auth sdk:
-export const User = base44.auth;
+export { auth } from './client';

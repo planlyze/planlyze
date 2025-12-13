@@ -1,13 +1,50 @@
-import { createClient } from '@base44/sdk';
-import { appParams } from '@/lib/app-params';
+import { api, auth, Analysis, Transaction, CreditPackage, Payment, 
+  EmailTemplate, PaymentMethod, DiscountCode, Role, AuditLog, 
+  ActivityFeed, Notification, ReportShare, ChatConversation, 
+  Referral, User, AI, InvokeLLM } from './client';
 
-const { appId, serverUrl, token, functionsVersion } = appParams;
+export const base44 = {
+  auth: {
+    me: auth.me,
+    logout: () => {
+      auth.removeToken();
+      window.location.href = '/';
+    },
+    redirectToLogin: () => {
+      window.location.href = '/login';
+    },
+    updateMyUserData: auth.updateProfile,
+  },
+  entities: {
+    Analysis,
+    Transaction,
+    CreditPackage,
+    Payment,
+    EmailTemplate,
+    PaymentMethod,
+    DiscountCode,
+    Role,
+    AuditLog,
+    ActivityFeed,
+    Notification,
+    ReportShare,
+    ChatConversation,
+    Referral,
+    User,
+    Query: {
+      filter: async () => [],
+    }
+  },
+  integrations: {
+    Core: {
+      InvokeLLM,
+    }
+  },
+  functions: {
+    invoke: async (name, params) => {
+      return api.post(`/functions/${name}`, params);
+    }
+  }
+};
 
-//Create a client with authentication required
-export const base44 = createClient({
-  appId,
-  serverUrl,
-  token,
-  functionsVersion,
-  requiresAuth: false
-});
+export { api, auth };
