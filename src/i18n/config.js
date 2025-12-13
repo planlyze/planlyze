@@ -17,7 +17,9 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    // Default to Arabic; LanguageDetector may override if a saved preference exists
+    lng: 'ar',
+    fallbackLng: 'ar',
     debug: false,
     interpolation: {
       escapeValue: false

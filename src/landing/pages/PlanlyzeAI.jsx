@@ -34,6 +34,8 @@ import BenefitCard from "@/landing/components/planlyze/BenefitCard";
 import PricingCard from "@/landing/components/planlyze/PricingCard";
 import SEOSchema from "@/landing/components/planlyze/SEOSchema";
 import { api } from '@/api/client';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -318,18 +320,14 @@ export default function PlanlyzeAIPage() {
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <a
-                    href="https://ai.planlyze.ai"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <Link to={createPageUrl('Login')}>
                     <Button
                       size="lg"
                       className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 hover:scale-105"
                     >
                       {t.tryAiNow} <Zap className="ms-2 w-5 h-5" />
                     </Button>
-                  </a>
+                  </Link>
                 </motion.div>
               </motion.div>
 
@@ -695,18 +693,14 @@ export default function PlanlyzeAIPage() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                <a
-                  href="https://ai.planlyze.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link to={createPageUrl('Login')}>
                   <Button
                     size="lg"
                     className="bg-white hover:bg-gray-100 text-purple-600 my-5 px-4 py-2 text-lg font-semibold rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
                   >
                     {t.getStarted}
                   </Button>
-                </a>
+                </Link>
               </motion.div>
             </motion.div>
           </div>

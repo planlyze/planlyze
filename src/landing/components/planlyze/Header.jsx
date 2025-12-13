@@ -64,12 +64,12 @@ export default function Header({ t, lang, onLanguageChange, theme, onThemeChange
               onClick={() => onLanguageChange(lang === 'en' ? 'ar' : 'en')}
               className="hidden sm:flex border-purple-400 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 dark:bg-gray-800 dark:border-gray-600 dark:text-purple-400">
               {lang === 'en' ? 'العربية' : 'English'}
-            </Button>
-            <a href="https://ai.planlyze.ai" target="_blank" rel="noopener noreferrer" className="hidden sm:block">
+            </Button>            
+            <Link to={createPageUrl('Login')} className="hidden sm:block">
               <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg shadow-orange-500/40 hover:shadow-orange-500/60 transition-all duration-300 hover:scale-105">
                 {lang === 'en' ? 'Get Started' : 'ابدأ الآن'}
               </Button>
-            </a>
+            </Link>
             <Button
               variant="outline"
               size="icon"
@@ -106,11 +106,11 @@ export default function Header({ t, lang, onLanguageChange, theme, onThemeChange
                   className="w-full border-purple-400 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 px-6 py-2 rounded-full font-semibold dark:bg-gray-800 dark:border-gray-600 dark:text-purple-400">
                   {lang === 'en' ? 'العربية' : 'English'}
                 </Button>
-                <a href="https://ai.planlyze.ai" target="_blank" rel="noopener noreferrer" className="block">
+                <Link to={createPageUrl('Login')} className="block">
                   <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg shadow-orange-500/40">
                     {lang === 'en' ? 'Get Started' : 'ابدأ الآن'}
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>
