@@ -34,6 +34,23 @@ def require_admin(f):
 @entities_bp.route('/analyses', methods=['GET'])
 @require_auth
 def get_analyses(user):
+    """
+    Get all analyses for current user
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of analyses
+        schema:
+          type: array
+          items:
+            type: object
+      401:
+        description: Not authenticated
+    """
     analyses = Analysis.query.filter_by(user_email=user.email).order_by(Analysis.created_at.desc()).all()
     return jsonify([a.to_dict() for a in analyses])
 
@@ -50,6 +67,38 @@ def get_analysis(user, id):
 @entities_bp.route('/analyses', methods=['POST'])
 @require_auth
 def create_analysis(user):
+    """
+    Create a new analysis
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            business_idea:
+              type: string
+            industry:
+              type: string
+            target_market:
+              type: string
+            location:
+              type: string
+            budget:
+              type: string
+          required:
+            - business_idea
+    responses:
+      201:
+        description: Analysis created successfully
+      401:
+        description: Not authenticated
+    """
     data = request.get_json()
     analysis = Analysis(
         user_email=user.email,
@@ -124,6 +173,28 @@ def create_transaction(user):
 # Credit Package endpoints
 @entities_bp.route('/credit-packages', methods=['GET'])
 def get_credit_packages():
+    """
+    Get all available credit packages
+    ---
+    tags:
+      - Credit Packages
+    responses:
+      200:
+        description: List of available credit packages
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              credits:
+                type: integer
+              price_usd:
+                type: number
+    """
     packages = CreditPackage.query.filter_by(is_active=True).all()
     return jsonify([p.to_dict() for p in packages])
 
@@ -172,6 +243,23 @@ def delete_credit_package(user, id):
 @entities_bp.route('/payments', methods=['GET'])
 @require_auth
 def get_payments(user):
+    """
+    Get all payments for current user (or all if admin)
+    ---
+    tags:
+      - Payments
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of payments
+        schema:
+          type: array
+          items:
+            type: object
+      401:
+        description: Not authenticated
+    """
     if user.role == 'admin':
         payments = Payment.query.order_by(Payment.created_at.desc()).all()
     else:
@@ -423,6 +511,23 @@ def create_activity(user):
 @entities_bp.route('/notifications', methods=['GET'])
 @require_auth
 def get_notifications(user):
+    """
+    Get all notifications for current user
+    ---
+    tags:
+      - Notifications
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of notifications
+        schema:
+          type: array
+          items:
+            type: object
+      401:
+        description: Not authenticated
+    """
     notifications = Notification.query.filter_by(user_email=user.email).order_by(Notification.created_at.desc()).all()
     return jsonify([n.to_dict() for n in notifications])
 
@@ -457,6 +562,19 @@ def mark_notification_read(user, id):
 @entities_bp.route('/notifications/mark-all-read', methods=['POST'])
 @require_auth
 def mark_all_notifications_read(user):
+    """
+    Mark all notifications as read
+    ---
+    tags:
+      - Notifications
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: All notifications marked as read
+      401:
+        description: Not authenticated
+    """
     Notification.query.filter_by(user_email=user.email, is_read=False).update({'is_read': True})
     db.session.commit()
     return jsonify({'message': 'All notifications marked as read'})
@@ -596,6 +714,21 @@ def apply_referral(user):
 @entities_bp.route('/users', methods=['GET'])
 @require_admin
 def get_users(user):
+    """
+    Get all users (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of all users
+      401:
+        description: Not authenticated
+      403:
+        description: Admin access required
+    """
     users = User.query.order_by(User.created_at.desc()).all()
     return jsonify([u.to_dict() for u in users])
 

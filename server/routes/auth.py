@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from server.models import db, User
+from server.utils.translations import get_message
 import bcrypt
 import jwt
 import os
@@ -46,18 +47,56 @@ def get_current_user():
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    """
+    Register a new user
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: user@example.com
+            password:
+              type: string
+              example: securepassword123
+            full_name:
+              type: string
+              example: John Doe
+          required:
+            - email
+            - password
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+        description: Language code (en or ar)
+    responses:
+      201:
+        description: User registered successfully
+      400:
+        description: Invalid input or user already exists
+    """
     data = request.get_json()
+    lang = request.headers.get('Accept-Language', 'en')
     
     email = data.get('email')
     password = data.get('password')
     full_name = data.get('full_name', '')
     
     if not email or not password:
-        return jsonify({'error': 'Email and password are required'}), 400
+        return jsonify({
+            'error': get_message('auth.email_required' if not email else 'auth.password_required', lang)
+        }), 400
     
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
-        return jsonify({'error': 'Email already registered'}), 400
+        return jsonify({'error': get_message('auth.user_exists', lang)}), 400
     
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
@@ -66,7 +105,8 @@ def register():
         password_hash=password_hash,
         full_name=full_name,
         referral_code=generate_referral_code(),
-        credits=3  # Initial free credits
+        credits=3,  # Initial free credits
+        language=lang
     )
     
     db.session.add(user)
@@ -75,26 +115,60 @@ def register():
     token = create_token(user.id, user.email)
     
     return jsonify({
+        'message': get_message('auth.register_success', lang),
         'token': token,
         'user': user.to_dict()
     }), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    User login
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: user@example.com
+            password:
+              type: string
+              example: securepassword123
+          required:
+            - email
+            - password
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+        description: Language code (en or ar)
+    responses:
+      200:
+        description: Login successful
+      401:
+        description: Invalid credentials or account deactivated
+    """
     data = request.get_json()
+    lang = request.headers.get('Accept-Language', 'en')
     
     email = data.get('email')
     password = data.get('password')
     
     if not email or not password:
-        return jsonify({'error': 'Email and password are required'}), 400
+        return jsonify({'error': get_message('auth.email_required' if not email else 'auth.password_required', lang)}), 400
     
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({'error': 'Invalid email or password'}), 401
+        return jsonify({'error': get_message('auth.invalid_credentials', lang)}), 401
     
     if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
-        return jsonify({'error': 'Invalid email or password'}), 401
+        return jsonify({'error': get_message('auth.invalid_credentials', lang)}), 401
     
     if not user.is_active:
         return jsonify({'error': 'Account is deactivated'}), 401
@@ -102,12 +176,26 @@ def login():
     token = create_token(user.id, user.email)
     
     return jsonify({
+        'message': get_message('auth.login_success', lang),
         'token': token,
         'user': user.to_dict()
     })
 
 @auth_bp.route('/me', methods=['GET'])
 def get_me():
+    """
+    Get current user profile
+    ---
+    tags:
+      - Authentication
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: User profile retrieved successfully
+      401:
+        description: Not authenticated
+    """
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -116,6 +204,33 @@ def get_me():
 
 @auth_bp.route('/me', methods=['PUT'])
 def update_me():
+    """
+    Update current user profile
+    ---
+    tags:
+      - Authentication
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            full_name:
+              type: string
+            language:
+              type: string
+              enum: [en, ar]
+            profile_image:
+              type: string
+    responses:
+      200:
+        description: User profile updated successfully
+      401:
+        description: Not authenticated
+    """
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -135,9 +250,44 @@ def update_me():
 
 @auth_bp.route('/change-password', methods=['POST'])
 def change_password():
+    """
+    Change user password
+    ---
+    tags:
+      - Authentication
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            current_password:
+              type: string
+            new_password:
+              type: string
+          required:
+            - current_password
+            - new_password
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Password changed successfully
+      400:
+        description: Missing required fields
+      401:
+        description: Invalid current password or not authenticated
+    """
     user = get_current_user()
+    lang = request.headers.get('Accept-Language', 'en')
+    
     if not user:
-        return jsonify({'error': 'Not authenticated'}), 401
+        return jsonify({'error': get_message('auth.not_authenticated', lang)}), 401
     
     data = request.get_json()
     current_password = data.get('current_password')
@@ -152,8 +302,19 @@ def change_password():
     user.password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     db.session.commit()
     
-    return jsonify({'message': 'Password changed successfully'})
+    return jsonify({'message': get_message('auth.password_changed', lang)})
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
+    """
+    User logout
+    ---
+    tags:
+      - Authentication
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Logged out successfully
+    """
     return jsonify({'message': 'Logged out successfully'})

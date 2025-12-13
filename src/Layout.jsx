@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { createPageUrl } from "@/utils";
 import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -145,6 +146,7 @@ const adminNavigationItems = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
   const { user: authUser, isAuthenticated, logout: authLogout, updateMyUserData } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
   const [navigationItems, setNavigationItems] = useState([]);
@@ -197,6 +199,10 @@ export default function Layout({ children, currentPageName }) {
     try {
       await updateMyUserData({ language: next });
       setCurrentUser((prev) => prev ? { ...prev, language: next } : prev);
+      i18n.changeLanguage(next);
+      document.documentElement.lang = next;
+      document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('language', next);
       const isAdmin = currentUser?.role === 'admin';
       setNavigationItems(buildNavigationItems(isAdmin, next === 'ar'));
     } catch (error) {
@@ -208,15 +214,20 @@ export default function Layout({ children, currentPageName }) {
     if (authUser) {
       setCurrentUser(authUser);
       setIsLoggedIn(true);
+      const lang = authUser.language || 'en';
+      i18n.changeLanguage(lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('language', lang);
       const isAdmin = authUser.role === 'admin';
-      setNavigationItems(buildNavigationItems(isAdmin, authUser.language === 'ar'));
+      setNavigationItems(buildNavigationItems(isAdmin, lang === 'ar'));
       setNewDisplayName(authUser?.full_name || '');
     } else if (isAuthenticated === false) {
       setCurrentUser(null);
       setIsLoggedIn(false);
       setNavigationItems(buildNavigationItems(false, false));
     }
-  }, [authUser, isAuthenticated]);
+  }, [authUser, isAuthenticated, i18n]);
 
   const handleSaveDisplayName = async () => {
     setIsSavingDisplayName(true);

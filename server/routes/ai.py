@@ -28,6 +28,37 @@ DEFAULT_MODEL = "claude-sonnet-4-20250514"
 @ai_bp.route('/generate-analysis', methods=['POST'])
 @require_auth
 def generate_analysis(user):
+    """
+    Generate AI analysis for a business idea
+    ---
+    tags:
+      - AI Analysis
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            analysis_id:
+              type: string
+              description: ID of the analysis to generate report for
+          required:
+            - analysis_id
+    responses:
+      200:
+        description: Analysis generated successfully
+      402:
+        description: Insufficient credits
+      403:
+        description: Access denied
+      404:
+        description: Analysis not found
+      500:
+        description: AI service not configured
+    """
     if user.credits < 1:
         return jsonify({'error': 'Insufficient credits'}), 402
     
@@ -142,6 +173,46 @@ Return ONLY the JSON object, no additional text."""
 @ai_bp.route('/chat', methods=['POST'])
 @require_auth
 def chat(user):
+    """
+    Chat with AI assistant about business analysis
+    ---
+    tags:
+      - AI Chat
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: User message
+            conversation_id:
+              type: string
+              description: Existing conversation ID (optional)
+            analysis_id:
+              type: string
+              description: Analysis ID for context (optional)
+          required:
+            - message
+    responses:
+      200:
+        description: Chat response received
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+            conversation_id:
+              type: string
+      403:
+        description: Access denied
+      500:
+        description: AI service not configured
+    """
     client = get_anthropic_client()
     if not client:
         return jsonify({'error': 'AI service not configured'}), 500
@@ -219,6 +290,45 @@ Be concise but helpful. If the user asks about their specific analysis, referenc
 @ai_bp.route('/invoke-llm', methods=['POST'])
 @require_auth
 def invoke_llm(user):
+    """
+    Invoke Claude AI model directly with custom prompt
+    ---
+    tags:
+      - AI Chat
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            prompt:
+              type: string
+              description: The prompt to send to Claude
+            system:
+              type: string
+              description: Optional system message
+            max_tokens:
+              type: integer
+              default: 2048
+              description: Maximum tokens in response
+          required:
+            - prompt
+    responses:
+      200:
+        description: LLM response
+        schema:
+          type: object
+          properties:
+            response:
+              type: string
+      400:
+        description: Prompt is required
+      500:
+        description: AI service not configured
+    """
     client = get_anthropic_client()
     if not client:
         return jsonify({'error': 'AI service not configured'}), 500

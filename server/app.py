@@ -4,6 +4,7 @@ Flask application factory and initialization.
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flasgger import Swagger
 from .models import db
 from server.config import get_config
 from server.exceptions import APIException
@@ -29,6 +30,21 @@ def create_app(config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
     
+    # Initialize Swagger for API documentation
+    swagger = Swagger(app, template={
+        "swagger": "2.0",
+        "info": {
+            "title": "Planlyze API",
+            "description": "Professional Business Analysis Platform API",
+            "version": "1.0.0",
+            "contact": {
+                "name": "Planlyze Support"
+            }
+        },
+        "schemes": ["http", "https"],
+        "basePath": "/api"
+    })
+    
     # Setup CORS
     CORS(app, origins=app.config['CORS_ORIGINS'], resources={
         r"/api/*": {
@@ -47,6 +63,18 @@ def create_app(config=None):
     # Health check endpoint
     @app.route('/api/health', methods=['GET'])
     def health():
+        """
+        Health check endpoint
+        ---
+        responses:
+          200:
+            description: Server is healthy
+            schema:
+              properties:
+                status:
+                  type: string
+                  example: healthy
+        """
         return APIResponse.success({'status': 'healthy'}, message='Server is running')
     
     # Create database tables if they don't exist
@@ -55,6 +83,22 @@ def create_app(config=None):
         logger.info("Database initialized")
     
     logger.info(f"Application created with {app.config.get('FLASK_ENV', 'development')} configuration")
+    logger.info(f"Swagger UI available at http://localhost:3000/api/apidocs")
+    
+    return app
+    
+    # Health check endpoint
+    @app.route('/api/health', methods=['GET'])
+    def health():
+        return APIResponse.success({'status': 'healthy'}, message='Server is running')
+    
+    # Create database tables if they don't exist
+    with app.app_context():
+        db.create_all()
+        logger.info("Database initialized")
+    
+    logger.info(f"Application created with {app.config.get('FLASK_ENV', 'development')} configuration")
+    logger.info(f"Swagger UI available at http://localhost:3000/api/docs")
     
     return app
 

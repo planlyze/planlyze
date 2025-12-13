@@ -2,6 +2,9 @@
 module.exports = {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+    corePlugins: {
+      direction: true,
+    },
   theme: {
   	extend: {
   		borderRadius: {
