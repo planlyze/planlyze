@@ -38,13 +38,13 @@ export default function Dashboard() {
   const loadAnalyses = async (userEmail) => {
     setIsLoading(true);
     try {
-      const data = await Analysis.filter({ created_by: userEmail }, "-created_date");
+      const data = await Analysis.filter({ user_email: userEmail });
       // Exclude soft-deleted reports
       setAnalyses(data.filter(a => a.is_deleted !== true));
       
       // Load recent transactions
-      const txs = await Transaction.filter({ user_email: userEmail }, "-created_date", 5);
-      setTransactions(txs);
+      const txs = await Transaction.filter({ user_email: userEmail });
+      setTransactions(txs.slice(0, 5));
     } catch (error) {
       console.error("Error loading analyses:", error);
     } finally {
@@ -77,7 +77,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
-      {/* Onboarding removed */}
       <div className="max-w-7xl mx-auto space-y-8">
         <div className={`${isArabic ? 'text-right' : 'text-left'} space-y-3`}>
           <div className="inline-block">
@@ -99,10 +98,6 @@ export default function Dashboard() {
             isArabic={isArabic}
           />
         </div>
-
-        {/* Proactive suggestions and onboarding UI removed */}
-
-
 
         {/* Recent Transactions and Analyses */}
         <div className="grid lg:grid-cols-2 gap-8">
