@@ -4,10 +4,12 @@ import { initReactI18next } from 'react-i18next';
 
 import en from '../locales/en.json';
 import ar from '../locales/ar.json';
+import landingEn from '../locales/landing.en.json';
+import landingAr from '../locales/landing.ar.json';
 
 const resources = {
-  en: { translation: en },
-  ar: { translation: ar }
+  en: { translation: en, landing: landingEn },
+  ar: { translation: ar, landing: landingAr }
 };
 
 i18n

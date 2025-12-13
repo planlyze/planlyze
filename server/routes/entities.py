@@ -7,6 +7,8 @@ from server.models import (
 from server.routes.auth import get_current_user
 from datetime import datetime
 import uuid
+import os
+import requests
 
 entities_bp = Blueprint('entities', __name__)
 
@@ -63,6 +65,58 @@ def get_analysis(user, id):
     if analysis.user_email != user.email and user.role != 'admin':
         return jsonify({'error': 'Access denied'}), 403
     return jsonify(analysis.to_dict())
+
+
+# Public contact endpoint for landing page contact form
+@entities_bp.route('/contact', methods=['POST'])
+def contact_public():
+    try:
+        data = request.get_json() or {}
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
+
+        if not name or not email or not message:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
+        if not zepto_api_key:
+            return jsonify({'error': 'Email provider not configured'}), 500
+
+        payload = {
+            'from': {
+                'address': os.environ.get('SMTP_FROM_EMAIL', 'info@planlyze.com'),
+                'name': os.environ.get('SMTP_FROM_NAME', 'Planlyze Contact Form')
+            },
+            'to': [
+                {
+                    'email_address': {
+                        'address': os.environ.get('CONTACT_RECEIVER_EMAIL', 'info@planlyze.com'),
+                        'name': os.environ.get('CONTACT_RECEIVER_NAME', 'Planlyze Team')
+                    }
+                }
+            ],
+            'subject': f'Contact from {name}',
+            'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace('\n','<br/>')}</p>",
+            'textbody': f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+        }
+
+        headers = {
+            'Authorization': zepto_api_key,
+            'Content-Type': 'application/json'
+        }
+
+        resp = requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
+        if not resp.ok:
+            try:
+                err_text = resp.text
+            except Exception:
+                err_text = 'unknown error'
+            return jsonify({'error': 'Failed to send email', 'details': err_text}), 500
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @entities_bp.route('/analyses', methods=['POST'])
 @require_auth

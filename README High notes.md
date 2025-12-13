@@ -13,7 +13,7 @@ source venv/bin/activate
 FLASK_APP=server.app:create_app python -m flask run --port 3000
 
 # Create migration
-FLASK_APP=server.app:create_app python -m flask db migrate -m "remove onboarding"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "add contact us"
 
 # Apply migration
 FLASK_APP=server.app:create_app python -m flask db upgrade
@@ -45,7 +45,7 @@ Database schema is managed with Alembic:
 
 ```bash
 # Create a migration
-FLASK_APP=server.app:create_app python -m flask db migrate -m "description"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "add contact us"
 
 # Apply migrations
 FLASK_APP=server.app:create_app python -m flask db upgrade

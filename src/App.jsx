@@ -8,6 +8,9 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
+import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
+import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -29,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/Login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -76,12 +79,33 @@ const AuthenticatedApp = () => {
           <Register />
         </PublicRoute>
       } />
+      {/* Public legal / info pages */}
+      <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
+      <Route path="/IdeaSecurity" element={<IdeaSecurityPage />} />
       <Route path="/" element={
-        <ProtectedRoute>
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
-          </LayoutWrapper>
-        </ProtectedRoute>
+        (() => {
+          // If user is authenticated show main protected page, otherwise show landing
+          const AuthSwitch = () => {
+            const { isAuthenticated, isLoadingAuth } = useAuth();
+            if (isLoadingAuth) return (
+              <div className="fixed inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+              </div>
+            );
+            if (isAuthenticated) {
+              return (
+                <ProtectedRoute>
+                  <LayoutWrapper currentPageName={mainPageKey}>
+                    <MainPage />
+                  </LayoutWrapper>
+                </ProtectedRoute>
+              );
+            }
+            return <PlanlyzeAIPage />;
+          };
+
+          return <AuthSwitch />
+        })()
       } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route 
