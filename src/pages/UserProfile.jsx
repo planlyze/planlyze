@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User } from "@/entities/User";
-import { Analysis } from "@/entities/Analysis";
+import { User, Analysis, auth } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ArrowLeft, User as UserIcon, Mail, Shield, Phone, MapPin, Calendar, FileText } from "lucide-react";
-import { listAllUsersAdmin } from "@/functions/listAllUsersAdmin";
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -33,7 +31,7 @@ export default function UserProfile() {
         }
 
         // Fetch the user by email using admin function
-        const usersResp = await listAllUsersAdmin({ limit: 1000 });
+        const usersResp = await User.list();
         const usersData = usersResp?.data || usersResp;
         const allUsers = usersData?.items || [];
         const u = allUsers.find(usr => usr.email === email);

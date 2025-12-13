@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,7 @@ export default function SharedReport() {
     setIsLoading(true);
     try {
       // Use backend function to load shared report (bypasses RLS)
-      const { data } = await base44.functions.invoke('getSharedReport', { token });
+      const { data } = await api.post('getSharedReport', { token });
 
       if (!data.share || !data.analysis) {
         setError("not_found");

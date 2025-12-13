@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, ArrowLeft, Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2 } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
-import { base44 } from "@/api/base44Client";
+import { auth, AI } from "@/api/client";
 import { motion } from "framer-motion";
 
 
@@ -72,7 +72,7 @@ export default function AnalysisWizard({ onSubmit }) {
         setAiSuggestions(prev => ({ ...prev, loading: true }));
         
         try {
-          const response = await base44.integrations.Core.InvokeLLM({
+          const response = await AI.invoke({
             prompt: `Based on this business idea: "${formData.business_idea}"
             
 Suggest 3 most relevant industries from this list: ${WIZARD_INDUSTRIES.map(i => i.value).join(', ')}

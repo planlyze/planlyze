@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Analysis } from "@/entities/Analysis";
-import { Transaction } from "@/entities/Transaction";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -12,10 +10,6 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import OnboardingTutorial from "../components/onboarding/OnboardingTutorial";
-import OnboardingChecklist from "../components/onboarding/OnboardingChecklist";
-import GuidedTour from "../components/onboarding/GuidedTour";
-import ProactiveSuggestions from "../components/onboarding/ProactiveSuggestions";
 
 
 
@@ -29,13 +23,13 @@ export default function Dashboard() {
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
-        const user = await base44.auth.me();
+        const user = await auth.me();
         setCurrentUser(user);
         await loadAnalyses(user.email);
       } catch (error) {
         // Instead of navigating to a LandingPage, initiate a login redirect.
         // This implies the user is not authenticated and needs to log in.
-        await base44.auth.redirectToLogin(window.location.href);
+        window.location.href = "/login";
       }
     };
     checkAuthAndLoadData();
@@ -44,13 +38,13 @@ export default function Dashboard() {
   const loadAnalyses = async (userEmail) => {
     setIsLoading(true);
     try {
-      const data = await Analysis.filter({ created_by: userEmail }, "-created_date");
+      const data = await Analysis.filter({ user_email: userEmail });
       // Exclude soft-deleted reports
       setAnalyses(data.filter(a => a.is_deleted !== true));
       
       // Load recent transactions
-      const txs = await Transaction.filter({ user_email: userEmail }, "-created_date", 5);
-      setTransactions(txs);
+      const txs = await Transaction.filter({ user_email: userEmail });
+      setTransactions(txs.slice(0, 5));
     } catch (error) {
       console.error("Error loading analyses:", error);
     } finally {
@@ -80,12 +74,9 @@ export default function Dashboard() {
   const inProgressAnalyses = analyses.filter(a => a.status === 'analyzing').length;
 
   const isArabic = currentUser?.preferred_language === 'arabic';
-  const showOnboarding = currentUser && !currentUser.onboarding_completed;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
-      <OnboardingTutorial user={currentUser} onComplete={() => loadAnalyses(currentUser.email)} />
-      <GuidedTour user={currentUser} onComplete={() => loadAnalyses(currentUser.email)} />
       <div className="max-w-7xl mx-auto space-y-8">
         <div className={`${isArabic ? 'text-right' : 'text-left'} space-y-3`}>
           <div className="inline-block">
@@ -107,16 +98,6 @@ export default function Dashboard() {
             isArabic={isArabic}
           />
         </div>
-
-        {/* Proactive Suggestions */}
-        <ProactiveSuggestions user={currentUser} analyses={analyses} />
-
-        {/* Onboarding Checklist */}
-        {showOnboarding && (
-          <OnboardingChecklist user={currentUser} />
-        )}
-
-
 
         {/* Recent Transactions and Analyses */}
         <div className="grid lg:grid-cols-2 gap-8">

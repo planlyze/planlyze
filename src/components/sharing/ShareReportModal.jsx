@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 
-const ReportShare = base44.entities.ReportShare;
+const ReportShare = api.ReportShare;
 
 export default function ShareReportModal({ 
   isOpen, 

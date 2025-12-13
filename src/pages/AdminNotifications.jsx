@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,7 @@ export default function AdminNotifications() {
 
   const loadData = async () => {
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
       if (user.role !== 'admin') {
@@ -35,7 +35,7 @@ export default function AdminNotifications() {
         return;
       }
 
-      const allUsers = await base44.asServiceRole.entities.User.filter({});
+      const allUsers = await api.asServiceRole.entities.User.filter({});
       setUsers(allUsers);
     } catch (error) {
       console.error("Error loading data:", error);
@@ -65,7 +65,7 @@ export default function AdminNotifications() {
       for (const email of recipients) {
         try {
           // Send in-app notification
-          await base44.asServiceRole.entities.Notification.create({
+          await api.asServiceRole.entities.Notification.create({
             user_email: email,
             type: "system",
             title: subject,
@@ -75,7 +75,7 @@ export default function AdminNotifications() {
 
           // Send email notification
           const userObj = users.find(u => u.email === email);
-          await base44.functions.invoke('sendTemplatedEmail', {
+          await api.post('sendTemplatedEmail', {
             userEmail: email,
             templateKey: "admin_custom",
             variables: {

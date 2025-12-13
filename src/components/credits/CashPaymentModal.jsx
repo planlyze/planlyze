@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, CheckCircle2, Info, Wallet, Image as ImageIcon, Clock, X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { toast } from "sonner";
 import { logPaymentSubmitted } from "@/components/utils/activityHelper";
 
@@ -30,7 +30,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
   const loadPaymentMethods = async () => {
     try {
-      const methods = await base44.entities.PaymentMethod.filter({ is_active: true }, "sort_order");
+      const methods = await PaymentMethod.filter({ is_active: true }, "sort_order");
       setPaymentMethods(methods);
       if (methods.length > 0) {
         setSelectedMethod(methods[0]);
@@ -56,7 +56,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
     setIsValidating(true);
     try {
-      const discounts = await base44.entities.DiscountCode.filter({ 
+      const discounts = await api.DiscountCode.filter({ 
         code: discountCode.toUpperCase(),
         is_active: true 
       });
@@ -131,7 +131,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
     setIsUploading(true);
     try {
       // Upload invoice image
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: invoiceFile });
+      const { file_url } = await api.integrations.Core.UploadFile({ file: invoiceFile });
       setUploadedUrl(file_url);
 
       // Generate unique payment ID
@@ -142,7 +142,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
       const finalAmount = calculateFinalAmount();
       
       // Create payment record
-      await base44.entities.Payment.create({
+      await Payment.create({
         unique_id: uniqueId,
         user_email: userEmail,
         package_id: selectedPackage.package_id,
@@ -157,7 +157,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
       // Increment discount usage
       if (appliedDiscount) {
-        await base44.entities.DiscountCode.update(appliedDiscount.id, {
+        await api.DiscountCode.update(appliedDiscount.id, {
           times_used: (appliedDiscount.times_used || 0) + 1
         });
       }

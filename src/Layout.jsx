@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { createPageUrl } from "@/utils";
 import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
-import { User } from "@/entities/User";
+import { User } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
-import { base44 } from "@/api/base44Client";
 
 import {
   Sidebar,
@@ -145,22 +146,22 @@ const adminNavigationItems = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
+  const { user: authUser, isAuthenticated, logout: authLogout, updateMyUserData } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
-  const [navigationItems, setNavigationItems] = useState([]); // Initialize as empty, will be set in useEffect
-  const [isLoggedIn, setIsLoggedIn] = useState(null); // null: loading, true: logged in, false: not logged in
+  const [navigationItems, setNavigationItems] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
-  // State for display name editing
   const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isSavingDisplayName, setIsSavingDisplayName] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
-  // One-time profile prompt state
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [profilePromptAcked, setProfilePromptAcked] = useState(false);
   const [isAckingProfilePrompt, setIsAckingProfilePrompt] = useState(false);
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = currentUser?.language === 'ar';
 
   // Helper: build localized nav items
   const buildNavigationItems = (isAdmin, isArabicLang) => {
@@ -194,60 +195,45 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const toggleLanguage = async () => {
-    const next = isArabic ? 'english' : 'arabic';
-    await User.updateMyUserData({ preferred_language: next });
-    setCurrentUser((prev) => prev ? { ...prev, preferred_language: next } : prev);
-    // Recompute navigation with new language
-    const isAdmin = currentUser?.role === 'admin';
-    setNavigationItems(buildNavigationItems(isAdmin, next === 'arabic'));
+    const next = isArabic ? 'en' : 'ar';
+    try {
+      await updateMyUserData({ language: next });
+      setCurrentUser((prev) => prev ? { ...prev, language: next } : prev);
+      i18n.changeLanguage(next);
+      document.documentElement.lang = next;
+      document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('language', next);
+      const isAdmin = currentUser?.role === 'admin';
+      setNavigationItems(buildNavigationItems(isAdmin, next === 'ar'));
+    } catch (error) {
+      console.error('Failed to update language:', error);
+    }
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await User.me();
-        setCurrentUser(user);
-        setIsLoggedIn(true);
-        const isAdmin = user.role === 'admin';
-        setNavigationItems(buildNavigationItems(isAdmin, user.preferred_language === 'arabic'));
-        // Initialize newDisplayName when user is fetched
-        setNewDisplayName(user?.display_name || user?.full_name || '');
+    if (authUser) {
+      setCurrentUser(authUser);
+      setIsLoggedIn(true);
+      const lang = authUser.language || 'en';
+      i18n.changeLanguage(lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('language', lang);
+      const isAdmin = authUser.role === 'admin';
+      setNavigationItems(buildNavigationItems(isAdmin, lang === 'ar'));
+      setNewDisplayName(authUser?.full_name || '');
+    } else if (isAuthenticated === false) {
+      setCurrentUser(null);
+      setIsLoggedIn(false);
+      setNavigationItems(buildNavigationItems(false, false));
+    }
+  }, [authUser, isAuthenticated, i18n]);
 
-        // Update last_login once per session
-        if (typeof window !== 'undefined' && !sessionStorage.getItem('pll_last_login_updated')) {
-          await User.updateMyUserData({ last_login: new Date().toISOString() });
-          sessionStorage.setItem('pll_last_login_updated', '1');
-        }
-
-        // Show one-time "Complete Profile" prompt if important fields are missing and not shown before
-        const needsProfile =
-          !user?.phone_number || !user?.country || !user?.city;
-        if (needsProfile && user?.profile_prompt_shown !== true) {
-          setShowProfilePrompt(true);
-        }
-
-
-
-        // Removed: One-time WhatsApp connect prompt per session
-
-        // Removed: SMTP welcome email sending
-
-      } catch (e) {
-        setCurrentUser(null);
-        setIsLoggedIn(false);
-        // Default to English, non-admin navigation if user not logged in
-        setNavigationItems(buildNavigationItems(false, false));
-      }
-    };
-    fetchUser();
-  }, [location.pathname]); // Re-fetch user on route change, useful for login/logout flow
-
-  // Handle display name save
   const handleSaveDisplayName = async () => {
     setIsSavingDisplayName(true);
     try {
-      await User.updateMyUserData({ display_name: newDisplayName });
-      setCurrentUser((prev) => prev ? { ...prev, display_name: newDisplayName } : prev);
+      await updateMyUserData({ full_name: newDisplayName });
+      setCurrentUser((prev) => prev ? { ...prev, full_name: newDisplayName } : prev);
       toast.success('Display name updated successfully!');
       setIsEditingDisplayName(false);
     } catch (error) {
@@ -258,17 +244,13 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Acknowledge the one-time profile prompt and optionally redirect
   const acknowledgeProfilePrompt = async (redirect = false) => {
-    if (profilePromptAcked) return; // Prevent multiple acknowledgements
+    if (profilePromptAcked) return;
     setIsAckingProfilePrompt(true);
     try {
-      await User.updateMyUserData({ profile_prompt_shown: true });
-      setCurrentUser((prev) => prev ? { ...prev, profile_prompt_shown: true } : prev);
       setProfilePromptAcked(true);
       setShowProfilePrompt(false);
       if (redirect) {
-        // navigate to Profile page
         const url = createPageUrl("Profile");
         if (location.pathname !== url) {
           navigate(url);
@@ -276,20 +258,17 @@ export default function Layout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error("Failed to acknowledge profile prompt:", error);
-      toast.error("Failed to update profile settings. Please try again.");
     } finally {
       setIsAckingProfilePrompt(false);
     }
   };
 
   const handleLogout = async () => {
-    // This function is now called only after confirmation
-    await User.logout();
+    await authLogout(false);
     setCurrentUser(null);
     setIsLoggedIn(false);
-    setIsLogoutConfirmOpen(false); // Close the dialog
-    // Redirect to external site after logout
-    window.location.href = "https://planlyze.ai/PlanlyzeAI/";
+    setIsLogoutConfirmOpen(false);
+    navigate('/Login');
   };
 
   // Initial loading state before we know if user is logged in

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,22 +29,22 @@ export default function UserRoleAssignment() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       if (user.role !== 'admin') {
         navigate(createPageUrl("Dashboard"));
         return;
       }
 
       const [usersData, rolesData] = await Promise.all([
-        base44.entities.User.filter({}, "-created_date"),
-        base44.entities.Role.filter({ is_active: true }, "name")
+        User.filter({}, "-created_date"),
+        api.Role.filter({ is_active: true }, "name")
       ]);
 
       setUsers(usersData);
       setRoles(rolesData);
     } catch (error) {
       console.error("Error loading data:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -55,13 +55,13 @@ export default function UserRoleAssignment() {
     try {
       const selectedRole = roles.find(r => r.id === roleId);
       
-      await base44.entities.User.update(userId, {
+      await User.update(userId, {
         custom_role_id: roleId || null,
         permissions: selectedRole?.permissions || []
       });
 
       // Log role assignment
-      const currentAdmin = await base44.auth.me();
+      const currentAdmin = await auth.me();
       const targetUser = users.find(u => u.id === userId);
       await auditLogger.logRoleAssignment(
         currentAdmin.email,

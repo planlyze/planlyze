@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
-import { Analysis } from "@/entities/Analysis";
-import { ChatConversation } from "@/entities/ChatConversation";
+import { auth, AI, Analysis, ChatConversation } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,30 +41,30 @@ export default function AIAssistant() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
 
-      const userAnalyses = await Analysis.filter({ created_by: user.email }, "-created_date");
-      const activeAnalyses = userAnalyses.filter(a => a.status === 'completed' && a.is_deleted !== true && a.is_premium === true);
+      const userAnalyses = await Analysis.filter({ user_email: user.email });
+      const activeAnalyses = userAnalyses.filter(a => a.status === 'completed');
       setAnalyses(activeAnalyses);
 
       // Load chat history
-      const userConversations = await ChatConversation.filter({ user_email: user.email }, "-updated_date");
+      const userConversations = await ChatConversation.filter({ user_email: user.email });
       setConversations(userConversations);
 
-      // Welcome message only if there are premium reports
+      // Welcome message only if there are analyses
       if (activeAnalyses.length > 0) {
         setMessages([{
           role: 'assistant',
-          content: user.preferred_language === 'arabic'
-            ? `مرحباً! أنا مساعدك الذكي لتحليل الأعمال المتميزة. لدي إمكانية الوصول إلى ${activeAnalyses.length} تحليل(ات) متميزة مكتملة. يمكنني مساعدتك في:\n\n✨ فهم تقارير التحليل المتميزة\n📊 الإجابة على أسئلة حول بياناتك\n🎯 اقتراح استراتيجيات التحسين\n⚠️ تحديد المخاطر والفرص\n\nكيف يمكنني مساعدتك اليوم؟`
-            : `Hello! I'm your AI business analysis assistant for premium reports. I have access to ${activeAnalyses.length} completed premium analysis report(s). I can help you:\n\n✨ Understand your premium analysis reports\n📊 Answer specific questions about your data\n🎯 Suggest optimization strategies\n⚠️ Identify potential risks and opportunities\n\nHow can I help you today?`,
+          content: user.language === 'ar'
+            ? `مرحباً! أنا مساعدك الذكي لتحليل الأعمال. لدي إمكانية الوصول إلى ${activeAnalyses.length} تحليل(ات) مكتملة. يمكنني مساعدتك في:\n\n✨ فهم تقارير التحليل\n📊 الإجابة على أسئلة حول بياناتك\n🎯 اقتراح استراتيجيات التحسين\n⚠️ تحديد المخاطر والفرص\n\nكيف يمكنني مساعدتك اليوم؟`
+            : `Hello! I'm your AI business analysis assistant. I have access to ${activeAnalyses.length} completed analysis report(s). I can help you:\n\n✨ Understand your analysis reports\n📊 Answer specific questions about your data\n🎯 Suggest optimization strategies\n⚠️ Identify potential risks and opportunities\n\nHow can I help you today?`,
           timestamp: new Date().toISOString()
         }]);
       }
     } catch (error) {
       console.error("Error loading data:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = '/login';
     } finally {
       setIsLoading(false);
     }
@@ -151,10 +149,7 @@ When answering:
 - Be encouraging but realistic
 - Format responses with clear structure using markdown`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `${systemPrompt}\n\nUser Question: ${userMessage.content}`,
-        add_context_from_internet: false
-      });
+      const response = await AI.invoke(userMessage.content, systemPrompt);
 
       const assistantMessage = {
         role: 'assistant',

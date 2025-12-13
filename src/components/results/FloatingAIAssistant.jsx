@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
-import { ChatConversation } from "@/entities/ChatConversation";
-import { Analysis } from "@/entities/Analysis";
+import { auth, api, Analysis, Payment, User, AI, ChatConversation } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,7 +109,7 @@ When answering:
 - Use clear structure with markdown formatting
 - Be encouraging and constructive`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await AI.invoke({
         prompt: `${systemPrompt}\n\nUser Question: ${userMessage.content}`,
         add_context_from_internet: false
       });
@@ -144,7 +142,7 @@ When answering:
 
   const saveConversation = async (updatedMessages) => {
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       const title = `Report Chat: ${analysis.business_idea.substring(0, 40)}...`;
       
       if (conversationId) {

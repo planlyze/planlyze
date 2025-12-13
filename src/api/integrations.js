@@ -1,24 +1,17 @@
-import { base44 } from './base44Client';
+import { AI, InvokeLLM as InvokeLLMFn } from './client';
 
+export const Core = {
+  InvokeLLM: InvokeLLMFn,
+  SendEmail: async () => { throw new Error('SendEmail not implemented - use backend email service'); },
+  SendSMS: async () => { throw new Error('SendSMS not implemented'); },
+  UploadFile: async () => { throw new Error('UploadFile not implemented'); },
+  GenerateImage: async () => { throw new Error('GenerateImage not implemented'); },
+  ExtractDataFromUploadedFile: async () => { throw new Error('ExtractDataFromUploadedFile not implemented'); },
+};
 
-
-
-export const Core = base44.integrations.Core;
-
-export const InvokeLLM = base44.integrations.Core.InvokeLLM;
-
-export const SendEmail = base44.integrations.Core.SendEmail;
-
-export const SendSMS = base44.integrations.Core.SendSMS;
-
-export const UploadFile = base44.integrations.Core.UploadFile;
-
-export const GenerateImage = base44.integrations.Core.GenerateImage;
-
-export const ExtractDataFromUploadedFile = base44.integrations.Core.ExtractDataFromUploadedFile;
-
-
-
-
-
-
+export const InvokeLLM = InvokeLLMFn;
+export const SendEmail = Core.SendEmail;
+export const SendSMS = Core.SendSMS;
+export const UploadFile = Core.UploadFile;
+export const GenerateImage = Core.GenerateImage;
+export const ExtractDataFromUploadedFile = Core.ExtractDataFromUploadedFile;

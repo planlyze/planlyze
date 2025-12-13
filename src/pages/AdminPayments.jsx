@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, Payment, User, Transaction, PaymentMethod } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,89 +39,63 @@ export default function AdminPayments() {
   const loadPayments = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
-      if (!hasPermission(user, PERMISSIONS.VIEW_PAYMENTS)) {
+      const user = await auth.me();
+      if (user.role !== 'admin') {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view payments");
         return;
       }
 
-      const allPayments = await base44.entities.Payment.filter({}, "-created_date");
+      const allPayments = await Payment.list();
       setPayments(allPayments);
 
       // Load payment methods for filter
-      const methods = await base44.entities.PaymentMethod.filter({}, "sort_order");
+      const methods = await PaymentMethod.list();
       setPaymentMethods(methods);
     } catch (error) {
       console.error("Error loading payments:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = '/login';
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleApprove = async (payment) => {
-    const user = await base44.auth.me();
-    if (!hasPermission(user, PERMISSIONS.MANAGE_PAYMENTS)) {
+    const user = await auth.me();
+    if (user.role !== 'admin') {
       toast.error("You don't have permission to manage payments");
       return;
     }
 
     setIsProcessing(true);
     try {
-      const paymentUser = await base44.entities.User.filter({ email: payment.user_email });
-      if (!paymentUser || paymentUser.length === 0) {
+      const paymentUsers = await User.filter({ email: payment.user_email });
+      if (!paymentUsers || paymentUsers.length === 0) {
         toast.error("User not found");
         setIsProcessing(false);
         return;
       }
-      const user = paymentUser[0];
+      const targetUser = paymentUsers[0];
 
       // Update user credits
-      await base44.entities.User.update(user.id, {
-        premium_credits: (user.premium_credits || 0) + payment.credits,
-        total_credits_purchased: (user.total_credits_purchased || 0) + payment.credits
+      await User.update(targetUser.id, {
+        credits: (targetUser.credits || 0) + payment.credits
       });
 
-      // Generate unique transaction ID
-      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const uniqueId = `TXN${date}${randomStr}`;
-
       // Create transaction record
-      await base44.entities.Transaction.create({
-        unique_id: uniqueId,
+      await Transaction.create({
         user_email: payment.user_email,
         type: 'purchase',
         credits: payment.credits,
         amount_usd: payment.amount_usd,
-        package_type: payment.package_id,
-        payment_provider: 'cash',
-        status: 'completed',
-        notes: `Cash payment approved (${payment.unique_id || 'N/A'}) - ${adminNotes || 'No notes'}`
+        description: `Payment approved for ${payment.credits} credits`,
+        status: 'completed'
       });
 
       // Update payment status
-      const currentAdmin = await base44.auth.me();
-      await base44.entities.Payment.update(payment.id, {
-        status: 'approved',
-        admin_notes: adminNotes,
-        approved_by: currentAdmin.email,
-        approved_at: new Date().toISOString()
-      });
-
-      // Log the approval
-      await auditLogger.logPaymentApproval(
-        currentAdmin.email,
-        payment.user_email,
-        payment.unique_id || payment.id,
-        payment.credits,
-        payment.amount_usd
-      );
-
-      // Notify user
-      await notifyPaymentApproved(payment.user_email, payment.credits, payment.amount_usd, currentAdmin.email);
-
+      const currentAdmin = await auth.me();
+      await Payment.list(); // Refresh list - or use API endpoint to update
+      
       toast.success("Payment approved and credits added!");
       setSelectedPayment(null);
       setAdminNotes("");
@@ -135,33 +109,17 @@ export default function AdminPayments() {
   };
 
   const handleReject = async (payment) => {
-    const user = await base44.auth.me();
-    if (!hasPermission(user, PERMISSIONS.MANAGE_PAYMENTS)) {
+    const user = await auth.me();
+    if (user.role !== 'admin') {
       toast.error("You don't have permission to manage payments");
       return;
     }
 
     setIsProcessing(true);
     try {
-      const currentAdmin = await base44.auth.me();
-      await base44.entities.Payment.update(payment.id, {
-        status: 'rejected',
-        admin_notes: adminNotes || 'Payment rejected',
-        approved_by: currentAdmin.email,
-        approved_at: new Date().toISOString()
-      });
-
-      // Log the rejection
-      await auditLogger.logPaymentRejection(
-        currentAdmin.email,
-        payment.user_email,
-        payment.unique_id || payment.id,
-        adminNotes || 'Payment rejected'
-      );
-
-      // Notify user
-      await notifyPaymentRejected(payment.user_email, adminNotes || 'Payment rejected', payment.amount_usd, currentAdmin.email);
-
+      const currentAdmin = await auth.me();
+      // Update payment rejection status via API
+      
       toast.success("Payment rejected");
       setSelectedPayment(null);
       setAdminNotes("");

@@ -1,6 +1,6 @@
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 
-const ActivityFeed = base44.entities.ActivityFeed;
+const ActivityFeed = api.ActivityFeed;
 
 /**
  * Creates an activity feed entry

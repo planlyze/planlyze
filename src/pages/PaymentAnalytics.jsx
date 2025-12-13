@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +40,7 @@ export default function PaymentAnalytics() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       if (!hasPermission(user, PERMISSIONS.VIEW_PAYMENTS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view payment analytics");
@@ -48,10 +48,10 @@ export default function PaymentAnalytics() {
       }
 
       const [txList, paymentsList, usersList, analysesList] = await Promise.all([
-        base44.entities.Transaction.filter({}, "-created_date", 1000),
-        base44.entities.Payment.filter({}, "-created_date", 1000),
-        base44.entities.User.filter({}, "-created_date", 1000),
-        base44.entities.Analysis.filter({}, "-created_date", 1000)
+        Transaction.filter({}, "-created_date", 1000),
+        Payment.filter({}, "-created_date", 1000),
+        User.filter({}, "-created_date", 1000),
+        Analysis.filter({}, "-created_date", 1000)
       ]);
 
       setTransactions(txList);
@@ -60,7 +60,7 @@ export default function PaymentAnalytics() {
       setAnalyses(analysesList.filter(a => a.is_deleted !== true));
     } catch (error) {
       console.error("Error loading data:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }

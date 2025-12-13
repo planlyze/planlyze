@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Analysis } from "@/entities/Analysis";
-import { Transaction } from "@/entities/Transaction";
+import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +11,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { listAllAnalysesAdmin } from "@/functions/listAllAnalysesAdmin";
-import { listAllUsersAdmin } from "@/functions/listAllUsersAdmin";
-import { exportUsers } from "@/functions/exportUsers";
-import { exportAllReports } from "@/functions/exportAllReports";
 import ActivityCharts from "@/components/admin/ActivityCharts";
 
 export default function OwnerDashboard() {
@@ -57,7 +51,7 @@ export default function OwnerDashboard() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const currentUser = await base44.auth.me();
+      const currentUser = await auth.me();
       if (!hasPermission(currentUser, PERMISSIONS.VIEW_OWNER_DASHBOARD)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view this dashboard");
@@ -70,16 +64,12 @@ export default function OwnerDashboard() {
       let userData = [];
       let userTotal = 0;
       try {
-        const usersResp = await listAllUsersAdmin({ 
-          skip, 
-          limit: itemsPerPage,
-          order: '-created_date'
-        });
+        const usersResp = await api.get('/api/users'); 
         
         // Handle axios response - data is inside response.data
         const usersData = usersResp?.data || usersResp;
-        userData = usersData?.items || [];
-        userTotal = usersData?.total || 0;
+        userData = usersData?.items || usersData || [];
+        userTotal = usersData?.total || userData.length;
         
         if (!Array.isArray(userData)) {
           console.error("Users data is not an array, received:", typeof userData);
@@ -93,7 +83,7 @@ export default function OwnerDashboard() {
       // Fetch ALL analyses for stats calculation (must fetch all for accurate counts)
       let allAnalyses = [];
       try {
-        const analysesResp = await listAllAnalysesAdmin({ limit: 1000 });
+        const analysesResp = await Analysis.list();
         
         // Log the raw response to debug
         console.log("Raw analyses response type:", typeof analysesResp);
@@ -170,7 +160,7 @@ export default function OwnerDashboard() {
       let allUsersForStats = userData;
       if (userTotal > itemsPerPage) {
         try {
-          const allUsersResp = await listAllUsersAdmin({ limit: 10000 });
+          const allUsersResp = await User.list();
           const allUsersData = allUsersResp?.data || allUsersResp;
           allUsersForStats = allUsersData?.items || [];
           
@@ -293,7 +283,7 @@ export default function OwnerDashboard() {
 
     } catch (error) {
       console.error("Authentication error or data fetch error:", error.message || error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -302,7 +292,7 @@ export default function OwnerDashboard() {
   const handleExportUsers = async () => {
     setIsExporting(true);
     try {
-      const { data } = await exportUsers();
+      const usersData = await api.get("/api/users/export");
       const blob = new Blob([data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -323,7 +313,7 @@ export default function OwnerDashboard() {
   const handleExportReports = async () => {
     setIsExportingReports(true);
     try {
-      const { data } = await exportAllReports();
+      const reportsData = await api.get("/api/analyses/export");
       const blob = new Blob([data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

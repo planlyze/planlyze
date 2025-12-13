@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { Analysis } from "@/entities/Analysis";
-import { Transaction } from "@/entities/Transaction";
-import { generateAnalysisReport } from "@/functions/generateAnalysisReport";
+import { Analysis, Transaction, User, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import { User } from "@/entities/User";
 import { toast } from "sonner";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
@@ -137,10 +134,10 @@ export default function NewAnalysis() {
         setPendingTransactionId(transactionId);
       }
       
-      // Try via function first
+      // Try via API first
       let createdAnalysis;
       try {
-        const resp = await generateAnalysisReport(combinedFormData);
+        const resp = await api.post('/api/analyses/generate', combinedFormData);
         createdAnalysis = resp?.data;
       } catch (err) {
         const msg = String(err?.message || err || "");

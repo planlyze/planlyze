@@ -1,0 +1,98 @@
+{
+  "common": {
+    "language": "اللغة",
+    "english": "English",
+    "arabic": "العربية",
+    "logout": "تسجيل الخروج",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال"
+  },
+  "auth": {
+    "login": "دخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "loginTitle": "مرحباً بعودتك",
+    "loginDescription": "تسجيل الدخول إلى حسابك",
+    "registerTitle": "إنشاء حساب جديد",
+    "registerDescription": "انضم إلى Planlyze اليوم",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "haveAccount": "هل لديك حساب بالفعل؟",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "تتبع وإدارة تحليلات عملك",
+    "welcomeTitle": "مرحباً",
+    "recentAnalyses": "التحليلات الأخيرة",
+    "recentTransactions": "المعاملات الأخيرة",
+    "activityFeed": "سجل الأنشطة",
+    "noAnalyses": "لا توجد تحليلات بعد",
+    "startFirst": "إنشاء أول تحليل لك"
+  },
+  "analysis": {
+    "title": "إنشاء تحليل جديد",
+    "businessIdea": "فكرة العمل",
+    "industry": "الصناعة",
+    "targetMarket": "السوق المستهدف",
+    "location": "الموقع",
+    "budget": "الميزانية",
+    "description": "الوصف",
+    "createAnalysis": "إنشاء تحليل",
+    "analyzing": "جاري التحليل...",
+    "completed": "مكتمل",
+    "pending": "قيد الانتظار",
+    "failed": "فشل",
+    "viewReport": "عرض التقرير"
+  },
+  "credits": {
+    "title": "باقات الأرصدة",
+    "available": "الأرصدة المتاحة",
+    "used": "الأرصدة المستخدمة",
+    "buyCredits": "شراء أرصدة",
+    "creditPackage": "باقة الأرصدة",
+    "price": "السعر",
+    "popular": "الأكثر شهرة",
+    "select": "اختر الباقة"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "editProfile": "تعديل الملف الشخصي",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "saveChanges": "حفظ التغييرات",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
+  },
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "analyses": "التحليلات",
+    "credits": "الأرصدة",
+    "profile": "الملف الشخصي",
+    "admin": "الإدارة",
+    "settings": "الإعدادات"
+  },
+  "messages": {
+    "confirmDelete": "هل أنت متأكد من رغبتك في حذف هذا؟",
+    "deleteSuccess": "تم الحذف بنجاح",
+    "savingData": "جاري حفظ البيانات...",
+    "loadingData": "جاري تحميل البيانات..."
+  }
+}

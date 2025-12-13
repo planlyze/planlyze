@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User } from "@/entities/User";
-import { Transaction } from "@/entities/Transaction";
-import { Payment } from "@/entities/Payment";
+import { User, Transaction, Payment, auth } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

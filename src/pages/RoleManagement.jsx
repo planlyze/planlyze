@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export default function RoleManagement() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
       if (user.role !== 'admin') {
@@ -48,15 +48,15 @@ export default function RoleManagement() {
       }
 
       const [rolesData, usersData] = await Promise.all([
-        base44.entities.Role.filter({}, "-created_date"),
-        base44.entities.User.filter({}, "-created_date")
+        api.Role.filter({}, "-created_date"),
+        User.filter({}, "-created_date")
       ]);
 
       setRoles(rolesData);
       setUsers(usersData);
     } catch (error) {
       console.error("Error loading data:", error);
-      await base44.auth.redirectToLogin(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -115,10 +115,10 @@ export default function RoleManagement() {
     setIsSaving(true);
     try {
       if (editingRole) {
-        await base44.entities.Role.update(editingRole.id, formData);
+        await api.Role.update(editingRole.id, formData);
         toast.success("Role updated successfully");
       } else {
-        await base44.entities.Role.create(formData);
+        await api.Role.create(formData);
         toast.success("Role created successfully");
       }
       
@@ -145,7 +145,7 @@ export default function RoleManagement() {
     }
 
     try {
-      await base44.entities.Role.delete(role.id);
+      await api.Role.delete(role.id);
       toast.success("Role deleted successfully");
       loadData();
     } catch (error) {
