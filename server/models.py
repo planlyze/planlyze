@@ -20,8 +20,7 @@ class User(db.Model):
     referred_by = db.Column(db.String(50))
     language = db.Column(db.String(10), default='en')
     profile_image = db.Column(db.Text)
-    onboarding_completed = db.Column(db.Boolean, default=False)
-    onboarding_step = db.Column(db.Integer, default=0)
+    # onboarding fields removed
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -37,8 +36,6 @@ class User(db.Model):
             'referred_by': self.referred_by,
             'language': self.language,
             'profile_image': self.profile_image,
-            'onboarding_completed': self.onboarding_completed,
-            'onboarding_step': self.onboarding_step,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None

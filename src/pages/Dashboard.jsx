@@ -10,10 +10,6 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import OnboardingTutorial from "../components/onboarding/OnboardingTutorial";
-import OnboardingChecklist from "../components/onboarding/OnboardingChecklist";
-import GuidedTour from "../components/onboarding/GuidedTour";
-import ProactiveSuggestions from "../components/onboarding/ProactiveSuggestions";
 
 
 
@@ -78,12 +74,10 @@ export default function Dashboard() {
   const inProgressAnalyses = analyses.filter(a => a.status === 'analyzing').length;
 
   const isArabic = currentUser?.preferred_language === 'arabic';
-  const showOnboarding = currentUser && !currentUser.onboarding_completed;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
-      <OnboardingTutorial user={currentUser} onComplete={() => loadAnalyses(currentUser.email)} />
-      <GuidedTour user={currentUser} onComplete={() => loadAnalyses(currentUser.email)} />
+      {/* Onboarding removed */}
       <div className="max-w-7xl mx-auto space-y-8">
         <div className={`${isArabic ? 'text-right' : 'text-left'} space-y-3`}>
           <div className="inline-block">
@@ -106,13 +100,7 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Proactive Suggestions */}
-        <ProactiveSuggestions user={currentUser} analyses={analyses} />
-
-        {/* Onboarding Checklist */}
-        {showOnboarding && (
-          <OnboardingChecklist user={currentUser} />
-        )}
+        {/* Proactive suggestions and onboarding UI removed */}
 
 
 

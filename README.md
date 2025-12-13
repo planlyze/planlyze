@@ -46,13 +46,13 @@ Planlyze is a modern web application built with:
 5. **Initialize database**
    ```bash
    createdb planlyze
-   FLASK_APP=server.app:app python -m flask db upgrade
+   FLASK_APP=server.app:create_app python -m flask db upgrade
    ```
 
 6. **Start development**
    ```bash
    # Terminal 1 - Backend
-   FLASK_APP=server.app:app python -m flask run --port 3000
+   FLASK_APP=server.app:acreate_apppp python -m flask run --port 3000
    
    # Terminal 2 - Frontend
    npm run dev
@@ -120,13 +120,13 @@ See [FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md) for:
 **Backend**
 ```bash
 # Run development server
-FLASK_APP=server.app:app python -m flask run
+FLASK_APP=server.app:create_app python -m flask run
 
 # Create migration
-FLASK_APP=server.app:app python -m flask db migrate -m "message"
+FLASK_APP=server.app:apcreate_appp python -m flask db migrate -m "message"
 
 # Apply migration
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 
 # Run tests
 pytest
@@ -212,13 +212,13 @@ Database schema is managed with Alembic:
 
 ```bash
 # Create a migration
-FLASK_APP=server.app:app python -m flask db migrate -m "description"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "description"
 
 # Apply migrations
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 
 # Rollback
-FLASK_APP=server.app:app python -m flask db downgrade
+FLASK_APP=server.app:create_app python -m flask db downgrade
 ```
 
 ### Models
@@ -229,7 +229,7 @@ All models are defined in `server/models.py` using SQLAlchemy ORM.
 ### Using Gunicorn
 ```bash
 pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 server.app:app
+gunicorn -w 4 -b 0.0.0.0:8000 server.app:create_app
 ```
 
 ### Using Docker
@@ -329,11 +329,11 @@ flask run --host=0.0.0.0 --port=8000
 
 # 1. Make changes to server/models.py
 # 2. Generate migration
-FLASK_APP=server.app:app python -m flask db migrate -m "Description of changes"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "Description of changes"
 
 # 3. Review migration file in migrations/versions/
 # 4. Apply to database
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 
 # To rollback (undo last migration):
-FLASK_APP=server.app:app python -m flask db downgrade
+FLASK_APP=server.app:create_app python -m flask db downgrade

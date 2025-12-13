@@ -78,29 +78,29 @@ JWT_ACCESS_TOKEN_EXPIRES=86400     # Token expiry in seconds
 
 ### Development
 ```bash
-FLASK_ENV=development FLASK_APP=server.app:app flask run
+FLASK_ENV=development FLASK_APP=server.app:create_app flask run
 ```
 
 ### Production
 ```bash
-FLASK_ENV=production gunicorn -w 4 server.app:app
+FLASK_ENV=production gunicorn -w 4 server.app:create_app
 ```
 
 ## Database Migrations
 
 ### Create a migration
 ```bash
-FLASK_APP=server.app:app python -m flask db migrate -m "Description"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "Description"
 ```
 
 ### Apply migrations
 ```bash
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 ```
 
 ### Rollback migration
 ```bash
-FLASK_APP=server.app:app python -m flask db downgrade
+FLASK_APP=server.app:create_app python -m flask db downgrade
 ```
 
 ## API Response Format

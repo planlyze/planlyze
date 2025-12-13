@@ -68,7 +68,7 @@ cd /Users/lana/Documents/Planlyze/Code/planlyze
 createdb planlyze
 
 # Run migrations
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 
 export FLASK_APP=server.app:create_app python -m flask db upgrade
 ```
@@ -123,23 +123,23 @@ After modifying models in `server/models.py`:
 
 ```bash
 # Generate migration file
-FLASK_APP=server.app:app python -m flask db migrate -m "Description of changes"
+FLASK_APP=server.app:create_app python -m flask db migrate -m "Description of changes"
 
 # Review generated migration
 cat migrations/versions/XXXX_description.py
 
 # Apply migration
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 ```
 
 ### Rollback Migration
 
 ```bash
 # Undo last migration
-FLASK_APP=server.app:app python -m flask db downgrade
+FLASK_APP=server.app:create_app python -m flask db downgrade
 
 # Or downgrade to specific revision
-FLASK_APP=server.app:app python -m flask db downgrade <revision>
+FLASK_APP=server.app:create_app python -m flask db downgrade <revision>
 ```
 
 ## Testing
@@ -179,10 +179,10 @@ export FLASK_ENV=production
 pip install -r requirements.txt
 
 # Run migrations
-FLASK_APP=server.app:app python -m flask db upgrade
+FLASK_APP=server.app:create_app python -m flask db upgrade
 
 # Start with production server (e.g., Gunicorn)
-gunicorn -w 4 -b 0.0.0.0:8000 server.app:app
+gunicorn -w 4 -b 0.0.0.0:8000 server.app:create_app
 ```
 
 ### Frontend
@@ -221,7 +221,7 @@ RUN npm run build
 EXPOSE 8000
 
 # Run migrations and start server
-CMD ["sh", "-c", "FLASK_APP=server.app:app flask db upgrade && gunicorn -w 4 -b 0.0.0.0:8000 server.app:app"]
+CMD ["sh", "-c", "FLASK_APP=server.app:create_app flask db upgrade && gunicorn -w 4 -b 0.0.0.0:8000 server.app:create_app"]
 ```
 
 Build and run:
@@ -323,7 +323,7 @@ Before deploying to production:
 ### Heroku
 ```bash
 # Create Procfile
-echo "web: gunicorn server.app:app" > Procfile
+echo "web: gunicorn server.app:create_app" > Procfile
 
 # Push to Heroku
 git push heroku main
