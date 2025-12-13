@@ -164,6 +164,23 @@ ANTHROPIC_API_KEY=your-anthropic-key
 
 See `.env.example` for all available options.
 
+## Landing (Frontend)
+
+The landing pages and components live under `src/landing` and share translations under `src/locales/landing.*.json`.
+
+- Shared landing styles and helpers are centralized in `src/config/index.js`.
+- Landing-specific backward-compatible re-exports exist at `src/landing/config.js` and `src/landing/useLanding.js`, but new code should import from `src/config/index.js`.
+- Landing translations are located in `src/locales/landing.en.json` and `src/locales/landing.ar.json`.
+
+Quick tips:
+
+```bash
+# Start frontend dev server
+npm run dev
+
+# Default language for i18n is set in `src/i18n/config.js` (currently 'ar').
+```
+
 ## API Documentation
 
 ### Authentication Endpoints

@@ -203,6 +203,7 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.lang = next;
       document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', next);
+      localStorage.setItem('planlyze-language', next);
       const isAdmin = currentUser?.role === 'admin';
       setNavigationItems(buildNavigationItems(isAdmin, next === 'ar'));
     } catch (error) {
@@ -219,6 +220,7 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.lang = lang;
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', lang);
+      localStorage.setItem('planlyze-language', lang);
       const isAdmin = authUser.role === 'admin';
       setNavigationItems(buildNavigationItems(isAdmin, lang === 'ar'));
       setNewDisplayName(authUser?.full_name || '');
@@ -228,6 +230,39 @@ export default function Layout({ children, currentPageName }) {
       setNavigationItems(buildNavigationItems(false, false));
     }
   }, [authUser, isAuthenticated, i18n]);
+
+  // Listen for i18n language changes (works within same window and across tabs)
+  useEffect(() => {
+    const handleLanguageChanged = (lng) => {
+      if (lng && (lng === 'en' || lng === 'ar')) {
+        document.documentElement.lang = lng;
+        document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+        localStorage.setItem('language', lng);
+        localStorage.setItem('planlyze-language', lng);
+        if (currentUser) {
+          const isAdmin = currentUser.role === 'admin';
+          setNavigationItems(buildNavigationItems(isAdmin, lng === 'ar'));
+        }
+      }
+    };
+    
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => i18n.off('languageChanged', handleLanguageChanged);
+  }, [i18n, currentUser]);
+
+  // Listen for language changes from other tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'planlyze-language' || e.key === 'language') {
+        const newLang = e.newValue;
+        if (newLang && (newLang === 'en' || newLang === 'ar')) {
+          i18n.changeLanguage(newLang);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [i18n]);
 
   const handleSaveDisplayName = async () => {
     setIsSavingDisplayName(true);

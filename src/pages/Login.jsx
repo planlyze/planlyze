@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,30 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+
+  // Sync language from landing pages on page load
+  useEffect(() => {
+    const savedLang = localStorage.getItem('planlyze-language') || localStorage.getItem('language') || i18n.language;
+    if (savedLang && (savedLang === 'en' || savedLang === 'ar')) {
+      i18n.changeLanguage(savedLang);
+      document.documentElement.lang = savedLang;
+      document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+    }
+    
+    // Listen for language changes from other tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'planlyze-language' || e.key === 'language') {
+        const newLang = e.newValue;
+        if (newLang && (newLang === 'en' || newLang === 'ar')) {
+          i18n.changeLanguage(newLang);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [i18n]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

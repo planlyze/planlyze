@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
+import { HEADER_CTA_CLASS } from '@/config';
 import { Sun, Moon, Menu, X } from 'lucide-react';
+import { useAppTranslation } from '@/config';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d7be088a309080879f3d/1d57ae70b_Main_logo-01.png";
 
-export default function Header({ t, lang, onLanguageChange, theme, onThemeChange }) {
+export default function Header({ lang: propLang, onLanguageChange, theme, onThemeChange }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t, lang, changeLanguage } = useAppTranslation('landing');
 
   const navSections = [
     { id: 'about', key: 'navAbout', isAnchor: true },
@@ -61,12 +64,16 @@ export default function Header({ t, lang, onLanguageChange, theme, onThemeChange
             </Button>
             <Button
               variant="outline"
-              onClick={() => onLanguageChange(lang === 'en' ? 'ar' : 'en')}
+              onClick={() => {
+                const next = lang === 'en' ? 'ar' : 'en';
+                changeLanguage(next);
+                if (onLanguageChange) onLanguageChange(next);
+              }}
               className="hidden sm:flex border-purple-400 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white hover:border-purple-600 px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 dark:bg-gray-800 dark:border-gray-600 dark:text-purple-400">
               {lang === 'en' ? 'العربية' : 'English'}
             </Button>            
             <Link to={createPageUrl('Login')} className="hidden sm:block">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg shadow-orange-500/40 hover:shadow-orange-500/60 transition-all duration-300 hover:scale-105">
+              <Button className={HEADER_CTA_CLASS}>
                 {lang === 'en' ? 'Get Started' : 'ابدأ الآن'}
               </Button>
             </Link>
@@ -107,7 +114,7 @@ export default function Header({ t, lang, onLanguageChange, theme, onThemeChange
                   {lang === 'en' ? 'العربية' : 'English'}
                 </Button>
                 <Link to={createPageUrl('Login')} className="block">
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg shadow-orange-500/40">
+                  <Button className={`w-full ${HEADER_CTA_CLASS}`}>
                     {lang === 'en' ? 'Get Started' : 'ابدأ الآن'}
                   </Button>
                 </Link>

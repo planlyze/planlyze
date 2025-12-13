@@ -144,7 +144,7 @@ export default function BlogPostPage() {
   if (!post) {
     return (
       <div className="min-h-screen bg-gray-50 text-gray-800" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        <Header t={t} lang={lang} onLanguageChange={handleLanguageChange} />
+        <Header lang={lang} onLanguageChange={handleLanguageChange} />
         <main className="pt-32 pb-24 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -158,7 +158,7 @@ export default function BlogPostPage() {
             </Link>
           </div>
         </main>
-        <Footer t={t} />
+        <Footer />
       </div>
     );
   }
@@ -168,7 +168,7 @@ export default function BlogPostPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <Header t={t} lang={lang} onLanguageChange={handleLanguageChange} />
+      <Header lang={lang} onLanguageChange={handleLanguageChange} />
 
       <main className="pt-32 pb-24">
         <article className="max-w-4xl mx-auto px-6">
@@ -252,7 +252,7 @@ export default function BlogPostPage() {
         </article>
       </main>
 
-      <Footer t={t} />
+      <Footer />
     </div>
   );
 }
