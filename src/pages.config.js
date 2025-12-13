@@ -1,0 +1,55 @@
+import Dashboard from './pages/Dashboard';
+import NewAnalysis from './pages/NewAnalysis';
+import Reports from './pages/Reports';
+import AnalysisResult from './pages/AnalysisResult';
+import OwnerDashboard from './pages/OwnerDashboard';
+import Profile from './pages/Profile';
+import UserProfile from './pages/UserProfile';
+import Credits from './pages/Credits';
+import AdminCredits from './pages/AdminCredits';
+import AdminPayments from './pages/AdminPayments';
+import Subscriptions from './pages/Subscriptions';
+import RoleManagement from './pages/RoleManagement';
+import UserRoleAssignment from './pages/UserRoleAssignment';
+import PaymentAnalytics from './pages/PaymentAnalytics';
+import AuditLogs from './pages/AuditLogs';
+import AIAssistant from './pages/AIAssistant';
+import Notifications from './pages/Notifications';
+import SharedReport from './pages/SharedReport';
+import Referrals from './pages/Referrals';
+import EmailTemplates from './pages/EmailTemplates';
+import AdminNotifications from './pages/AdminNotifications';
+import AdminDiscounts from './pages/AdminDiscounts';
+import __Layout from './Layout.jsx';
+
+
+export const PAGES = {
+    "Dashboard": Dashboard,
+    "NewAnalysis": NewAnalysis,
+    "Reports": Reports,
+    "AnalysisResult": AnalysisResult,
+    "OwnerDashboard": OwnerDashboard,
+    "Profile": Profile,
+    "UserProfile": UserProfile,
+    "Credits": Credits,
+    "AdminCredits": AdminCredits,
+    "AdminPayments": AdminPayments,
+    "Subscriptions": Subscriptions,
+    "RoleManagement": RoleManagement,
+    "UserRoleAssignment": UserRoleAssignment,
+    "PaymentAnalytics": PaymentAnalytics,
+    "AuditLogs": AuditLogs,
+    "AIAssistant": AIAssistant,
+    "Notifications": Notifications,
+    "SharedReport": SharedReport,
+    "Referrals": Referrals,
+    "EmailTemplates": EmailTemplates,
+    "AdminNotifications": AdminNotifications,
+    "AdminDiscounts": AdminDiscounts,
+}
+
+export const pagesConfig = {
+    mainPage: "Dashboard",
+    Pages: PAGES,
+    Layout: __Layout,
+};

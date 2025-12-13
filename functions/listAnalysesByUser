@@ -1,0 +1,21 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const payload = await req.json().catch(() => ({}));
+    const order = payload?.order || '-updated_date';
+    const limit = Number(payload?.limit ?? 50);
+
+    const items = await base44.entities.Analysis.filter({ created_by: user.email }, order, limit);
+    return Response.json({ items }, { status: 200 });
+  } catch (error) {
+    return Response.json({ error: error?.message || 'Internal error' }, { status: 500 });
+  }
+});

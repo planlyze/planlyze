@@ -1,0 +1,68 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Fetch all users using service role
+    const users = await base44.asServiceRole.entities.User.list();
+
+    // Build CSV content
+    const headers = [
+      'ID',
+      'Email',
+      'Full Name',
+      'Display Name',
+      'Role',
+      'Phone Number',
+      'Country',
+      'City',
+      'Preferred Language',
+      'Created Date',
+      'Last Login',
+      'Email Verified'
+    ];
+
+    const csvRows = [headers.join(',')];
+
+    for (const u of users) {
+      const row = [
+        u.id || '',
+        u.email || '',
+        `"${(u.full_name || '').replace(/"/g, '""')}"`,
+        `"${(u.display_name || '').replace(/"/g, '""')}"`,
+        u.role || '',
+        u.phone_number || '',
+        u.country || '',
+        u.city || '',
+        u.preferred_language || '',
+        u.created_date || '',
+        u.last_login || '',
+        u.email_verified ? 'Yes' : 'No'
+      ];
+      csvRows.push(row.join(','));
+    }
+
+    const csvContent = csvRows.join('\n');
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `planlyze_users_${timestamp}.csv`;
+
+    return new Response(csvContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${filename}"`
+      }
+    });
+  } catch (error) {
+    return Response.json({ error: error?.message || 'Internal error' }, { status: 500 });
+  }
+});

@@ -1,0 +1,43 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const payload = await req.json().catch(() => ({}));
+    const order = payload?.order || '-created_date';
+    const limit = Number(payload?.limit ?? 1000);
+    const skip = Number(payload?.skip ?? 0);
+
+    // Get all users using service role
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const total = allUsers.length;
+
+    // Sort users
+    const sortedUsers = [...allUsers].sort((a, b) => {
+      const da = new Date(a.created_date).getTime();
+      const db = new Date(b.created_date).getTime();
+      return order === '-created_date' ? db - da : da - db;
+    });
+
+    // Apply pagination
+    const paginatedUsers = sortedUsers.slice(skip, skip + limit);
+
+    return Response.json({ 
+      items: paginatedUsers,
+      total: total,
+      skip: skip,
+      limit: limit
+    }, { status: 200 });
+  } catch (error) {
+    return Response.json({ error: error?.message || 'Internal error' }, { status: 500 });
+  }
+});
