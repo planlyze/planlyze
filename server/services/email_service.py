@@ -73,11 +73,14 @@ def send_verification_email(to_email, to_name, otp_code, lang='en'):
     }
     
     try:
+        print(f"ZeptoMail sending to: {to_email} from: {SENDER_EMAIL}")
+        print(f"ZeptoMail payload: {json.dumps(payload)}")
         response = requests.post(ZEPTOMAIL_API_URL, data=json.dumps(payload), headers=headers)
+        print(f"ZeptoMail response status: {response.status_code}")
+        print(f"ZeptoMail response body: {response.text}")
         if response.status_code == 200:
             return True
         else:
-            print(f"ZeptoMail error: {response.status_code} - {response.text}")
             return False
     except Exception as e:
         print(f"Email send error: {str(e)}")
