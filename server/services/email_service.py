@@ -4,8 +4,7 @@ import json
 
 ZEPTOMAIL_API_URL = "https://api.zeptomail.com/v1.1/email"
 ZEPTOMAIL_API_KEY = os.environ.get('ZEPTOMAIL_API_KEY')
-SENDER_EMAIL = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'noreply@planlyze.com')
-SENDER_NAME = os.environ.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze')
+SENDER_EMAIL = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com')
 
 def send_verification_email(to_email, to_name, otp_code, lang='en'):
     if not ZEPTOMAIL_API_KEY:
@@ -51,8 +50,7 @@ def send_verification_email(to_email, to_name, otp_code, lang='en'):
     
     payload = {
         "from": {
-            "address": SENDER_EMAIL,
-            "name": SENDER_NAME
+            "address": SENDER_EMAIL
         },
         "to": [
             {
@@ -120,8 +118,7 @@ def send_password_reset_email(to_email, to_name, reset_link, lang='en'):
     
     payload = {
         "from": {
-            "address": SENDER_EMAIL,
-            "name": SENDER_NAME
+            "address": SENDER_EMAIL
         },
         "to": [
             {
