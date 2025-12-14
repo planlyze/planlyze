@@ -57,4 +57,12 @@ Swagger UI available at `/api/apidocs` when backend is running.
 - `SECRET_KEY` - Flask secret key
 - `JWT_SECRET_KEY` - JWT signing key
 - `ANTHROPIC_API_KEY` - Claude API key for AI features
-- `ZEPTOMAIL_API_KEY` - Email service (optional)
+- `ZEPTOMAIL_API_KEY` - ZeptoMail API token for email verification
+- `ZEPTOMAIL_SENDER_EMAIL` - Verified sender email for ZeptoMail
+
+## Email Verification Flow
+Users must verify their email before accessing the platform:
+1. User registers → Verification email sent via ZeptoMail
+2. User clicks verification link → Email verified, auto-login
+3. Unverified users trying to login are redirected to verification page
+4. Users can resend verification emails from the verification page
