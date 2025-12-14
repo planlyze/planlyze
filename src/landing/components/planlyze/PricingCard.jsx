@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useAppTranslation } from '@/config';
 import { CheckCircle } from 'lucide-react';
 
 const itemVariants = {
@@ -12,14 +13,14 @@ const itemVariants = {
 
 export default function PricingCard({ 
   icon: Icon, 
-  title, 
+  titleKey, 
   price, 
-  description, 
-  features, 
-  notIncluded = [],
+  descriptionKey, 
+  featuresKeys = [], 
+  notIncludedKeys = [],
   badge,
   variant = 'default',
-  selectText
+  selectTextKey
 }) {
   const variants = {
     default: {
@@ -43,6 +44,14 @@ export default function PricingCard({
   };
 
   const style = variants[variant];
+
+  const { t } = useAppTranslation('landing');
+
+  const title = titleKey ? t[titleKey] : '';
+  const description = descriptionKey ? t[descriptionKey] : '';
+  const features = featuresKeys.map(k => (typeof k === 'string' ? t[k] : k));
+  const notIncluded = notIncludedKeys.map(k => (typeof k === 'string' ? t[k] : k));
+  const selectText = selectTextKey ? t[selectTextKey] : '';
 
   return (
     <motion.div 

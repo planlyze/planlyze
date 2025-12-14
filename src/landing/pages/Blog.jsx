@@ -117,7 +117,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <Header t={t} lang={lang} onLanguageChange={handleLanguageChange} />
+      <Header lang={lang} onLanguageChange={handleLanguageChange} />
 
       <main className="pt-32 pb-24">
         {/* Hero Section */}
@@ -268,7 +268,7 @@ export default function BlogPage() {
         </motion.section>
       </main>
 
-      <Footer t={t} />
+      <Footer />
     </div>
   );
 }

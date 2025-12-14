@@ -1,13 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAppTranslation } from '@/config';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-export default function BenefitCard({ icon: Icon, title, desc }) {
+export default function BenefitCard({ icon: Icon, titleKey, descKey }) {
+  const { t } = useAppTranslation('landing');
+  const title = titleKey ? t[titleKey] : '';
+  const desc = descKey ? t[descKey] : '';
+
   return (
     <motion.div 
       variants={itemVariants}

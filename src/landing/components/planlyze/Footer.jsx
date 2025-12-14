@@ -2,8 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Facebook, Linkedin, Instagram, MessageCircle, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import SocialLink from './SocialLink';
+import { createPageUrl, HEADER_CTA_CLASS, useAppTranslation } from '@/config';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d7be088a309080879f3d/1d57ae70b_Main_logo-01.png";
 
@@ -25,7 +25,8 @@ const socialLinks = [
   { href: "https://t.me/planlyze", icon: Send, hoverColor: "hover:bg-blue-500 hover:border-blue-500" }
 ];
 
-export default function Footer({ t }) {
+export default function Footer() {
+  const { t } = useAppTranslation('landing');
   return (
     <motion.footer
       variants={containerVariants}

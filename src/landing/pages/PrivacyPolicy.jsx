@@ -5,17 +5,12 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Lock, Eye, Database, FileText, AlertCircle } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '@/config';
 
 export default function PrivacyPolicyPage() {
-  const { t: ti, i18n } = useTranslation('landing');
-  const lang = i18n?.language || 'en';
+  const { lang, ti } = useAppTranslation('landing');
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('planlyze-language');
-    if (savedLang && (savedLang === 'en' || savedLang === 'ar')) {
-      i18n.changeLanguage(savedLang);
-    }
     const savedTheme = localStorage.getItem('planlyze-theme');
     if (savedTheme) {
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');

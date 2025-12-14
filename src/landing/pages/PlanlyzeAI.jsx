@@ -36,6 +36,7 @@ import SEOSchema from "@/landing/components/planlyze/SEOSchema";
 import { api } from '@/api/client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { CTA_BUTTON_CLASS, CTA_SMALL_BUTTON_CLASS } from '@/config';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -182,49 +183,19 @@ export default function PlanlyzeAIPage() {
   const t = new Proxy({}, { get: (_, prop) => ti(String(prop)) });
 
   const features = [
-    {
-      icon: Target,
-      title: t.feature1Title,
-      desc: t.feature1Desc,
-      colorClass: "text-purple-400",
-    },
-    {
-      icon: BarChart3,
-      title: t.feature2Title,
-      desc: t.feature2Desc,
-      colorClass: "text-orange-400",
-    },
-    {
-      icon: MapPin,
-      title: t.feature3Title,
-      desc: t.feature3Desc,
-      colorClass: "text-purple-400",
-    },
-    {
-      icon: CheckCircle,
-      title: t.feature4Title,
-      desc: t.feature4Desc,
-      colorClass: "text-orange-400",
-    },
-    {
-      icon: FileText,
-      title: t.feature5Title,
-      desc: t.feature5Desc,
-      colorClass: "text-purple-400",
-    },
-    {
-      icon: TrendingUp,
-      title: t.feature6Title,
-      desc: t.feature6Desc,
-      colorClass: "text-orange-400",
-    },
+    { icon: Target, titleKey: 'feature1Title', descKey: 'feature1Desc', colorClass: 'text-purple-400' },
+    { icon: BarChart3, titleKey: 'feature2Title', descKey: 'feature2Desc', colorClass: 'text-orange-400' },
+    { icon: MapPin, titleKey: 'feature3Title', descKey: 'feature3Desc', colorClass: 'text-purple-400' },
+    { icon: CheckCircle, titleKey: 'feature4Title', descKey: 'feature4Desc', colorClass: 'text-orange-400' },
+    { icon: FileText, titleKey: 'feature5Title', descKey: 'feature5Desc', colorClass: 'text-purple-400' },
+    { icon: TrendingUp, titleKey: 'feature6Title', descKey: 'feature6Desc', colorClass: 'text-orange-400' },
   ];
 
   const benefits = [
-    { icon: Award, title: t.benefit1Title, desc: t.benefit1Desc },
-    { icon: FileText, title: t.benefit2Title, desc: t.benefit2Desc },
-    { icon: Clock, title: t.benefit3Title, desc: t.benefit3Desc },
-    { icon: BarChart3, title: t.benefit4Title, desc: t.benefit4Desc },
+    { icon: Award, titleKey: 'benefit1Title', descKey: 'benefit1Desc' },
+    { icon: FileText, titleKey: 'benefit2Title', descKey: 'benefit2Desc' },
+    { icon: Clock, titleKey: 'benefit3Title', descKey: 'benefit3Desc' },
+    { icon: BarChart3, titleKey: 'benefit4Title', descKey: 'benefit4Desc' },
   ];
 
   const steps = [
@@ -268,7 +239,6 @@ export default function PlanlyzeAIPage() {
     >
       <SEOSchema faqs={faqs} lang={lang} />
       <Header
-        t={t}
         lang={lang}
         onLanguageChange={handleLanguageChange}
         theme={theme}
@@ -321,10 +291,7 @@ export default function PlanlyzeAIPage() {
                   transition={{ duration: 0.2 }}
                 >
                   <Link to={createPageUrl('Login')}>
-                    <Button
-                      size="lg"
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 hover:scale-105"
-                    >
+                    <Button size="lg" className={CTA_BUTTON_CLASS}>
                       {t.tryAiNow} <Zap className="ms-2 w-5 h-5" />
                     </Button>
                   </Link>
@@ -614,50 +581,32 @@ export default function PlanlyzeAIPage() {
             <div className="grid md:grid-cols-3 gap-8 mb-16">
               <PricingCard
                 icon={Unlock}
-                title={t.freeTier}
+                titleKey="freeTier"
                 price="$0"
-                description={t.freeTierDesc}
-                features={[t.freeTierFeature1, t.freeTierFeature2]}
-                notIncluded={[
-                  t.freeTierNotIncluded1,
-                  t.freeTierNotIncluded2,
-                  t.freeTierNotIncluded3,
-                ]}
-                selectText={t.selectPlan}
+                descriptionKey="freeTierDesc"
+                featuresKeys={["freeTierFeature1", "freeTierFeature2"]}
+                notIncludedKeys={["freeTierNotIncluded1", "freeTierNotIncluded2", "freeTierNotIncluded3"]}
+                selectTextKey="selectPlan"
               />
               <PricingCard
                 icon={Zap}
-                title={t.payPerReport}
+                titleKey="payPerReport"
                 price={t.payPerReportPrice}
-                description={t.payPerReportDesc}
-                features={[
-                  t.payPerReportFeature1,
-                  t.payPerReportFeature2,
-                  t.payPerReportFeature3,
-                  t.payPerReportFeature4,
-                  t.payPerReportFeature5,
-                  t.payPerReportFeature6,
-                ]}
+                descriptionKey="payPerReportDesc"
+                featuresKeys={["payPerReportFeature1","payPerReportFeature2","payPerReportFeature3","payPerReportFeature4","payPerReportFeature5","payPerReportFeature6"]}
                 badge={t.mostPopular}
                 variant="popular"
-                selectText={t.selectPlan}
+                selectTextKey="selectPlan"
               />
               <PricingCard
                 icon={Crown}
-                title={t.bundlePackage}
+                titleKey="bundlePackage"
                 price={t.bundlePackagePrice}
-                description={t.bundlePackageDesc}
-                features={[
-                  t.bundlePackageFeature1,
-                  t.bundlePackageFeature2,
-                  t.bundlePackageFeature3,
-                  t.bundlePackageFeature4,
-                  t.bundlePackageFeature5,
-                  t.bundlePackageFeature6,
-                ]}
+                descriptionKey="bundlePackageDesc"
+                featuresKeys={["bundlePackageFeature1","bundlePackageFeature2","bundlePackageFeature3","bundlePackageFeature4","bundlePackageFeature5","bundlePackageFeature6"]}
                 badge={t.bestValue}
                 variant="best"
-                selectText={t.selectPlan}
+                selectTextKey="selectPlan"
               />
             </div>
           </div>
@@ -866,7 +815,7 @@ export default function PlanlyzeAIPage() {
         </motion.section>
       </main>
 
-      <Footer t={t} />
+      <Footer />
       <Toaster />
     </div>
   );
