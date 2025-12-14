@@ -20,7 +20,9 @@ class User(db.Model):
     referred_by = db.Column(db.String(50))
     language = db.Column(db.String(10), default='en')
     profile_image = db.Column(db.Text)
-    # onboarding fields removed
+    email_verified = db.Column(db.Boolean, default=False)
+    verification_token = db.Column(db.String(100))
+    verification_token_expires = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -36,6 +38,7 @@ class User(db.Model):
             'referred_by': self.referred_by,
             'language': self.language,
             'profile_image': self.profile_image,
+            'email_verified': self.email_verified,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None

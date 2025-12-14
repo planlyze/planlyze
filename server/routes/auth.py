@@ -1,19 +1,25 @@
 from flask import Blueprint, request, jsonify
 from server.models import db, User
 from server.utils.translations import get_message
+from server.services.email_service import send_verification_email
 import bcrypt
 import jwt
 import os
 from datetime import datetime, timedelta
 import uuid
+import secrets
 
 auth_bp = Blueprint('auth', __name__)
 
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
 JWT_EXPIRES = 86400  # 24 hours
+APP_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN', os.environ.get('REPLIT_DOMAINS', 'localhost:5000'))
 
 def generate_referral_code():
     return uuid.uuid4().hex[:8].upper()
+
+def generate_verification_token():
+    return secrets.token_urlsafe(32)
 
 def create_token(user_id, email):
     payload = {
@@ -78,7 +84,7 @@ def register():
         description: Language code (en or ar)
     responses:
       201:
-        description: User registered successfully
+        description: User registered successfully, verification email sent
       400:
         description: Invalid input or user already exists
     """
@@ -100,25 +106,169 @@ def register():
     
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
+    verification_token = generate_verification_token()
+    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    
     user = User(
         email=email,
         password_hash=password_hash,
         full_name=full_name,
         referral_code=generate_referral_code(),
-        credits=3,  # Initial free credits
-        language=lang
+        credits=3,
+        language=lang,
+        email_verified=False,
+        verification_token=verification_token,
+        verification_token_expires=verification_expires
     )
     
     db.session.add(user)
     db.session.commit()
     
-    token = create_token(user.id, user.email)
+    verification_link = f"https://{APP_DOMAIN}/verify-email?token={verification_token}"
+    email_sent = send_verification_email(email, full_name, verification_link, lang)
+    
+    if lang == 'ar':
+        message = 'تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.'
+    else:
+        message = 'Registration successful. Please check your email to verify your account.'
     
     return jsonify({
-        'message': get_message('auth.register_success', lang),
-        'token': token,
-        'user': user.to_dict()
+        'message': message,
+        'email_sent': email_sent,
+        'requires_verification': True
     }), 201
+
+@auth_bp.route('/verify-email', methods=['POST'])
+def verify_email():
+    """
+    Verify user email with token
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+          required:
+            - token
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Email verified successfully
+      400:
+        description: Invalid or expired token
+    """
+    data = request.get_json()
+    lang = request.headers.get('Accept-Language', 'en')
+    token = data.get('token')
+    
+    if not token:
+        return jsonify({'error': 'Verification token is required'}), 400
+    
+    user = User.query.filter_by(verification_token=token).first()
+    
+    if not user:
+        if lang == 'ar':
+            return jsonify({'error': 'رمز التحقق غير صالح'}), 400
+        return jsonify({'error': 'Invalid verification token'}), 400
+    
+    if user.verification_token_expires and user.verification_token_expires < datetime.utcnow():
+        if lang == 'ar':
+            return jsonify({'error': 'انتهت صلاحية رمز التحقق. يرجى طلب رابط تحقق جديد.'}), 400
+        return jsonify({'error': 'Verification token has expired. Please request a new verification link.'}), 400
+    
+    user.email_verified = True
+    user.verification_token = None
+    user.verification_token_expires = None
+    db.session.commit()
+    
+    auth_token = create_token(user.id, user.email)
+    
+    if lang == 'ar':
+        message = 'تم تأكيد البريد الإلكتروني بنجاح!'
+    else:
+        message = 'Email verified successfully!'
+    
+    return jsonify({
+        'message': message,
+        'token': auth_token,
+        'user': user.to_dict()
+    })
+
+@auth_bp.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    """
+    Resend verification email
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+          required:
+            - email
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Verification email resent
+      400:
+        description: Email not found or already verified
+    """
+    data = request.get_json()
+    lang = request.headers.get('Accept-Language', 'en')
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if not user:
+        if lang == 'ar':
+            return jsonify({'error': 'البريد الإلكتروني غير مسجل'}), 400
+        return jsonify({'error': 'Email not found'}), 400
+    
+    if user.email_verified:
+        if lang == 'ar':
+            return jsonify({'error': 'البريد الإلكتروني مؤكد بالفعل'}), 400
+        return jsonify({'error': 'Email is already verified'}), 400
+    
+    verification_token = generate_verification_token()
+    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    
+    user.verification_token = verification_token
+    user.verification_token_expires = verification_expires
+    db.session.commit()
+    
+    verification_link = f"https://{APP_DOMAIN}/verify-email?token={verification_token}"
+    email_sent = send_verification_email(email, user.full_name, verification_link, lang)
+    
+    if lang == 'ar':
+        message = 'تم إرسال رابط التحقق إلى بريدك الإلكتروني.'
+    else:
+        message = 'Verification link has been sent to your email.'
+    
+    return jsonify({
+        'message': message,
+        'email_sent': email_sent
+    })
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -153,6 +303,8 @@ def login():
         description: Login successful
       401:
         description: Invalid credentials or account deactivated
+      403:
+        description: Email not verified
     """
     data = request.get_json()
     lang = request.headers.get('Accept-Language', 'en')
@@ -172,6 +324,19 @@ def login():
     
     if not user.is_active:
         return jsonify({'error': 'Account is deactivated'}), 401
+    
+    if not user.email_verified:
+        if lang == 'ar':
+            return jsonify({
+                'error': 'يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.',
+                'requires_verification': True,
+                'email': email
+            }), 403
+        return jsonify({
+            'error': 'Please verify your email before logging in.',
+            'requires_verification': True,
+            'email': email
+        }), 403
     
     token = create_token(user.id, user.email)
     
