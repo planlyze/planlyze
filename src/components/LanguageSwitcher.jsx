@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
     i18n.changeLanguage(lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    localStorage.setItem('language', lang);
+    localStorage.setItem('planlyze-language', lang);
   };
 
   return (

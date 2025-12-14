@@ -17,12 +17,15 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    // Default to Arabic; LanguageDetector may override if a saved preference exists
-    lng: 'ar',
     fallbackLng: 'ar',
     debug: false,
     interpolation: {
       escapeValue: false
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      lookupLocalStorage: 'planlyze-language',
+      caches: ['localStorage'],
     }
   });
 

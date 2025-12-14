@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -16,41 +16,18 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
-
-  // Sync language from landing pages on page load
-  useEffect(() => {
-    const savedLang = localStorage.getItem('planlyze-language') || localStorage.getItem('language') || i18n.language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'ar')) {
-      i18n.changeLanguage(savedLang);
-      document.documentElement.lang = savedLang;
-      document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
-    }
-    
-    // Listen for language changes from other tabs
-    const handleStorageChange = (e) => {
-      if (e.key === 'planlyze-language' || e.key === 'language') {
-        const newLang = e.newValue;
-        if (newLang && (newLang === 'en' || newLang === 'ar')) {
-          i18n.changeLanguage(newLang);
-        }
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [i18n]);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t('auth.passwordsDontMatch') || "Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t('auth.passwordTooShort'));
       return;
     }
 
@@ -58,10 +35,10 @@ export default function Register() {
 
     try {
       await register(email, password, fullName);
-      toast.success("Registration successful! Welcome aboard!");
+      toast.success(t('common.success'));
       navigate("/Dashboard");
     } catch (error) {
-      toast.error(error.message || "Registration failed. Please try again.");
+      toast.error(error.message || t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -71,25 +48,25 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{t('auth.registerTitle')}</CardTitle>
           <CardDescription className="text-center">
-            Enter your details to create a new account
+            {t('auth.registerDescription')}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t('auth.fullName')}</Label>
               <Input
                 id="fullName"
                 type="text"
-                placeholder="John Doe"
+                placeholder={t('auth.fullName')}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -100,22 +77,22 @@ export default function Register() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Create a password"
+                placeholder={t('auth.password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                placeholder={t('auth.confirmPassword')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -124,12 +101,12 @@ export default function Register() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create Account"}
+              {isLoading ? t('common.loading') : t('auth.register')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
+              {t('auth.haveAccount')}{" "}
               <Link to="/Login" className="text-primary hover:underline">
-                Sign in
+                {t('auth.login')}
               </Link>
             </p>
           </CardFooter>

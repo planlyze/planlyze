@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -14,30 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
-
-  // Sync language from landing pages on page load
-  useEffect(() => {
-    const savedLang = localStorage.getItem('planlyze-language') || localStorage.getItem('language') || i18n.language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'ar')) {
-      i18n.changeLanguage(savedLang);
-      document.documentElement.lang = savedLang;
-      document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
-    }
-    
-    // Listen for language changes from other tabs
-    const handleStorageChange = (e) => {
-      if (e.key === 'planlyze-language' || e.key === 'language') {
-        const newLang = e.newValue;
-        if (newLang && (newLang === 'en' || newLang === 'ar')) {
-          i18n.changeLanguage(newLang);
-        }
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [i18n]);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,10 +22,10 @@ export default function Login() {
 
     try {
       await login(email, password);
-      toast.success("Login successful!");
+      toast.success(t('common.success'));
       navigate("/Dashboard");
     } catch (error) {
-      toast.error(error.message || "Login failed. Please check your credentials.");
+      toast.error(error.message || t('auth.invalidCredentials'));
     } finally {
       setIsLoading(false);
     }
@@ -58,15 +35,15 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{t('auth.loginTitle')}</CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access your account
+            {t('auth.loginDescription')}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -77,11 +54,11 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t('auth.password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -90,12 +67,12 @@ export default function Login() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? t('common.loading') : t('auth.login')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
+              {t('auth.noAccount')}{" "}
               <Link to="/Register" className="text-primary hover:underline">
-                Sign up
+                {t('auth.register')}
               </Link>
             </p>
           </CardFooter>

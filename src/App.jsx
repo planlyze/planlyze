@@ -1,4 +1,5 @@
 import './App.css'
+import { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -11,6 +12,7 @@ import Register from '@/pages/Register';
 import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
 import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
 import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
+import i18n from '@/i18n/config';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -131,6 +133,20 @@ const AuthenticatedApp = () => {
 
 
 function App() {
+  useEffect(() => {
+    const lang = i18n.language || 'ar';
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    
+    const handleLanguageChange = (newLang) => {
+      document.documentElement.lang = newLang;
+      document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    return () => i18n.off('languageChanged', handleLanguageChange);
+  }, []);
+
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
