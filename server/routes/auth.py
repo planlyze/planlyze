@@ -19,7 +19,7 @@ def generate_referral_code():
     return uuid.uuid4().hex[:8].upper()
 
 def generate_verification_token():
-    return secrets.token_urlsafe(32)
+    return str(secrets.randbelow(900000) + 100000)
 
 def create_token(user_id, email):
     payload = {
@@ -107,7 +107,7 @@ def register():
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     verification_token = generate_verification_token()
-    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    verification_expires = datetime.utcnow() + timedelta(minutes=15)
     
     user = User(
         email=email,
@@ -124,8 +124,7 @@ def register():
     db.session.add(user)
     db.session.commit()
     
-    verification_link = f"https://{APP_DOMAIN}/verify-email?token={verification_token}"
-    email_sent = send_verification_email(email, full_name, verification_link, lang)
+    email_sent = send_verification_email(email, full_name, verification_token, lang)
     
     if lang == 'ar':
         message = 'تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.'
@@ -141,7 +140,7 @@ def register():
 @auth_bp.route('/verify-email', methods=['POST'])
 def verify_email():
     """
-    Verify user email with token
+    Verify user email with OTP code
     ---
     tags:
       - Authentication
@@ -152,10 +151,13 @@ def verify_email():
         schema:
           type: object
           properties:
-            token:
+            email:
+              type: string
+            code:
               type: string
           required:
-            - token
+            - email
+            - code
       - name: Accept-Language
         in: header
         type: string
@@ -164,26 +166,39 @@ def verify_email():
       200:
         description: Email verified successfully
       400:
-        description: Invalid or expired token
+        description: Invalid or expired code
     """
     data = request.get_json()
     lang = request.headers.get('Accept-Language', 'en')
-    token = data.get('token')
+    email = data.get('email')
+    code = data.get('code')
     
-    if not token:
-        return jsonify({'error': 'Verification token is required'}), 400
+    if not email or not code:
+        if lang == 'ar':
+            return jsonify({'error': 'البريد الإلكتروني ورمز التحقق مطلوبان'}), 400
+        return jsonify({'error': 'Email and verification code are required'}), 400
     
-    user = User.query.filter_by(verification_token=token).first()
+    user = User.query.filter_by(email=email).first()
     
     if not user:
         if lang == 'ar':
-            return jsonify({'error': 'رمز التحقق غير صالح'}), 400
-        return jsonify({'error': 'Invalid verification token'}), 400
+            return jsonify({'error': 'البريد الإلكتروني غير مسجل'}), 400
+        return jsonify({'error': 'Email not found'}), 400
+    
+    if user.email_verified:
+        if lang == 'ar':
+            return jsonify({'error': 'البريد الإلكتروني مؤكد بالفعل'}), 400
+        return jsonify({'error': 'Email is already verified'}), 400
+    
+    if user.verification_token != code:
+        if lang == 'ar':
+            return jsonify({'error': 'رمز التحقق غير صحيح'}), 400
+        return jsonify({'error': 'Invalid verification code'}), 400
     
     if user.verification_token_expires and user.verification_token_expires < datetime.utcnow():
         if lang == 'ar':
-            return jsonify({'error': 'انتهت صلاحية رمز التحقق. يرجى طلب رابط تحقق جديد.'}), 400
-        return jsonify({'error': 'Verification token has expired. Please request a new verification link.'}), 400
+            return jsonify({'error': 'انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.'}), 400
+        return jsonify({'error': 'Verification code has expired. Please request a new code.'}), 400
     
     user.email_verified = True
     user.verification_token = None
@@ -251,14 +266,13 @@ def resend_verification():
         return jsonify({'error': 'Email is already verified'}), 400
     
     verification_token = generate_verification_token()
-    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    verification_expires = datetime.utcnow() + timedelta(minutes=15)
     
     user.verification_token = verification_token
     user.verification_token_expires = verification_expires
     db.session.commit()
     
-    verification_link = f"https://{APP_DOMAIN}/verify-email?token={verification_token}"
-    email_sent = send_verification_email(email, user.full_name, verification_link, lang)
+    email_sent = send_verification_email(email, user.full_name, verification_token, lang)
     
     if lang == 'ar':
         message = 'تم إرسال رابط التحقق إلى بريدك الإلكتروني.'

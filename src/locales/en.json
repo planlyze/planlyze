@@ -33,7 +33,19 @@
     "invalidCredentials": "Invalid email or password",
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
-    "passwordTooShort": "Password must be at least 6 characters"
+    "passwordTooShort": "Password must be at least 6 characters",
+    "enterVerificationCode": "Enter Verification Code",
+    "codeSentTo": "We sent a 6-digit code to",
+    "invalidCode": "Invalid or expired code. Please try again.",
+    "verifyingEmail": "Verifying...",
+    "didntReceiveCode": "Didn't receive the code? Check your spam folder or click below to resend.",
+    "resendCode": "Resend Code",
+    "backToLogin": "Back to Login",
+    "emailVerified": "Email Verified!",
+    "redirectingToDashboard": "Your email has been verified. Redirecting to dashboard...",
+    "verificationFailed": "Verification failed",
+    "verificationResent": "Verification code sent to your email",
+    "userExists": "This email is already registered"
   },
   "dashboard": {
     "title": "Your Dashboard",

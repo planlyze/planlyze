@@ -7,37 +7,43 @@ ZEPTOMAIL_API_KEY = os.environ.get('ZEPTOMAIL_API_KEY')
 SENDER_EMAIL = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'noreply@planlyze.com')
 SENDER_NAME = os.environ.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze')
 
-def send_verification_email(to_email, to_name, verification_link, lang='en'):
+def send_verification_email(to_email, to_name, otp_code, lang='en'):
     if not ZEPTOMAIL_API_KEY:
         print("Warning: ZEPTOMAIL_API_KEY not configured, skipping email send")
         return False
     
     if lang == 'ar':
-        subject = "تأكيد بريدك الإلكتروني - Planlyze"
+        subject = "رمز التحقق الخاص بك - Planlyze"
         html_body = f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #333;">مرحباً {to_name or 'بك'}!</h2>
-            <p style="color: #666; font-size: 16px;">شكراً لتسجيلك في Planlyze. يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه:</p>
+            <p style="color: #666; font-size: 16px;">شكراً لتسجيلك في Planlyze. رمز التحقق الخاص بك هو:</p>
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{verification_link}" style="background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-size: 16px;">تأكيد البريد الإلكتروني</a>
+                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #3b82f6;">{otp_code}</span>
+                </div>
             </div>
+            <p style="color: #666; font-size: 14px;">أدخل هذا الرمز في صفحة التحقق لتأكيد حسابك.</p>
             <p style="color: #999; font-size: 14px;">إذا لم تقم بإنشاء حساب، يمكنك تجاهل هذا البريد.</p>
-            <p style="color: #999; font-size: 14px;">هذا الرابط صالح لمدة 24 ساعة.</p>
+            <p style="color: #999; font-size: 14px;">هذا الرمز صالح لمدة 15 دقيقة.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="color: #999; font-size: 12px;">فريق Planlyze</p>
         </div>
         """
     else:
-        subject = "Verify Your Email - Planlyze"
+        subject = "Your Verification Code - Planlyze"
         html_body = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #333;">Hello {to_name or 'there'}!</h2>
-            <p style="color: #666; font-size: 16px;">Thank you for registering with Planlyze. Please verify your email by clicking the button below:</p>
+            <p style="color: #666; font-size: 16px;">Thank you for registering with Planlyze. Your verification code is:</p>
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{verification_link}" style="background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-size: 16px;">Verify Email</a>
+                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #3b82f6;">{otp_code}</span>
+                </div>
             </div>
+            <p style="color: #666; font-size: 14px;">Enter this code on the verification page to confirm your account.</p>
             <p style="color: #999; font-size: 14px;">If you didn't create an account, you can ignore this email.</p>
-            <p style="color: #999; font-size: 14px;">This link is valid for 24 hours.</p>
+            <p style="color: #999; font-size: 14px;">This code is valid for 15 minutes.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             <p style="color: #999; font-size: 12px;">The Planlyze Team</p>
         </div>

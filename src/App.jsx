@@ -36,7 +36,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/Login" replace />;
   }
 
   return children;
@@ -87,10 +87,10 @@ const AuthenticatedApp = () => {
       {/* Public legal / info pages */}
       <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       <Route path="/IdeaSecurity" element={<IdeaSecurityPage />} />
+      <Route path="/landing" element={<PlanlyzeAIPage />} />
       <Route path="/" element={
         (() => {
-          // If user is authenticated show main protected page, otherwise show landing
-          const AuthSwitch = () => {
+          const HomeRoute = () => {
             const { isAuthenticated, isLoadingAuth } = useAuth();
             if (isLoadingAuth) return (
               <div className="fixed inset-0 flex items-center justify-center">
@@ -106,10 +106,10 @@ const AuthenticatedApp = () => {
                 </ProtectedRoute>
               );
             }
-            return <PlanlyzeAIPage />;
+            return <Navigate to="/Login" replace />;
           };
 
-          return <AuthSwitch />
+          return <HomeRoute />
         })()
       } />
       {Object.entries(Pages).map(([path, Page]) => (
