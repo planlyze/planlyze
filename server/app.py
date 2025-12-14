@@ -1,7 +1,7 @@
 """
 Flask application factory and initialization.
 """
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flasgger import Swagger
@@ -85,20 +85,15 @@ def create_app(config=None):
     logger.info(f"Application created with {app.config.get('FLASK_ENV', 'development')} configuration")
     logger.info(f"Swagger UI available at http://localhost:3000/api/apidocs")
     
-    return app
+    # Serve static files from Vite build in production
+    dist_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'dist')
     
-    # Health check endpoint
-    @app.route('/api/health', methods=['GET'])
-    def health():
-        return APIResponse.success({'status': 'healthy'}, message='Server is running')
-    
-    # Create database tables if they don't exist
-    with app.app_context():
-        db.create_all()
-        logger.info("Database initialized")
-    
-    logger.info(f"Application created with {app.config.get('FLASK_ENV', 'development')} configuration")
-    logger.info(f"Swagger UI available at http://localhost:3000/api/docs")
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_frontend(path):
+        if path and os.path.exists(os.path.join(dist_folder, path)):
+            return send_from_directory(dist_folder, path)
+        return send_from_directory(dist_folder, 'index.html')
     
     return app
 

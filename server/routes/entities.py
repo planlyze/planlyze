@@ -97,7 +97,7 @@ def contact_public():
                 }
             ],
             'subject': f'Contact from {name}',
-            'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace('\n','<br/>')}</p>",
+            'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace(chr(10),'<br/>')}</p>",
             'textbody': f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
         }
 
