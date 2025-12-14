@@ -9,6 +9,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import VerifyEmail from '@/pages/VerifyEmail';
 import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
 import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
 import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
           <Register />
         </PublicRoute>
       } />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       {/* Public legal / info pages */}
       <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       <Route path="/IdeaSecurity" element={<IdeaSecurityPage />} />

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/lib/AuthContext";
+import { auth } from "@/api/client";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -34,9 +33,10 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      await register(email, password, fullName);
-      toast.success(t('common.success'));
-      navigate("/Dashboard");
+      const response = await auth.register({ email, password, full_name: fullName });
+      localStorage.setItem("pending_verification_email", email);
+      toast.success(response.message || t('auth.registrationSuccess'));
+      navigate("/verify-email");
     } catch (error) {
       toast.error(error.message || t('common.error'));
     } finally {

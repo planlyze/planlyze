@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { auth } from "@/api/client";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,13 @@ export default function Login() {
       toast.success(t('common.success'));
       navigate("/Dashboard");
     } catch (error) {
-      toast.error(error.message || t('auth.invalidCredentials'));
+      if (error.data?.requires_verification) {
+        localStorage.setItem("pending_verification_email", error.data.email || email);
+        toast.error(error.message);
+        navigate("/verify-email");
+      } else {
+        toast.error(error.message || t('auth.invalidCredentials'));
+      }
     } finally {
       setIsLoading(false);
     }
