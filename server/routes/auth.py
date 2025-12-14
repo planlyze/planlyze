@@ -89,7 +89,8 @@ def register():
         description: Invalid input or user already exists
     """
     data = request.get_json()
-    lang = request.headers.get('Accept-Language', 'en')
+    raw_lang = request.headers.get('Accept-Language', 'en')
+    lang = 'ar' if 'ar' in raw_lang else 'en'
     
     email = data.get('email')
     password = data.get('password')
