@@ -1,9 +1,11 @@
-modules = ["nodejs-20", "python-3.10", "web"]
+modules = ["nodejs-20", "web", "python-3.11"]
 [agent]
 expertMode = true
+integrations = ["python_anthropic_ai_integrations:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["cargo", "libiconv", "rustc"]
 
 [workflows]
 runButton = "Project"
@@ -25,13 +27,13 @@ args = "Frontend"
 name = "Backend API"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python wsgi.py"
-waitForPort = 3000
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ".venv/bin/python wsgi.py"
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Frontend"
@@ -48,11 +50,6 @@ outputType = "webview"
 [[ports]]
 localPort = 3000
 externalPort = 3000
-exposeLocalhost = true
-
-[[ports]]
-localPort = 5000
-externalPort = 5000
 
 [deployment]
 deploymentTarget = "autoscale"

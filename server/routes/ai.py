@@ -8,9 +8,12 @@ import json
 ai_bp = Blueprint('ai', __name__)
 
 def get_anthropic_client():
-    api_key = os.environ.get('ANTHROPIC_API_KEY')
+    api_key = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_API_KEY') or os.environ.get('ANTHROPIC_API_KEY')
+    base_url = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_BASE_URL')
     if not api_key:
         return None
+    if base_url:
+        return anthropic.Anthropic(api_key=api_key, base_url=base_url)
     return anthropic.Anthropic(api_key=api_key)
 
 def require_auth(f):
