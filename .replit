@@ -57,5 +57,5 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "gunicorn --bind=0.0.0.0:5000 --reuse-port wsgi:app"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "wsgi:app"]
 build = ["npm", "run", "build"]
