@@ -106,7 +106,7 @@ const AuthenticatedApp = () => {
                 </ProtectedRoute>
               );
             }
-            return <Navigate to="/Login" replace />;
+            return <PlanlyzeAIPage />;
           };
 
           return <HomeRoute />
