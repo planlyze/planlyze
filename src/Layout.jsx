@@ -303,7 +303,7 @@ export default function Layout({ children, currentPageName }) {
     setCurrentUser(null);
     setIsLoggedIn(false);
     setIsLogoutConfirmOpen(false);
-    navigate('/Login');
+    navigate('/');
   };
 
   // Initial loading state before we know if user is logged in
