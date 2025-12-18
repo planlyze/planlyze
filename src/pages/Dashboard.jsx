@@ -1,17 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
-import { useNavigate } from "react-router-dom";
+import { auth, Analysis, Transaction } from "@/api/client";
+import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-
-import StatsOverview from "../components/dashboard/StatsOverview";
-import RecentAnalyses from "../components/dashboard/RecentAnalyses";
-import CreditSummary from "../components/dashboard/CreditSummary";
-import RecentTransactions from "../components/dashboard/RecentTransactions";
-import ActivityFeed from "../components/dashboard/ActivityFeed";
-
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import {
+  Wallet,
+  FileText,
+  TrendingUp,
+  Plus,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Eye,
+  Sparkles,
+  Zap,
+  Target,
+  BarChart3
+} from "lucide-react";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
 
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
+const statusIcons = {
+  draft: Clock,
+  analyzing: AlertCircle,
+  completed: CheckCircle2,
+  failed: AlertCircle
+};
+
+const statusColors = {
+  draft: "bg-gray-100 text-gray-700 border-gray-200",
+  analyzing: "bg-amber-50 text-amber-700 border-amber-200",
+  completed: "bg-green-50 text-green-700 border-green-200",
+  failed: "bg-red-50 text-red-700 border-red-200"
+};
+
+const statusLabels = {
+  draft: { en: "Draft", ar: "مسودة" },
+  analyzing: { en: "Analyzing", ar: "قيد التحليل" },
+  completed: { en: "Completed", ar: "مكتمل" },
+  failed: { en: "Failed", ar: "فشل" }
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -27,8 +69,6 @@ export default function Dashboard() {
         setCurrentUser(user);
         await loadAnalyses(user.email);
       } catch (error) {
-        // Instead of navigating to a LandingPage, initiate a login redirect.
-        // This implies the user is not authenticated and needs to log in.
         window.location.href = "/login";
       }
     };
@@ -39,10 +79,8 @@ export default function Dashboard() {
     setIsLoading(true);
     try {
       const data = await Analysis.filter({ user_email: userEmail });
-      // Exclude soft-deleted reports
       setAnalyses(data.filter(a => a.is_deleted !== true));
       
-      // Load recent transactions
       const txs = await Transaction.filter({ user_email: userEmail });
       setTransactions(txs.slice(0, 5));
     } catch (error) {
@@ -52,76 +90,314 @@ export default function Dashboard() {
     }
   };
 
+  const isArabic = currentUser?.preferred_language === 'arabic' || currentUser?.language === 'ar';
+
   if (isLoading || !currentUser) {
     return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8 bg-slate-200 rounded-lg" />
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 bg-slate-200 rounded-xl" />)}
+      <div className="p-6 md:p-8 bg-gray-50 min-h-screen">
+        <Skeleton className="h-10 w-64 mb-2 bg-gray-200 rounded-lg" />
+        <Skeleton className="h-6 w-96 mb-8 bg-gray-200 rounded-lg" />
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 bg-gray-200 rounded-2xl" />)}
         </div>
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2"><Skeleton className="h-96 bg-slate-200 rounded-xl" /></div>
-          <div className="space-y-6">
-            <Skeleton className="h-48 bg-slate-200 rounded-xl" />
-            <Skeleton className="h-64 bg-slate-200 rounded-xl" />
-          </div>
+        <div className="grid lg:grid-cols-2 gap-8">
+          <Skeleton className="h-96 bg-gray-200 rounded-2xl" />
+          <Skeleton className="h-96 bg-gray-200 rounded-2xl" />
         </div>
       </div>
     );
   }
 
-  const completedAnalyses = analyses.filter(a => a.status === 'completed').length;
-  const inProgressAnalyses = analyses.filter(a => a.status === 'analyzing').length;
+  const stats = [
+    {
+      title: isArabic ? "الأرصدة المتبقية" : "Credits Available",
+      value: currentUser?.premium_credits || 0,
+      icon: Wallet,
+      color: "orange",
+      bgGradient: "from-orange-500 to-orange-600"
+    },
+    {
+      title: isArabic ? "إجمالي التقارير" : "Total Reports",
+      value: analyses.length,
+      icon: FileText,
+      color: "purple",
+      bgGradient: "from-purple-500 to-purple-600"
+    },
+    {
+      title: isArabic ? "الأرصدة المستخدمة" : "Credits Used",
+      value: currentUser?.total_credits_used || 0,
+      icon: TrendingUp,
+      color: "gray",
+      bgGradient: "from-gray-600 to-gray-700"
+    }
+  ];
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const recentAnalyses = analyses.slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className={`${isArabic ? 'text-right' : 'text-left'} space-y-3`}>
-          <div className="inline-block">
-            <h1 className="text-4xl md:text-5xl font-bold text-orange-600">
-              {isArabic ? 'لوحة التحكم' : 'Your Dashboard'}
-            </h1>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <motion.div 
+        className="max-w-7xl mx-auto space-y-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants} className={`${isArabic ? 'text-right' : 'text-left'}`}>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                {isArabic ? 'مرحباً،' : 'Welcome back,'}{' '}
+                <span className="text-orange-500">{currentUser?.full_name?.split(' ')[0] || 'User'}</span>
+              </h1>
+              <p className="text-gray-600 mt-2">
+                {isArabic ? 'إليك نظرة عامة على نشاطك.' : "Here's an overview of your activity."}
+              </p>
+            </div>
+            <Link to={createPageUrl("NewAnalysis")}>
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
+                <Plus className="w-5 h-5 mr-2" />
+                {isArabic ? "تحليل جديد" : "New Analysis"}
+              </Button>
+            </Link>
           </div>
-          <p className="text-xl text-slate-600 font-medium">
-            {isArabic ? 'تتبع وأدر تحليلات عملك.' : 'Track and manage your business analyses.'}
-          </p>
-        </div>
+        </motion.div>
 
-        <div data-tour="credits-widget">
-          <StatsOverview 
-            creditsLeft={currentUser?.premium_credits || 0}
-            totalReports={analyses.length}
-            totalUsed={currentUser?.total_credits_used || 0}
-            isLoading={isLoading}
-            isArabic={isArabic}
-          />
-        </div>
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              whileHover={{ scale: 1.02, y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className={`h-1 bg-gradient-to-r ${stat.bgGradient}`}></div>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
+                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    </div>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.bgGradient} flex items-center justify-center shadow-lg`}>
+                      <stat.icon className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
 
-        {/* Recent Transactions and Analyses */}
+        <motion.div variants={itemVariants}>
+          <Card className="border-0 shadow-lg bg-gradient-to-r from-purple-600 to-orange-500 text-white overflow-hidden">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                    <Zap className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">
+                      {isArabic ? "جاهز لتحليل فكرتك؟" : "Ready to analyze your idea?"}
+                    </h3>
+                    <p className="text-white/80 text-sm">
+                      {isArabic 
+                        ? "احصل على تقرير شامل مع تحليل السوق والمنافسين واستراتيجية العمل." 
+                        : "Get a comprehensive report with market analysis, competitors, and business strategy."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="hidden md:flex items-center gap-6 text-white/80">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-5 h-5" />
+                      <span className="text-sm">{isArabic ? "تحليل السوق" : "Market Analysis"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      <span className="text-sm">{isArabic ? "خطة العمل" : "Business Plan"}</span>
+                    </div>
+                  </div>
+                  <Link to={createPageUrl("NewAnalysis")}>
+                    <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 rounded-full shadow-lg hover:shadow-xl transition-all">
+                      {isArabic ? "ابدأ الآن" : "Start Now"}
+                      <ArrowRight className={`w-4 h-4 ml-2 ${isArabic ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         <div className="grid lg:grid-cols-2 gap-8">
-          <RecentTransactions transactions={transactions} isArabic={isArabic} />
-          <div data-tour="reports">
-            <RecentAnalyses 
-              analyses={analyses}
-              isLoading={isLoading}
-              onRefresh={() => loadAnalyses(currentUser.email)}
-              isArabic={isArabic}
-            />
-          </div>
-        </div>
+          <motion.div variants={itemVariants}>
+            <Card className="border-0 shadow-lg h-full">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-purple-600" />
+                    </div>
+                    {isArabic ? "أحدث التقارير" : "Recent Reports"}
+                  </CardTitle>
+                  <Link to={createPageUrl("Reports")}>
+                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50">
+                      {isArabic ? "عرض الكل" : "View All"}
+                      <ArrowRight className={`w-4 h-4 ml-1 ${isArabic ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {recentAnalyses.length === 0 ? (
+                  <div className="text-center py-12 px-6">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {isArabic ? "لا توجد تقارير بعد" : "No Reports Yet"}
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      {isArabic ? "ابدأ أول تحليل لترى النتائج هنا" : "Start your first analysis to see results here"}
+                    </p>
+                    <Link to={createPageUrl("NewAnalysis")}>
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full">
+                        <Plus className="w-4 h-4 mr-2" />
+                        {isArabic ? "ابدأ أول تحليل" : "Start First Analysis"}
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {recentAnalyses.map((analysis, index) => {
+                      const StatusIcon = statusIcons[analysis.status];
+                      return (
+                        <motion.div
+                          key={analysis.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          className="p-4 hover:bg-gray-50 transition-colors group"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                {analysis.is_premium && (
+                                  <Sparkles className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                                )}
+                                <h4 className="font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                  {analysis.business_idea}
+                                </h4>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {format(new Date(analysis.created_date), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className={`${statusColors[analysis.status]} border text-xs`}>
+                                <StatusIcon className="w-3 h-3 mr-1" />
+                                {isArabic ? statusLabels[analysis.status]?.ar : statusLabels[analysis.status]?.en}
+                              </Badge>
+                              {analysis.status === 'completed' && (
+                                <Link to={createPageUrl(`AnalysisResult?id=${analysis.id}`)}>
+                                  <Button size="sm" variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        {/* Activity Feed */}
-        <div data-tour="activity">
-          <ActivityFeed 
-            userEmail={currentUser?.email} 
-            isArabic={isArabic} 
-            limit={10}
-            showPublic={currentUser?.role === 'admin'}
-          />
+          <motion.div variants={itemVariants}>
+            <Card className="border-0 shadow-lg h-full">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                      <Wallet className="w-5 h-5 text-orange-600" />
+                    </div>
+                    {isArabic ? "أحدث المعاملات" : "Recent Transactions"}
+                  </CardTitle>
+                  <Link to={createPageUrl("Credits")}>
+                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50">
+                      {isArabic ? "عرض الكل" : "View All"}
+                      <ArrowRight className={`w-4 h-4 ml-1 ${isArabic ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {transactions.length === 0 ? (
+                  <div className="text-center py-12 px-6">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <Wallet className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {isArabic ? "لا توجد معاملات بعد" : "No Transactions Yet"}
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      {isArabic ? "قم بشراء أرصدة لبدء التحليل" : "Purchase credits to start analyzing"}
+                    </p>
+                    <Link to={createPageUrl("Credits")}>
+                      <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full">
+                        <Wallet className="w-4 h-4 mr-2" />
+                        {isArabic ? "شراء أرصدة" : "Buy Credits"}
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {transactions.map((tx, index) => (
+                      <motion.div
+                        key={tx.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className="p-4 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              tx.type === 'credit' || tx.type === 'purchase' 
+                                ? 'bg-green-100 text-green-600' 
+                                : 'bg-red-100 text-red-600'
+                            }`}>
+                              {tx.type === 'credit' || tx.type === 'purchase' ? '+' : '-'}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">
+                                {tx.description || tx.type}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {tx.created_date && format(new Date(tx.created_date), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                          </div>
+                          <span className={`font-bold ${
+                            tx.type === 'credit' || tx.type === 'purchase' 
+                              ? 'text-green-600' 
+                              : 'text-red-600'
+                          }`}>
+                            {tx.type === 'credit' || tx.type === 'purchase' ? '+' : '-'}{tx.amount}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

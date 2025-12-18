@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { createPageUrl } from "@/utils";
-import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell } from "lucide-react";
+import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell, ChevronRight, Sparkles } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { User } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
+import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
 
 import {
   Sidebar,
@@ -163,7 +164,6 @@ export default function Layout({ children, currentPageName }) {
 
   const isArabic = currentUser?.language === 'ar';
 
-  // Helper: build localized nav items
   const buildNavigationItems = (isAdmin, isArabicLang) => {
     const t = (id, en) => {
       if (!isArabicLang) return en;
@@ -231,7 +231,6 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [authUser, isAuthenticated, i18n]);
 
-  // Listen for i18n language changes (works within same window and across tabs)
   useEffect(() => {
     const handleLanguageChanged = (lng) => {
       if (lng && (lng === 'en' || lng === 'ar')) {
@@ -250,7 +249,6 @@ export default function Layout({ children, currentPageName }) {
     return () => i18n.off('languageChanged', handleLanguageChanged);
   }, [i18n, currentUser]);
 
-  // Listen for language changes from other tabs/windows
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'planlyze-language' || e.key === 'language') {
@@ -306,121 +304,82 @@ export default function Layout({ children, currentPageName }) {
     navigate('/');
   };
 
-  // Initial loading state before we know if user is logged in
   if (isLoggedIn === null) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-slate-50">
-        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-screen w-full bg-gray-50">
+        <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>);
-
   }
 
   return (
     <SidebarProvider>
       <Toaster position="top-center" richColors />
       <style>{`
-        :root {
-          /* Brand palette based on provided logos (purple + orange) */
-          --primary: 88 28 135;           /* purple-700 */
-          --primary-foreground: 248 250 252;
-          --secondary: 234 88 12;         /* orange-600 */
-          --secondary-foreground: 255 255 255;
-          --accent: 168 85 247;           /* purple-500 */
-          --accent-foreground: 30 41 59;
-          --muted: 250 245 255;           /* purple-50 */
-          --muted-foreground: 71 85 105;
-        }
-
-        .glass-effect {
-          backdrop-filter: blur(10px);
-          background: rgba(255, 255, 255, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* RTL Support */
         [dir="rtl"] { direction: rtl; }
         [dir="rtl"] .text-left { text-align: right; }
         [dir="rtl"] .text-right { text-align: left; }
 
         @media print {
-          /* Use full page and allow multi-page content */
           @page { margin: 12mm; }
           html, body, #root, main { height: auto !important; overflow: visible !important; }
-
-          /* Unclip any scroll containers */
           .print-container, .print-container * { overflow: visible !important; max-height: none !important; }
-
-          /* Reset screen-only sizing that can truncate print */
           .min-h-screen, .h-screen, .max-h-screen { min-height: auto !important; height: auto !important; max-height: none !important; }
-
-          /* Hide UI chrome */
           .no-print { display: none !important; }
-
-          /* Allow long sections/cards to break across pages to avoid missing tails */
-          section, .glass-effect { 
-            break-inside: auto !important; 
-            page-break-inside: auto !important; 
-          }
-
-          /* Avoid position tricks during print */
+          section { break-inside: auto !important; page-break-inside: auto !important; }
           .fixed, .sticky { position: static !important; top: auto !important; }
         }
       `}</style>
 
-      <div className={`min-h-screen flex w-full bg-slate-50`} dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className={`min-h-screen flex w-full bg-gray-50`} dir={isArabic ? 'rtl' : 'ltr'}>
         {isLoggedIn &&
         <Sidebar
-          className={`${isArabic ? 'order-2 border-l' : 'order-1 border-r'} border-slate-200/50 glass-effect no-print`}
+          className={`${isArabic ? 'order-2 border-l' : 'order-1 border-r'} border-gray-200 bg-white no-print`}
         >
-            <SidebarHeader className="border-b border-slate-200/50 p-6">
-              <a
-                href="https://planlyze.ai/PlanlyzeAI/"
+            <SidebarHeader className="border-b border-gray-100 p-5">
+              <Link
+                to="/"
                 className="flex items-center gap-3 hover:opacity-90 transition-opacity"
               >
-                <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center">
-                  <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d88779509b26dfa9f6be/001aecb88_Main_logo-04.png"
+                <img
+                  src={planLyzeLogo}
                   alt="Planlyze logo"
-                  className="w-9 h-9 object-contain" />
-
-                </div>
+                  className="w-12 h-12 object-contain"
+                />
                 <div>
-                  <h2 className="font-bold text-xl text-slate-800">Planlyze</h2>
-                  <p className="text-xs text-slate-500 font-medium">From idea to action Plan</p>
+                  <h2 className="font-bold text-xl text-gray-900">Planlyze</h2>
+                  <p className="text-xs text-gray-500">From idea to action plan</p>
                 </div>
-              </a>
+              </Link>
             </SidebarHeader>
 
-            <SidebarContent className="p-4 overflow-y-auto">
-              {/* Enhanced Credit Summary Card - Moved to top */}
-              <div className="mb-4 bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-600 rounded-2xl p-4 shadow-lg border border-purple-400/30 relative">
-                {/* Decorative background pattern */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.15),transparent)] pointer-events-none rounded-2xl"></div>
+            <SidebarContent className="p-3 overflow-y-auto">
+              <div className="mb-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                 
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-md flex-shrink-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
                         <Wallet className="w-5 h-5 text-white" />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-purple-100 font-medium uppercase tracking-wide mb-0.5">{isArabic ? "الأرصدة المتاحة" : "Available Credits"}</p>
-                        <p className="text-2xl font-bold text-white drop-shadow-sm">
+                      <div>
+                        <p className="text-xs text-orange-100 font-medium">{isArabic ? "الأرصدة المتاحة" : "Available Credits"}</p>
+                        <p className="text-2xl font-bold text-white">
                           {currentUser?.premium_credits || 0}
                         </p>
                       </div>
                     </div>
-                    <Link to={createPageUrl("Credits")} className="flex-shrink-0 mt-1" data-tour="new-analysis">
+                    <Link to={createPageUrl("Credits")}>
                       <Button 
                         size="sm" 
-                        className="h-8 px-4 text-sm bg-white/95 hover:bg-white text-purple-700 font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
                       >
                         {isArabic ? "شراء" : "Buy"}
                       </Button>
                     </Link>
                   </div>
                   
-                  {/* Usage Progress */}
                   {(() => {
                     const purchased = currentUser?.total_credits_purchased || 0;
                     const used = currentUser?.total_credits_used || 0;
@@ -428,16 +387,12 @@ export default function Layout({ children, currentPageName }) {
                     return purchased > 0 ? (
                       <div className="pt-3 border-t border-white/20">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-xs text-purple-100 font-medium uppercase tracking-wide">
-                            {isArabic ? "الاستخدام" : "Usage"}
-                          </span>
-                          <span className="text-sm font-bold text-white tabular-nums">
-                            {used}/{purchased}
-                          </span>
+                          <span className="text-xs text-orange-100">{isArabic ? "الاستخدام" : "Usage"}</span>
+                          <span className="text-sm font-bold text-white">{used}/{purchased}</span>
                         </div>
-                        <div className="w-full bg-white/20 backdrop-blur-sm rounded-full h-2 overflow-hidden shadow-inner">
+                        <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
                           <div 
-                            className="h-full bg-white/90 transition-all duration-500 shadow-sm rounded-full"
+                            className="h-full bg-white transition-all duration-500 rounded-full"
                             style={{ width: `${Math.min(usagePercent, 100)}%` }}
                           />
                         </div>
@@ -447,95 +402,116 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
 
+              <Link to={createPageUrl("NewAnalysis")} className="block mb-4">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-[1.02] group">
+                  <Plus className="w-5 h-5 mr-2" />
+                  {isArabic ? "تحليل جديد" : "New Analysis"}
+                  <Sparkles className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100" />
+                </Button>
+              </Link>
+
               <SidebarGroup>
+                <SidebarGroupLabel className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
+                  {isArabic ? "القائمة" : "Menu"}
+                </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu className="space-y-1">
-                    {navigationItems.map((item) =>
-                  <SidebarMenuItem key={item.id}>
+                    {navigationItems.filter(item => item.id !== 'new_analysis').map((item) =>
+                      <SidebarMenuItem key={item.id}>
                         <SidebarMenuButton
-                              asChild
-                              className={`transition-all duration-300 rounded-xl px-4 py-3 ${
-                              location.pathname === item.url ?
-                              'bg-purple-600 text-white shadow-lg hover:bg-orange-600 hover:text-white' :
-                              'hover:bg-purple-100 text-slate-700 hover:text-purple-700'}`
-                              }>
-
+                          asChild
+                          className={`transition-all duration-200 rounded-lg px-3 py-2.5 ${
+                            location.pathname === item.url
+                              ? 'bg-orange-50 text-orange-600 font-semibold border-l-4 border-orange-500'
+                              : 'hover:bg-gray-100 text-gray-700 hover:text-gray-900'
+                          }`}
+                        >
                           <Link to={item.url} className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                            <item.icon className={`w-5 h-5 ${item.id === 'owner_dashboard' ? (location.pathname === item.url ? 'text-white' : 'text-purple-600') : ''}`} />
-                            <span className="font-semibold">{item.title}</span>
+                            <item.icon className={`w-5 h-5 ${location.pathname === item.url ? 'text-orange-500' : 'text-gray-400'}`} />
+                            <span className="flex-1">{item.title}</span>
+                            {location.pathname === item.url && (
+                              <ChevronRight className={`w-4 h-4 text-orange-400 ${isArabic ? 'rotate-180' : ''}`} />
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                  )}
+                    )}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-slate-200/50 p-4">
-                {/* User Profile */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200">
-                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                  <UserIcon className="w-5 h-5 text-slate-600" />
+            <SidebarFooter className="border-t border-gray-100 p-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                  {(currentUser?.full_name || currentUser?.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
-                    <p className="font-semibold text-slate-800 text-sm truncate">
-                      {currentUser?.display_name || currentUser?.full_name}
+                    <p className="font-semibold text-gray-900 text-sm truncate">
+                      {currentUser?.display_name || currentUser?.full_name || 'User'}
                     </p>
-                    <Button variant="ghost" size="icon" className="w-6 h-6 text-slate-500 hover:text-slate-800" onClick={() => setIsEditingDisplayName(true)}>
-                      <Pencil className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-gray-400 hover:text-gray-700" onClick={() => setIsEditingDisplayName(true)}>
+                      <Pencil className="w-3 h-3" />
                     </Button>
                   </div>
-                  <p className="text-xs text-slate-600 truncate">{currentUser?.email}</p>
+                  <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-slate-500 hover:text-slate-800" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
-                  <Globe className="w-5 h-5" />
+              </div>
+              
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-gray-500 hover:text-gray-700 hover:bg-gray-100" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
+                  <Globe className="w-4 h-4 mr-1" />
+                  <span className="text-xs">{isArabic ? 'EN' : 'AR'}</span>
                 </Button>
-                <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
-                <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-slate-500 hover:text-slate-800">
-                  <LogOut className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
+                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 hover:bg-red-50">
+                    <LogOut className="w-4 h-4" />
+                  </Button>
                 </div>
-                </SidebarFooter>
+              </div>
+            </SidebarFooter>
           </Sidebar>
         }
 
         <main className={`flex-1 flex flex-col ${isLoggedIn ? (isArabic ? 'order-1' : 'order-2') : ''}`}>
           {isLoggedIn &&
-          <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 px-6 py-4 md:hidden shadow-sm no-print">
+          <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden shadow-sm no-print">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
+                <div className="flex items-center gap-3">
+                  <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
                   <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d88779509b26dfa9f6be/a0909d13b_Main_logo-01.png"
-                  alt="Planlyze"
-                  className="h-6 object-contain" />
-
+                    src={planLyzeLogo}
+                    alt="Planlyze"
+                    className="h-8 object-contain"
+                  />
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-slate-500 hover:text-slate-800">
-                  <LogOut className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
+                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500">
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </header>
           }
 
-          <div className="flex-1 overflow-auto print-container">
+          <div className="flex-1 overflow-auto print-container bg-gray-50">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Display Name Edit Dialog */}
       <Dialog open={isEditingDisplayName} onOpenChange={setIsEditingDisplayName}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Display Name</DialogTitle>
+            <DialogTitle>{isArabic ? "تعديل الاسم" : "Edit Display Name"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="displayName" className="text-right">
-                Name
+                {isArabic ? "الاسم" : "Name"}
               </Label>
               <Input
                 id="displayName"
@@ -548,23 +524,21 @@ export default function Layout({ children, currentPageName }) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                {isArabic ? "إلغاء" : "Cancel"}
               </Button>
             </DialogClose>
-            <Button onClick={handleSaveDisplayName} disabled={isSavingDisplayName}>
-              {isSavingDisplayName ? 'Saving...' : 'Save changes'}
+            <Button onClick={handleSaveDisplayName} disabled={isSavingDisplayName} className="bg-orange-500 hover:bg-orange-600">
+              {isSavingDisplayName ? (isArabic ? 'جاري الحفظ...' : 'Saving...') : (isArabic ? 'حفظ التغييرات' : 'Save changes')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* One-time Complete Profile Prompt */}
       <Dialog
         open={showProfilePrompt}
         onOpenChange={(open) => {
           setShowProfilePrompt(open);
           if (!open && !profilePromptAcked) {
-            // If user dismisses by clicking outside/ESC, still mark as shown once
             acknowledgeProfilePrompt(false);
           }
         }}
@@ -576,49 +550,33 @@ export default function Layout({ children, currentPageName }) {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <p className="text-slate-600">
+            <p className="text-gray-600">
               {isArabic
-                ? "أضف معلومات الاتصال والموقع لتحصل على تقارير أدق وتجربة أفضل."
-                : "Add your contact and location details for more accurate reports and a better experience."}
+                ? "أضف بعض المعلومات إلى ملفك الشخصي لتحسين تجربتك."
+                : "Add some information to your profile to enhance your experience."}
             </p>
-            <ul className="list-disc pl-5 text-sm text-slate-600">
-              <li>{isArabic ? "رقم الهاتف" : "Phone number"}</li>
-              <li>{isArabic ? "الدولة" : "Country"}</li>
-              <li>{isArabic ? "المدينة" : "City"}</li>
-            </ul>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => acknowledgeProfilePrompt(false)}
-              disabled={isAckingProfilePrompt}
-            >
-              {isArabic ? "لاحقًا" : "Later"}
-            </Button>
-            <Button
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-              onClick={() => acknowledgeProfilePrompt(true)}
-              disabled={isAckingProfilePrompt}
-            >
-              {isArabic ? "أكمل الآن" : "Complete now"}
+            <DialogClose asChild>
+              <Button type="button" variant="outline" onClick={() => acknowledgeProfilePrompt(false)}>
+                {isArabic ? "لاحقًا" : "Later"}
+              </Button>
+            </DialogClose>
+            <Button onClick={() => acknowledgeProfilePrompt(true)} disabled={isAckingProfilePrompt} className="bg-orange-500 hover:bg-orange-600">
+              {isArabic ? "إكمال الملف الشخصي" : "Complete Profile"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Logout Confirmation Dialog */}
       <Dialog open={isLogoutConfirmOpen} onOpenChange={setIsLogoutConfirmOpen}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
             <DialogTitle>{isArabic ? "تأكيد تسجيل الخروج" : "Confirm Logout"}</DialogTitle>
           </DialogHeader>
-          <div className="py-2">
-            <p className="text-slate-600">
-              {isArabic
-                ? "هل أنت متأكد أنك تريد تسجيل الخروج؟"
-                : "Are you sure you want to log out?"}
-            </p>
-          </div>
+          <p className="text-gray-600">
+            {isArabic ? "هل أنت متأكد أنك تريد تسجيل الخروج؟" : "Are you sure you want to log out?"}
+          </p>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
