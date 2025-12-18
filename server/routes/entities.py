@@ -434,11 +434,27 @@ def get_payment_methods():
 @require_admin
 def create_payment_method(user):
     data = request.get_json()
+    
+    name = data.get('name') or data.get('name_en') or 'Unnamed Method'
+    
+    details = data.get('details') or {}
+    if data.get('name_en'):
+        details['name_en'] = data.get('name_en')
+    if data.get('name_ar'):
+        details['name_ar'] = data.get('name_ar')
+    if data.get('logo_url'):
+        details['logo_url'] = data.get('logo_url')
+    if data.get('description'):
+        details['description'] = data.get('description')
+    if data.get('sort_order') is not None:
+        details['sort_order'] = data.get('sort_order')
+    
     method = PaymentMethod(
-        name=data.get('name'),
+        name=name,
         type=data.get('type'),
-        details=data.get('details'),
-        instructions=data.get('instructions')
+        details=details if details else None,
+        instructions=data.get('instructions'),
+        is_active=data.get('is_active', True)
     )
     db.session.add(method)
     db.session.commit()
@@ -452,9 +468,32 @@ def update_payment_method(user, id):
         return jsonify({'error': 'Method not found'}), 404
     
     data = request.get_json()
-    for key, value in data.items():
-        if hasattr(method, key) and key not in ['id', 'created_at']:
-            setattr(method, key, value)
+    
+    if data.get('name'):
+        method.name = data.get('name')
+    elif data.get('name_en'):
+        method.name = data.get('name_en')
+    
+    if data.get('type'):
+        method.type = data.get('type')
+    if data.get('instructions'):
+        method.instructions = data.get('instructions')
+    if 'is_active' in data:
+        method.is_active = data.get('is_active')
+    
+    details = method.details or {}
+    if data.get('name_en'):
+        details['name_en'] = data.get('name_en')
+    if data.get('name_ar'):
+        details['name_ar'] = data.get('name_ar')
+    if data.get('logo_url'):
+        details['logo_url'] = data.get('logo_url')
+    if data.get('description'):
+        details['description'] = data.get('description')
+    if data.get('sort_order') is not None:
+        details['sort_order'] = data.get('sort_order')
+    if details:
+        method.details = details
     
     db.session.commit()
     return jsonify(method.to_dict())
