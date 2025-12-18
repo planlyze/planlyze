@@ -174,16 +174,31 @@ export const DiscountCode = {
 
 export const Role = {
   list: () => api.get('/roles'),
+  get: (id) => api.get(`/roles/${id}`),
   create: (data) => api.post('/roles', data),
-  filter: async (filters) => {
+  update: (id, data) => api.put(`/roles/${id}`, data),
+  delete: (id) => api.delete(`/roles/${id}`),
+  filter: async (filters, sortBy) => {
     const roles = await api.get('/roles');
-    if (!filters || Object.keys(filters).length === 0) return roles;
-    return roles.filter(r => {
-      for (const [key, value] of Object.entries(filters)) {
-        if (r[key] !== value) return false;
-      }
-      return true;
-    });
+    let result = roles;
+    if (filters && Object.keys(filters).length > 0) {
+      result = roles.filter(r => {
+        for (const [key, value] of Object.entries(filters)) {
+          if (r[key] !== value) return false;
+        }
+        return true;
+      });
+    }
+    if (sortBy) {
+      const desc = sortBy.startsWith('-');
+      const field = desc ? sortBy.slice(1) : sortBy;
+      result.sort((a, b) => {
+        if (a[field] < b[field]) return desc ? 1 : -1;
+        if (a[field] > b[field]) return desc ? -1 : 1;
+        return 0;
+      });
+    }
+    return result;
   }
 };
 

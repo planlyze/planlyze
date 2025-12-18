@@ -255,6 +255,7 @@ class Role(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
     permissions = db.Column(db.JSON)
     description = db.Column(db.Text)
+    is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
@@ -263,6 +264,7 @@ class Role(db.Model):
             'name': self.name,
             'permissions': self.permissions,
             'description': self.description,
+            'is_active': self.is_active if self.is_active is not None else True,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 

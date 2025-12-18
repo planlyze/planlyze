@@ -522,6 +522,45 @@ def create_role(user):
     db.session.commit()
     return jsonify(role.to_dict()), 201
 
+@entities_bp.route('/roles/<role_id>', methods=['GET'])
+@require_admin
+def get_role(user, role_id):
+    role = Role.query.get(role_id)
+    if not role:
+        return jsonify({'error': 'Role not found'}), 404
+    return jsonify(role.to_dict())
+
+@entities_bp.route('/roles/<role_id>', methods=['PUT'])
+@require_admin
+def update_role(user, role_id):
+    role = Role.query.get(role_id)
+    if not role:
+        return jsonify({'error': 'Role not found'}), 404
+    
+    data = request.get_json()
+    if 'name' in data:
+        role.name = data['name']
+    if 'permissions' in data:
+        role.permissions = data['permissions']
+    if 'description' in data:
+        role.description = data['description']
+    if 'is_active' in data:
+        role.is_active = data['is_active']
+    
+    db.session.commit()
+    return jsonify(role.to_dict())
+
+@entities_bp.route('/roles/<role_id>', methods=['DELETE'])
+@require_admin
+def delete_role(user, role_id):
+    role = Role.query.get(role_id)
+    if not role:
+        return jsonify({'error': 'Role not found'}), 404
+    
+    db.session.delete(role)
+    db.session.commit()
+    return jsonify({'message': 'Role deleted successfully'})
+
 # Audit Log endpoints
 @entities_bp.route('/audit-logs', methods=['GET'])
 @require_admin
