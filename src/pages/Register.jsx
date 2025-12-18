@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles, Check, X } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, X } from "lucide-react";
+import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -65,8 +66,8 @@ export default function Register() {
 
       <div className="relative z-10 w-full max-w-md px-4">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-purple-500 shadow-xl shadow-orange-500/30 mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src={planLyzeLogo} alt="Planlyze" className="w-20 h-20 object-contain drop-shadow-2xl" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Planlyze</h1>
           <p className="text-purple-200">{t('auth.registerDescription') || 'Create your account to get started.'}</p>

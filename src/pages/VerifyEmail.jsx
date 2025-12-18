@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Loader2, Mail, KeyRound, Sparkles, ArrowRight, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Mail, KeyRound, ArrowRight, RefreshCw } from "lucide-react";
+import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
 
 export default function VerifyEmail() {
   const [status, setStatus] = useState("pending");
@@ -231,8 +232,8 @@ export default function VerifyEmail() {
 
       <div className="relative z-10 w-full max-w-md px-4">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-orange-500 shadow-xl shadow-purple-500/30 mb-3">
-            <Sparkles className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center mb-3">
+            <img src={planLyzeLogo} alt="Planlyze" className="w-16 h-16 object-contain drop-shadow-2xl" />
           </div>
           <h1 className="text-2xl font-bold text-white">Planlyze</h1>
         </div>
