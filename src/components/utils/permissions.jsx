@@ -66,14 +66,29 @@ export const PERMISSION_LABELS = {
   [PERMISSIONS.VIEW_OWNER_DASHBOARD]: 'View Owner Dashboard'
 };
 
+// Check if user is an admin (admin or super_admin role)
+export const isAdmin = (user) => {
+  if (!user) return false;
+  return user.role === 'admin' || user.role === 'super_admin';
+};
+
 // Check if user has a specific permission
 export const hasPermission = (user, permission) => {
   if (!user) return false;
   
-  // Super admin (role === 'admin') has all permissions
-  if (user.role === 'admin') return true;
+  // Super admin or admin has all permissions
+  if (isAdmin(user)) return true;
   
-  // Check custom permissions array
+  // Check custom permissions object (new structure)
+  if (user.permissions && typeof user.permissions === 'object') {
+    for (const category of Object.values(user.permissions)) {
+      if (Array.isArray(category) && category.includes(permission)) {
+        return true;
+      }
+    }
+  }
+  
+  // Check custom permissions array (legacy structure)
   if (Array.isArray(user.permissions) && user.permissions.includes(permission)) {
     return true;
   }
@@ -84,7 +99,7 @@ export const hasPermission = (user, permission) => {
 // Check if user has any of the specified permissions
 export const hasAnyPermission = (user, permissions) => {
   if (!user) return false;
-  if (user.role === 'admin') return true;
+  if (isAdmin(user)) return true;
   
   return permissions.some(permission => hasPermission(user, permission));
 };
@@ -92,7 +107,7 @@ export const hasAnyPermission = (user, permissions) => {
 // Check if user has all of the specified permissions
 export const hasAllPermissions = (user, permissions) => {
   if (!user) return false;
-  if (user.role === 'admin') return true;
+  if (isAdmin(user)) return true;
   
   return permissions.every(permission => hasPermission(user, permission));
 };

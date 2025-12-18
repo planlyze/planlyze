@@ -174,7 +174,7 @@ export default function OwnerDashboard() {
         }
       }
 
-      const adminCount = allUsersForStats.filter((u) => u && u.role === 'admin').length;
+      const adminCount = allUsersForStats.filter((u) => u && (u.role === 'admin' || u.role === 'super_admin')).length;
 
       // Calculate active users (users with at least one analysis or login in last 30 days)
       const thirtyDaysAgo = subDays(new Date(), 30);

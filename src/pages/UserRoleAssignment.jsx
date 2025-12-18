@@ -30,7 +30,7 @@ export default function UserRoleAssignment() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin') {
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
         navigate(createPageUrl("Dashboard"));
         return;
       }
@@ -81,7 +81,8 @@ export default function UserRoleAssignment() {
   };
 
   const getRoleName = (user) => {
-    if (user.role === 'admin') return 'Super Admin';
+    if (user.role === 'super_admin') return 'Super Admin';
+    if (user.role === 'admin') return 'Admin';
     if (user.custom_role_id) {
       const role = roles.find(r => r.id === user.custom_role_id);
       return role?.name || 'Custom Role';
@@ -167,7 +168,7 @@ export default function UserRoleAssignment() {
                     </TableCell>
                     <TableCell>
                       <Badge className={
-                        user.role === 'admin' 
+                        (user.role === 'admin' || user.role === 'super_admin')
                           ? 'bg-purple-100 text-purple-800' 
                           : user.custom_role_id
                             ? 'bg-blue-100 text-blue-800'
@@ -177,8 +178,8 @@ export default function UserRoleAssignment() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {user.role === 'admin' ? (
-                        <span className="text-sm text-slate-500">Cannot modify super admin</span>
+                      {(user.role === 'admin' || user.role === 'super_admin') ? (
+                        <span className="text-sm text-slate-500">Cannot modify admin</span>
                       ) : (
                         <Select
                           value={user.custom_role_id || 'none'}

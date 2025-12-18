@@ -93,19 +93,20 @@ export default function Reports() {
       try {
         const user = await auth.me();
         setCurrentUser(user);
-        setIsAdmin(user.role === "admin");
+        const userIsAdmin = user.role === "admin" || user.role === "super_admin";
+        setIsAdmin(userIsAdmin);
         setMyEmail(user.email);
 
         const urlParams = new URLSearchParams(window.location.search);
         const userParam = urlParams.get("user");
-        const selectedUserPresent = user.role === "admin" && !!userParam;
+        const selectedUserPresent = userIsAdmin && !!userParam;
         setHasSelectedUser(selectedUserPresent);
 
         const emailToLoad = selectedUserPresent ? userParam.trim() : user.email;
         setViewingEmail(emailToLoad);
         setIsOwnReports(emailToLoad === user.email);
 
-        await loadAnalyses(emailToLoad, user.role === "admin", user.email, selectedUserPresent);
+        await loadAnalyses(emailToLoad, userIsAdmin, user.email, selectedUserPresent);
       } catch (error) {
         window.location.href = "/login";
       }

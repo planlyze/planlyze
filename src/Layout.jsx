@@ -205,8 +205,8 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', next);
       localStorage.setItem('planlyze-language', next);
-      const isAdmin = currentUser?.role === 'admin';
-      setNavigationItems(buildNavigationItems(isAdmin, next === 'ar'));
+      const userIsAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+      setNavigationItems(buildNavigationItems(userIsAdmin, next === 'ar'));
     } catch (error) {
       console.error('Failed to update language:', error);
     }
@@ -222,8 +222,8 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', lang);
       localStorage.setItem('planlyze-language', lang);
-      const isAdmin = authUser.role === 'admin';
-      setNavigationItems(buildNavigationItems(isAdmin, lang === 'ar'));
+      const userIsAdmin = authUser.role === 'admin' || authUser.role === 'super_admin';
+      setNavigationItems(buildNavigationItems(userIsAdmin, lang === 'ar'));
       setNewDisplayName(authUser?.full_name || '');
     } else if (isAuthenticated === false) {
       setCurrentUser(null);
@@ -240,8 +240,8 @@ export default function Layout({ children, currentPageName }) {
         localStorage.setItem('language', lng);
         localStorage.setItem('planlyze-language', lng);
         if (currentUser) {
-          const isAdmin = currentUser.role === 'admin';
-          setNavigationItems(buildNavigationItems(isAdmin, lng === 'ar'));
+          const userIsAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+          setNavigationItems(buildNavigationItems(userIsAdmin, lng === 'ar'));
         }
       }
     };

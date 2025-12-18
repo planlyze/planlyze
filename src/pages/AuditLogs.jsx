@@ -30,7 +30,7 @@ export default function AuditLogs() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin') {
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view audit logs");
         return;

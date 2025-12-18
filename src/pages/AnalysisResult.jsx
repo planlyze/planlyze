@@ -82,7 +82,7 @@ export default function AnalysisResult() {
       setCurrentUser(user);
       setUserCredits(user.credits || 0);
 
-      if (user.role === 'admin' && userEmailParam) {
+      if ((user.role === 'admin' || user.role === 'super_admin') && userEmailParam) {
         // Admin viewing a specific user's report: use backend to bypass RLS
         const data = await Analysis.get(id);
 

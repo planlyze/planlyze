@@ -40,7 +40,7 @@ export default function AdminPayments() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin') {
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view payments");
         return;
@@ -62,7 +62,7 @@ export default function AdminPayments() {
 
   const handleApprove = async (payment) => {
     const user = await auth.me();
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && user.role !== 'super_admin') {
       toast.error("You don't have permission to manage payments");
       return;
     }
@@ -110,7 +110,7 @@ export default function AdminPayments() {
 
   const handleReject = async (payment) => {
     const user = await auth.me();
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && user.role !== 'super_admin') {
       toast.error("You don't have permission to manage payments");
       return;
     }

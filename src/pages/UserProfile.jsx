@@ -19,7 +19,7 @@ export default function UserProfile() {
     const load = async () => {
       try {
         const me = await User.me();
-        if (me.role !== "admin") {
+        if (me.role !== "admin" && me.role !== "super_admin") {
           navigate(createPageUrl("Dashboard"));
           return;
         }
@@ -116,8 +116,8 @@ export default function UserProfile() {
                 <div className="text-slate-500 text-xs uppercase">Role</div>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-purple-600" />
-                  <Badge className={targetUser.role === 'admin' ? 'bg-purple-100 text-purple-800' : ''}>
-                    {targetUser.role}
+                  <Badge className={(targetUser.role === 'admin' || targetUser.role === 'super_admin') ? 'bg-purple-100 text-purple-800' : ''}>
+                    {targetUser.role === 'super_admin' ? 'Super Admin' : targetUser.role === 'admin' ? 'Admin' : targetUser.role}
                   </Badge>
                 </div>
               </div>
