@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Send, Users, User } from "lucide-react";
 import { toast } from "sonner";
+import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 export default function AdminNotifications() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function AdminNotifications() {
       const user = await auth.me();
       setCurrentUser(user);
       
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.MANAGE_NOTIFICATIONS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("Unauthorized access");
         return;

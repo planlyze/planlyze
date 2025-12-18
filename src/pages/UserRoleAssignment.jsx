@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Search, Shield, Users as UsersIcon } from "lucide-react";
 import { toast } from "sonner";
-import { PERMISSION_LABELS } from "@/components/utils/permissions";
+import { PERMISSION_LABELS, hasPermission, PERMISSIONS, canAccessAdmin } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
 
 export default function UserRoleAssignment() {
@@ -30,7 +30,7 @@ export default function UserRoleAssignment() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.MANAGE_USERS)) {
         navigate(createPageUrl("Dashboard"));
         return;
       }
@@ -168,7 +168,7 @@ export default function UserRoleAssignment() {
                     </TableCell>
                     <TableCell>
                       <Badge className={
-                        (user.role === 'admin' || user.role === 'super_admin')
+                        canAccessAdmin(user)
                           ? 'bg-purple-100 text-purple-800' 
                           : user.custom_role_id
                             ? 'bg-blue-100 text-blue-800'
@@ -178,7 +178,7 @@ export default function UserRoleAssignment() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {(user.role === 'admin' || user.role === 'super_admin') ? (
+                      {canAccessAdmin(user) ? (
                         <span className="text-sm text-slate-500">Cannot modify admin</span>
                       ) : (
                         <Select

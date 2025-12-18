@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import { hasPermission, hasAnyPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
 import { notifyPaymentApproved, notifyPaymentRejected } from "@/components/utils/notificationHelper";
 
@@ -40,7 +40,7 @@ export default function AdminPayments() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.VIEW_PAYMENTS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view payments");
         return;
@@ -62,7 +62,7 @@ export default function AdminPayments() {
 
   const handleApprove = async (payment) => {
     const user = await auth.me();
-    if (user.role !== 'admin' && user.role !== 'super_admin') {
+    if (!hasPermission(user, PERMISSIONS.MANAGE_PAYMENTS)) {
       toast.error("You don't have permission to manage payments");
       return;
     }
@@ -110,7 +110,7 @@ export default function AdminPayments() {
 
   const handleReject = async (payment) => {
     const user = await auth.me();
-    if (user.role !== 'admin' && user.role !== 'super_admin') {
+    if (!hasPermission(user, PERMISSIONS.MANAGE_PAYMENTS)) {
       toast.error("You don't have permission to manage payments");
       return;
     }

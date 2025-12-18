@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Plus, Edit, Trash2, Percent, DollarSign, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 export default function AdminDiscounts() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function AdminDiscounts() {
       const user = await auth.me();
       setCurrentUser(user);
       
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.VIEW_DISCOUNTS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("Unauthorized access");
         return;

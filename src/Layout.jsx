@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
+import { PERMISSIONS, hasPermission, hasAnyPermission, canAccessAdmin } from "@/components/utils/permissions";
 
 import {
   Sidebar,
@@ -87,61 +88,71 @@ const adminNavigationItems = [
     id: "owner_dashboard",
     title: "Owner Dashboard",
     url: createPageUrl("OwnerDashboard"),
-    icon: Shield
+    icon: Shield,
+    requiredPermissions: [PERMISSIONS.VIEW_OWNER_DASHBOARD]
   },
   {
     id: "admin_credits",
     title: "Credits Management",
     url: createPageUrl("AdminCredits"),
-    icon: Wallet
+    icon: Wallet,
+    requiredPermissions: [PERMISSIONS.VIEW_CREDITS]
   },
   {
     id: "admin_payments",
     title: "Payment Requests",
     url: createPageUrl("AdminPayments"),
-    icon: Wallet
+    icon: Wallet,
+    requiredPermissions: [PERMISSIONS.VIEW_PAYMENTS]
   },
   {
     id: "payment_analytics",
     title: "Payment Analytics",
     url: createPageUrl("PaymentAnalytics"),
-    icon: BarChart3
+    icon: BarChart3,
+    requiredPermissions: [PERMISSIONS.VIEW_PAYMENTS]
   },
   {
     id: "email_templates",
     title: "Email Templates",
     url: createPageUrl("EmailTemplates"),
-    icon: Bell
+    icon: Bell,
+    requiredPermissions: [PERMISSIONS.VIEW_EMAIL_TEMPLATES]
   },
   {
     id: "admin_notifications",
     title: "Send Notifications",
     url: createPageUrl("AdminNotifications"),
-    icon: Bell
+    icon: Bell,
+    requiredPermissions: [PERMISSIONS.MANAGE_NOTIFICATIONS]
   },
   {
     id: "admin_discounts",
     title: "Discount Codes",
     url: createPageUrl("AdminDiscounts"),
-    icon: Shield
+    icon: Shield,
+    requiredPermissions: [PERMISSIONS.VIEW_DISCOUNTS]
   },
   {
     id: "role_management",
     title: "Roles & Permissions",
     url: createPageUrl("RoleManagement"),
-    icon: Shield
+    icon: Shield,
+    requiredPermissions: [PERMISSIONS.MANAGE_ROLES]
   },
   {
     id: "user_roles",
     title: "Assign User Roles",
     url: createPageUrl("UserRoleAssignment"),
-    icon: UserIcon
+    icon: UserIcon,
+    requiredPermissions: [PERMISSIONS.MANAGE_USERS]
   },
   {
     id: "audit_logs",
     title: "Audit Logs",
     url: createPageUrl("AuditLogs"),
-    icon: Shield
+    icon: Shield,
+    requiredPermissions: [PERMISSIONS.VIEW_AUDIT_LOGS]
   }
 ];
 
@@ -165,8 +176,8 @@ export default function Layout({ children, currentPageName }) {
 
   const isArabic = currentUser?.language === 'ar';
 
-  const buildNavigationItems = (isAdmin, isArabicLang) => {
-    const t = (id, en) => {
+  const buildNavigationItems = (user, isArabicLang) => {
+    const translate = (id, en) => {
       if (!isArabicLang) return en;
       switch (id) {
         case "dashboard": return "لوحة التحكم";
@@ -190,9 +201,14 @@ export default function Layout({ children, currentPageName }) {
         default: return en;
       }
     };
-    const base = baseNavigationItems.map(item => ({ ...item, title: t(item.id, item.title) }));
-    const admin = adminNavigationItems.map(item => ({ ...item, title: t(item.id, item.title) }));
-    return isAdmin ? [...base, ...admin] : base;
+    const base = baseNavigationItems.map(item => ({ ...item, title: translate(item.id, item.title) }));
+    
+    const filteredAdminItems = adminNavigationItems.filter(item => {
+      if (!item.requiredPermissions || item.requiredPermissions.length === 0) return true;
+      return hasAnyPermission(user, item.requiredPermissions);
+    }).map(item => ({ ...item, title: translate(item.id, item.title) }));
+    
+    return [...base, ...filteredAdminItems];
   };
 
   const toggleLanguage = async () => {
@@ -205,8 +221,7 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', next);
       localStorage.setItem('planlyze-language', next);
-      const userIsAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
-      setNavigationItems(buildNavigationItems(userIsAdmin, next === 'ar'));
+      setNavigationItems(buildNavigationItems(currentUser, next === 'ar'));
     } catch (error) {
       console.error('Failed to update language:', error);
     }
@@ -222,13 +237,12 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       localStorage.setItem('language', lang);
       localStorage.setItem('planlyze-language', lang);
-      const userIsAdmin = authUser.role === 'admin' || authUser.role === 'super_admin';
-      setNavigationItems(buildNavigationItems(userIsAdmin, lang === 'ar'));
+      setNavigationItems(buildNavigationItems(authUser, lang === 'ar'));
       setNewDisplayName(authUser?.full_name || '');
     } else if (isAuthenticated === false) {
       setCurrentUser(null);
       setIsLoggedIn(false);
-      setNavigationItems(buildNavigationItems(false, false));
+      setNavigationItems(buildNavigationItems(null, false));
     }
   }, [authUser, isAuthenticated, i18n]);
 
@@ -240,8 +254,7 @@ export default function Layout({ children, currentPageName }) {
         localStorage.setItem('language', lng);
         localStorage.setItem('planlyze-language', lng);
         if (currentUser) {
-          const userIsAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
-          setNavigationItems(buildNavigationItems(userIsAdmin, lng === 'ar'));
+          setNavigationItems(buildNavigationItems(currentUser, lng === 'ar'));
         }
       }
     };

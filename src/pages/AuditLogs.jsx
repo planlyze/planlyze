@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft, Shield, Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 export default function AuditLogs() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function AuditLogs() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.VIEW_AUDIT_LOGS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view audit logs");
         return;

@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import StarRating from "@/components/common/StarRating";
 import { motion, AnimatePresence } from "framer-motion";
 import ShareReportModal from "@/components/sharing/ShareReportModal";
+import { canAccessAdmin } from "@/components/utils/permissions";
 
 const statusIcons = {
   draft: Clock,
@@ -93,7 +94,7 @@ export default function Reports() {
       try {
         const user = await auth.me();
         setCurrentUser(user);
-        const userIsAdmin = user.role === "admin" || user.role === "super_admin";
+        const userIsAdmin = canAccessAdmin(user);
         setIsAdmin(userIsAdmin);
         setMyEmail(user.email);
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ArrowLeft, User as UserIcon, Mail, Shield, Phone, MapPin, Calendar, FileText } from "lucide-react";
+import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export default function UserProfile() {
     const load = async () => {
       try {
         const me = await User.me();
-        if (me.role !== "admin" && me.role !== "super_admin") {
+        if (!hasPermission(me, PERMISSIONS.VIEW_USERS)) {
           navigate(createPageUrl("Dashboard"));
           return;
         }

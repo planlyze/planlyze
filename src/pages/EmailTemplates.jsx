@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, Mail, Plus, Edit, Save, X, Send, Info } from "lucide-react";
 import { toast } from "sonner";
+import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 const defaultTemplates = [
   {
@@ -220,7 +221,7 @@ export default function EmailTemplates() {
       const user = await auth.me();
       setCurrentUser(user);
       
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+      if (!hasPermission(user, PERMISSIONS.VIEW_EMAIL_TEMPLATES)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("Unauthorized access");
         return;

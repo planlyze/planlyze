@@ -43,6 +43,7 @@ import CompetitorMatrix from "../components/results/CompetitorMatrix";
 import SyrianCompetitors from "../components/results/SyrianCompetitors";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
+import { canAccessAdmin } from "@/components/utils/permissions";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ export default function AnalysisResult() {
       setCurrentUser(user);
       setUserCredits(user.credits || 0);
 
-      if ((user.role === 'admin' || user.role === 'super_admin') && userEmailParam) {
+      if (canAccessAdmin(user) && userEmailParam) {
         // Admin viewing a specific user's report: use backend to bypass RLS
         const data = await Analysis.get(id);
 
