@@ -66,3 +66,34 @@ Users must verify their email before accessing the platform:
 2. User clicks verification link → Email verified, auto-login
 3. Unverified users trying to login are redirected to verification page
 4. Users can resend verification emails from the verification page
+
+## Roles and Permissions
+The platform uses a role-based access control system with the following roles:
+
+### Roles Table Structure
+- **super_admin**: Full system access with all permissions
+- **admin**: Management access for users, analyses, payments
+- **user**: Basic access for analyses and profile management
+
+### Permissions Structure
+Each role has a JSON permissions object with the following format:
+```json
+{
+  "users": ["create", "read", "update", "delete", "manage_roles"],
+  "analyses": ["create", "read", "update", "delete", "view_all"],
+  "payments": ["create", "read", "update", "delete", "approve"],
+  "settings": ["read", "update"],
+  "roles": ["create", "read", "update", "delete"],
+  "system": ["full_access"]
+}
+```
+
+### User-Role Relationship
+- Users have a `role_id` foreign key linking to the `roles` table
+- New users are automatically assigned the "user" role
+- Role changes are done by updating the `role_id` field
+
+### Super Admin Seeding
+Run `python server/seed.py` to:
+1. Create/update all default roles with permissions
+2. Create/update super admin user (admin@planlyze.com / Admin@123)
