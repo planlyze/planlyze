@@ -63,10 +63,15 @@ def seed_roles():
 
 def create_super_admin(email, password=None, full_name="Super Admin"):
     """Create or update a user to be super admin"""
+    super_admin_role = Role.query.filter_by(name='super_admin').first()
+    if not super_admin_role:
+        print("Error: super_admin role not found. Please run seed_roles() first.")
+        return None
+    
     user = User.query.filter_by(email=email).first()
     
     if user:
-        user.role = 'super_admin'
+        user.role_id = super_admin_role.id
         user.is_active = True
         user.email_verified = True
         print(f"Updated user {email} to super_admin role")
@@ -80,7 +85,7 @@ def create_super_admin(email, password=None, full_name="Super Admin"):
             email=email,
             password_hash=password_hash,
             full_name=full_name,
-            role='super_admin',
+            role_id=super_admin_role.id,
             email_verified=True,
             is_active=True,
             credits=1000

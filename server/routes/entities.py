@@ -26,11 +26,19 @@ def require_admin(f):
         user = get_current_user()
         if not user:
             return jsonify({'error': 'Not authenticated'}), 401
-        if user.role != 'admin':
+        role_name = user.role.name if user.role else 'user'
+        if role_name not in ['admin', 'super_admin']:
             return jsonify({'error': 'Admin access required'}), 403
         return f(user, *args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
+
+def get_user_role_name(user):
+    return user.role.name if user.role else 'user'
+
+def is_admin(user):
+    role_name = get_user_role_name(user)
+    return role_name in ['admin', 'super_admin']
 
 # Analysis endpoints
 @entities_bp.route('/analyses', methods=['GET'])
@@ -62,7 +70,7 @@ def get_analysis(user, id):
     analysis = Analysis.query.get(id)
     if not analysis:
         return jsonify({'error': 'Analysis not found'}), 404
-    if analysis.user_email != user.email and user.role != 'admin':
+    if analysis.user_email != user.email and not is_admin(user):
         return jsonify({'error': 'Access denied'}), 403
     return jsonify(analysis.to_dict())
 
@@ -173,7 +181,7 @@ def update_analysis(user, id):
     analysis = Analysis.query.get(id)
     if not analysis:
         return jsonify({'error': 'Analysis not found'}), 404
-    if analysis.user_email != user.email and user.role != 'admin':
+    if analysis.user_email != user.email and not is_admin(user):
         return jsonify({'error': 'Access denied'}), 403
     
     data = request.get_json()
@@ -190,7 +198,7 @@ def delete_analysis(user, id):
     analysis = Analysis.query.get(id)
     if not analysis:
         return jsonify({'error': 'Analysis not found'}), 404
-    if analysis.user_email != user.email and user.role != 'admin':
+    if analysis.user_email != user.email and not is_admin(user):
         return jsonify({'error': 'Access denied'}), 403
     
     db.session.delete(analysis)
@@ -201,7 +209,7 @@ def delete_analysis(user, id):
 @entities_bp.route('/transactions', methods=['GET'])
 @require_auth
 def get_transactions(user):
-    if user.role == 'admin':
+    if is_admin(user):
         transactions = Transaction.query.order_by(Transaction.created_at.desc()).all()
     else:
         transactions = Transaction.query.filter_by(user_email=user.email).order_by(Transaction.created_at.desc()).all()
@@ -314,7 +322,7 @@ def get_payments(user):
       401:
         description: Not authenticated
     """
-    if user.role == 'admin':
+    if is_admin(user):
         payments = Payment.query.order_by(Payment.created_at.desc()).all()
     else:
         payments = Payment.query.filter_by(user_email=user.email).order_by(Payment.created_at.desc()).all()
@@ -728,7 +736,7 @@ def update_chat_conversation(user, id):
 @entities_bp.route('/referrals', methods=['GET'])
 @require_auth
 def get_referrals(user):
-    if user.role == 'admin':
+    if is_admin(user):
         referrals = Referral.query.order_by(Referral.created_at.desc()).all()
     else:
         referrals = Referral.query.filter_by(referrer_email=user.email).order_by(Referral.created_at.desc()).all()
@@ -795,7 +803,11 @@ def update_user(user, id):
     
     data = request.get_json()
     if 'role' in data:
-        target_user.role = data['role']
+        role = Role.query.filter_by(name=data['role']).first()
+        if role:
+            target_user.role_id = role.id
+    if 'role_id' in data:
+        target_user.role_id = data['role_id']
     if 'credits' in data:
         target_user.credits = data['credits']
     if 'is_active' in data:

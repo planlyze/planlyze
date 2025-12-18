@@ -14,7 +14,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(255))
-    role = db.Column(db.String(50), default='user')
+    role_id = db.Column(db.String(36), db.ForeignKey('roles.id'))
     credits = db.Column(db.Integer, default=0)
     referral_code = db.Column(db.String(50), unique=True)
     referred_by = db.Column(db.String(50))
@@ -27,12 +27,16 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
+    
     def to_dict(self):
         return {
             'id': self.id,
             'email': self.email,
             'full_name': self.full_name,
-            'role': self.role,
+            'role': self.role.name if self.role else 'user',
+            'role_id': self.role_id,
+            'permissions': self.role.permissions if self.role else {},
             'credits': self.credits,
             'referral_code': self.referral_code,
             'referred_by': self.referred_by,

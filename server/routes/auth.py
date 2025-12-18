@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from server.models import db, User
+from server.models import db, User, Role
 from server.utils.translations import get_message
 from server.services.email_service import send_verification_email
 import bcrypt
@@ -110,11 +110,14 @@ def register():
     verification_token = generate_verification_token()
     verification_expires = datetime.utcnow() + timedelta(minutes=15)
     
+    default_role = Role.query.filter_by(name='user').first()
+    
     user = User(
         email=email,
         password_hash=password_hash,
         full_name=full_name,
         referral_code=generate_referral_code(),
+        role_id=default_role.id if default_role else None,
         credits=3,
         language=lang,
         email_verified=False,
