@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Loader2, Mail, KeyRound, ArrowRight, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, KeyRound, RefreshCw } from "lucide-react";
 import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
 
 export default function VerifyEmail() {
@@ -18,7 +18,7 @@ export default function VerifyEmail() {
   const inputRefs = useRef([]);
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const email = localStorage.getItem("pending_verification_email");
 
@@ -117,21 +117,20 @@ export default function VerifyEmail() {
       return (
         <>
           <CardHeader className="space-y-1 text-center pb-4">
-            <div className="mx-auto mb-4 relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-green-500/30 animate-bounce">
-                <CheckCircle className="h-10 w-10 text-white" />
+            <div className="mx-auto mb-4">
+              <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <CheckCircle className="h-10 w-10 text-green-500" />
               </div>
-              <div className="absolute -inset-2 bg-green-400/20 rounded-full blur-xl animate-pulse"></div>
             </div>
-            <CardTitle className="text-2xl font-bold text-white">
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
               {t('auth.emailVerified') || 'Email Verified!'}
             </CardTitle>
-            <CardDescription className="text-purple-200">
+            <CardDescription className="text-gray-600 dark:text-gray-400">
               {t('auth.redirectingToDashboard') || 'Your email has been verified. Redirecting to dashboard...'}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="flex items-center justify-center gap-2 text-green-400">
+            <div className="flex items-center justify-center gap-2 text-green-500">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span>{t('common.redirecting') || 'Redirecting...'}</span>
             </div>
@@ -143,18 +142,17 @@ export default function VerifyEmail() {
     return (
       <>
         <CardHeader className="space-y-1 text-center pb-4">
-          <div className="mx-auto mb-4 relative">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-orange-500 flex items-center justify-center shadow-xl shadow-purple-500/30">
-              <KeyRound className="h-10 w-10 text-white" />
+          <div className="mx-auto mb-4">
+            <div className="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+              <KeyRound className="h-10 w-10 text-orange-500" />
             </div>
-            <div className="absolute -inset-2 bg-purple-400/20 rounded-full blur-xl animate-pulse"></div>
           </div>
-          <CardTitle className="text-2xl font-bold text-white">
+          <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
             {t('auth.enterVerificationCode') || 'Enter Verification Code'}
           </CardTitle>
-          <CardDescription className="text-purple-200">
+          <CardDescription className="text-gray-600 dark:text-gray-400">
             {t('auth.codeSentTo') || 'We sent a 6-digit code to'}{' '}
-            <span className="font-semibold text-orange-400">{email}</span>
+            <span className="font-semibold text-orange-500">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -169,29 +167,29 @@ export default function VerifyEmail() {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`w-11 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-white/10 border-2 text-white transition-all duration-300 ${
-                  digit ? 'border-orange-400 bg-white/20' : 'border-white/20'
-                } ${status === 'error' ? 'border-red-400 bg-red-500/10 animate-shake' : ''} focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 hover:border-purple-400`}
+                className={`w-11 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-gray-50 dark:bg-gray-700 border-2 text-gray-900 dark:text-white transition-all duration-300 ${
+                  digit ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'border-gray-200 dark:border-gray-600'
+                } ${status === 'error' ? 'border-red-500 bg-red-50 dark:bg-red-900/20 animate-shake' : ''} focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20`}
                 disabled={isVerifying}
               />
             ))}
           </div>
           
           {status === "error" && (
-            <div className="flex items-center justify-center gap-2 text-red-400 text-sm bg-red-500/10 py-2 px-4 rounded-lg border border-red-500/20">
+            <div className="flex items-center justify-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-900/20 py-2 px-4 rounded-lg border border-red-200 dark:border-red-800">
               <XCircle className="h-4 w-4" />
               <span>{t('auth.invalidCode') || 'Invalid or expired code. Please try again.'}</span>
             </div>
           )}
           
           {isVerifying && (
-            <div className="flex items-center justify-center gap-2 text-orange-400">
+            <div className="flex items-center justify-center gap-2 text-orange-500">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span className="font-medium">{t('auth.verifyingEmail') || 'Verifying...'}</span>
             </div>
           )}
           
-          <p className="text-sm text-center text-purple-300">
+          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
             {t('auth.didntReceiveCode') || "Didn't receive the code? Check your spam folder or click below to resend."}
           </p>
         </CardContent>
@@ -199,7 +197,7 @@ export default function VerifyEmail() {
           <Button
             onClick={handleResendVerification}
             variant="outline"
-            className="w-full h-12 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white font-semibold transition-all duration-300 hover:scale-[1.02] group"
+            className="w-full h-12 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold transition-all duration-300 hover:scale-[1.02] rounded-full group"
             disabled={isResending || isVerifying}
           >
             {isResending ? (
@@ -211,7 +209,7 @@ export default function VerifyEmail() {
           </Button>
           <Link 
             to="/Login" 
-            className="text-sm text-center text-orange-400 hover:text-orange-300 font-semibold hover:underline transition-colors duration-200 flex items-center justify-center gap-1"
+            className="text-sm text-center text-orange-500 hover:text-orange-600 font-semibold hover:underline transition-colors duration-200 flex items-center justify-center gap-1"
           >
             ← {t('auth.backToLogin') || 'Back to Login'}
           </Link>
@@ -221,29 +219,21 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(251,146,60,0.15),transparent_60%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(168,85,247,0.2),transparent_50%)]"></div>
-      
-      <div className="absolute top-1/4 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-
-      <div className="relative z-10 w-full max-w-md px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="w-full max-w-md px-4">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center mb-3">
-            <img src={planLyzeLogo} alt="Planlyze" className="w-16 h-16 object-contain drop-shadow-2xl" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Planlyze</h1>
+          <Link to="/" className="inline-flex items-center justify-center mb-3">
+            <img src={planLyzeLogo} alt="Planlyze" className="w-16 h-16 object-contain" />
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Planlyze</h1>
         </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-2xl">
+        <Card className="border border-gray-200 dark:border-gray-700 shadow-xl bg-white dark:bg-gray-800">
           {renderContent()}
         </Card>
 
-        <p className="text-center mt-6 text-purple-300/60 text-sm">
-          <Link to="/" className="hover:text-purple-200 transition-colors duration-200">
+        <p className="text-center mt-6 text-gray-500 text-sm">
+          <Link to="/" className="hover:text-orange-500 transition-colors duration-200">
             ← {t('common.backToHome') || 'Back to Home'}
           </Link>
         </p>
