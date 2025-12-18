@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, CheckCircle2, Info, Wallet, Image as ImageIcon, Clock, X } from "lucide-react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, PaymentMethod, User, AI } from "@/api/client";
 import { toast } from "sonner";
 import { logPaymentSubmitted } from "@/components/utils/activityHelper";
 

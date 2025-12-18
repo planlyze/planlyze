@@ -141,18 +141,30 @@ export const EmailTemplate = {
 };
 
 export const PaymentMethod = {
-  list: () => api.get('/payment-methods'),
+  list: async (sortBy) => {
+    const methods = await api.get('/payment-methods');
+    if (sortBy && Array.isArray(methods)) {
+      return methods.sort((a, b) => (a[sortBy] || 0) - (b[sortBy] || 0));
+    }
+    return methods;
+  },
   create: (data) => api.post('/payment-methods', data),
   update: (id, data) => api.put(`/payment-methods/${id}`, data),
-  filter: async (filters) => {
+  filter: async (filters, sortBy) => {
     const methods = await api.get('/payment-methods');
-    if (!filters || Object.keys(filters).length === 0) return methods;
-    return methods.filter(m => {
-      for (const [key, value] of Object.entries(filters)) {
-        if (m[key] !== value) return false;
-      }
-      return true;
-    });
+    let result = methods;
+    if (filters && Object.keys(filters).length > 0) {
+      result = methods.filter(m => {
+        for (const [key, value] of Object.entries(filters)) {
+          if (m[key] !== value) return false;
+        }
+        return true;
+      });
+    }
+    if (sortBy && Array.isArray(result)) {
+      result = result.sort((a, b) => (a[sortBy] || 0) - (b[sortBy] || 0));
+    }
+    return result;
   }
 };
 

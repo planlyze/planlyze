@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Image as ImageIcon } from "lucide-react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, PaymentMethod, User, AI } from "@/api/client";
 import { toast } from "sonner";
 
 export default function PaymentMethodsManager({ isArabic }) {
