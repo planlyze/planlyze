@@ -22,7 +22,8 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarProvider,
-  SidebarTrigger
+  SidebarTrigger,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -353,60 +354,36 @@ export default function Layout({ children, currentPageName }) {
             </SidebarHeader>
 
             <SidebarContent className="p-3 overflow-y-auto">
-              <div className="mb-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+              <div className="mb-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-3 shadow-lg relative overflow-hidden group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:rounded-lg">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-data-[collapsible=icon]:hidden"></div>
+                <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 group-data-[collapsible=icon]:hidden"></div>
                 
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
-                        <Wallet className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-orange-100 font-medium">{isArabic ? "الأرصدة المتاحة" : "Available Credits"}</p>
-                        <p className="text-2xl font-bold text-white">
-                          {currentUser?.premium_credits || 0}
-                        </p>
-                      </div>
+                <Link to={createPageUrl("Credits")} className="relative z-10 block">
+                  <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                    <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <Wallet className="w-5 h-5 text-white" />
                     </div>
-                    <Link to={createPageUrl("Credits")}>
-                      <Button 
-                        size="sm" 
-                        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-                      >
-                        {isArabic ? "شراء" : "Buy"}
-                      </Button>
-                    </Link>
+                    <div className="group-data-[collapsible=icon]:hidden flex-1 min-w-0">
+                      <p className="text-xs text-orange-100 font-medium">{isArabic ? "الأرصدة المتاحة" : "Credits"}</p>
+                      <p className="text-xl font-bold text-white">
+                        {currentUser?.premium_credits || 0}
+                      </p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="bg-white text-orange-600 hover:bg-orange-50 font-semibold shadow-md hover:shadow-lg transition-all duration-200 group-data-[collapsible=icon]:hidden"
+                    >
+                      {isArabic ? "شراء" : "Buy"}
+                    </Button>
                   </div>
-                  
-                  {(() => {
-                    const purchased = currentUser?.total_credits_purchased || 0;
-                    const used = currentUser?.total_credits_used || 0;
-                    const usagePercent = purchased > 0 ? Math.round((used / purchased) * 100) : 0;
-                    return purchased > 0 ? (
-                      <div className="pt-3 border-t border-white/20">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-xs text-orange-100">{isArabic ? "الاستخدام" : "Usage"}</span>
-                          <span className="text-sm font-bold text-white">{used}/{purchased}</span>
-                        </div>
-                        <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-                          <div 
-                            className="h-full bg-white transition-all duration-500 rounded-full"
-                            style={{ width: `${Math.min(usagePercent, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
+                </Link>
               </div>
 
               <Link to={createPageUrl("NewAnalysis")} className="block mb-4">
-                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-[1.02] group">
-                  <Plus className="w-5 h-5 mr-2" />
-                  {isArabic ? "تحليل جديد" : "New Analysis"}
-                  <Sparkles className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100" />
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-5 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-[1.02] group group-data-[collapsible=icon]:p-3 group-data-[collapsible=icon]:rounded-lg">
+                  <Plus className="w-5 h-5 group-data-[collapsible=icon]:mr-0 mr-2" />
+                  <span className="group-data-[collapsible=icon]:hidden">{isArabic ? "تحليل جديد" : "New Analysis"}</span>
+                  <Sparkles className="w-4 h-4 ml-2 opacity-70 group-hover:opacity-100 group-data-[collapsible=icon]:hidden" />
                 </Button>
               </Link>
 
