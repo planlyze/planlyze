@@ -143,7 +143,7 @@ export default function AnalysisResult() {
     const filename = `${sanitize(analysis.business_idea)}_Planlyze.pdf`;
 
     try {
-      const reportData = await api.get("/api/analyses/export");
+      const reportData = await api.get("/analyses/export");
       const blob = new Blob([data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");

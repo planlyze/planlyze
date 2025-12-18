@@ -62,7 +62,7 @@ export async function runChainedPrompts({
   try {
     // Attach catch to avoid unhandled rejection surfacing as "Network Error"
     // eslint-disable-next-line no-void
-    void api.post('/api/analyses/chain', {
+    void api.post('/analyses/chain', {
       analysisId,
       business_idea: businessIdea,
       industry,

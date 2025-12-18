@@ -64,7 +64,7 @@ export default function OwnerDashboard() {
       let userData = [];
       let userTotal = 0;
       try {
-        const usersResp = await api.get('/api/users'); 
+        const usersResp = await api.get('/users'); 
         
         // Handle axios response - data is inside response.data
         const usersData = usersResp?.data || usersResp;
@@ -292,7 +292,7 @@ export default function OwnerDashboard() {
   const handleExportUsers = async () => {
     setIsExporting(true);
     try {
-      const usersData = await api.get("/api/users/export");
+      const usersData = await api.get("/users/export");
       const blob = new Blob([data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -313,7 +313,7 @@ export default function OwnerDashboard() {
   const handleExportReports = async () => {
     setIsExportingReports(true);
     try {
-      const reportsData = await api.get("/api/analyses/export");
+      const reportsData = await api.get("/analyses/export");
       const blob = new Blob([data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

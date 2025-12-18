@@ -137,7 +137,7 @@ export default function NewAnalysis() {
       // Try via API first
       let createdAnalysis;
       try {
-        const resp = await api.post('/api/analyses/generate', combinedFormData);
+        const resp = await api.post('/analyses/generate', combinedFormData);
         createdAnalysis = resp?.data;
       } catch (err) {
         const msg = String(err?.message || err || "");

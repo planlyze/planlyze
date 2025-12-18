@@ -136,7 +136,7 @@ export default function Reports() {
   const handleExport = async (analysis) => {
     setExportingId(analysis.id);
     try {
-      const reportData = await api.get("/api/analyses/export");
+      const reportData = await api.get("/analyses/export");
       const blob = new Blob([Buffer.from(data.pdf, 'base64')], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
