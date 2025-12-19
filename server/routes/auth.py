@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from server.models import db, User, Role
+from server.models import db, User, Role, Referral
 from server.utils.translations import get_message
 from server.services.email_service import send_verification_email
 import bcrypt
@@ -136,6 +136,14 @@ def register():
     
     if referrer:
         referrer.credits = (referrer.credits or 0) + 1
+        
+        referral_record = Referral(
+            referrer_email=referrer.email,
+            referred_email=user.email,
+            referral_code=referral_code,
+            status='completed'
+        )
+        db.session.add(referral_record)
         db.session.commit()
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)
