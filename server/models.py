@@ -20,6 +20,7 @@ class User(db.Model):
     referred_by = db.Column(db.String(50))
     language = db.Column(db.String(10), default='en')
     profile_image = db.Column(db.Text)
+    notification_preferences = db.Column(db.JSON, default=dict)
     email_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100))
     verification_token_expires = db.Column(db.DateTime)
@@ -42,6 +43,7 @@ class User(db.Model):
             'referred_by': self.referred_by,
             'language': self.language,
             'profile_image': self.profile_image,
+            'notification_preferences': self.notification_preferences or {},
             'email_verified': self.email_verified,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,

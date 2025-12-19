@@ -436,6 +436,8 @@ def update_me():
         user.language = data['language']
     if 'profile_image' in data:
         user.profile_image = data['profile_image']
+    if 'notification_preferences' in data:
+        user.notification_preferences = data['notification_preferences']
     
     db.session.commit()
     

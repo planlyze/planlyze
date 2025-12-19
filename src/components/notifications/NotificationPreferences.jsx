@@ -89,7 +89,7 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await api.auth.updateMe({ notification_preferences: preferences });
+      await auth.updateProfile({ notification_preferences: preferences });
       toast.success(isArabic ? "تم حفظ التفضيلات" : "Preferences saved successfully");
       if (onUpdate) onUpdate(preferences);
     } catch (error) {
