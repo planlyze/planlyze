@@ -8,11 +8,21 @@ class ApiError extends Error {
   }
 }
 
+function getLanguage() {
+  try {
+    const stored = localStorage.getItem('i18nextLng');
+    if (stored) return stored.split('-')[0];
+  } catch (e) {}
+  return 'en';
+}
+
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('auth_token');
+  const lang = getLanguage();
   
   const headers = {
     'Content-Type': 'application/json',
+    'Accept-Language': lang,
     ...options.headers,
   };
   
