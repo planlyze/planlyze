@@ -121,10 +121,13 @@ class CreditPackage(db.Model):
     
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     name = db.Column(db.String(255), nullable=False)
+    name_ar = db.Column(db.String(255))
     credits = db.Column(db.Integer, nullable=False)
     price_usd = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text)
+    description_ar = db.Column(db.Text)
     features = db.Column(db.JSON, default=list)
+    features_ar = db.Column(db.JSON, default=list)
     is_active = db.Column(db.Boolean, default=True)
     is_popular = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -133,10 +136,16 @@ class CreditPackage(db.Model):
         return {
             'id': self.id,
             'name': self.name,
+            'name_en': self.name,
+            'name_ar': self.name_ar,
             'credits': self.credits,
             'price_usd': self.price_usd,
             'description': self.description,
+            'description_en': self.description,
+            'description_ar': self.description_ar,
             'features': self.features or [],
+            'features_en': self.features or [],
+            'features_ar': self.features_ar or [],
             'is_active': self.is_active,
             'is_popular': self.is_popular,
             'created_at': self.created_at.isoformat() if self.created_at else None

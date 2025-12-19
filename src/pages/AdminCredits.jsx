@@ -193,10 +193,13 @@ export default function AdminCredits() {
   const handleAddPackage = () => {
     setPackages([...packages, {
       name: '',
+      name_ar: '',
       credits: 10,
       price_usd: 9.99,
       description: '',
+      description_ar: '',
       features: [],
+      features_ar: [],
       is_active: true,
       is_popular: false
     }]);
@@ -620,7 +623,7 @@ export default function AdminCredits() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Package Name</Label>
+                        <Label>Package Name (English)</Label>
                         <Input
                           value={pkg.name || ''}
                           onChange={(e) => updatePackageField(index, 'name', e.target.value)}
@@ -628,11 +631,32 @@ export default function AdminCredits() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Description</Label>
+                        <Label>Package Name (Arabic)</Label>
+                        <Input
+                          value={pkg.name_ar || ''}
+                          onChange={(e) => updatePackageField(index, 'name_ar', e.target.value)}
+                          placeholder="e.g., الباقة الأساسية"
+                          dir="rtl"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Description (English)</Label>
                         <Input
                           value={pkg.description || ''}
                           onChange={(e) => updatePackageField(index, 'description', e.target.value)}
                           placeholder="e.g., Perfect for getting started"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description (Arabic)</Label>
+                        <Input
+                          value={pkg.description_ar || ''}
+                          onChange={(e) => updatePackageField(index, 'description_ar', e.target.value)}
+                          placeholder="e.g., مثالي للبدء"
+                          dir="rtl"
                         />
                       </div>
                     </div>
@@ -674,20 +698,36 @@ export default function AdminCredits() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Features (one per line)</Label>
-                      <Textarea
-                        value={(pkg.features || []).join('\n')}
-                        onChange={(e) => {
-                          const features = e.target.value.split('\n').filter(f => f.trim());
-                          updatePackageField(index, 'features', features);
-                        }}
-                        placeholder="e.g., Full business analysis report&#10;Market research insights&#10;Competitor analysis"
-                        rows={4}
-                        className="font-mono text-sm"
-                      />
-                      <p className="text-xs text-slate-500">Enter each feature on a new line</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Features (English - one per line)</Label>
+                        <Textarea
+                          value={(pkg.features || []).join('\n')}
+                          onChange={(e) => {
+                            const features = e.target.value.split('\n').filter(f => f.trim());
+                            updatePackageField(index, 'features', features);
+                          }}
+                          placeholder="e.g., Full business analysis report&#10;Market research insights&#10;Competitor analysis"
+                          rows={4}
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Features (Arabic - one per line)</Label>
+                        <Textarea
+                          value={(pkg.features_ar || []).join('\n')}
+                          onChange={(e) => {
+                            const features = e.target.value.split('\n').filter(f => f.trim());
+                            updatePackageField(index, 'features_ar', features);
+                          }}
+                          placeholder="e.g., تقرير تحليل الأعمال الكامل&#10;رؤى أبحاث السوق&#10;تحليل المنافسين"
+                          rows={4}
+                          className="font-mono text-sm"
+                          dir="rtl"
+                        />
+                      </div>
                     </div>
+                    <p className="text-xs text-slate-500">Enter each feature on a new line</p>
 
                     <div className="text-sm text-slate-600 bg-white p-3 rounded-lg">
                       <div>Price per credit: ${pkg.price_usd && pkg.credits ? (pkg.price_usd / pkg.credits).toFixed(2) : '—'}</div>
