@@ -427,8 +427,8 @@ def update_email_template(user, id):
 @entities_bp.route('/send-templated-email', methods=['POST'])
 @require_admin
 def send_templated_email(user):
-    """Send a test email using a template"""
-    import requests as http_requests
+    """Send an email using a template - uses centralized email service"""
+    from server.services.email_service import send_email
     
     data = request.get_json()
     user_email = data.get('userEmail')
@@ -451,42 +451,12 @@ def send_templated_email(user):
         subject = subject.replace('{{' + key + '}}', str(value))
         body = body.replace('{{' + key + '}}', str(value))
     
-    zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
-    sender_email = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com')
+    success, error = send_email(user_email, user_email, subject, body)
     
-    if not zepto_api_key:
-        return jsonify({'error': 'Email provider not configured'}), 500
-    
-    payload = {
-        'from': {
-            'address': sender_email,
-            'name': 'Planlyze'
-        },
-        'to': [
-            {
-                'email_address': {
-                    'address': user_email,
-                    'name': user_email
-                }
-            }
-        ],
-        'subject': subject,
-        'htmlbody': body
-    }
-    
-    headers = {
-        'Authorization': zepto_api_key,
-        'Content-Type': 'application/json'
-    }
-    
-    try:
-        resp = http_requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
-        if resp.ok:
-            return jsonify({'success': True})
-        else:
-            return jsonify({'error': 'Failed to send email', 'details': resp.text}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    if success:
+        return jsonify({'success': True})
+    else:
+        return jsonify({'error': 'Failed to send email', 'details': error}), 500
 
 # Payment Method endpoints
 @entities_bp.route('/payment-methods', methods=['GET'])
