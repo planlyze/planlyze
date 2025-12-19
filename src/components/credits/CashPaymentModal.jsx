@@ -207,7 +207,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                   {isArabic ? "الباقة المختارة" : "Selected Package"}
                 </p>
                 <p className="text-lg font-bold text-slate-800">
-                  {isArabic ? selectedPackage.name_ar : selectedPackage.name_en}
+                  {isArabic ? (selectedPackage.name_ar || selectedPackage.name) : selectedPackage.name}
                 </p>
               </div>
             </div>

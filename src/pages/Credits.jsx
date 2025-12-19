@@ -8,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Wallet, Sparkles, Package, ArrowLeft, Banknote, 
-  Shield, 
-  Crown, Gift, Rocket, CheckCircle2, Plus, Minus
+  Crown, Gift, Rocket, CheckCircle2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
@@ -21,8 +20,6 @@ export default function Credits() {
   const [isLoading, setIsLoading] = useState(true);
   const [cashModalOpen, setCashModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [customCredits, setCustomCredits] = useState(1);
-
   const [hoveredPackage, setHoveredPackage] = useState(null);
 
   useEffect(() => {
@@ -44,17 +41,11 @@ export default function Credits() {
     }
   };
 
-  const handleCashPayment = (pkg, credits = null) => {
-    if (credits) {
-      // Custom credits for single package
-      setSelectedPackage({
-        ...pkg,
-        credits: credits,
-        price: credits * pkg.price
-      });
-    } else {
-      setSelectedPackage(pkg);
-    }
+  const handleCashPayment = (pkg) => {
+    setSelectedPackage({
+      ...pkg,
+      price: pkg.price_usd
+    });
     setCashModalOpen(true);
   };
 
@@ -270,102 +261,54 @@ export default function Credits() {
                               ? 'bg-gradient-to-br from-purple-500 to-indigo-600' 
                               : 'bg-gradient-to-br from-slate-100 to-slate-200'
                           }`}>
-                            {pkg.package_id === 'bundle' 
+                            {isPopular 
                               ? <Package className={`w-8 h-8 ${isPopular ? 'text-white' : 'text-slate-600'}`} />
                               : <Sparkles className={`w-8 h-8 ${isPopular ? 'text-white' : 'text-slate-600'}`} />
                             }
                           </div>
                           <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                            {isArabic ? pkg.name_ar : pkg.name_en}
+                            {isArabic ? (pkg.name_ar || pkg.name) : pkg.name}
                           </h3>
                           <p className="text-slate-500 text-sm min-h-[40px]">
-                            {isArabic ? pkg.description_ar : pkg.description_en}
+                            {isArabic ? (pkg.description_ar || pkg.description) : pkg.description}
                           </p>
                         </div>
 
                         {/* Price */}
                         <div className="text-center mb-6 py-6 border-y border-slate-100">
-                          {pkg.package_id === 'single' ? (
-                            <>
-                              {/* Custom credit selector for single package */}
-                              <div className="flex items-center justify-center gap-4 mb-4">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => setCustomCredits(Math.max(1, customCredits - 1))}
-                                  disabled={customCredits <= 1}
-                                  className="h-10 w-10 rounded-full border-2"
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </Button>
-                                <div className="text-center">
-                                  <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-5xl font-bold text-orange-500">
-                                      {customCredits}
-                                    </span>
-                                    <span className="text-sm text-slate-600">
-                                      {isArabic ? "رصيد" : customCredits === 1 ? "credit" : "credits"}
-                                    </span>
-                                  </div>
-                                  <p className="text-2xl font-semibold text-slate-700 mt-1">
-                                    ${pkg.price * customCredits}
-                                  </p>
-                                </div>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => setCustomCredits(customCredits + 1)}
-                                  className="h-10 w-10 rounded-full border-2"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </Button>
-                                </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex items-baseline justify-center gap-1">
-                                <span className="text-2xl font-medium text-slate-500">$</span>
-                                <span className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                                  {pkg.price}
-                                </span>
-                              </div>
-                              {savings && (
-                                <p className="text-sm text-slate-400 line-through mt-1">
-                                  ${pkg.price + savings.amount}
-                                </p>
-                              )}
-                              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-200">
-                                <Sparkles className="w-4 h-4 text-purple-600" />
-                                <span className="font-semibold text-purple-700">
-                                  {pkg.credits} {isArabic ? "رصيد متميز" : "premium credits"}
-                                </span>
-                              </div>
-                            </>
-                          )}
+                          <div className="flex items-baseline justify-center gap-1">
+                            <span className="text-2xl font-medium text-slate-500">$</span>
+                            <span className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                              {pkg.price_usd}
+                            </span>
+                          </div>
+                          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-200">
+                            <Sparkles className="w-4 h-4 text-purple-600" />
+                            <span className="font-semibold text-purple-700">
+                              {pkg.credits} {isArabic ? "رصيد متميز" : "premium credits"}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Features List */}
                         <ul className="space-y-3 mb-8">
-                          {[
-                            isArabic ? "تحليل منافسين مفصل" : "Detailed competitor analysis",
-                            isArabic ? "بيانات السوق السوري والفرص المحلية" : "Syrian market data & local opportunities",
-                            isArabic ? "توصيات استراتيجية بالذكاء الاصطناعي" : "AI-powered strategic recommendations",
-                            isArabic ? "مساعد ذكي تفاعلي للأسئلة والأجوبة" : "Interactive AI Assistant for Q&A",
-                            isArabic ? "تصدير إلى PDF و Excel" : "Export to PDF & Excel formats"
-                          ].map((feature, idx) => (
+                          {(isArabic ? (pkg.features_ar?.length ? pkg.features_ar : pkg.features) : pkg.features)?.map((feature, idx) => (
                             <li key={idx} className="flex items-center gap-3 text-slate-600">
                               <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
+                          {(!pkg.features || pkg.features.length === 0) && (
+                            <li className="flex items-center gap-3 text-slate-600">
+                              <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                              <span>{isArabic ? "تقرير تحليل أعمال متكامل" : "Complete business analysis report"}</span>
+                            </li>
+                          )}
                         </ul>
 
                         {/* CTA Button */}
                         <Button
-                          onClick={() => pkg.package_id === 'single' 
-                            ? handleCashPayment(pkg, customCredits) 
-                            : handleCashPayment(pkg)
-                          }
+                          onClick={() => handleCashPayment(pkg)}
                           className={`w-full h-14 text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl group ${
                             isPopular 
                               ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white' 
