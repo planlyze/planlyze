@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Role } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,8 +48,8 @@ export default function RoleManagement() {
       }
 
       const [rolesData, usersData] = await Promise.all([
-        api.Role.filter({}, "-created_date"),
-        User.filter({}, "-created_date")
+        Role.filter({}, "-created_at"),
+        User.filter({}, "-created_at")
       ]);
 
       setRoles(rolesData);
@@ -115,10 +115,10 @@ export default function RoleManagement() {
     setIsSaving(true);
     try {
       if (editingRole) {
-        await api.Role.update(editingRole.id, formData);
+        await Role.update(editingRole.id, formData);
         toast.success("Role updated successfully");
       } else {
-        await api.Role.create(formData);
+        await Role.create(formData);
         toast.success("Role created successfully");
       }
       
@@ -145,7 +145,7 @@ export default function RoleManagement() {
     }
 
     try {
-      await api.Role.delete(role.id);
+      await Role.delete(role.id);
       toast.success("Role deleted successfully");
       loadData();
     } catch (error) {
