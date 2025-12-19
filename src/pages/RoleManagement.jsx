@@ -263,11 +263,16 @@ export default function RoleManagement() {
                 <div>
                   <p className="text-sm font-semibold text-slate-700 mb-2">Permissions:</p>
                   <div className="flex flex-wrap gap-2">
-                    {role.permissions?.map(perm => (
+                    {(Array.isArray(role.permissions) ? role.permissions : []).map(perm => (
                       <Badge key={perm} variant="outline" className="text-xs">
                         {PERMISSION_LABELS[perm] || perm}
                       </Badge>
                     ))}
+                    {!Array.isArray(role.permissions) && role.permissions && Object.keys(role.permissions).length > 0 && (
+                      <Badge variant="outline" className="text-xs">
+                        {Object.keys(role.permissions).length} permission groups
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 

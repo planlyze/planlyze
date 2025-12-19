@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, CheckCircle2, Info, Wallet, Image as ImageIcon, Clock, X } from "lucide-react";
-import { auth, api, Analysis, Payment, PaymentMethod, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, PaymentMethod, User, AI, DiscountCode } from "@/api/client";
 import { toast } from "sonner";
 import { logPaymentSubmitted } from "@/components/utils/activityHelper";
 
@@ -56,7 +56,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
     setIsValidating(true);
     try {
-      const discounts = await api.DiscountCode.filter({ 
+      const discounts = await DiscountCode.filter({ 
         code: discountCode.toUpperCase(),
         is_active: true 
       });
@@ -82,24 +82,17 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
         return;
       }
 
-      if (discount.max_uses && discount.times_used >= discount.max_uses) {
+      if (discount.max_uses && discount.used_count >= discount.max_uses) {
         toast.error(isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used");
         setAppliedDiscount(null);
         return;
       }
 
-      if (discount.min_purchase_amount > selectedPackage.price) {
+      const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
+      if (discount.min_purchase_amount && discount.min_purchase_amount > packagePrice) {
         toast.error(isArabic ? `الحد الأدنى للشراء $${discount.min_purchase_amount}` : `Minimum purchase $${discount.min_purchase_amount} required`);
         setAppliedDiscount(null);
         return;
-      }
-
-      if (discount.applicable_packages && discount.applicable_packages.length > 0) {
-        if (!discount.applicable_packages.includes(selectedPackage.package_id)) {
-          toast.error(isArabic ? "الكود غير صالح لهذه الباقة" : "Code not applicable for this package");
-          setAppliedDiscount(null);
-          return;
-        }
       }
 
       setAppliedDiscount(discount);
@@ -113,13 +106,15 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
   };
 
   const calculateFinalAmount = () => {
-    if (!appliedDiscount) return selectedPackage.price;
+    const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
+    if (!appliedDiscount) return packagePrice;
     
-    if (appliedDiscount.discount_type === "percentage") {
-      return selectedPackage.price * (1 - appliedDiscount.discount_value / 100);
-    } else {
-      return Math.max(0, selectedPackage.price - appliedDiscount.discount_value);
+    if (appliedDiscount.discount_percent) {
+      return packagePrice * (1 - appliedDiscount.discount_percent / 100);
+    } else if (appliedDiscount.discount_amount) {
+      return Math.max(0, packagePrice - appliedDiscount.discount_amount);
     }
+    return packagePrice;
   };
 
   const fileToBase64 = (file) => {
