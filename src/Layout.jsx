@@ -379,7 +379,7 @@ export default function Layout({ children, currentPageName }) {
                     <div className="group-data-[collapsible=icon]:hidden flex-1 min-w-0">
                       <p className="text-xs text-orange-100 font-medium">{isArabic ? "الأرصدة المتاحة" : "Credits"}</p>
                       <p className="text-xl font-bold text-white">
-                        {currentUser?.premium_credits || 0}
+                        {currentUser?.credits || 0}
                       </p>
                     </div>
                     <Button 
