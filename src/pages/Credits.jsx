@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Wallet, Sparkles, Package, ArrowLeft, Banknote, 
-  Crown, Gift, Rocket, CheckCircle2
+  Crown, Gift, Rocket, CheckCircle2, Plus, Minus
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
 
@@ -21,6 +22,8 @@ export default function Credits() {
   const [cashModalOpen, setCashModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [hoveredPackage, setHoveredPackage] = useState(null);
+  const [customCredits, setCustomCredits] = useState(5);
+  const PRICE_PER_CREDIT = 1.99;
 
   useEffect(() => {
     loadData();
@@ -45,6 +48,20 @@ export default function Credits() {
     setSelectedPackage({
       ...pkg,
       price: pkg.price_usd
+    });
+    setCashModalOpen(true);
+  };
+
+  const handleCustomCreditsPayment = () => {
+    const totalPrice = (customCredits * PRICE_PER_CREDIT).toFixed(2);
+    setSelectedPackage({
+      name: isArabic ? 'رصيد مخصص' : 'Custom Credits',
+      name_ar: 'رصيد مخصص',
+      credits: customCredits,
+      price: parseFloat(totalPrice),
+      price_usd: parseFloat(totalPrice),
+      description: isArabic ? `${customCredits} رصيد لمحفظتك` : `${customCredits} credits for your wallet`,
+      is_custom: true
     });
     setCashModalOpen(true);
   };
@@ -327,10 +344,94 @@ export default function Credits() {
               })
             )}
           </div>
+
+          {/* Custom Credits Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 max-w-2xl mx-auto"
+          >
+            <Card className="border-2 border-dashed border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50 shadow-xl">
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-amber-500">
+                    <Wallet className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2">
+                    {isArabic ? "رصيد مخصص" : "Custom Credits"}
+                  </h3>
+                  <p className="text-slate-500 text-sm">
+                    {isArabic 
+                      ? "اشترِ أي عدد من الأرصدة لملء محفظتك واستخدامها لاحقاً"
+                      : "Buy any number of credits to fill your wallet and use them later"
+                    }
+                  </p>
+                </div>
+
+                {/* Credit Selector */}
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCustomCredits(Math.max(1, customCredits - 1))}
+                    disabled={customCredits <= 1}
+                    className="h-12 w-12 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-50"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={customCredits}
+                      onChange={(e) => setCustomCredits(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-24 h-14 text-center text-2xl font-bold border-2 border-orange-300 focus:border-orange-500"
+                      min="1"
+                    />
+                    <span className="text-lg text-slate-600 font-medium">
+                      {isArabic ? "رصيد" : "credits"}
+                    </span>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCustomCredits(customCredits + 1)}
+                    className="h-12 w-12 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-50"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Price Display */}
+                <div className="text-center mb-6 py-4 bg-white rounded-xl border border-orange-200">
+                  <p className="text-sm text-slate-500 mb-1">
+                    {isArabic ? "المجموع" : "Total Price"}
+                  </p>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-xl font-medium text-slate-500">$</span>
+                    <span className="text-4xl font-bold text-orange-600">
+                      {(customCredits * PRICE_PER_CREDIT).toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    ${PRICE_PER_CREDIT} {isArabic ? "لكل رصيد" : "per credit"}
+                  </p>
+                </div>
+
+                {/* CTA Button */}
+                <Button
+                  onClick={handleCustomCreditsPayment}
+                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                >
+                  <Banknote className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  {isArabic ? "اشحن المحفظة" : "Top Up Wallet"}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         </section>
-
-
-
 
 
 
