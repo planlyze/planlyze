@@ -124,9 +124,7 @@ def generate_analysis_entry(user):
         industry=data.get('industry', 'Other'),
         target_market=data.get('target_market', ''),
         location=data.get('country', ''),
-        report_language=data.get('report_language', 'english'),
-        status='analyzing',
-        progress_percent=10
+        status='analyzing'
     )
     db.session.add(analysis)
     db.session.commit()
