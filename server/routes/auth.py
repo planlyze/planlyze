@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
-from server.models import db, User, Role, Referral
+from server.models import db, User, Role, Referral, Notification
 from server.utils.translations import get_message
-from server.services.email_service import send_verification_email
+from server.services.email_service import (
+    send_verification_email, 
+    send_referral_bonus_email_to_referrer,
+    send_referral_bonus_email_to_referred
+)
 import bcrypt
 import jwt
 import os
@@ -144,7 +148,46 @@ def register():
             status='completed'
         )
         db.session.add(referral_record)
+        
+        referrer_notification = Notification(
+            user_email=referrer.email,
+            type='referral_bonus',
+            title='You earned a referral bonus!' if lang == 'en' else 'لقد حصلت على مكافأة إحالة!',
+            message=f'{user.email} signed up using your referral code. You earned 1 credit!' if lang == 'en' else f'{user.email} قام بالتسجيل باستخدام رمز الإحالة الخاص بك. لقد حصلت على 1 رصيد!',
+            meta_data={'referred_email': user.email, 'credits_earned': 1}
+        )
+        db.session.add(referrer_notification)
+        
+        referred_notification = Notification(
+            user_email=user.email,
+            type='referral_welcome',
+            title='Welcome! You got a bonus credit!' if lang == 'en' else 'مرحباً! حصلت على رصيد إضافي!',
+            message=f'You signed up with a referral from {referrer.email} and received 1 bonus credit!' if lang == 'en' else f'لقد قمت بالتسجيل باستخدام رمز إحالة من {referrer.email} وحصلت على 1 رصيد إضافي!',
+            meta_data={'referrer_email': referrer.email, 'credits_received': 1}
+        )
+        db.session.add(referred_notification)
+        
         db.session.commit()
+        
+        app_url = f"https://{APP_DOMAIN}"
+        referrer_lang = referrer.language or 'en'
+        
+        send_referral_bonus_email_to_referrer(
+            referrer_email=referrer.email,
+            referrer_name=referrer.full_name,
+            referred_email=user.email,
+            referral_code=referrer.referral_code,
+            app_url=app_url,
+            lang=referrer_lang
+        )
+        
+        send_referral_bonus_email_to_referred(
+            referred_email=user.email,
+            referred_name=full_name,
+            referrer_email=referrer.email,
+            app_url=app_url,
+            lang=lang
+        )
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)
     

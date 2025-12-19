@@ -279,3 +279,111 @@ def send_custom_email(to_email, to_name, subject, body_html, lang='en'):
     
     success, error = send_email(to_email, to_name, subject, html_body)
     return success, error
+
+
+def send_referral_bonus_email_to_referrer(referrer_email, referrer_name, referred_email, referral_code, app_url, lang='en'):
+    """Send referral bonus notification to the referrer"""
+    referrals_url = f"{app_url}/Referrals"
+    
+    if lang == 'ar':
+        subject = "لقد حصلت على مكافأة إحالة! 🎉"
+        html_body = f"""
+        <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
+            </div>
+            <h2 style="color: #22c55e;">تهانينا! لقد حصلت على مكافأة!</h2>
+            <p>مرحباً {referrer_name or ''}،</p>
+            <p>أخبار رائعة! <strong>{referred_email}</strong> قام للتو بالتسجيل باستخدام رمز الإحالة الخاص بك.</p>
+            <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                <p style="color: white; margin: 0; font-size: 14px;">لقد حصلت على</p>
+                <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 رصيد</p>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">استمر في مشاركة رمز الإحالة الخاص بك لكسب المزيد من الأرصدة!</p>
+            <p><strong>رمز الإحالة الخاص بك:</strong> {referral_code}</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="{referrals_url}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px;">عرض إحالاتك</a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">فريق Planlyze</p>
+        </div>
+        """
+    else:
+        subject = "You Earned a Referral Bonus! 🎉"
+        html_body = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
+            </div>
+            <h2 style="color: #22c55e;">Congratulations! You Earned a Bonus!</h2>
+            <p>Hi {referrer_name or ''},</p>
+            <p>Great news! <strong>{referred_email}</strong> just signed up using your referral code.</p>
+            <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                <p style="color: white; margin: 0; font-size: 14px;">You earned</p>
+                <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 Credit</p>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">Keep sharing your referral code to earn more credits!</p>
+            <p><strong>Your Referral Code:</strong> {referral_code}</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="{referrals_url}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px;">View Your Referrals</a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">The Planlyze Team</p>
+        </div>
+        """
+    
+    success, error = send_email(referrer_email, referrer_name, subject, html_body)
+    return success
+
+
+def send_referral_bonus_email_to_referred(referred_email, referred_name, referrer_email, app_url, lang='en'):
+    """Send referral bonus notification to the new user"""
+    analysis_url = f"{app_url}/NewAnalysis"
+    
+    if lang == 'ar':
+        subject = "مرحباً! حصلت على رصيد إضافي! 🎁"
+        html_body = f"""
+        <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
+            </div>
+            <h2 style="color: #7c3aed;">مرحباً بك في Planlyze!</h2>
+            <p>مرحباً {referred_name or ''}،</p>
+            <p>لقد قمت بالتسجيل باستخدام رمز إحالة من <strong>{referrer_email}</strong> وحصلت على رصيد إضافي!</p>
+            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                <p style="color: white; margin: 0; font-size: 14px;">مكافأة الترحيب الخاصة بك</p>
+                <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 رصيد</p>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">استخدم رصيدك لإنشاء أول تحليل أعمال مدعوم بالذكاء الاصطناعي!</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="{analysis_url}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px;">ابدأ تحليلك الأول</a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">فريق Planlyze</p>
+        </div>
+        """
+    else:
+        subject = "Welcome! You Got a Bonus Credit! 🎁"
+        html_body = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
+            </div>
+            <h2 style="color: #7c3aed;">Welcome to Planlyze!</h2>
+            <p>Hi {referred_name or ''},</p>
+            <p>You signed up using a referral code from <strong>{referrer_email}</strong> and received a bonus credit!</p>
+            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+                <p style="color: white; margin: 0; font-size: 14px;">Your Welcome Bonus</p>
+                <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 Credit</p>
+            </div>
+            <p style="color: #64748b; font-size: 14px;">Use your credit to create your first AI-powered business analysis!</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="{analysis_url}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px;">Start Your First Analysis</a>
+            </div>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">The Planlyze Team</p>
+        </div>
+        """
+    
+    success, error = send_email(referred_email, referred_name, subject, html_body)
+    return success

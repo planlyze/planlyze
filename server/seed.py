@@ -336,6 +336,74 @@ def seed_email_templates():
   <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
 </div>''',
             'is_active': True
+        },
+        {
+            'template_key': 'referral_bonus_referrer',
+            'name': 'Referral Bonus - Referrer',
+            'subject_en': 'You Earned a Referral Bonus! 🎉',
+            'subject_ar': 'لقد حصلت على مكافأة إحالة! 🎉',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #22c55e;">Congratulations! You Earned a Bonus!</h2>
+  <p>Hi {{referrer_name}},</p>
+  <p>Great news! <strong>{{referred_email}}</strong> just signed up using your referral code.</p>
+  <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">You earned</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 Credit</p>
+  </div>
+  <p style="color: #64748b; font-size: 14px;">Keep sharing your referral code to earn more credits!</p>
+  <p><strong>Your Referral Code:</strong> {{referral_code}}</p>
+  <a href="{{referrals_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">View Your Referrals</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #22c55e;">تهانينا! لقد حصلت على مكافأة!</h2>
+  <p>مرحباً {{referrer_name}}،</p>
+  <p>أخبار رائعة! <strong>{{referred_email}}</strong> قام للتو بالتسجيل باستخدام رمز الإحالة الخاص بك.</p>
+  <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">لقد حصلت على</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 رصيد</p>
+  </div>
+  <p style="color: #64748b; font-size: 14px;">استمر في مشاركة رمز الإحالة الخاص بك لكسب المزيد من الأرصدة!</p>
+  <p><strong>رمز الإحالة الخاص بك:</strong> {{referral_code}}</p>
+  <a href="{{referrals_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">عرض إحالاتك</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'referral_bonus_referred',
+            'name': 'Referral Bonus - New User',
+            'subject_en': 'Welcome! You Got a Bonus Credit! 🎁',
+            'subject_ar': 'مرحباً! حصلت على رصيد إضافي! 🎁',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">Welcome to Planlyze!</h2>
+  <p>Hi {{referred_name}},</p>
+  <p>You signed up using a referral code from <strong>{{referrer_email}}</strong> and received a bonus credit!</p>
+  <div style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">Your Welcome Bonus</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 Credit</p>
+  </div>
+  <p style="color: #64748b; font-size: 14px;">Use your credit to create your first AI-powered business analysis!</p>
+  <a href="{{analysis_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Start Your First Analysis</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">مرحباً بك في Planlyze!</h2>
+  <p>مرحباً {{referred_name}}،</p>
+  <p>لقد قمت بالتسجيل باستخدام رمز إحالة من <strong>{{referrer_email}}</strong> وحصلت على رصيد إضافي!</p>
+  <div style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">مكافأة الترحيب الخاصة بك</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+1 رصيد</p>
+  </div>
+  <p style="color: #64748b; font-size: 14px;">استخدم رصيدك لإنشاء أول تحليل أعمال مدعوم بالذكاء الاصطناعي!</p>
+  <a href="{{analysis_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">ابدأ تحليلك الأول</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
         }
     ]
     
