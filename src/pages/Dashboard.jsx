@@ -111,7 +111,7 @@ export default function Dashboard() {
   const stats = [
     {
       title: isArabic ? "الأرصدة المتبقية" : "Credits Available",
-      value: currentUser?.premium_credits || 0,
+      value: currentUser?.credits || 0,
       icon: Wallet,
       color: "orange",
       bgGradient: "from-orange-500 to-orange-600"
@@ -125,7 +125,7 @@ export default function Dashboard() {
     },
     {
       title: isArabic ? "الأرصدة المستخدمة" : "Credits Used",
-      value: currentUser?.total_credits_used || 0,
+      value: analyses.length,
       icon: TrendingUp,
       color: "gray",
       bgGradient: "from-gray-600 to-gray-700"
