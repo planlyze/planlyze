@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, AuditLog, User } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,8 +37,9 @@ export default function AuditLogs() {
         return;
       }
 
-      const allLogs = await api.AuditLog.filter({}, "-created_date", 1000);
-      setLogs(allLogs);
+      const allLogs = await AuditLog.list();
+      const sorted = Array.isArray(allLogs) ? allLogs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
+      setLogs(sorted);
     } catch (error) {
       console.error("Error loading logs:", error);
       window.location.href = "/login";
@@ -91,12 +92,12 @@ export default function AuditLogs() {
   const exportToCSV = () => {
     const headers = ["Date", "Action", "User", "Performed By", "Description", "Metadata"];
     const rows = filteredLogs.map(log => [
-      format(new Date(log.created_date), "yyyy-MM-dd HH:mm:ss"),
+      log.created_at ? format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss") : "",
       log.action_type,
       log.user_email,
       log.performed_by || "System",
       log.description,
-      JSON.stringify(log.metadata || {})
+      JSON.stringify(log.meta_data || {})
     ]);
 
     const csv = [
@@ -183,7 +184,7 @@ export default function AuditLogs() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {logs.filter(l => new Date(l.created_date) > new Date(Date.now() - 86400000)).length}
+                {logs.filter(l => l.created_at && new Date(l.created_at) > new Date(Date.now() - 86400000)).length}
               </div>
             </CardContent>
           </Card>
@@ -284,7 +285,7 @@ export default function AuditLogs() {
                     paginatedLogs.map((log) => (
                       <TableRow key={log.id}>
                         <TableCell className="text-sm text-slate-600 whitespace-nowrap">
-                          {format(new Date(log.created_date), "MMM d, yyyy HH:mm")}
+                          {log.created_at && format(new Date(log.created_at), "MMM d, yyyy HH:mm")}
                         </TableCell>
                         <TableCell>
                           <Badge className={getActionColor(log.action_type)}>
@@ -301,13 +302,13 @@ export default function AuditLogs() {
                           {log.description}
                         </TableCell>
                         <TableCell className="text-xs text-slate-500">
-                          {log.metadata && Object.keys(log.metadata).length > 0 && (
+                          {log.meta_data && Object.keys(log.meta_data).length > 0 && (
                             <details className="cursor-pointer">
                               <summary className="text-blue-600 hover:text-blue-700">
                                 View metadata
                               </summary>
                               <pre className="mt-2 p-2 bg-slate-50 rounded text-xs overflow-auto max-w-xs">
-                                {JSON.stringify(log.metadata, null, 2)}
+                                {JSON.stringify(log.meta_data, null, 2)}
                               </pre>
                             </details>
                           )}
