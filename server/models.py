@@ -319,6 +319,46 @@ class AuditLog(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+class ApiRequestLog(db.Model):
+    __tablename__ = 'api_request_logs'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    method = db.Column(db.String(10), nullable=False)
+    path = db.Column(db.String(500), nullable=False)
+    full_url = db.Column(db.String(2000))
+    query_params = db.Column(db.JSON)
+    request_headers = db.Column(db.JSON)
+    request_body = db.Column(db.JSON)
+    response_status = db.Column(db.Integer)
+    response_body = db.Column(db.JSON)
+    user_email = db.Column(db.String(255))
+    user_role = db.Column(db.String(100))
+    ip_address = db.Column(db.String(50))
+    user_agent = db.Column(db.String(500))
+    execution_time_ms = db.Column(db.Float)
+    error_message = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'method': self.method,
+            'path': self.path,
+            'full_url': self.full_url,
+            'query_params': self.query_params,
+            'request_headers': self.request_headers,
+            'request_body': self.request_body,
+            'response_status': self.response_status,
+            'response_body': self.response_body,
+            'user_email': self.user_email,
+            'user_role': self.user_role,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'execution_time_ms': self.execution_time_ms,
+            'error_message': self.error_message,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
 class ActivityFeed(db.Model):
     __tablename__ = 'activity_feed'
     
