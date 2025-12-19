@@ -172,9 +172,66 @@ Return ONLY the JSON object, no additional text."""
         
     except Exception as e:
         analysis.status = 'failed'
-        pending_transaction.status = 'failed'
+        analysis.last_error = str(e)
+        db.session.delete(pending_transaction)
         db.session.commit()
         return jsonify({'error': str(e)}), 500
+
+@ai_bp.route('/fail-analysis', methods=['POST'])
+@require_auth
+def fail_analysis(user):
+    """
+    Mark analysis as failed and cleanup pending transactions
+    ---
+    tags:
+      - AI Analysis
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            analysis_id:
+              type: string
+              description: ID of the failed analysis
+            error:
+              type: string
+              description: Error message to store
+            transaction_id:
+              type: string
+              description: ID of the pending transaction to remove
+    responses:
+      200:
+        description: Cleanup completed
+      404:
+        description: Analysis not found
+      403:
+        description: Access denied
+    """
+    data = request.get_json()
+    analysis_id = data.get('analysis_id')
+    error_msg = data.get('error', 'Analysis failed')
+    transaction_id = data.get('transaction_id')
+    
+    if analysis_id:
+        analysis = Analysis.query.get(analysis_id)
+        if analysis:
+            if analysis.user_email != user.email:
+                return jsonify({'error': 'Access denied'}), 403
+            analysis.status = 'failed'
+            analysis.last_error = error_msg
+    
+    if transaction_id:
+        transaction = Transaction.query.get(transaction_id)
+        if transaction and transaction.user_email == user.email and transaction.status == 'pending':
+            db.session.delete(transaction)
+    
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Cleanup completed'})
 
 @ai_bp.route('/chat', methods=['POST'])
 @require_auth

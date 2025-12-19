@@ -231,23 +231,17 @@ export default function NewAnalysis() {
       }
 
       if (result?.status === "failed") {
-        // Refund credit on failure
-        if (transactionId) {
-          try {
-            const currentUser = await User.me();
-            await User.updateMyUserData({
-              premium_credits: (currentUser.premium_credits || 0) + 1,
-              total_credits_used: Math.max(0, (currentUser.total_credits_used || 0) - 1)
-            });
-            
-            await Transaction.update(transactionId, {
-              status: 'refunded',
-              notes: 'Credit refunded - analysis failed'
-            });
-          } catch (e) {
-            console.error("Failed to refund credit:", e);
-          }
+        // Cleanup failed analysis - delete pending transaction
+        try {
+          await api.post('/ai/fail-analysis', {
+            analysis_id: createdAnalysis.id,
+            error: result?.analysis?.last_error || 'Analysis generation failed',
+            transaction_id: transactionId
+          });
+        } catch (e) {
+          console.error("Failed to cleanup after failure:", e);
         }
+        setPendingTransactionId(null);
         
         const errFromResult = result?.analysis?.last_error || "";
         setLastError(errFromResult);
@@ -276,22 +270,18 @@ export default function NewAnalysis() {
     } catch (error) {
       console.error("Analysis failed:", error);
       
-      // Refund credit on error
-      if (pendingTransactionId) {
+      // Cleanup failed analysis - delete pending transaction
+      if (pendingTransactionId || analysisId) {
         try {
-          const currentUser = await User.me();
-          await User.updateMyUserData({
-            premium_credits: (currentUser.premium_credits || 0) + 1,
-            total_credits_used: Math.max(0, (currentUser.total_credits_used || 0) - 1)
-          });
-          
-          await Transaction.update(pendingTransactionId, {
-            status: 'refunded',
-            notes: 'Credit refunded - analysis failed with error'
+          await api.post('/ai/fail-analysis', {
+            analysis_id: analysisId,
+            error: error?.message || 'Analysis generation failed',
+            transaction_id: pendingTransactionId
           });
         } catch (e) {
-          console.error("Failed to refund credit:", e);
+          console.error("Failed to cleanup after failure:", e);
         }
+        setPendingTransactionId(null);
       }
       
       const errorMsg = error?.response?.data?.error || error.message || "An unexpected network error occurred. Please try again.";
@@ -308,30 +298,27 @@ export default function NewAnalysis() {
       return;
     }
     
-    // Check credits and deduct upfront for retry (only if has credits)
+    // Check if user has credits for retry
     const user = await User.me();
-    const currentCredits = user.premium_credits || 0;
+    const currentCredits = user.credits || 0;
     const hasCreditsForRetry = currentCredits > 0;
     let retryTransactionId = null;
     
     if (hasCreditsForRetry) {
-      await User.updateMyUserData({
-        premium_credits: currentCredits - 1,
-        total_credits_used: (user.total_credits_used || 0) + 1
-      });
-      
+      // Create pending transaction (credit deducted only on completion)
       const tx = await Transaction.create({
         user_email: user.email,
         type: 'usage',
         credits: -1,
         analysis_id: analysisId,
         status: 'pending',
-        notes: 'Premium credit reserved for analysis retry'
+        notes: 'Credit reserved for analysis retry'
       });
       retryTransactionId = tx.id;
     } else {
-      // Update analysis to free if no credits
-      await Analysis.update(analysisId, { is_premium: false });
+      // No credits available, cannot retry
+      toast.error("Not enough credits for retry. Please purchase credits.");
+      return;
     }
     
     setCurrentStep("processing");
@@ -370,17 +357,15 @@ export default function NewAnalysis() {
       }
       
       if (result?.status === "failed") {
-        if (retryTransactionId) {
-          const currentUser = await User.me();
-          await User.updateMyUserData({
-            premium_credits: (currentUser.premium_credits || 0) + 1,
-            total_credits_used: Math.max(0, (currentUser.total_credits_used || 0) - 1)
+        // Cleanup failed retry - delete pending transaction
+        try {
+          await api.post('/ai/fail-analysis', {
+            analysis_id: analysisId,
+            error: result?.analysis?.last_error || 'Analysis retry failed',
+            transaction_id: retryTransactionId
           });
-          
-          await Transaction.update(retryTransactionId, {
-            status: 'refunded',
-            notes: 'Credit refunded - analysis retry failed'
-          });
+        } catch (e) {
+          console.error("Failed to cleanup after retry failure:", e);
         }
         
         const errorMsg = result?.analysis?.last_error || "Analysis failed again. Please try adjusting inputs and try once more.";
@@ -402,17 +387,17 @@ export default function NewAnalysis() {
       setCurrentStep("completed");
       navigate(createPageUrl(`AnalysisResult?id=${analysisId}`));
     } catch (error) {
-      if (retryTransactionId) {
-        const currentUser = await User.me();
-        await User.updateMyUserData({
-          premium_credits: (currentUser.premium_credits || 0) + 1,
-          total_credits_used: Math.max(0, (currentUser.total_credits_used || 0) - 1)
-        });
-        
-        await Transaction.update(retryTransactionId, {
-          status: 'refunded',
-          notes: 'Credit refunded - analysis retry error'
-        });
+      // Cleanup failed retry - delete pending transaction
+      if (retryTransactionId || analysisId) {
+        try {
+          await api.post('/ai/fail-analysis', {
+            analysis_id: analysisId,
+            error: error?.message || 'Analysis retry failed',
+            transaction_id: retryTransactionId
+          });
+        } catch (e) {
+          console.error("Failed to cleanup after retry error:", e);
+        }
       }
       
       const errorMsg = error?.message || "Retry failed";
