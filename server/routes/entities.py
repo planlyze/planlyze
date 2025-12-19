@@ -386,15 +386,16 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                         analysis_record.status = 'failed'
                         analysis_record.last_error = str(e)
                     
-                    # Restore credit and mark transaction as failed
+                    # Restore credit and mark transaction as refunded
                     user_record = User.query.filter_by(email=analysis_record.user_email).first()
                     if user_record:
                         user_record.credits += 1
                     
                     pending_tx_record = Transaction.query.get(pending_tx_id)
                     if pending_tx_record:
-                        pending_tx_record.status = 'failed'
-                        pending_tx_record.description = f'Failed analysis (refunded): {str(e)[:100]}'
+                        pending_tx_record.status = 'completed'
+                        pending_tx_record.type = 'refunded'
+                        pending_tx_record.description = f'Refunded: Analysis failed - {str(e)[:80]}'
                     
                     db.session.commit()
                 except Exception:
