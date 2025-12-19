@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage, Settings } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -39,6 +39,8 @@ export default function AdminCredits() {
   // Pricing settings
   const [packages, setPackages] = useState([]);
   const [isSavingPackages, setIsSavingPackages] = useState(false);
+  const [pricePerCredit, setPricePerCredit] = useState("1.99");
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
   
   // Transaction filters and pagination
   const [txTypeFilter, setTxTypeFilter] = useState("all");
@@ -86,9 +88,28 @@ export default function AdminCredits() {
       // Load credit packages
       const pkgs = await CreditPackage.list();
       setPackages(pkgs);
+
+      // Load settings
+      const settings = await Settings.get();
+      if (settings?.price_per_credit) {
+        setPricePerCredit(settings.price_per_credit);
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
+    }
+  };
+
+  const handleSavePricePerCredit = async () => {
+    setIsSavingSettings(true);
+    try {
+      await Settings.update({ price_per_credit: pricePerCredit });
+      toast.success("Price per credit updated successfully");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      toast.error("Failed to save settings");
+    } finally {
+      setIsSavingSettings(false);
     }
   };
 
@@ -576,6 +597,46 @@ export default function AdminCredits() {
 
           {/* Settings Tab */}
           <TabsContent value="settings">
+            {/* Custom Credit Pricing */}
+            <Card className="glass-effect border border-slate-200 mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-orange-500" />
+                  Custom Credit Pricing
+                </CardTitle>
+                <CardDescription>Set the price per credit for custom credit purchases</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end gap-4">
+                  <div className="space-y-2 flex-1 max-w-xs">
+                    <Label htmlFor="pricePerCredit">Price per Credit (USD)</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                      <Input
+                        id="pricePerCredit"
+                        type="number"
+                        value={pricePerCredit}
+                        onChange={(e) => setPricePerCredit(e.target.value)}
+                        min="0.01"
+                        step="0.01"
+                        className="pl-7"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      This price is used when users purchase custom credit amounts
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleSavePricePerCredit}
+                    disabled={isSavingSettings}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    {isSavingSettings ? "Saving..." : "Save Price"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="glass-effect border border-slate-200">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
