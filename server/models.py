@@ -244,6 +244,9 @@ class DiscountCode(db.Model):
     code = db.Column(db.String(50), unique=True, nullable=False)
     discount_percent = db.Column(db.Integer)
     discount_amount = db.Column(db.Float)
+    description_en = db.Column(db.Text)
+    description_ar = db.Column(db.Text)
+    min_purchase_amount = db.Column(db.Float, default=0)
     max_uses = db.Column(db.Integer)
     used_count = db.Column(db.Integer, default=0)
     valid_from = db.Column(db.DateTime)
@@ -257,6 +260,9 @@ class DiscountCode(db.Model):
             'code': self.code,
             'discount_percent': self.discount_percent,
             'discount_amount': self.discount_amount,
+            'description_en': self.description_en,
+            'description_ar': self.description_ar,
+            'min_purchase_amount': self.min_purchase_amount or 0,
             'max_uses': self.max_uses,
             'used_count': self.used_count,
             'valid_from': self.valid_from.isoformat() if self.valid_from else None,

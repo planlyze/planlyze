@@ -513,6 +513,9 @@ def create_discount_code(user):
         code=data.get('code'),
         discount_percent=data.get('discount_percent'),
         discount_amount=data.get('discount_amount'),
+        description_en=data.get('description_en'),
+        description_ar=data.get('description_ar'),
+        min_purchase_amount=data.get('min_purchase_amount', 0),
         max_uses=data.get('max_uses'),
         valid_from=datetime.fromisoformat(data['valid_from']) if data.get('valid_from') else None,
         valid_until=datetime.fromisoformat(data['valid_until']) if data.get('valid_until') else None
@@ -535,6 +538,12 @@ def update_discount_code(user, id):
         code.discount_percent = data['discount_percent']
     if 'discount_amount' in data:
         code.discount_amount = data['discount_amount']
+    if 'description_en' in data:
+        code.description_en = data['description_en']
+    if 'description_ar' in data:
+        code.description_ar = data['description_ar']
+    if 'min_purchase_amount' in data:
+        code.min_purchase_amount = data['min_purchase_amount']
     if 'max_uses' in data:
         code.max_uses = data['max_uses']
     if 'is_active' in data:
