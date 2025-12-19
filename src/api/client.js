@@ -214,6 +214,11 @@ export const Role = {
   }
 };
 
+export const Settings = {
+  get: () => api.get('/settings'),
+  update: (data) => api.post('/settings', data)
+};
+
 export const AuditLog = {
   list: () => api.get('/audit-logs'),
   create: (data) => api.post('/audit-logs', data),

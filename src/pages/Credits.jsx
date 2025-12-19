@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Transaction, CreditPackage, auth } from "@/api/client";
+import { User, Transaction, CreditPackage, Settings, auth } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,7 +23,7 @@ export default function Credits() {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [hoveredPackage, setHoveredPackage] = useState(null);
   const [customCredits, setCustomCredits] = useState(5);
-  const PRICE_PER_CREDIT = 1.99;
+  const [pricePerCredit, setPricePerCredit] = useState(1.99);
 
   useEffect(() => {
     loadData();
@@ -36,6 +36,11 @@ export default function Credits() {
       setCurrentUser(user);
       const pkgs = await CreditPackage.filter({ is_active: true }, "price");
       setPackages(pkgs);
+      
+      const settings = await Settings.get();
+      if (settings?.price_per_credit) {
+        setPricePerCredit(parseFloat(settings.price_per_credit));
+      }
     } catch (error) {
       console.error("Error loading credits data:", error);
       await User.loginWithRedirect(window.location.href);
@@ -53,7 +58,7 @@ export default function Credits() {
   };
 
   const handleCustomCreditsPayment = () => {
-    const totalPrice = (customCredits * PRICE_PER_CREDIT).toFixed(2);
+    const totalPrice = (customCredits * pricePerCredit).toFixed(2);
     setSelectedPackage({
       name: isArabic ? 'رصيد مخصص' : 'Custom Credits',
       name_ar: 'رصيد مخصص',
@@ -434,11 +439,11 @@ export default function Credits() {
                       <div className="flex items-baseline justify-center gap-1">
                         <span className="text-xl font-medium text-slate-500">$</span>
                         <span className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                          {(customCredits * PRICE_PER_CREDIT).toFixed(2)}
+                          {(customCredits * pricePerCredit).toFixed(2)}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400 mt-2">
-                        ${PRICE_PER_CREDIT} {isArabic ? "لكل رصيد" : "per credit"}
+                        ${pricePerCredit} {isArabic ? "لكل رصيد" : "per credit"}
                       </p>
                     </div>
 

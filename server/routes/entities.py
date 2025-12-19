@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import (
     db, Analysis, Transaction, CreditPackage, Payment, EmailTemplate,
     PaymentMethod, DiscountCode, Role, AuditLog, ActivityFeed, 
-    Notification, ReportShare, ChatConversation, Referral, User
+    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings
 )
 from server.routes.auth import get_current_user
 from datetime import datetime
@@ -927,3 +927,38 @@ def adjust_user_credits(user, id):
     
     db.session.commit()
     return jsonify(target_user.to_dict())
+
+# System Settings endpoints
+@entities_bp.route('/settings', methods=['GET'])
+def get_settings():
+    settings = SystemSettings.query.all()
+    result = {'price_per_credit': '1.99'}
+    for s in settings:
+        result[s.key] = s.value
+    return jsonify(result)
+
+@entities_bp.route('/settings/<key>', methods=['GET'])
+def get_setting(key):
+    setting = SystemSettings.query.filter_by(key=key).first()
+    if not setting:
+        defaults = {'price_per_credit': '1.99'}
+        return jsonify({'key': key, 'value': defaults.get(key, None)})
+    return jsonify(setting.to_dict())
+
+@entities_bp.route('/settings', methods=['POST'])
+@require_admin
+def update_settings(user):
+    data = request.get_json()
+    for key, value in data.items():
+        setting = SystemSettings.query.filter_by(key=key).first()
+        if setting:
+            setting.value = str(value)
+        else:
+            setting = SystemSettings(key=key, value=str(value))
+            db.session.add(setting)
+    db.session.commit()
+    settings = SystemSettings.query.all()
+    result = {'price_per_credit': '1.99'}
+    for s in settings:
+        result[s.key] = s.value
+    return jsonify(result)

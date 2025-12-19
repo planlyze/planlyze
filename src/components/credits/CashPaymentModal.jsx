@@ -122,6 +122,15 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
     }
   };
 
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleSubmit = async () => {
     if (!invoiceFile) {
       toast.error(isArabic ? "يرجى رفع صورة الفاتورة" : "Please upload invoice image");
@@ -130,40 +139,17 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
     setIsUploading(true);
     try {
-      // Upload invoice image
-      const { file_url } = await api.integrations.Core.UploadFile({ file: invoiceFile });
-      setUploadedUrl(file_url);
-
-      // Generate unique payment ID
-      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const uniqueId = `PAY${date}${randomStr}`;
+      const base64Image = await fileToBase64(invoiceFile);
 
       const finalAmount = calculateFinalAmount();
       
-      // Create payment record
       await Payment.create({
-        unique_id: uniqueId,
         user_email: userEmail,
-        package_id: selectedPackage.package_id,
         amount_usd: finalAmount,
         credits: selectedPackage.credits,
         payment_method: selectedMethod?.name_en || "cash",
-        invoice_image_url: file_url,
-        status: "pending",
-        discount_code: appliedDiscount?.code || null,
-        discount_amount: appliedDiscount ? (selectedPackage.price - finalAmount) : 0
+        payment_proof: base64Image
       });
-
-      // Increment discount usage
-      if (appliedDiscount) {
-        await api.DiscountCode.update(appliedDiscount.id, {
-          times_used: (appliedDiscount.times_used || 0) + 1
-        });
-      }
-
-      // Log activity
-      await logPaymentSubmitted(userEmail, finalAmount, selectedPackage.credits);
 
       toast.success(isArabic ? "تم إرسال الطلب بنجاح! سيتم مراجعته قريباً" : "Payment submitted! It will be reviewed shortly");
       onClose();
