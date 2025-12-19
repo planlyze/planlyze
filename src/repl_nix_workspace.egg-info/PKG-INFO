@@ -3,11 +3,13 @@ Name: repl-nix-workspace
 Version: 0.1.0
 Summary: Add your description here
 Requires-Python: >=3.10
-Requires-Dist: anthropic>=0.75.0
+Requires-Dist: anthropic<0.50.0,>=0.39.0
 Requires-Dist: bcrypt>=5.0.0
 Requires-Dist: flask>=3.1.2
 Requires-Dist: flask-cors>=6.0.1
 Requires-Dist: flask-sqlalchemy>=3.1.1
+Requires-Dist: Flask-Migrate>=4.0.0
+Requires-Dist: flasgger>=0.9.7
 Requires-Dist: gunicorn>=23.0.0
 Requires-Dist: psycopg2-binary>=2.9.11
 Requires-Dist: pyjwt>=2.10.1

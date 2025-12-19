@@ -1,7 +1,11 @@
 api
 assets
 components
+config
 hooks
+i18n
+landing
 lib
+locales
 pages
 utils
