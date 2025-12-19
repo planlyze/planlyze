@@ -225,14 +225,15 @@ export default function Credits() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {packages.length === 0 ? (
-              <div className="col-span-2 text-center py-16">
+              <div className="col-span-3 text-center py-16">
                 <Package className="w-16 h-16 mx-auto text-slate-300 mb-4" />
                 <p className="text-slate-500 text-lg">{isArabic ? "لا توجد باقات متاحة حاليًا" : "No packages available at the moment"}</p>
               </div>
             ) : (
-              packages.map((pkg, index) => {
+              <>
+              {packages.map((pkg, index) => {
                 const savings = calculateSavings(pkg);
                 const isPopular = pkg.is_popular;
                 const isHovered = hoveredPackage === pkg.id;
@@ -341,96 +342,136 @@ export default function Credits() {
                     </Card>
                   </motion.div>
                 );
-              })
+              })}
+
+              {/* Custom Credits Card - Inside Grid */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: packages.length * 0.15 }}
+                onMouseEnter={() => setHoveredPackage('custom')}
+                onMouseLeave={() => setHoveredPackage(null)}
+              >
+                <Card className={`relative h-full transition-all duration-500 overflow-hidden border-2 border-orange-400 shadow-xl hover:shadow-2xl hover:shadow-orange-500/20 bg-gradient-to-br from-white via-orange-50/30 to-amber-50/50 ${
+                  hoveredPackage === 'custom' ? 'transform -translate-y-2 border-orange-500' : ''
+                }`}>
+                  
+                  {/* Flexible Badge */}
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-center py-2 text-sm font-semibold">
+                    <Wallet className="w-4 h-4 inline mr-1" />
+                    {isArabic ? "مرن" : "Flexible"}
+                  </div>
+
+                  <CardContent className="p-8 pt-14">
+                    {/* Icon & Name */}
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-amber-500 group-hover:scale-110 transition-transform">
+                        <Wallet className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-2">
+                        {isArabic ? "رصيد مخصص" : "Custom Credits"}
+                      </h3>
+                      <p className="text-slate-500 text-sm min-h-[40px]">
+                        {isArabic 
+                          ? "اشترِ أي عدد واستخدمه لاحقاً"
+                          : "Buy any amount for your wallet"
+                        }
+                      </p>
+                    </div>
+
+                    {/* Credit Selector */}
+                    <div className="text-center mb-6 py-6 border-y border-orange-100">
+                      <div className="flex items-center justify-center gap-3 mb-4">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setCustomCredits(Math.max(1, customCredits - 5))}
+                          disabled={customCredits <= 1}
+                          className="h-10 w-10 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-100 transition-all"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        
+                        <Input
+                          type="number"
+                          value={customCredits}
+                          onChange={(e) => setCustomCredits(Math.max(1, parseInt(e.target.value) || 1))}
+                          className="w-20 h-12 text-center text-xl font-bold border-2 border-orange-300 focus:border-orange-500 rounded-xl bg-white"
+                          min="1"
+                        />
+                        
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setCustomCredits(customCredits + 5)}
+                          className="h-10 w-10 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-100 transition-all"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Quick Select Buttons */}
+                      <div className="flex flex-wrap justify-center gap-2 mb-4">
+                        {[5, 10, 25, 50].map((num) => (
+                          <Button
+                            key={num}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCustomCredits(num)}
+                            className={`px-3 py-1 text-xs rounded-full transition-all ${
+                              customCredits === num 
+                                ? 'bg-orange-500 text-white border-orange-500' 
+                                : 'border-orange-200 hover:border-orange-400 hover:bg-orange-50'
+                            }`}
+                          >
+                            {num}
+                          </Button>
+                        ))}
+                      </div>
+
+                      {/* Price Display */}
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-xl font-medium text-slate-500">$</span>
+                        <span className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                          {(customCredits * PRICE_PER_CREDIT).toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-2">
+                        ${PRICE_PER_CREDIT} {isArabic ? "لكل رصيد" : "per credit"}
+                      </p>
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-3 mb-8">
+                      <li className="flex items-center gap-3 text-slate-600">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                        <span>{isArabic ? "اشترِ أي كمية تريدها" : "Buy any amount you need"}</span>
+                      </li>
+                      <li className="flex items-center gap-3 text-slate-600">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                        <span>{isArabic ? "الأرصدة لا تنتهي صلاحيتها" : "Credits never expire"}</span>
+                      </li>
+                      <li className="flex items-center gap-3 text-slate-600">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                        <span>{isArabic ? "استخدمها في أي وقت" : "Use anytime you want"}</span>
+                      </li>
+                    </ul>
+
+                    {/* CTA Button */}
+                    <Button
+                      onClick={handleCustomCreditsPayment}
+                      className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                    >
+                      <Banknote className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                      {isArabic ? "اشحن المحفظة" : "Top Up Wallet"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              </>
             )}
           </div>
-
-          {/* Custom Credits Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-12 max-w-2xl mx-auto"
-          >
-            <Card className="border-2 border-dashed border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50 shadow-xl">
-              <CardContent className="p-8">
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg bg-gradient-to-br from-orange-500 to-amber-500">
-                    <Wallet className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                    {isArabic ? "رصيد مخصص" : "Custom Credits"}
-                  </h3>
-                  <p className="text-slate-500 text-sm">
-                    {isArabic 
-                      ? "اشترِ أي عدد من الأرصدة لملء محفظتك واستخدامها لاحقاً"
-                      : "Buy any number of credits to fill your wallet and use them later"
-                    }
-                  </p>
-                </div>
-
-                {/* Credit Selector */}
-                <div className="flex items-center justify-center gap-4 mb-6">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCustomCredits(Math.max(1, customCredits - 1))}
-                    disabled={customCredits <= 1}
-                    className="h-12 w-12 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-50"
-                  >
-                    <Minus className="w-5 h-5" />
-                  </Button>
-                  
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={customCredits}
-                      onChange={(e) => setCustomCredits(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-24 h-14 text-center text-2xl font-bold border-2 border-orange-300 focus:border-orange-500"
-                      min="1"
-                    />
-                    <span className="text-lg text-slate-600 font-medium">
-                      {isArabic ? "رصيد" : "credits"}
-                    </span>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCustomCredits(customCredits + 1)}
-                    className="h-12 w-12 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-50"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </Button>
-                </div>
-
-                {/* Price Display */}
-                <div className="text-center mb-6 py-4 bg-white rounded-xl border border-orange-200">
-                  <p className="text-sm text-slate-500 mb-1">
-                    {isArabic ? "المجموع" : "Total Price"}
-                  </p>
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-xl font-medium text-slate-500">$</span>
-                    <span className="text-4xl font-bold text-orange-600">
-                      {(customCredits * PRICE_PER_CREDIT).toFixed(2)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    ${PRICE_PER_CREDIT} {isArabic ? "لكل رصيد" : "per credit"}
-                  </p>
-                </div>
-
-                {/* CTA Button */}
-                <Button
-                  onClick={handleCustomCreditsPayment}
-                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
-                >
-                  <Banknote className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  {isArabic ? "اشحن المحفظة" : "Top Up Wallet"}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
         </section>
 
 
