@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Analysis, User, Transaction, auth, api } from "@/api/client";
+import { Analysis, User, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -353,28 +353,8 @@ export default function AnalysisResult() {
 
     setIsUpgrading(true);
     try {
-      const user = await User.me();
-      
-      // Deduct credit first
-      await User.updateMyUserData({
-        premium_credits: userCredits - 1,
-        total_credits_used: (user.total_credits_used || 0) + 1
-      });
-      
-      // Update analysis to premium
-      await Analysis.update(analysis.id, {
-        is_premium: true
-      });
-      
-      // Log transaction
-      await Transaction.create({
-        user_email: user.email,
-        type: 'usage',
-        credits: -1,
-        analysis_id: analysis.id,
-        status: 'completed',
-        notes: 'Upgraded existing report to premium'
-      });
+      // Call backend API to handle premium upgrade (deducts credit and creates transaction)
+      await api.post(`/analyses/${analysis.id}/upgrade-premium`);
       
       toast.success(analysis.report_language === 'arabic' ? 'تمت الترقية بنجاح!' : 'Successfully upgraded!');
       
@@ -382,7 +362,7 @@ export default function AnalysisResult() {
       setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error('Upgrade failed:', error);
-      const errorMsg = error?.message || error?.response?.data?.error || 'Unknown error';
+      const errorMsg = error?.response?.data?.error || error?.message || 'Unknown error';
       toast.error(`${analysis.report_language === 'arabic' ? 'فشلت الترقية: ' : 'Upgrade failed: '}${errorMsg}`);
       setIsUpgrading(false);
     }

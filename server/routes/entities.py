@@ -516,6 +516,43 @@ def delete_analysis(user, id):
     db.session.commit()
     return jsonify({'message': 'Analysis deleted'})
 
+@entities_bp.route('/analyses/<id>/upgrade-premium', methods=['POST'])
+@require_auth
+def upgrade_analysis_premium(user, id):
+    """Upgrade an analysis to premium (deducts 1 credit)"""
+    analysis = Analysis.query.get(id)
+    if not analysis:
+        return jsonify({'error': 'Analysis not found'}), 404
+    if analysis.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    if analysis.is_premium:
+        return jsonify({'error': 'Analysis is already premium'}), 400
+    
+    user_record = User.query.filter_by(email=user.email).first()
+    if not user_record or user_record.credits <= 0:
+        return jsonify({'error': 'Insufficient credits'}), 402
+    
+    # Deduct credit
+    user_record.credits -= 1
+    
+    # Update analysis to premium
+    analysis.is_premium = True
+    
+    # Create transaction record
+    tx = Transaction(
+        user_email=user.email,
+        type='usage',
+        credits=-1,
+        description=f'Upgraded analysis to premium: {analysis.business_idea[:50]}...' if analysis.business_idea else 'Premium upgrade',
+        reference_id=id,
+        status='completed'
+    )
+    db.session.add(tx)
+    db.session.commit()
+    
+    return jsonify({'message': 'Analysis upgraded to premium', 'analysis': analysis.to_dict()})
+
 # Transaction endpoints
 @entities_bp.route('/transactions', methods=['GET'])
 @require_auth
