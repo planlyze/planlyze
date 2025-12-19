@@ -132,6 +132,260 @@ def generate_analysis_entry(user):
     return jsonify(analysis.to_dict()), 201
 
 
+@entities_bp.route('/analyses/chain', methods=['POST'])
+@require_auth
+def chain_analysis(user):
+    """
+    Start chained AI analysis generation (processes in background)
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            analysisId:
+              type: string
+            business_idea:
+              type: string
+            industry:
+              type: string
+            target_hint:
+              type: string
+            report_language:
+              type: string
+            country:
+              type: string
+    responses:
+      202:
+        description: Analysis generation started
+      404:
+        description: Analysis not found
+      500:
+        description: AI service error
+    """
+    import threading
+    import anthropic
+    import json
+    
+    data = request.get_json() or {}
+    analysis_id = data.get('analysisId')
+    
+    if not analysis_id:
+        return jsonify({'error': 'analysisId is required'}), 400
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis:
+        return jsonify({'error': 'Analysis not found'}), 404
+    if analysis.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    def run_analysis():
+        from server.app import create_app
+        app = create_app()
+        with app.app_context():
+            try:
+                analysis_record = Analysis.query.get(analysis_id)
+                if not analysis_record:
+                    return
+                
+                analysis_record.status = 'processing'
+                analysis_record.progress_percent = 20
+                db.session.commit()
+                
+                api_key = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_API_KEY') or os.environ.get('ANTHROPIC_API_KEY')
+                base_url = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_BASE_URL')
+                if not api_key:
+                    analysis_record.status = 'failed'
+                    analysis_record.last_error = 'AI service not configured'
+                    db.session.commit()
+                    return
+                
+                if base_url:
+                    client = anthropic.Anthropic(api_key=api_key, base_url=base_url)
+                else:
+                    client = anthropic.Anthropic(api_key=api_key)
+                
+                business_idea = data.get('business_idea') or analysis_record.business_idea
+                industry = data.get('industry') or analysis_record.industry or 'Not specified'
+                target_hint = data.get('target_hint') or analysis_record.target_market or 'Not specified'
+                country = data.get('country') or analysis_record.location or 'Not specified'
+                language = data.get('report_language', 'english')
+                
+                language_instruction = ""
+                if language.lower() == 'arabic':
+                    language_instruction = "IMPORTANT: Write the entire response in Arabic language."
+                
+                prompt = f"""You are an expert business and technology strategist. Analyze this business idea and provide a comprehensive strategic report.
+
+Business Idea: {business_idea}
+Industry: {industry}
+Target Market: {target_hint}
+Location: {country}
+{language_instruction}
+
+Provide a detailed analysis in JSON format with the following structure:
+{{
+    "executive_summary": "A compelling overview of the business idea, its market potential, and key success factors",
+    "score": 75,
+    "market_analysis": {{
+        "market_size": "Detailed market size with numbers and growth rate",
+        "growth_potential": "5-year growth trajectory assessment",
+        "competition": "Key competitors and their market positions",
+        "trends": ["Emerging trend 1", "Emerging trend 2", "Emerging trend 3"],
+        "target_segments": ["Primary segment", "Secondary segment"],
+        "market_gap": "The specific gap this idea fills in the market"
+    }},
+    "business_strategy": {{
+        "value_proposition": "Clear and unique value proposition",
+        "business_model": "Recommended business model",
+        "revenue_streams": ["Primary revenue stream", "Secondary revenue stream"],
+        "pricing_strategy": "Recommended pricing approach",
+        "customer_acquisition": ["Channel 1", "Channel 2", "Channel 3"],
+        "retention_strategy": "How to keep customers engaged",
+        "competitive_advantage": "Key differentiators",
+        "partnerships": ["Strategic partnership 1", "Strategic partnership 2"]
+    }},
+    "technical_strategy": {{
+        "recommended_stack": {{
+            "frontend": "Recommended frontend technology",
+            "backend": "Recommended backend technology",
+            "database": "Recommended database",
+            "cloud": "Recommended cloud provider"
+        }},
+        "mvp_features": ["Core feature 1", "Core feature 2", "Core feature 3"],
+        "architecture": "High-level architecture recommendation",
+        "scalability": "Scaling strategy",
+        "security": "Security considerations"
+    }},
+    "development_roadmap": {{
+        "phase_1_mvp": {{
+            "duration": "2-3 months",
+            "deliverables": ["MVP deliverable 1", "MVP deliverable 2"],
+            "milestones": ["Milestone 1", "Milestone 2"]
+        }},
+        "phase_2_growth": {{
+            "duration": "3-6 months",
+            "deliverables": ["Growth deliverable 1", "Growth deliverable 2"],
+            "milestones": ["Milestone 1", "Milestone 2"]
+        }},
+        "phase_3_scale": {{
+            "duration": "6-12 months",
+            "deliverables": ["Scale deliverable 1", "Scale deliverable 2"],
+            "milestones": ["Milestone 1", "Milestone 2"]
+        }}
+    }},
+    "financial_projections": {{
+        "startup_costs": "Detailed breakdown of initial investment",
+        "monthly_expenses": "Projected monthly burn rate",
+        "revenue_potential": "Year 1, Year 2, Year 3 revenue projections",
+        "break_even": "Estimated time to break even",
+        "funding_recommendations": "Funding approach recommendation",
+        "key_metrics": ["Metric 1", "Metric 2", "Metric 3"]
+    }},
+    "risk_assessment": {{
+        "high_risks": ["Critical risk 1", "Critical risk 2"],
+        "medium_risks": ["Moderate risk 1", "Moderate risk 2"],
+        "low_risks": ["Minor risk 1", "Minor risk 2"],
+        "mitigation_strategies": ["Strategy 1", "Strategy 2"],
+        "contingency_plans": ["Plan A", "Plan B"]
+    }},
+    "recommendations": {{
+        "immediate_actions": ["Action 1", "Action 2"],
+        "short_term": ["30-day priority 1", "30-day priority 2"],
+        "long_term": ["6-month goal 1", "6-month goal 2"],
+        "success_metrics": ["KPI 1", "KPI 2", "KPI 3"]
+    }},
+    "swot": {{
+        "strengths": ["Strength 1", "Strength 2"],
+        "weaknesses": ["Weakness 1", "Weakness 2"],
+        "opportunities": ["Opportunity 1", "Opportunity 2"],
+        "threats": ["Threat 1", "Threat 2"]
+    }},
+    "go_to_market": {{
+        "launch_strategy": "Market entry approach",
+        "marketing_channels": ["Channel 1", "Channel 2"],
+        "content_strategy": "Content marketing recommendations",
+        "launch_timeline": "Launch timeline",
+        "early_adopter_strategy": "How to acquire first 100 customers"
+    }}
+}}
+
+Be specific, actionable, and realistic. Return ONLY the JSON object, no additional text."""
+
+                analysis_record.progress_percent = 40
+                db.session.commit()
+                
+                response = client.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=8192,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                
+                analysis_record.progress_percent = 80
+                db.session.commit()
+                
+                response_text = response.content[0].text
+                
+                try:
+                    if "```json" in response_text:
+                        response_text = response_text.split("```json")[1].split("```")[0]
+                    elif "```" in response_text:
+                        response_text = response_text.split("```")[1].split("```")[0]
+                    
+                    report = json.loads(response_text.strip())
+                except json.JSONDecodeError:
+                    report = {"raw_response": response_text}
+                
+                analysis_record.status = 'completed'
+                analysis_record.report = report
+                analysis_record.executive_summary = report.get('executive_summary', '')
+                analysis_record.market_analysis = report.get('market_analysis')
+                analysis_record.financial_projections = report.get('financial_projections')
+                analysis_record.risk_assessment = report.get('risk_assessment')
+                analysis_record.recommendations = report.get('recommendations')
+                analysis_record.score = report.get('score', 0)
+                analysis_record.progress_percent = 100
+                
+                user_record = User.query.filter_by(email=analysis_record.user_email).first()
+                if user_record and user_record.credits > 0:
+                    user_record.credits -= 1
+                    
+                    from server.models import Transaction
+                    tx = Transaction(
+                        user_email=user_record.email,
+                        type='usage',
+                        credits=-1,
+                        description=f'Analysis: {business_idea[:50]}...',
+                        reference_id=analysis_id,
+                        status='completed'
+                    )
+                    db.session.add(tx)
+                
+                db.session.commit()
+                
+            except Exception as e:
+                try:
+                    analysis_record = Analysis.query.get(analysis_id)
+                    if analysis_record:
+                        analysis_record.status = 'failed'
+                        analysis_record.last_error = str(e)
+                        db.session.commit()
+                except Exception:
+                    pass
+    
+    thread = threading.Thread(target=run_analysis)
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({'message': 'Analysis generation started', 'analysis_id': analysis_id}), 202
+
+
 # Public contact endpoint for landing page contact form
 @entities_bp.route('/contact', methods=['POST'])
 def contact_public():
