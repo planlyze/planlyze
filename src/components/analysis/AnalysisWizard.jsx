@@ -44,8 +44,8 @@ export default function AnalysisWizard({ onSubmit }) {
   const validateForm = () => {
     const errors = {};
     
-    if (formData.business_idea.trim().length < 30) {
-      errors.business_idea = "Please provide at least 30 characters describing your idea";
+    if (formData.business_idea.trim().length < 1) {
+      errors.business_idea = "Please describe your idea";
     }
     if (!formData.industry) {
       errors.industry = "Please select an industry";
@@ -65,7 +65,7 @@ export default function AnalysisWizard({ onSubmit }) {
   };
 
   const canSubmit = () => {
-    return formData.business_idea.trim().length >= 30 && 
+    return formData.business_idea.trim().length >= 1 && 
            !!formData.industry && 
            (autoTarget || formData.target_market.trim().length >= 3) &&
            !!formData.country?.trim() &&
@@ -116,10 +116,10 @@ export default function AnalysisWizard({ onSubmit }) {
                   maxLength={100}
                 />
                 <div className="flex items-center justify-between mt-1">
-                  <p className={`text-sm ${formData.business_idea.length >= 30 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
-                    {formData.business_idea.length}/100 characters (minimum 30 required)
+                  <p className={`text-sm ${formData.business_idea.length >= 1 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
+                    {formData.business_idea.length} characters
                   </p>
-                  {formData.business_idea.length >= 30 && (
+                  {formData.business_idea.length >= 1 && (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   )}
                 </div>
