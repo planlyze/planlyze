@@ -120,45 +120,32 @@ def seed_credit_packages():
     packages_data = [
         {
             'name': 'Starter',
-            'credits': 10,
-            'price_usd': 9.99,
+            'name_ar': 'المبتدئ',
+            'credits': 1,
+            'price_usd': 10.00,
             'description': 'Perfect for trying out the platform',
+            'description_ar': 'مثالي لتجربة المنصة',
             'is_active': True,
             'is_popular': False
         },
         {
             'name': 'Basic',
-            'credits': 25,
-            'price_usd': 19.99,
+            'name_ar': 'الأساسي',
+            'credits': 10,
+            'price_usd': 90.00,
             'description': 'Great for small businesses',
-            'is_active': True,
-            'is_popular': False
-        },
-        {
-            'name': 'Professional',
-            'credits': 50,
-            'price_usd': 34.99,
-            'description': 'Best value for growing businesses',
+            'description_ar': 'رائع للشركات الصغيرة',
             'is_active': True,
             'is_popular': True
-        },
-        {
-            'name': 'Enterprise',
-            'credits': 100,
-            'price_usd': 59.99,
-            'description': 'For serious entrepreneurs and teams',
-            'is_active': True,
-            'is_popular': False
-        },
-        {
-            'name': 'Ultimate',
-            'credits': 250,
-            'price_usd': 129.99,
-            'description': 'Maximum value for power users',
-            'is_active': True,
-            'is_popular': False
         }
     ]
+    
+    valid_names = [pkg['name'] for pkg in packages_data]
+    
+    CreditPackage.query.filter(~CreditPackage.name.in_(valid_names)).update(
+        {'is_active': False}, synchronize_session=False
+    )
+    print(f"Deactivated packages not in: {valid_names}")
     
     for pkg_data in packages_data:
         existing = CreditPackage.query.filter_by(name=pkg_data['name']).first()
@@ -166,6 +153,8 @@ def seed_credit_packages():
             existing.credits = pkg_data['credits']
             existing.price_usd = pkg_data['price_usd']
             existing.description = pkg_data['description']
+            existing.description_ar = pkg_data.get('description_ar')
+            existing.name_ar = pkg_data.get('name_ar')
             existing.is_active = pkg_data['is_active']
             existing.is_popular = pkg_data['is_popular']
             print(f"Updated credit package: {pkg_data['name']}")
