@@ -320,7 +320,7 @@ export default function Layout({ children, currentPageName }) {
 
   if (isLoggedIn === null) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-gray-50">
+      <div className="flex items-center justify-center h-screen w-full bg-gray-50 dark:bg-gray-900">
         <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>);
   }
@@ -344,12 +344,12 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
 
-      <div className={`min-h-screen flex w-full bg-gray-50`} dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className={`min-h-screen flex w-full bg-gray-50 dark:bg-gray-900`} dir={isArabic ? 'rtl' : 'ltr'}>
         {isLoggedIn &&
         <Sidebar
-          className={`${isArabic ? 'order-2 border-l' : 'order-1 border-r'} border-gray-200 bg-white no-print`}
+          className={`${isArabic ? 'order-2 border-l' : 'order-1 border-r'} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 no-print`}
         >
-            <SidebarHeader className="border-b border-gray-100 p-5">
+            <SidebarHeader className="border-b border-gray-100 dark:border-gray-700 p-5">
               <Link
                 to="/"
                 className="flex items-center gap-3 hover:opacity-90 transition-opacity"
@@ -360,8 +360,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain"
                 />
                 <div>
-                  <h2 className="font-bold text-xl text-gray-900">Planlyze</h2>
-                  <p className="text-xs text-gray-500">From idea to action plan</p>
+                  <h2 className="font-bold text-xl text-gray-900 dark:text-white">Planlyze</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">From idea to action plan</p>
                 </div>
               </Link>
             </SidebarHeader>
@@ -401,7 +401,7 @@ export default function Layout({ children, currentPageName }) {
               </Link>
 
               <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
+                <SidebarGroupLabel className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">
                   {isArabic ? "القائمة" : "Menu"}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -412,12 +412,12 @@ export default function Layout({ children, currentPageName }) {
                           asChild
                           className={`transition-all duration-200 rounded-lg px-3 py-2.5 ${
                             location.pathname === item.url
-                              ? 'bg-orange-50 text-orange-600 font-semibold border-l-4 border-orange-500'
-                              : 'hover:bg-gray-100 text-gray-700 hover:text-gray-900'
+                              ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-semibold border-l-4 border-orange-500'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                           }`}
                         >
                           <Link to={item.url} className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                            <item.icon className={`w-5 h-5 ${location.pathname === item.url ? 'text-orange-500' : 'text-gray-400'}`} />
+                            <item.icon className={`w-5 h-5 ${location.pathname === item.url ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
                             <span className="flex-1">{item.title}</span>
                             {location.pathname === item.url && (
                               <ChevronRight className={`w-4 h-4 text-orange-400 ${isArabic ? 'rotate-180' : ''}`} />
@@ -431,32 +431,32 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroup>
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-gray-100 p-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+            <SidebarFooter className="border-t border-gray-100 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
                   {(currentUser?.full_name || currentUser?.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
-                    <p className="font-semibold text-gray-900 text-sm truncate">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
                       {currentUser?.display_name || currentUser?.full_name || 'User'}
                     </p>
-                    <Button variant="ghost" size="icon" className="w-6 h-6 text-gray-400 hover:text-gray-700" onClick={() => setIsEditingDisplayName(true)}>
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" onClick={() => setIsEditingDisplayName(true)}>
                       <Pencil className="w-3 h-3" />
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser?.email}</p>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-gray-500 hover:text-gray-700 hover:bg-gray-100" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
                   <Globe className="w-4 h-4 mr-1" />
                   <span className="text-xs">{isArabic ? 'EN' : 'AR'}</span>
                 </Button>
                 <div className="flex items-center gap-1">
                   <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
-                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 hover:bg-red-50">
+                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30">
                     <LogOut className="w-4 h-4" />
                   </Button>
                 </div>
@@ -467,10 +467,10 @@ export default function Layout({ children, currentPageName }) {
 
         <main className={`flex-1 flex flex-col ${isLoggedIn ? (isArabic ? 'order-1' : 'order-2') : ''}`}>
           {isLoggedIn &&
-          <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden shadow-sm no-print">
+          <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 md:hidden shadow-sm no-print">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200" />
+                  <SidebarTrigger className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors duration-200 text-gray-600 dark:text-gray-300" />
                   <img
                     src={planLyzeLogo}
                     alt="Planlyze"
@@ -479,7 +479,7 @@ export default function Layout({ children, currentPageName }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
-                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500">
+                  <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 dark:hover:text-red-400">
                     <LogOut className="w-5 h-5" />
                   </Button>
                 </div>
@@ -487,7 +487,7 @@ export default function Layout({ children, currentPageName }) {
             </header>
           }
 
-          <div className="flex-1 overflow-auto print-container bg-gray-50">
+          <div className="flex-1 overflow-auto print-container bg-gray-50 dark:bg-gray-900">
             {children}
           </div>
         </main>

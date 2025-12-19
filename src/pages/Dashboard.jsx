@@ -42,10 +42,10 @@ const statusIcons = {
 };
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-700 border-gray-200",
-  analyzing: "bg-amber-50 text-amber-700 border-amber-200",
-  completed: "bg-green-50 text-green-700 border-green-200",
-  failed: "bg-red-50 text-red-700 border-red-200"
+  draft: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600",
+  analyzing: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-700",
+  completed: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700",
+  failed: "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700"
 };
 
 const statusLabels = {
@@ -94,15 +94,15 @@ export default function Dashboard() {
 
   if (isLoading || !currentUser) {
     return (
-      <div className="p-6 md:p-8 bg-gray-50 min-h-screen">
-        <Skeleton className="h-10 w-64 mb-2 bg-gray-200 rounded-lg" />
-        <Skeleton className="h-6 w-96 mb-8 bg-gray-200 rounded-lg" />
+      <div className="p-6 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <Skeleton className="h-10 w-64 mb-2 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+        <Skeleton className="h-6 w-96 mb-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 bg-gray-200 rounded-2xl" />)}
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl" />)}
         </div>
         <div className="grid lg:grid-cols-2 gap-8">
-          <Skeleton className="h-96 bg-gray-200 rounded-2xl" />
-          <Skeleton className="h-96 bg-gray-200 rounded-2xl" />
+          <Skeleton className="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+          <Skeleton className="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export default function Dashboard() {
   const recentAnalyses = analyses.slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <motion.div 
         className="max-w-7xl mx-auto space-y-8"
         variants={containerVariants}
@@ -145,11 +145,11 @@ export default function Dashboard() {
         <motion.div variants={itemVariants} className={`${isArabic ? 'text-right' : 'text-left'}`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
                 {isArabic ? 'مرحباً،' : 'Welcome back,'}{' '}
                 <span className="text-orange-500">{currentUser?.full_name?.split(' ')[0] || 'User'}</span>
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 {isArabic ? 'إليك نظرة عامة على نشاطك.' : "Here's an overview of your activity."}
               </p>
             </div>
@@ -169,13 +169,13 @@ export default function Dashboard() {
               whileHover={{ scale: 1.02, y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800">
                 <div className={`h-1 bg-gradient-to-r ${stat.bgGradient}`}></div>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{stat.title}</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                     </div>
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.bgGradient} flex items-center justify-center shadow-lg`}>
                       <stat.icon className="w-7 h-7 text-white" />
@@ -231,17 +231,17 @@ export default function Dashboard() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg h-full">
-              <CardHeader className="border-b border-gray-100 pb-4">
+            <Card className="border-0 shadow-lg h-full bg-white dark:bg-gray-800">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-purple-600" />
+                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     {isArabic ? "أحدث التقارير" : "Recent Reports"}
                   </CardTitle>
                   <Link to={createPageUrl("Reports")}>
-                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50">
+                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30">
                       {isArabic ? "عرض الكل" : "View All"}
                       <ArrowRight className={`w-4 h-4 ml-1 ${isArabic ? 'rotate-180' : ''}`} />
                     </Button>
@@ -251,13 +251,13 @@ export default function Dashboard() {
               <CardContent className="p-0">
                 {recentAnalyses.length === 0 ? (
                   <div className="text-center py-12 px-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                       <FileText className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       {isArabic ? "لا توجد تقارير بعد" : "No Reports Yet"}
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">
                       {isArabic ? "ابدأ أول تحليل لترى النتائج هنا" : "Start your first analysis to see results here"}
                     </p>
                     <Link to={createPageUrl("NewAnalysis")}>
@@ -268,7 +268,7 @@ export default function Dashboard() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {recentAnalyses.map((analysis, index) => {
                       const StatusIcon = statusIcons[analysis.status];
                       return (
@@ -277,7 +277,7 @@ export default function Dashboard() {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className="p-4 hover:bg-gray-50 transition-colors group"
+                          className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
@@ -285,11 +285,11 @@ export default function Dashboard() {
                                 {analysis.is_premium && (
                                   <Sparkles className="w-4 h-4 text-orange-500 flex-shrink-0" />
                                 )}
-                                <h4 className="font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                                <h4 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                                   {analysis.business_idea}
                                 </h4>
                               </div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {format(new Date(analysis.created_date), "MMM d, yyyy")}
                               </p>
                             </div>
@@ -317,17 +317,17 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg h-full">
-              <CardHeader className="border-b border-gray-100 pb-4">
+            <Card className="border-0 shadow-lg h-full bg-white dark:bg-gray-800">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-                      <Wallet className="w-5 h-5 text-orange-600" />
+                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                      <Wallet className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     {isArabic ? "أحدث المعاملات" : "Recent Transactions"}
                   </CardTitle>
                   <Link to={createPageUrl("Credits")}>
-                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50">
+                    <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30">
                       {isArabic ? "عرض الكل" : "View All"}
                       <ArrowRight className={`w-4 h-4 ml-1 ${isArabic ? 'rotate-180' : ''}`} />
                     </Button>
@@ -337,13 +337,13 @@ export default function Dashboard() {
               <CardContent className="p-0">
                 {transactions.length === 0 ? (
                   <div className="text-center py-12 px-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
                       <Wallet className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       {isArabic ? "لا توجد معاملات بعد" : "No Transactions Yet"}
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">
                       {isArabic ? "قم بشراء أرصدة لبدء التحليل" : "Purchase credits to start analyzing"}
                     </p>
                     <Link to={createPageUrl("Credits")}>
@@ -354,37 +354,37 @@ export default function Dashboard() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {transactions.map((tx, index) => (
                       <motion.div
                         key={tx.id}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="p-4 hover:bg-gray-50 transition-colors"
+                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                               tx.type === 'credit' || tx.type === 'purchase' 
-                                ? 'bg-green-100 text-green-600' 
-                                : 'bg-red-100 text-red-600'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
                             }`}>
                               {tx.type === 'credit' || tx.type === 'purchase' ? '+' : '-'}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 text-sm">
+                              <p className="font-medium text-gray-900 dark:text-white text-sm">
                                 {tx.description || tx.type}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {tx.created_date && format(new Date(tx.created_date), "MMM d, yyyy")}
                               </p>
                             </div>
                           </div>
                           <span className={`font-bold ${
                             tx.type === 'credit' || tx.type === 'purchase' 
-                              ? 'text-green-600' 
-                              : 'text-red-600'
+                              ? 'text-green-600 dark:text-green-400' 
+                              : 'text-red-600 dark:text-red-400'
                           }`}>
                             {tx.type === 'credit' || tx.type === 'purchase' ? '+' : '-'}{tx.amount}
                           </span>
