@@ -324,7 +324,13 @@
     "savePreferences": "Save Preferences",
     "savingPreferences": "Saving...",
     "preferencesSaved": "Preferences saved successfully",
-    "preferencesSaveFailed": "Failed to save preferences"
+    "preferencesSaveFailed": "Failed to save preferences",
+    "markedAsRead": "Notification marked as read",
+    "markReadFailed": "Failed to mark notification as read",
+    "allMarkedAsRead": "All notifications marked as read",
+    "markAllReadFailed": "Failed to mark all as read",
+    "deleted": "Notification deleted",
+    "deleteFailed": "Failed to delete notification"
   },
   "navigation": {
     "dashboard": "Dashboard",

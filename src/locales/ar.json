@@ -324,7 +324,13 @@
     "savePreferences": "حفظ التفضيلات",
     "savingPreferences": "جاري الحفظ...",
     "preferencesSaved": "تم حفظ التفضيلات",
-    "preferencesSaveFailed": "فشل حفظ التفضيلات"
+    "preferencesSaveFailed": "فشل حفظ التفضيلات",
+    "markedAsRead": "تم تحديد الإشعار كمقروء",
+    "markReadFailed": "فشل في تحديد الإشعار كمقروء",
+    "allMarkedAsRead": "تم تحديد جميع الإشعارات كمقروءة",
+    "markAllReadFailed": "فشل في تحديد الكل كمقروء",
+    "deleted": "تم حذف الإشعار",
+    "deleteFailed": "فشل في حذف الإشعار"
   },
   "navigation": {
     "dashboard": "لوحة التحكم",

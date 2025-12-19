@@ -13,6 +13,7 @@ import {
   Wallet, AlertCircle, Info, Sparkles, Settings 
 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 
 const notificationIcons = {
@@ -75,8 +76,10 @@ export default function NotificationsPage() {
       setNotifications(prev => 
         prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
       );
+      toast.success(t('notifications.markedAsRead'));
     } catch (error) {
       console.error("Error marking notification as read:", error);
+      toast.error(t('notifications.markReadFailed'));
     }
   };
 
@@ -84,8 +87,10 @@ export default function NotificationsPage() {
     try {
       await Notification.markAllRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      toast.success(t('notifications.allMarkedAsRead'));
     } catch (error) {
       console.error("Error marking all as read:", error);
+      toast.error(t('notifications.markAllReadFailed'));
     }
   };
 
@@ -93,8 +98,10 @@ export default function NotificationsPage() {
     try {
       await Notification.delete(id);
       setNotifications(prev => prev.filter(n => n.id !== id));
+      toast.success(t('notifications.deleted'));
     } catch (error) {
       console.error("Error deleting notification:", error);
+      toast.error(t('notifications.deleteFailed'));
     }
   };
 
