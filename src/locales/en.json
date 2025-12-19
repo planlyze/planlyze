@@ -14,7 +14,17 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "submit": "Submit"
+    "submit": "Submit",
+    "backToHome": "Back to Home",
+    "redirecting": "Redirecting...",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "noResults": "No results found",
+    "viewAll": "View All",
+    "learnMore": "Learn More"
   },
   "auth": {
     "login": "Login",
@@ -24,9 +34,9 @@
     "fullName": "Full Name",
     "confirmPassword": "Confirm Password",
     "loginTitle": "Welcome Back",
-    "loginDescription": "Sign in to your account",
+    "loginDescription": "Sign in to your account to continue",
     "registerTitle": "Create Account",
-    "registerDescription": "Join Planlyze today",
+    "registerDescription": "Create your account to get started",
     "forgotPassword": "Forgot Password?",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
@@ -34,6 +44,9 @@
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
     "passwordTooShort": "Password must be at least 6 characters",
+    "passwordsDontMatch": "Passwords do not match",
+    "passwordMinLength": "At least 6 characters",
+    "passwordsMatch": "Passwords match",
     "enterVerificationCode": "Enter Verification Code",
     "codeSentTo": "We sent a 6-digit code to",
     "invalidCode": "Invalid or expired code. Please try again.",
@@ -45,7 +58,15 @@
     "redirectingToDashboard": "Your email has been verified. Redirecting to dashboard...",
     "verificationFailed": "Verification failed",
     "verificationResent": "Verification code sent to your email",
-    "userExists": "This email is already registered"
+    "userExists": "This email is already registered",
+    "registrationSuccess": "Account created successfully! Please verify your email.",
+    "referralBonus": "You'll get 1 bonus credit for signing up with a referral!",
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Enter your email to receive a password reset link",
+    "sendResetLink": "Send Reset Link",
+    "resetLinkSent": "Password reset link sent to your email",
+    "newPassword": "New Password",
+    "passwordResetSuccess": "Password reset successfully"
   },
   "dashboard": {
     "title": "Your Dashboard",
@@ -55,22 +76,35 @@
     "recentTransactions": "Recent Transactions",
     "activityFeed": "Activity Feed",
     "noAnalyses": "No analyses yet",
-    "startFirst": "Create your first analysis"
+    "startFirst": "Create your first analysis",
+    "totalAnalyses": "Total Analyses",
+    "completedAnalyses": "Completed",
+    "pendingAnalyses": "Pending",
+    "creditsRemaining": "Credits Remaining"
   },
   "analysis": {
     "title": "Create New Analysis",
     "businessIdea": "Business Idea",
+    "businessIdeaPlaceholder": "Describe your business idea in detail...",
     "industry": "Industry",
+    "industryPlaceholder": "Select or enter your industry",
     "targetMarket": "Target Market",
-    "location": "Location",
+    "targetMarketPlaceholder": "Describe your target audience...",
+    "location": "Country/Region",
+    "locationPlaceholder": "Select country or region",
     "budget": "Budget",
     "description": "Description",
     "createAnalysis": "Create Analysis",
+    "generateReport": "Generate Report",
     "analyzing": "Analyzing...",
     "completed": "Completed",
     "pending": "Pending",
     "failed": "Failed",
-    "viewReport": "View Report"
+    "viewReport": "View Report",
+    "reportLanguage": "Report Language",
+    "selectLanguage": "Select report language",
+    "noCredits": "You don't have enough credits. Please purchase credits to generate a report.",
+    "creditDeducted": "1 credit will be deducted for this analysis"
   },
   "credits": {
     "title": "Credit Packages",
@@ -80,7 +114,16 @@
     "creditPackage": "Credit Package",
     "price": "Price",
     "popular": "Popular",
-    "select": "Select Package"
+    "select": "Select Package",
+    "purchaseCredits": "Purchase Credits",
+    "selectPackage": "Select a package",
+    "paymentMethod": "Payment Method",
+    "selectPaymentMethod": "Select payment method",
+    "uploadReceipt": "Upload Payment Receipt",
+    "submitPayment": "Submit Payment Request",
+    "paymentPending": "Payment Pending",
+    "paymentApproved": "Payment Approved",
+    "paymentRejected": "Payment Rejected"
   },
   "profile": {
     "title": "Profile",
@@ -91,7 +134,14 @@
     "confirmNewPassword": "Confirm New Password",
     "saveChanges": "Save Changes",
     "passwordChanged": "Password changed successfully",
-    "profileUpdated": "Profile updated successfully"
+    "profileUpdated": "Profile updated successfully",
+    "myReferrals": "My Referrals",
+    "referralLink": "Referral Link",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied!",
+    "referralStats": "Referral Statistics",
+    "totalReferrals": "Total Referrals",
+    "earnedCredits": "Earned Credits"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -99,12 +149,27 @@
     "credits": "Credits",
     "profile": "Profile",
     "admin": "Admin",
-    "settings": "Settings"
+    "settings": "Settings",
+    "subscriptions": "Subscriptions",
+    "referrals": "Referrals",
+    "newAnalysis": "New Analysis",
+    "myAnalyses": "My Analyses"
   },
   "messages": {
     "confirmDelete": "Are you sure you want to delete this?",
     "deleteSuccess": "Deleted successfully",
     "savingData": "Saving your data...",
-    "loadingData": "Loading data..."
+    "loadingData": "Loading data...",
+    "operationSuccess": "Operation completed successfully",
+    "operationFailed": "Operation failed. Please try again."
+  },
+  "landing": {
+    "heroTitle": "AI-Powered Business Analysis",
+    "heroSubtitle": "Transform your business ideas into comprehensive analysis reports with the power of artificial intelligence",
+    "getStarted": "Get Started",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact"
   }
 }

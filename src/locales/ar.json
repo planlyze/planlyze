@@ -14,7 +14,17 @@
     "back": "رجوع",
     "next": "التالي",
     "previous": "السابق",
-    "submit": "إرسال"
+    "submit": "إرسال",
+    "backToHome": "العودة للرئيسية",
+    "redirecting": "جاري التحويل...",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "yes": "نعم",
+    "no": "لا",
+    "search": "بحث",
+    "noResults": "لا توجد نتائج",
+    "viewAll": "عرض الكل",
+    "learnMore": "معرفة المزيد"
   },
   "auth": {
     "login": "دخول",
@@ -24,9 +34,9 @@
     "fullName": "الاسم الكامل",
     "confirmPassword": "تأكيد كلمة المرور",
     "loginTitle": "مرحباً بعودتك",
-    "loginDescription": "تسجيل الدخول إلى حسابك",
+    "loginDescription": "سجل دخولك للمتابعة",
     "registerTitle": "إنشاء حساب جديد",
-    "registerDescription": "انضم إلى Planlyze اليوم",
+    "registerDescription": "أنشئ حسابك للبدء",
     "forgotPassword": "هل نسيت كلمة المرور؟",
     "noAccount": "ليس لديك حساب؟",
     "haveAccount": "هل لديك حساب بالفعل؟",
@@ -34,6 +44,9 @@
     "emailRequired": "البريد الإلكتروني مطلوب",
     "passwordRequired": "كلمة المرور مطلوبة",
     "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "passwordsDontMatch": "كلمات المرور غير متطابقة",
+    "passwordMinLength": "6 أحرف على الأقل",
+    "passwordsMatch": "كلمات المرور متطابقة",
     "enterVerificationCode": "أدخل رمز التحقق",
     "codeSentTo": "أرسلنا رمزاً مكوناً من 6 أرقام إلى",
     "invalidCode": "رمز غير صالح أو منتهي الصلاحية. يرجى المحاولة مرة أخرى.",
@@ -45,7 +58,15 @@
     "redirectingToDashboard": "تم التحقق من بريدك الإلكتروني. جارٍ التحويل إلى لوحة التحكم...",
     "verificationFailed": "فشل التحقق",
     "verificationResent": "تم إرسال رمز التحقق إلى بريدك الإلكتروني",
-    "userExists": "هذا البريد الإلكتروني مسجل بالفعل"
+    "userExists": "هذا البريد الإلكتروني مسجل بالفعل",
+    "registrationSuccess": "تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.",
+    "referralBonus": "ستحصل على رصيد إضافي واحد للتسجيل عبر رابط الإحالة!",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "resetPasswordDescription": "أدخل بريدك الإلكتروني لاستلام رابط إعادة تعيين كلمة المرور",
+    "sendResetLink": "إرسال رابط إعادة التعيين",
+    "resetLinkSent": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني",
+    "newPassword": "كلمة المرور الجديدة",
+    "passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -55,22 +76,35 @@
     "recentTransactions": "المعاملات الأخيرة",
     "activityFeed": "سجل الأنشطة",
     "noAnalyses": "لا توجد تحليلات بعد",
-    "startFirst": "إنشاء أول تحليل لك"
+    "startFirst": "إنشاء أول تحليل لك",
+    "totalAnalyses": "إجمالي التحليلات",
+    "completedAnalyses": "مكتملة",
+    "pendingAnalyses": "قيد الانتظار",
+    "creditsRemaining": "الأرصدة المتبقية"
   },
   "analysis": {
     "title": "إنشاء تحليل جديد",
     "businessIdea": "فكرة العمل",
+    "businessIdeaPlaceholder": "صف فكرة عملك بالتفصيل...",
     "industry": "الصناعة",
+    "industryPlaceholder": "اختر أو أدخل صناعتك",
     "targetMarket": "السوق المستهدف",
-    "location": "الموقع",
+    "targetMarketPlaceholder": "صف جمهورك المستهدف...",
+    "location": "البلد/المنطقة",
+    "locationPlaceholder": "اختر البلد أو المنطقة",
     "budget": "الميزانية",
     "description": "الوصف",
     "createAnalysis": "إنشاء تحليل",
+    "generateReport": "إنشاء التقرير",
     "analyzing": "جاري التحليل...",
     "completed": "مكتمل",
     "pending": "قيد الانتظار",
     "failed": "فشل",
-    "viewReport": "عرض التقرير"
+    "viewReport": "عرض التقرير",
+    "reportLanguage": "لغة التقرير",
+    "selectLanguage": "اختر لغة التقرير",
+    "noCredits": "ليس لديك أرصدة كافية. يرجى شراء أرصدة لإنشاء تقرير.",
+    "creditDeducted": "سيتم خصم رصيد واحد لهذا التحليل"
   },
   "credits": {
     "title": "باقات الأرصدة",
@@ -80,7 +114,16 @@
     "creditPackage": "باقة الأرصدة",
     "price": "السعر",
     "popular": "الأكثر شهرة",
-    "select": "اختر الباقة"
+    "select": "اختر الباقة",
+    "purchaseCredits": "شراء الأرصدة",
+    "selectPackage": "اختر باقة",
+    "paymentMethod": "طريقة الدفع",
+    "selectPaymentMethod": "اختر طريقة الدفع",
+    "uploadReceipt": "رفع إيصال الدفع",
+    "submitPayment": "إرسال طلب الدفع",
+    "paymentPending": "الدفع قيد الانتظار",
+    "paymentApproved": "تمت الموافقة على الدفع",
+    "paymentRejected": "تم رفض الدفع"
   },
   "profile": {
     "title": "الملف الشخصي",
@@ -91,7 +134,14 @@
     "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
     "saveChanges": "حفظ التغييرات",
     "passwordChanged": "تم تغيير كلمة المرور بنجاح",
-    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+    "myReferrals": "إحالاتي",
+    "referralLink": "رابط الإحالة",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم نسخ الرابط!",
+    "referralStats": "إحصائيات الإحالة",
+    "totalReferrals": "إجمالي الإحالات",
+    "earnedCredits": "الأرصدة المكتسبة"
   },
   "navigation": {
     "dashboard": "لوحة التحكم",
@@ -99,12 +149,27 @@
     "credits": "الأرصدة",
     "profile": "الملف الشخصي",
     "admin": "الإدارة",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "subscriptions": "الاشتراكات",
+    "referrals": "الإحالات",
+    "newAnalysis": "تحليل جديد",
+    "myAnalyses": "تحليلاتي"
   },
   "messages": {
     "confirmDelete": "هل أنت متأكد من رغبتك في حذف هذا؟",
     "deleteSuccess": "تم الحذف بنجاح",
     "savingData": "جاري حفظ البيانات...",
-    "loadingData": "جاري تحميل البيانات..."
+    "loadingData": "جاري تحميل البيانات...",
+    "operationSuccess": "تمت العملية بنجاح",
+    "operationFailed": "فشلت العملية. يرجى المحاولة مرة أخرى."
+  },
+  "landing": {
+    "heroTitle": "تحليل الأعمال بالذكاء الاصطناعي",
+    "heroSubtitle": "حوّل أفكارك التجارية إلى تقارير تحليلية شاملة بقوة الذكاء الاصطناعي",
+    "getStarted": "ابدأ الآن",
+    "features": "المميزات",
+    "pricing": "الأسعار",
+    "about": "عن المنصة",
+    "contact": "تواصل معنا"
   }
 }
