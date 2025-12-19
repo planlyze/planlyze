@@ -14,12 +14,16 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(255))
+    display_name = db.Column(db.String(255))
     role_id = db.Column(db.String(36), db.ForeignKey('roles.id'))
     credits = db.Column(db.Integer, default=0)
     referral_code = db.Column(db.String(50), unique=True)
     referred_by = db.Column(db.String(50))
     language = db.Column(db.String(10), default='en')
     profile_image = db.Column(db.Text)
+    phone_number = db.Column(db.String(50))
+    country = db.Column(db.String(100))
+    city = db.Column(db.String(100))
     notification_preferences = db.Column(db.JSON, default=dict)
     email_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100))
@@ -35,6 +39,7 @@ class User(db.Model):
             'id': self.id,
             'email': self.email,
             'full_name': self.full_name,
+            'display_name': self.display_name,
             'role': self.role.name if self.role else 'user',
             'role_id': self.role_id,
             'permissions': self.role.permissions if self.role else {},
@@ -43,6 +48,9 @@ class User(db.Model):
             'referred_by': self.referred_by,
             'language': self.language,
             'profile_image': self.profile_image,
+            'phone_number': self.phone_number,
+            'country': self.country,
+            'city': self.city,
             'notification_preferences': self.notification_preferences or {},
             'email_verified': self.email_verified,
             'is_active': self.is_active,

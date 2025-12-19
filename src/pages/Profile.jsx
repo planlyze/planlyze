@@ -58,10 +58,17 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await auth.updateProfile({
-        full_name: form.full_name || "",
-        language: user?.language || "en"
-      });
+      const updateData = {
+        display_name: form.display_name || "",
+        phone_number: form.phone_number || "",
+        country: form.country || "",
+        city: form.city || ""
+      };
+      
+      await auth.updateProfile(updateData);
+      
+      setUser(prev => ({ ...prev, ...updateData }));
+      
       if (user?.email) {
         await logProfileUpdated(user.email);
       }

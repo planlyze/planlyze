@@ -413,10 +413,18 @@ def update_me():
           properties:
             full_name:
               type: string
+            display_name:
+              type: string
             language:
               type: string
               enum: [en, ar]
             profile_image:
+              type: string
+            phone_number:
+              type: string
+            country:
+              type: string
+            city:
               type: string
     responses:
       200:
@@ -432,10 +440,18 @@ def update_me():
     
     if 'full_name' in data:
         user.full_name = data['full_name']
+    if 'display_name' in data:
+        user.display_name = data['display_name']
     if 'language' in data:
         user.language = data['language']
     if 'profile_image' in data:
         user.profile_image = data['profile_image']
+    if 'phone_number' in data:
+        user.phone_number = data['phone_number']
+    if 'country' in data:
+        user.country = data['country']
+    if 'city' in data:
+        user.city = data['city']
     if 'notification_preferences' in data:
         user.notification_preferences = data['notification_preferences']
     
