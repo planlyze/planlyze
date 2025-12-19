@@ -124,7 +124,7 @@ def register():
         referral_code=generate_referral_code(),
         referred_by=referrer.email if referrer else None,
         role_id=default_role.id if default_role else None,
-        credits=4 if referrer else 3,
+        credits=1 if referrer else 0,
         language=lang,
         email_verified=False,
         verification_token=verification_token,
