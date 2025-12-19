@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { auth } from "@/api/client";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, X } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check, X, Gift } from "lucide-react";
 import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
 
 export default function Register() {
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,8 +20,16 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [referralCode, setReferralCode] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+    }
+  }, [searchParams]);
 
   const passwordChecks = {
     length: password.length >= 6,
@@ -43,7 +52,12 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      const response = await auth.register({ email, password, full_name: fullName });
+      const response = await auth.register({ 
+        email, 
+        password, 
+        full_name: fullName,
+        referral_code: referralCode 
+      });
       localStorage.setItem("pending_verification_email", email);
       toast.success(response.message || t('auth.registrationSuccess'));
       navigate("/verify-email");
@@ -71,6 +85,14 @@ export default function Register() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {referralCode && (
+                <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    {t('auth.referralBonus') || 'You\'ll get 1 bonus credit for signing up with a referral!'}
+                  </p>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-gray-700 dark:text-gray-300 font-medium">{t('auth.fullName')}</Label>
                 <div className={`relative transition-all duration-300 ${focusedField === 'fullName' ? 'scale-[1.02]' : ''}`}>

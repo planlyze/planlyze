@@ -95,6 +95,7 @@ def register():
     email = data.get('email')
     password = data.get('password')
     full_name = data.get('full_name', '')
+    referral_code = data.get('referral_code', '')
     
     if not email or not password:
         return jsonify({
@@ -104,6 +105,10 @@ def register():
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({'error': get_message('auth.user_exists', lang)}), 400
+    
+    referrer = None
+    if referral_code:
+        referrer = User.query.filter_by(referral_code=referral_code).first()
     
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
@@ -117,8 +122,9 @@ def register():
         password_hash=password_hash,
         full_name=full_name,
         referral_code=generate_referral_code(),
+        referred_by=referrer.email if referrer else None,
         role_id=default_role.id if default_role else None,
-        credits=3,
+        credits=4 if referrer else 3,
         language=lang,
         email_verified=False,
         verification_token=verification_token,
@@ -127,6 +133,10 @@ def register():
     
     db.session.add(user)
     db.session.commit()
+    
+    if referrer:
+        referrer.credits = (referrer.credits or 0) + 1
+        db.session.commit()
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)
     

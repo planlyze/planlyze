@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Referral, auth } from "@/api/client";
+import { auth, User } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -31,23 +31,18 @@ export default function Referrals() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await User.me();
-      
-      // Generate referral code if user doesn't have one
-      if (!user.referral_code) {
-        const code = generateReferralCode(user.email);
-        await User.updateMyUserData({ referral_code: code });
-        user.referral_code = code;
-      }
-      
+      const user = await auth.me();
       setCurrentUser(user);
       
-      // Load user's referrals
-      const userReferrals = await Referral.filter({ referrer_email: user.email }, "-created_date");
-      setReferrals(userReferrals);
+      // Load users referred by this user
+      const allUsers = await User.filter({});
+      const referredUsers = Array.isArray(allUsers) 
+        ? allUsers.filter(u => u.referred_by === user.email)
+        : [];
+      setReferrals(referredUsers);
     } catch (error) {
       console.error("Error loading referral data:", error);
-      await User.loginWithRedirect(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +56,7 @@ export default function Referrals() {
 
   const getReferralLink = () => {
     const baseUrl = window.location.origin;
-    return `${baseUrl}?ref=${currentUser?.referral_code}`;
+    return `${baseUrl}/register?ref=${currentUser?.referral_code}`;
   };
 
   const copyToClipboard = async () => {
