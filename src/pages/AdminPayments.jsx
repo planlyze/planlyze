@@ -69,40 +69,11 @@ export default function AdminPayments() {
 
     setIsProcessing(true);
     try {
-      const paymentUsers = await User.filter({ email: payment.user_email });
-      if (!paymentUsers || paymentUsers.length === 0) {
-        toast.error("User not found");
-        setIsProcessing(false);
-        return;
-      }
-      const targetUser = paymentUsers[0];
-
-      // Update user credits
-      await User.update(targetUser.id, {
-        credits: (targetUser.credits || 0) + payment.credits
-      });
-
-      // Create transaction record
-      await Transaction.create({
-        user_email: payment.user_email,
-        type: 'purchase',
-        credits: payment.credits,
-        amount_usd: payment.amount_usd,
-        description: `Payment approved for ${payment.credits} credits`,
-        status: 'completed'
-      });
-
-      // Update payment status
-      const currentAdmin = await auth.me();
-      await Payment.update(payment.id, {
-        status: 'approved',
-        approved_by: currentAdmin.email,
-        approved_at: new Date().toISOString(),
-        notes: adminNotes || null
-      });
+      await Payment.approve(payment.id);
       
       toast.success("Payment approved and credits added!");
       setSelectedPayment(null);
+      setConfirmAction(null);
       setAdminNotes("");
       loadPayments();
     } catch (error) {
@@ -122,17 +93,11 @@ export default function AdminPayments() {
 
     setIsProcessing(true);
     try {
-      const currentAdmin = await auth.me();
-      // Update payment rejection status via API
-      await Payment.update(payment.id, {
-        status: 'rejected',
-        approved_by: currentAdmin.email,
-        approved_at: new Date().toISOString(),
-        notes: adminNotes || null
-      });
+      await Payment.reject(payment.id, adminNotes || 'Payment rejected');
       
       toast.success("Payment rejected");
       setSelectedPayment(null);
+      setConfirmAction(null);
       setAdminNotes("");
       loadPayments();
     } catch (error) {
