@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Analysis, Transaction, User, auth, api } from "@/api/client";
+import { Analysis, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -52,14 +52,9 @@ export default function NewAnalysis() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState("form");
   const [analysisData, setAnalysisData] = useState(null);
-  const [analysisId, setAnalysisId] = useState(null); // NEW: track created analysis ID
-  const [pendingTransactionId, setPendingTransactionId] = useState(null); // Track pending transaction
-
-  // Add local progress state to track the generation percentage
+  const [analysisId, setAnalysisId] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [lastError, setLastError] = useState(""); // NEW: show backend error details
-
-  // NEW: ensure user is authenticated before using entities/functions
+  const [lastError, setLastError] = useState("");
   const [authChecked, setAuthChecked] = useState(false);
   const [regenerateMode, setRegenerateMode] = useState(false);
   const [chatContext, setChatContext] = useState("");
@@ -121,24 +116,11 @@ export default function NewAnalysis() {
       
       setCurrentStep("processing");
       
-      // Deduct credit upfront as "pending" to prevent race conditions
-      // This prevents user from generating multiple reports with one credit simultaneously
-      let transactionId = null;
-      const tx = await Transaction.create({
-        user_email: user.email,
-        type: 'usage',
-        credits: -1,
-        status: 'pending',
-        description: 'Credit reserved for analysis report generation'
-      });
-      transactionId = tx.id;
-      setPendingTransactionId(transactionId);
-      
-      // Try via API first
+      // Create analysis record via API (backend handles credit check)
       let createdAnalysis;
       try {
         const resp = await api.post('/analyses/generate', combinedFormData);
-        createdAnalysis = resp?.data;
+        createdAnalysis = resp?.data || resp;
       } catch (err) {
         const msg = String(err?.message || err || "");
         const status = err?.response?.status;
@@ -167,7 +149,6 @@ export default function NewAnalysis() {
             last_error: null
           });
         } else {
-          // Non-retryable (e.g., validation errors) -> propagate
           throw err;
         }
       }
@@ -177,25 +158,11 @@ export default function NewAnalysis() {
         throw new Error("Failed to create analysis.");
       }
       setAnalysisId(createdAnalysis.id);
-      
-      // Link transaction to analysis
-      if (transactionId) {
-        try {
-          await Transaction.update(transactionId, { analysis_id: createdAnalysis.id });
-        } catch (e) {
-          console.error("Failed to link transaction to analysis:", e);
-        }
-      }
 
-      // 2. Start the chained prompt generation process.
-      // This client-side driven process will continuously update the analysis record
-      // identified by 'createdAnalysis.id' in the database.
-      // Map target hint robustly (accept either target_hint or target_market)
-
+      // Start the chained prompt generation process
+      // Backend handles credit deduction upon successful completion
       const { business_idea, industry, report_language, country } = combinedFormData;
       const targetHint = combinedFormData.target_hint || combinedFormData.target_market || "";
-
-      // Use helper to pick the correct competitor file URL based on industry
       const competitorFileUrlToUse = getCompetitorFileUrl(industry);
 
       const result = await startChainedGeneration({
@@ -204,86 +171,35 @@ export default function NewAnalysis() {
         industry,
         targetHint,
         language: report_language,
-        country: country, // now coming from wizard step 1
-        setProgress, // Pass the state setter to receive progress updates
-        competitorFileUrl: competitorFileUrlToUse, // pass industry-specific file
+        country: country,
+        setProgress,
+        competitorFileUrl: competitorFileUrlToUse,
         chatContext: combinedFormData.chat_context || ""
       });
 
-      // Handle outcomes explicitly to avoid "stuck" UI
+      // Handle outcomes
       if (result?.status === "completed") {
-        // Update pending transaction to completed
-        if (transactionId) {
-          try {
-            await Transaction.update(transactionId, {
-              status: 'completed',
-              notes: 'Premium credit used for completed analysis report'
-            });
-          } catch (e) {
-            console.error("Failed to update transaction status:", e);
-          }
-        }
-        
-        toast.success("Analysis completed successfully! 🎉");
+        toast.success("Analysis completed successfully!");
         setCurrentStep("completed");
         navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
         return;
       }
 
       if (result?.status === "failed") {
-        // Cleanup failed analysis - delete pending transaction
-        try {
-          await api.post('/ai/fail-analysis', {
-            analysis_id: createdAnalysis.id,
-            error: result?.analysis?.last_error || 'Analysis generation failed',
-            transaction_id: transactionId
-          });
-        } catch (e) {
-          console.error("Failed to cleanup after failure:", e);
-        }
-        setPendingTransactionId(null);
-        
-        const errFromResult = result?.analysis?.last_error || "";
+        const errFromResult = result?.analysis?.last_error || "Analysis generation failed";
         setLastError(errFromResult);
         toast.error("Analysis failed. Please try again.");
         setCurrentStep("error");
         return;
       }
 
-      // Fallback: if unknown status, assume completed and navigate.
-      // Update pending transaction to completed
-      if (transactionId) {
-        try {
-          await Transaction.update(transactionId, {
-            status: 'completed',
-            notes: 'Premium credit used for completed analysis report'
-          });
-        } catch (e) {
-          console.error("Failed to update transaction status:", e);
-        }
-      }
-      
-      toast.success("Analysis completed successfully! 🎉");
+      // Fallback: if unknown status, assume completed and navigate
+      toast.success("Analysis completed successfully!");
       setCurrentStep("completed");
       navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
 
     } catch (error) {
       console.error("Analysis failed:", error);
-      
-      // Cleanup failed analysis - delete pending transaction
-      if (pendingTransactionId || analysisId) {
-        try {
-          await api.post('/ai/fail-analysis', {
-            analysis_id: analysisId,
-            error: error?.message || 'Analysis generation failed',
-            transaction_id: pendingTransactionId
-          });
-        } catch (e) {
-          console.error("Failed to cleanup after failure:", e);
-        }
-        setPendingTransactionId(null);
-      }
-      
       const errorMsg = error?.response?.data?.error || error.message || "An unexpected network error occurred. Please try again.";
       setLastError(errorMsg);
       toast.error("Analysis failed: " + errorMsg);
@@ -291,7 +207,7 @@ export default function NewAnalysis() {
     }
   };
 
-  // NEW: Retry generation without re-filling the form
+  // Retry generation without re-filling the form
   const handleRetry = async () => {
     if (!analysisId || !analysisData) {
       setCurrentStep("form");
@@ -299,24 +215,10 @@ export default function NewAnalysis() {
     }
     
     // Check if user has credits for retry
-    const user = await User.me();
+    const user = await auth.me();
     const currentCredits = user.credits || 0;
-    const hasCreditsForRetry = currentCredits > 0;
-    let retryTransactionId = null;
     
-    if (hasCreditsForRetry) {
-      // Create pending transaction (credit deducted only on completion)
-      const tx = await Transaction.create({
-        user_email: user.email,
-        type: 'usage',
-        credits: -1,
-        analysis_id: analysisId,
-        status: 'pending',
-        notes: 'Credit reserved for analysis retry'
-      });
-      retryTransactionId = tx.id;
-    } else {
-      // No credits available, cannot retry
+    if (currentCredits < 1) {
       toast.error("Not enough credits for retry. Please purchase credits.");
       return;
     }
@@ -343,62 +245,26 @@ export default function NewAnalysis() {
       });
 
       if (result?.status === "completed") {
-        if (retryTransactionId) {
-          await Transaction.update(retryTransactionId, {
-            status: 'completed',
-            notes: 'Premium credit used for completed analysis report (retry)'
-          });
-        }
-        
-        toast.success("Analysis completed successfully! 🎉");
+        toast.success("Analysis completed successfully!");
         setCurrentStep("completed");
         navigate(createPageUrl(`AnalysisResult?id=${analysisId}`));
         return;
       }
       
       if (result?.status === "failed") {
-        // Cleanup failed retry - delete pending transaction
-        try {
-          await api.post('/ai/fail-analysis', {
-            analysis_id: analysisId,
-            error: result?.analysis?.last_error || 'Analysis retry failed',
-            transaction_id: retryTransactionId
-          });
-        } catch (e) {
-          console.error("Failed to cleanup after retry failure:", e);
-        }
-        
-        const errorMsg = result?.analysis?.last_error || "Analysis failed again. Please try adjusting inputs and try once more.";
+        const errorMsg = result?.analysis?.last_error || "Analysis failed. Please try again.";
         setLastError(errorMsg);
         toast.error("Analysis failed: " + errorMsg);
         setCurrentStep("error");
         return;
       }
       
-      // Fallback - mark as completed
-      if (retryTransactionId) {
-        await Transaction.update(retryTransactionId, {
-          status: 'completed',
-          notes: 'Premium credit used for completed analysis report (retry fallback)'
-        });
-      }
-      
-      toast.success("Analysis completed successfully! 🎉");
+      // Fallback - assume completed
+      toast.success("Analysis completed successfully!");
       setCurrentStep("completed");
       navigate(createPageUrl(`AnalysisResult?id=${analysisId}`));
     } catch (error) {
-      // Cleanup failed retry - delete pending transaction
-      if (retryTransactionId || analysisId) {
-        try {
-          await api.post('/ai/fail-analysis', {
-            analysis_id: analysisId,
-            error: error?.message || 'Analysis retry failed',
-            transaction_id: retryTransactionId
-          });
-        } catch (e) {
-          console.error("Failed to cleanup after retry error:", e);
-        }
-      }
+      console.error("Retry failed:", error);
       
       const errorMsg = error?.message || "Retry failed";
       setLastError(errorMsg);

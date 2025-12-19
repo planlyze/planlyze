@@ -428,8 +428,31 @@ export default function AnalysisResult() {
   }
 
   const isArabic = analysis.report_language === 'arabic';
-  const fp = analysis.step10_financials_risks_swot || {};
   const isPremium = analysis.is_premium === true;
+  
+  // Map backend report structure to frontend expected structure
+  const report = analysis.report || {};
+  const businessReport = analysis.business_report || {
+    overall_viability_score: report.score || analysis.score || 0,
+    executive_summary: report.executive_summary || analysis.executive_summary || '',
+    market_opportunity: report.market_analysis?.market_gap || '',
+    market_size: report.market_analysis || {},
+    swot_analysis: report.swot || {},
+    revenue_streams: report.business_strategy?.revenue_streams || [],
+    go_to_market: report.go_to_market || {},
+    risks_and_mitigation: report.risk_assessment || {},
+    funding_recommendations: report.financial_projections?.funding_recommendations || '',
+    success_metrics: report.recommendations?.success_metrics || []
+  };
+  const technicalReport = analysis.technical_report || {
+    complexity_score: 5,
+    mvp_by_ai_tool_score: 7,
+    technology_stack: report.technical_strategy?.recommended_stack || {},
+    mvp_core_features: report.technical_strategy?.mvp_features || [],
+    architecture: report.technical_strategy?.architecture || '',
+    technical_risks: report.technical_strategy?.security || ''
+  };
+  const fp = analysis.step10_financials_risks_swot || report.financial_projections || {};
 
   // Replace sectionsNav with the exact order requested - REMOVED as quick nav is removed
   // const sectionsNav = [
@@ -710,15 +733,22 @@ export default function AnalysisResult() {
         <section id="exec_summary" className="scroll-mt-28 print:scroll-mt-0">
           <ExecutiveSummary
             analysis={analysis}
-            businessReport={analysis.business_report}
-            technicalReport={analysis.technical_report}
+            businessReport={businessReport}
+            technicalReport={technicalReport}
             isArabic={isArabic}
           />
         </section>
 
         <section id="problem_solution" className="scroll-mt-28 print:scroll-mt-0">
           <ProblemSolutionFramework
-            report={{ problem_solution_framework: analysis.step1_problem_solution || {} }}
+            report={{ 
+              problem_solution_framework: analysis.step1_problem_solution || {
+                core_problem: report.business_strategy?.value_proposition || '',
+                solution_approach: report.executive_summary || analysis.executive_summary || '',
+                value_proposition: report.business_strategy?.value_proposition || '',
+                target_audience: { target_description: report.market_analysis?.target_segments?.join(', ') || '' }
+              }
+            }}
             isArabic={isArabic}
           />
         </section>
@@ -726,10 +756,10 @@ export default function AnalysisResult() {
         <section id="market_opportunity" className="scroll-mt-28 print:scroll-mt-0">
           <MarketOpportunity
             report={{
-              market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? analysis.business_report?.market_opportunity,
-              market_size: analysis.step4_market_size || {},
-              local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment,
-              competition_analysis: analysis.step6_competition?.competition_analysis,
+              market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
+              market_size: analysis.step4_market_size || report.market_analysis || {},
+              local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
+              competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
               infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
             }}
             isArabic={isArabic}
@@ -739,7 +769,7 @@ export default function AnalysisResult() {
         {/* Premium Feature: Competitors detailed section */}
         <section id="competitors" className="scroll-mt-28 print:scroll-mt-0">
           {isPremium ? (
-            <CompetitorMatrix businessReport={analysis.business_report} isArabic={isArabic} />
+            <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
           ) : (
             <div className="relative glass-effect border-2 border-purple-300 rounded-xl overflow-hidden shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-indigo-50 opacity-60"></div>
@@ -811,7 +841,7 @@ export default function AnalysisResult() {
         {/* Premium Feature: Syrian competitors section (from user-supplied file) */}
         <section id="competitors_syrian" className="scroll-mt-28 print:scroll-mt-0">
           {isPremium ? (
-            <SyrianCompetitors businessReport={analysis.business_report} isArabic={isArabic} />
+            <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
           ) : (
             <div className="relative glass-effect border-2 border-rose-300 rounded-xl overflow-hidden shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-pink-50 opacity-60"></div>
@@ -882,7 +912,14 @@ export default function AnalysisResult() {
 
         <section id="target_audience" className="scroll-mt-28 print:scroll-mt-0">
           <TargetAudience
-            report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || {} } }}
+            report={{ 
+              problem_solution_framework: { 
+                target_audience: analysis.step2_target_audience || {
+                  target_description: report.market_analysis?.target_segments?.join(', ') || '',
+                  demographics: report.market_analysis?.target_segments || []
+                }
+              } 
+            }}
             isArabic={isArabic}
           />
         </section>
@@ -890,8 +927,8 @@ export default function AnalysisResult() {
         <section id="business_model_revenue" className="scroll-mt-28 print:scroll-mt-0">
           <BusinessModelRevenue
             report={{
-              business_model: analysis.step7_goto_market_revenue?.business_model,
-              revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams
+              business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model,
+              revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams
             }}
             isArabic={isArabic}
           />
@@ -899,7 +936,7 @@ export default function AnalysisResult() {
 
         <section id="go_to_market" className="scroll-mt-28 print:scroll-mt-0">
           <GoToMarket
-            report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market }}
+            report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
             isArabic={isArabic}
           />
         </section>
@@ -908,9 +945,9 @@ export default function AnalysisResult() {
         <section id="tech_stack_suggestions" className="scroll-mt-28 print:scroll-mt-0">
           <TechStackSuggestions
             suggestionsData={analysis.step8_tech_stack_suggestions || {
-              technology_stack_suggestions: analysis.technical_report?.technology_stack_suggestions || [],
-              recommended_option_index: undefined,
-              recommended_rationale: analysis.technical_report?.technology_stack_recommendation_reason || ""
+              technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [],
+              recommended_option_index: 0,
+              recommended_rationale: report.technical_strategy?.architecture || ""
             }}
             isArabic={isArabic}
           />
@@ -920,7 +957,7 @@ export default function AnalysisResult() {
         <section id="ai_tools" className="scroll-mt-28 print:scroll-mt-0">
           {isPremium ? (
             <AIToolsSuggestions
-              technicalReport={analysis.technical_report || analysis.step8_technical_implementation || {}}
+              technicalReport={technicalReport}
               isArabic={isArabic}
             />
           ) : (
@@ -993,14 +1030,20 @@ export default function AnalysisResult() {
 
         <section id="technical_impl" className="scroll-mt-28 print:scroll-mt-0">
           <TechnicalImplementation
-            report={analysis.step8_technical_implementation || {}}
+            report={analysis.step8_technical_implementation || {
+              architecture_overview: report.technical_strategy?.architecture || '',
+              mvp_features: technicalReport.mvp_core_features || [],
+              technology_stack: technicalReport.technology_stack || {},
+              scalability: report.technical_strategy?.scalability || '',
+              security_considerations: report.technical_strategy?.security || ''
+            }}
             isArabic={isArabic}
           />
         </section>
 
         <section id="dev_plan" className="scroll-mt-28 print:scroll-mt-0">
           <DevelopmentPlan
-            report={analysis.step9_development_plan || {}}
+            report={analysis.step9_development_plan || report.development_roadmap || {}}
             isArabic={isArabic}
           />
         </section>
@@ -1008,11 +1051,11 @@ export default function AnalysisResult() {
         <section id="financial_proj" className="scroll-mt-28 print:scroll-mt-0">
           <FinancialProjections
             report={{
-              country_pricing_basis: fp.country_pricing_basis,
-              pricing_country: fp.pricing_country,
-              pricing_currency: fp.pricing_currency,
-              cost_breakdown: fp.cost_breakdown,
-              timeline_pricing: fp.timeline_pricing
+              country_pricing_basis: fp.country_pricing_basis || analysis.location,
+              pricing_country: fp.pricing_country || analysis.location,
+              pricing_currency: fp.pricing_currency || 'USD',
+              cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs,
+              timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses
             }}
             isArabic={isArabic}
           />
@@ -1020,15 +1063,15 @@ export default function AnalysisResult() {
 
         <section id="risk_mitigation" className="scroll-mt-28 print:scroll-mt-0">
           <RiskMitigation
-            businessReport={{ risks_and_mitigation: fp.risks_and_mitigation }}
-            technicalReport={analysis.step8_technical_implementation || {}}
+            businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
+            technicalReport={technicalReport}
             isArabic={isArabic}
           />
         </section>
 
         <section id="swot" className="scroll-mt-28 print:scroll-mt-0">
           <SwotSimple
-            report={{ swot_analysis: fp.swot_analysis }}
+            report={{ swot_analysis: fp.swot_analysis || report.swot }}
             isArabic={isArabic}
           />
         </section>
@@ -1036,7 +1079,7 @@ export default function AnalysisResult() {
         <section id="success_validation" className="scroll-mt-28 print:scroll-mt-0">
           <SuccessMetricsValidation
             report={{
-              success_metrics: fp.success_metrics,
+              success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [],
               validation_methodology: fp.validation_methodology
             }}
             isArabic={isArabic}
@@ -1045,21 +1088,21 @@ export default function AnalysisResult() {
 
         <section id="funding" className="scroll-mt-28 print:scroll-mt-0">
           <FundingRecommendations
-            report={{ funding_recommendations: fp.funding_recommendations }}
+            report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
             isArabic={isArabic}
           />
         </section>
 
         <section id="partnerships" className="scroll-mt-28 print:scroll-mt-0">
           <Partnerships
-            report={{ partnerships_opportunities: fp.partnerships_opportunities }}
+            report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
             isArabic={isArabic}
           />
         </section>
 
         <section id="recommendations_next" className="scroll-mt-28 print:scroll-mt-0">
           <RecommendationsNext
-            report={{ recommendation_summary: fp.recommendation_summary }}
+            report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
             isArabic={isArabic}
           />
         </section>
@@ -1068,8 +1111,8 @@ export default function AnalysisResult() {
         <section className="scroll-mt-28 print:scroll-mt-0">
           <ReportFooter
             analysis={analysis}
-            businessReport={analysis.business_report}
-            technicalReport={analysis.technical_report}
+            businessReport={businessReport}
+            technicalReport={technicalReport}
             isArabic={isArabic}
           />
         </section>
