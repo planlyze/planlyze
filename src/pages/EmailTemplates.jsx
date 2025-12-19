@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, EmailTemplate } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -227,14 +227,14 @@ export default function EmailTemplates() {
         return;
       }
 
-      const existingTemplates = await api.EmailTemplate.filter({});
+      const existingTemplates = await EmailTemplate.list();
       
       if (existingTemplates.length === 0) {
         // Initialize default templates
         for (const template of defaultTemplates) {
-          await api.EmailTemplate.create(template);
+          await EmailTemplate.create(template);
         }
-        const newTemplates = await api.EmailTemplate.filter({});
+        const newTemplates = await EmailTemplate.list();
         setTemplates(newTemplates);
       } else {
         setTemplates(existingTemplates);
@@ -249,7 +249,7 @@ export default function EmailTemplates() {
 
   const handleSave = async (template) => {
     try {
-      await api.EmailTemplate.update(template.id, template);
+      await EmailTemplate.update(template.id, template);
       toast.success("Template saved successfully");
       setEditingTemplate(null);
       loadData();
