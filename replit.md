@@ -49,8 +49,9 @@ Swagger UI available at `/api/apidocs` when backend is running.
 
 ## Production Deployment
 - Build: `npm run build` (creates `dist/` folder)
-- Run: `gunicorn --bind=0.0.0.0:5000 wsgi:app`
+- Run: Database seeding runs automatically, then `gunicorn --bind=0.0.0.0:5000 wsgi:app`
 - Flask serves the static frontend from `dist/` folder
+- **Auto-seeding**: On each deployment, the system automatically runs `server/seed.py` to ensure default roles, credit packages, payment methods, email templates, and super admin exist
 
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string (auto-provided)
