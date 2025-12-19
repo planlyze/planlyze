@@ -190,6 +190,34 @@ export default function AdminCredits() {
     setPackages(updated);
   };
 
+  const handleAddPackage = () => {
+    setPackages([...packages, {
+      name: '',
+      credits: 10,
+      price_usd: 9.99,
+      description: '',
+      is_active: true,
+      is_popular: false
+    }]);
+  };
+
+  const handleDeletePackage = async (index) => {
+    const pkg = packages[index];
+    if (!confirm("Are you sure you want to delete this package?")) return;
+    
+    try {
+      if (pkg.id) {
+        await CreditPackage.delete(pkg.id);
+        toast.success("Package deleted");
+      }
+      const updated = packages.filter((_, i) => i !== index);
+      setPackages(updated);
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      toast.error("Failed to delete package");
+    }
+  };
+
   const totalCreditsIssued = users.reduce((sum, u) => sum + (u.total_credits_purchased || 0), 0);
   const totalCreditsUsed = users.reduce((sum, u) => sum + (u.total_credits_used || 0), 0);
   const totalCreditsRemaining = users.reduce((sum, u) => sum + (u.premium_credits || 0), 0);
@@ -545,97 +573,78 @@ export default function AdminCredits() {
           {/* Settings Tab */}
           <TabsContent value="settings">
             <Card className="glass-effect border border-slate-200">
-              <CardHeader>
-                <CardTitle>Credit Package Settings</CardTitle>
-                <CardDescription>Configure pricing and content for credit packages</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Credit Package Settings</CardTitle>
+                  <CardDescription>Configure pricing and content for credit packages</CardDescription>
+                </div>
+                <Button onClick={handleAddPackage} className="gradient-primary text-white">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Package
+                </Button>
               </CardHeader>
               <CardContent className="space-y-6">
+                {packages.length === 0 && (
+                  <div className="text-center py-8 text-slate-500">
+                    No credit packages yet. Click "Add Package" to create one.
+                  </div>
+                )}
                 {packages.map((pkg, index) => (
                   <div key={pkg.id || index} className={`space-y-4 p-6 border-2 rounded-lg ${pkg.is_popular ? 'bg-purple-50 border-purple-300' : 'border-slate-200'}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-5 h-5 text-purple-600" />
-                        <h3 className="font-semibold text-lg">{pkg.package_id === 'single' ? 'Single Report' : 'Bundle'} Package</h3>
+                        <h3 className="font-semibold text-lg">{pkg.name || 'New Package'}</h3>
                       </div>
-                      <Label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={pkg.is_popular || false}
-                          onChange={(e) => updatePackageField(index, 'is_popular', e.target.checked)}
-                          className="w-4 h-4"
-                        />
-                        <span>Popular</span>
-                      </Label>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Name (English)</Label>
-                        <Input
-                          value={pkg.name_en || ''}
-                          onChange={(e) => updatePackageField(index, 'name_en', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Name (Arabic)</Label>
-                        <Input
-                          value={pkg.name_ar || ''}
-                          onChange={(e) => updatePackageField(index, 'name_ar', e.target.value)}
-                          dir="rtl"
-                        />
+                      <div className="flex items-center gap-4">
+                        <Label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={pkg.is_popular || false}
+                            onChange={(e) => updatePackageField(index, 'is_popular', e.target.checked)}
+                            className="w-4 h-4"
+                          />
+                          <span>Popular</span>
+                        </Label>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeletePackage(index)}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Description (English)</Label>
-                        <Textarea
-                          value={pkg.description_en || ''}
-                          onChange={(e) => updatePackageField(index, 'description_en', e.target.value)}
-                          rows={2}
+                        <Label>Package Name</Label>
+                        <Input
+                          value={pkg.name || ''}
+                          onChange={(e) => updatePackageField(index, 'name', e.target.value)}
+                          placeholder="e.g., Basic Package"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Description (Arabic)</Label>
-                        <Textarea
-                          value={pkg.description_ar || ''}
-                          onChange={(e) => updatePackageField(index, 'description_ar', e.target.value)}
-                          rows={2}
-                          dir="rtl"
+                        <Label>Description</Label>
+                        <Input
+                          value={pkg.description || ''}
+                          onChange={(e) => updatePackageField(index, 'description', e.target.value)}
+                          placeholder="e.g., Perfect for getting started"
                         />
                       </div>
                     </div>
-
-                    {pkg.is_popular && (
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Badge Text (English)</Label>
-                          <Input
-                            value={pkg.badge_en || ''}
-                            onChange={(e) => updatePackageField(index, 'badge_en', e.target.value)}
-                            placeholder="e.g., Most Popular"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Badge Text (Arabic)</Label>
-                          <Input
-                            value={pkg.badge_ar || ''}
-                            onChange={(e) => updatePackageField(index, 'badge_ar', e.target.value)}
-                            placeholder="e.g., الأكثر شعبية"
-                            dir="rtl"
-                          />
-                        </div>
-                      </div>
-                    )}
 
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label>Price (USD)</Label>
                         <Input
                           type="number"
-                          value={pkg.price || ''}
-                          onChange={(e) => updatePackageField(index, 'price', Number(e.target.value))}
-                          min="1"
+                          value={pkg.price_usd || ''}
+                          onChange={(e) => updatePackageField(index, 'price_usd', Number(e.target.value))}
+                          min="0.01"
+                          step="0.01"
                         />
                       </div>
                       <div className="space-y-2">
@@ -665,7 +674,7 @@ export default function AdminCredits() {
                     </div>
 
                     <div className="text-sm text-slate-600 bg-white p-3 rounded-lg">
-                      <div>Price per credit: ${pkg.price && pkg.credits ? (pkg.price / pkg.credits).toFixed(2) : '—'}</div>
+                      <div>Price per credit: ${pkg.price_usd && pkg.credits ? (pkg.price_usd / pkg.credits).toFixed(2) : '—'}</div>
                     </div>
                   </div>
                 ))}
