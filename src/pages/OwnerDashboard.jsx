@@ -205,7 +205,7 @@ export default function OwnerDashboard() {
       // Fetch all transactions for revenue calculation
       let allTransactions = [];
       try {
-        const txResp = await Transaction.filter({}, "-created_date", 1000);
+        const txResp = await Transaction.filter({}, "-created_at", 1000);
         allTransactions = Array.isArray(txResp) ? txResp : [];
       } catch (e) {
         console.error("Error fetching transactions:", e);

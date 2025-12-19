@@ -80,7 +80,7 @@ export default function Reports() {
         fetchedAnalyses = data?.items || [];
       } else {
         // Otherwise, load reports using standard filter for the specified user email
-        const data = await Analysis.filter({ created_by: userEmail }, "-created_date");
+        const data = await Analysis.filter({ created_by: userEmail }, "-created_at");
         fetchedAnalyses = data;
       }
       // Exclude soft-deleted analyses from the fetched list

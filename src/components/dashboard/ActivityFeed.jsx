@@ -69,12 +69,12 @@ export default function ActivityFeed({ userEmail, isArabic = false, limit = 10, 
       let data;
       if (showPublic) {
         // For admin or public view, get all activities
-        data = await api.ActivityFeed.list("-created_date", limit);
+        data = await api.ActivityFeed.list("-created_at", limit);
       } else {
         // For user view, get only their activities
         data = await api.ActivityFeed.filter(
           { user_email: userEmail },
-          "-created_date",
+          "-created_at",
           limit
         );
       }
