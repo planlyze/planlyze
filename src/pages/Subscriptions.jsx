@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Transaction, Payment, auth } from "@/api/client";
+import { auth, Transaction, Payment } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,17 +33,19 @@ export default function Subscriptions() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const user = await User.me();
+      const user = await auth.me();
       setCurrentUser(user);
       
-      const txs = await Transaction.filter({ user_email: user.email }, "-created_date", 50);
-      setTransactions(txs);
+      const txs = await Transaction.filter({ user_email: user.email });
+      const sortedTxs = Array.isArray(txs) ? txs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 50) : [];
+      setTransactions(sortedTxs);
 
-      const allPaymentsData = await Payment.filter({ user_email: user.email }, "-created_date");
-      setAllPayments(allPaymentsData);
+      const allPaymentsData = await Payment.filter({ user_email: user.email });
+      const sortedPayments = Array.isArray(allPaymentsData) ? allPaymentsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
+      setAllPayments(sortedPayments);
     } catch (error) {
       console.error("Error loading subscription data:", error);
-      await User.loginWithRedirect(window.location.href);
+      window.location.href = "/login";
     } finally {
       setIsLoading(false);
     }
@@ -181,7 +183,7 @@ export default function Subscriptions() {
                               </div>
                               <p className="text-sm text-slate-600 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {isArabic ? "مُرسَل في" : "Submitted"}: {format(new Date(payment.created_date), "MMM d, yyyy 'at' h:mm a")}
+                                {isArabic ? "مُرسَل في" : "Submitted"}: {payment.created_at && format(new Date(payment.created_at), "MMM d, yyyy 'at' h:mm a")}
                               </p>
                               {payment.approved_at && (
                                 <p className="text-sm text-slate-600 flex items-center gap-2 mt-1">
@@ -296,7 +298,7 @@ export default function Subscriptions() {
                               </div>
                               <p className="text-sm text-slate-600 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {format(new Date(tx.created_date), "MMM d, yyyy 'at' h:mm a")}
+                                {tx.created_at && format(new Date(tx.created_at), "MMM d, yyyy 'at' h:mm a")}
                               </p>
                             </div>
                             <div className="text-right pl-4">
