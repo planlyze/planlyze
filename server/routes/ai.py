@@ -79,6 +79,16 @@ def generate_analysis(user):
         return jsonify({'error': 'Access denied'}), 403
     
     analysis.status = 'processing'
+    
+    pending_transaction = Transaction(
+        user_email=user.email,
+        type='usage',
+        credits=-1,
+        description=f'Analysis: {analysis.business_idea[:50]}...',
+        reference_id=analysis.id,
+        status='pending'
+    )
+    db.session.add(pending_transaction)
     db.session.commit()
     
     try:
@@ -155,21 +165,14 @@ Return ONLY the JSON object, no additional text."""
         analysis.score = report.get('score', 0)
         
         user.credits -= 1
-        
-        transaction = Transaction(
-            user_email=user.email,
-            type='usage',
-            credits=-1,
-            description=f'Analysis: {analysis.business_idea[:50]}...',
-            reference_id=analysis.id
-        )
-        db.session.add(transaction)
+        pending_transaction.status = 'completed'
         db.session.commit()
         
         return jsonify(analysis.to_dict())
         
     except Exception as e:
         analysis.status = 'failed'
+        pending_transaction.status = 'failed'
         db.session.commit()
         return jsonify({'error': str(e)}), 500
 
