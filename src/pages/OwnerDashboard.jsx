@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Transaction, Role } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,10 @@ export default function OwnerDashboard() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Role filter state
+  const [roles, setRoles] = useState([]);
+  const [roleFilter, setRoleFilter] = useState("user");
 
   // Stats state
   const [stats, setStats] = useState({
@@ -78,6 +82,15 @@ export default function OwnerDashboard() {
       } catch (userError) {
         console.error("Error fetching users:", userError.message || userError);
         userData = [];
+      }
+
+      // Fetch roles for filter
+      try {
+        const rolesResp = await Role.list();
+        const rolesList = Array.isArray(rolesResp) ? rolesResp : (rolesResp?.data || rolesResp?.items || []);
+        setRoles(rolesList);
+      } catch (roleError) {
+        console.error("Error fetching roles:", roleError.message || roleError);
       }
 
       // Fetch ALL analyses for stats calculation (must fetch all for accurate counts)
@@ -442,20 +455,36 @@ export default function OwnerDashboard() {
                 <Users className="w-5 h-5" />
                 All Users
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">Show:</span>
-                <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Role:</span>
+                  <Select value={roleFilter} onValueChange={(val) => { setRoleFilter(val); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Roles</SelectItem>
+                      {roles.map(role => (
+                        <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Show:</span>
+                  <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -485,7 +514,7 @@ export default function OwnerDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => {
+                  {users.filter(user => roleFilter === "all" || user.role === roleFilter).map((user) => {
                     const emailKey = (user.email || "").toLowerCase();
                     const userAnalysisCount = stats.analysesPerUser[emailKey] || 0;
                     const r = stats.ratingsPerUser[emailKey];

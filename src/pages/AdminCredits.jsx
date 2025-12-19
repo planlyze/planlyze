@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage, Settings } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage, Settings, Role } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -50,6 +50,10 @@ export default function AdminCredits() {
 
   // User search
   const [userSearchQuery, setUserSearchQuery] = useState("");
+  
+  // Role filter
+  const [roles, setRoles] = useState([]);
+  const [roleFilter, setRoleFilter] = useState("user");
 
   useEffect(() => {
     checkAdminAndLoadData();
@@ -94,6 +98,11 @@ export default function AdminCredits() {
       if (settings?.price_per_credit) {
         setPricePerCredit(settings.price_per_credit);
       }
+      
+      // Load roles for filter
+      const rolesResp = await Role.list();
+      const rolesList = Array.isArray(rolesResp) ? rolesResp : (rolesResp?.data || rolesResp?.items || []);
+      setRoles(rolesList);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
@@ -371,14 +380,30 @@ export default function AdminCredits() {
               <CardHeader>
                 <CardTitle>User Credit Balances</CardTitle>
                 <CardDescription>View and manage credits for all users</CardDescription>
-                <div className="relative max-w-md mt-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    placeholder="Search by User ID, Email, or Name..."
-                    value={userSearchQuery}
-                    onChange={(e) => setUserSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
+                <div className="flex flex-col md:flex-row gap-4 mt-4">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="Search by User ID, Email, or Name..."
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-600">Role:</span>
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Roles</SelectItem>
+                        {roles.map(role => (
+                          <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -395,13 +420,21 @@ export default function AdminCredits() {
                     </TableHeader>
                     <TableBody>
                       {(() => {
-                        const filtered = userSearchQuery.trim()
-                          ? users.filter(u => 
-                              u.id?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                              u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                              u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase())
-                            )
-                          : users;
+                        let filtered = users;
+                        
+                        // Apply role filter
+                        if (roleFilter !== "all") {
+                          filtered = filtered.filter(u => u.role === roleFilter);
+                        }
+                        
+                        // Apply search filter
+                        if (userSearchQuery.trim()) {
+                          filtered = filtered.filter(u => 
+                            u.id?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                            u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                            u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase())
+                          );
+                        }
                         
                         return filtered.length === 0 ? (
                           <TableRow>
