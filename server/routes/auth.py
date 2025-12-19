@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from server.models import db, User, Role, Referral, Notification
+from server.models import db, User, Role, Referral, Notification, Transaction
 from server.utils.translations import get_message
 from server.services.email_service import (
     send_verification_email, 
@@ -166,6 +166,28 @@ def register():
             meta_data={'referrer_email': referrer.email, 'credits_received': 1}
         )
         db.session.add(referred_notification)
+        
+        referrer_transaction = Transaction(
+            user_email=referrer.email,
+            type='referral_bonus',
+            credits=1,
+            amount_usd=0,
+            description=f'Referral bonus: {user.email} signed up using your code',
+            reference_id=referral_record.id,
+            status='completed'
+        )
+        db.session.add(referrer_transaction)
+        
+        referred_transaction = Transaction(
+            user_email=user.email,
+            type='referral_welcome',
+            credits=1,
+            amount_usd=0,
+            description=f'Welcome bonus: Signed up with referral from {referrer.email}',
+            reference_id=referral_record.id,
+            status='completed'
+        )
+        db.session.add(referred_transaction)
         
         db.session.commit()
         
