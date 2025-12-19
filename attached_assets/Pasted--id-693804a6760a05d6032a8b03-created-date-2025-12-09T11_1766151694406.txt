@@ -1,0 +1,94 @@
+[
+  {
+    "id": "693804a6760a05d6032a8b03",
+    "created_date": "2025-12-09T11:14:46.495Z",
+    "updated_date": "2025-12-09T11:14:46.495Z",
+    "created_by_id": "6919d88779509b26dfa9f6bf",
+    "created_by": "planlyze@gmail.com",
+    "entity_name": "EmailTemplate",
+    "app_id": "6919d88779509b26dfa9f6be",
+    "data": {
+      "template_key": "shared_report_accessed",
+      "name_en": "Shared Report Accessed",
+      "name_ar": "تم الوصول إلى التقرير المشترك",
+      "subject_en": "Your Shared Report Was Viewed",
+      "subject_ar": "تم عرض تقريرك المشترك",
+      "body_en": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #7c3aed;\">Report Activity</h2>\n  <p>Hi {{user_name}},</p>\n  <p>Someone just accessed your shared analysis report for \"<strong>{{business_idea}}</strong>\".</p>\n  <p><strong>Accessed by:</strong> {{accessor_email}}<br>\n  <strong>Date:</strong> {{access_date}}</p>\n  <a href__=\"{{report_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">View Report</a>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. All rights reserved.</p>\n</div>",
+      "body_ar": "<div dir=\"rtl\" style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #7c3aed;\">نشاط التقرير</h2>\n  <p>مرحباً {{user_name}}،</p>\n  <p>قام شخص ما بالوصول إلى تقرير التحليل المشترك الخاص بك لـ \"<strong>{{business_idea}}</strong>\".</p>\n  <p><strong>تم الوصول بواسطة:</strong> {{accessor_email}}<br>\n  <strong>التاريخ:</strong> {{access_date}}</p>\n  <a href__=\"{{report_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">عرض التقرير</a>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. جميع الحقوق محفوظة.</p>\n</div>",
+      "available_variables": ["user_name", "business_idea", "accessor_email", "access_date", "report_url"],
+      "is_active": true
+    },
+    "is_sample": false,
+    "is_deleted": false,
+    "deleted_date": null
+  },
+  {
+    "id": "693804a6c2bf21f977e0d122",
+    "created_date": "2025-12-09T11:14:46.186Z",
+    "updated_date": "2025-12-09T11:14:46.186Z",
+    "created_by_id": "6919d88779509b26dfa9f6bf",
+    "created_by": "planlyze@gmail.com",
+    "entity_name": "EmailTemplate",
+    "app_id": "6919d88779509b26dfa9f6be",
+    "data": {
+      "template_key": "low_credits",
+      "name_en": "Low Credits Warning",
+      "name_ar": "تحذير رصيد منخفض",
+      "subject_en": "Running Low on Credits ⚠️",
+      "subject_ar": "رصيدك ينفد ⚠️",
+      "body_en": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #f59e0b;\">Low Credits Alert</h2>\n  <p>Hi {{user_name}},</p>\n  <p>You're running low on premium credits! You currently have <strong>{{remaining_credits}}</strong> credit(s) left.</p>\n  <p>Purchase more credits to continue creating premium analysis reports.</p>\n  <a href__=\"{{credits_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">Buy More Credits</a>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. All rights reserved.</p>\n</div>",
+      "body_ar": "<div dir=\"rtl\" style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #f59e0b;\">تنبيه رصيد منخفض</h2>\n  <p>مرحباً {{user_name}}،</p>\n  <p>رصيدك المتميز ينفد! لديك حالياً <strong>{{remaining_credits}}</strong> رصيد متبقي.</p>\n  <p>اشترِ المزيد من الأرصدة لمواصلة إنشاء تقارير التحليل المتميزة.</p>\n  <a href__=\"{{credits_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">شراء المزيد من الأرصدة</a>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. جميع الحقوق محفوظة.</p>\n</div>",
+      "available_variables": ["user_name", "remaining_credits", "credits_url"],
+      "is_active": true
+    },
+    "is_sample": false,
+    "is_deleted": false,
+    "deleted_date": null
+  },
+  {
+    "id": "693804a52f185df2b7b48c26",
+    "created_date": "2025-12-09T11:14:45.839Z",
+    "updated_date": "2025-12-09T11:14:45.839Z",
+    "created_by_id": "6919d88779509b26dfa9f6bf",
+    "created_by": "planlyze@gmail.com",
+    "entity_name": "EmailTemplate",
+    "app_id": "6919d88779509b26dfa9f6be",
+    "data": {
+      "template_key": "credit_deducted",
+      "name_en": "Credit Deducted",
+      "name_ar": "تم خصم الرصيد",
+      "subject_en": "Premium Credit Used for Analysis",
+      "subject_ar": "تم استخدام رصيد متميز للتحليل",
+      "body_en": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #ea580c;\">Credit Used</h2>\n  <p>Hi {{user_name}},</p>\n  <p>A premium credit has been deducted from your account for the analysis: \"<strong>{{business_idea}}</strong>\".</p>\n  <p><strong>Credits Remaining:</strong> {{remaining_credits}}</p>\n  <a href__=\"{{credits_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">Manage Credits</a>\n  <p style=\"color: #64748b; font-size: 14px;\">Thank you for using Planlyze premium features!</p>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. All rights reserved.</p>\n</div>",
+      "body_ar": "<div dir=\"rtl\" style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #ea580c;\">تم استخدام الرصيد</h2>\n  <p>مرحباً {{user_name}}،</p>\n  <p>تم خصم رصيد متميز من حسابك للتحليل: \"<strong>{{business_idea}}</strong>\".</p>\n  <p><strong>الأرصدة المتبقية:</strong> {{remaining_credits}}</p>\n  <a href__=\"{{credits_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">إدارة الأرصدة</a>\n  <p style=\"color: #64748b; font-size: 14px;\">شكراً لاستخدامك ميزات Planlyze المتميزة!</p>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. جميع الحقوق محفوظة.</p>\n</div>",
+      "available_variables": ["user_name", "business_idea", "remaining_credits", "credits_url"],
+      "is_active": true
+    },
+    "is_sample": false,
+    "is_deleted": false,
+    "deleted_date": null
+  },
+  {
+    "id": "693804a5ae3938eb65c595ca",
+    "created_date": "2025-12-09T11:14:45.547Z",
+    "updated_date": "2025-12-09T11:15:29.711Z",
+    "created_by_id": "6919d88779509b26dfa9f6bf",
+    "created_by": "planlyze@gmail.com",
+    "entity_name": "EmailTemplate",
+    "app_id": "6919d88779509b26dfa9f6be",
+    "data": {
+      "template_key": "analysis_completed",
+      "name_en": "Analysis Completed",
+      "name_ar": "اكتمل التحليل",
+      "subject_en": "Your Analysis Report is Ready! 🎉",
+      "subject_ar": "تقرير التحليل الخاص بك جاهز! ",
+      "body_en": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #7c3aed;\">Analysis Complete!</h2>\n  <p>Hi {{user_name}},</p>\n  <p>Great news! Your business analysis report for \"<strong>{{business_idea}}</strong>\" is ready to view.</p>\n  <a href__=\"{{report_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 88px; margin: 20px 0;\">View Your Report</a>\n  <p style=\"color: #64748b; font-size: 14px;\">If you have any questions, feel free to reach out to our support team.</p>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. All rights reserved.</p>\n</div>",
+      "body_ar": "<div dir=\"rtl\" style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;\">\n  <h2 style=\"color: #7c3aed;\">اكتمل التحليل!</h2>\n  <p>مرحباً {{user_name}}،</p>\n  <p>أخبار رائعة! تقرير تحليل عملك لـ \"<strong>{{business_idea}}</strong>\" جاهز للعرض.</p>\n  <a href__=\"{{report_url}}\" style=\"display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;\">عرض تقريرك</a>\n  <p style=\"color: #64748b; font-size: 14px;\">إذا كان لديك أي أسئلة، لا تتردد في التواصل مع فريق الدعم لدينا.</p>\n  <hr style=\"border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;\">\n  <p style=\"color: #94a3b8; font-size: 12px;\">© 2024 Planlyze. جميع الحقوق محفوظة.</p>\n</div>",
+      "available_variables": ["user_name", "business_idea", "report_url"],
+      "is_active": true
+    },
+    "is_sample": false,
+    "is_deleted": false,
+    "deleted_date": null
+  }
+]
