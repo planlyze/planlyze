@@ -290,7 +290,7 @@ export default function AdminPayments() {
                           </p>
                         )}
                         <p className="text-xs text-slate-500">
-                          Submitted on {format(new Date(payment.created_date), "MMM d, yyyy 'at' h:mm a")}
+                          Submitted on {format(new Date(payment.created_at), "MMM d, yyyy 'at' h:mm a")}
                         </p>
                       </div>
                       <Badge className={getStatusColor(payment.status)}>
@@ -353,7 +353,7 @@ export default function AdminPayments() {
                       </p>
                     )}
                     <p className="text-xs text-slate-500">
-                      {format(new Date(payment.created_date), "MMM d, yyyy")}
+                      {format(new Date(payment.created_at), "MMM d, yyyy")}
                       {payment.approved_at && ` • Processed: ${format(new Date(payment.approved_at), "MMM d, yyyy")}`}
                     </p>
                     {payment.admin_notes && (
@@ -407,7 +407,7 @@ export default function AdminPayments() {
                   <div className="flex justify-between">
                     <span className="text-sm font-medium text-slate-600">Date:</span>
                     <span className="text-sm text-slate-800">
-                      {format(new Date(selectedPayment.created_date), "MMM d, yyyy")}
+                      {format(new Date(selectedPayment.created_at), "MMM d, yyyy")}
                     </span>
                   </div>
                   {selectedPayment.discount_code && (
