@@ -272,14 +272,14 @@ export default function EmailTemplates() {
         testVariables[v] = `[TEST_${v.toUpperCase()}]`;
       });
 
-      const response = await api.post('sendTemplatedEmail', {
+      const response = await api.post('/send-templated-email', {
         userEmail: testEmail,
         templateKey: template.template_key,
         variables: testVariables,
         language: 'english'
       });
 
-      if (response.data?.success) {
+      if (response?.success) {
         toast.success("Test email sent successfully!");
       } else {
         toast.error("Failed to send test email");

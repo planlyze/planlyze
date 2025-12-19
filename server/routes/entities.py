@@ -424,6 +424,70 @@ def update_email_template(user, id):
     db.session.commit()
     return jsonify(template.to_dict())
 
+@entities_bp.route('/send-templated-email', methods=['POST'])
+@require_admin
+def send_templated_email(user):
+    """Send a test email using a template"""
+    import requests as http_requests
+    
+    data = request.get_json()
+    user_email = data.get('userEmail')
+    template_key = data.get('templateKey')
+    variables = data.get('variables', {})
+    language = data.get('language', 'english')
+    
+    if not user_email or not template_key:
+        return jsonify({'error': 'Missing userEmail or templateKey'}), 400
+    
+    template = EmailTemplate.query.filter_by(template_key=template_key).first()
+    if not template:
+        return jsonify({'error': 'Template not found'}), 404
+    
+    is_arabic = language.lower() in ['arabic', 'ar']
+    subject = template.subject_ar if is_arabic else template.subject_en
+    body = template.body_ar if is_arabic else template.body_en
+    
+    for key, value in variables.items():
+        subject = subject.replace('{{' + key + '}}', str(value))
+        body = body.replace('{{' + key + '}}', str(value))
+    
+    zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
+    sender_email = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com')
+    
+    if not zepto_api_key:
+        return jsonify({'error': 'Email provider not configured'}), 500
+    
+    payload = {
+        'from': {
+            'address': sender_email,
+            'name': 'Planlyze'
+        },
+        'to': [
+            {
+                'email_address': {
+                    'address': user_email,
+                    'name': user_email
+                }
+            }
+        ],
+        'subject': subject,
+        'htmlbody': body
+    }
+    
+    headers = {
+        'Authorization': zepto_api_key,
+        'Content-Type': 'application/json'
+    }
+    
+    try:
+        resp = http_requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
+        if resp.ok:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': 'Failed to send email', 'details': resp.text}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Payment Method endpoints
 @entities_bp.route('/payment-methods', methods=['GET'])
 def get_payment_methods():
