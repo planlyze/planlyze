@@ -246,6 +246,20 @@ export const AuditLog = {
   }
 };
 
+export const ApiRequestLog = {
+  list: (params = {}) => {
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.set('limit', params.limit);
+    if (params.method) queryParams.set('method', params.method);
+    if (params.path) queryParams.set('path', params.path);
+    if (params.status) queryParams.set('status', params.status);
+    if (params.user_email) queryParams.set('user_email', params.user_email);
+    const queryString = queryParams.toString();
+    return api.get(`/api-request-logs${queryString ? '?' + queryString : ''}`);
+  },
+  get: (id) => api.get(`/api-request-logs/${id}`)
+};
+
 export const ActivityFeed = {
   list: () => api.get('/activity-feed'),
   create: (data) => api.post('/activity-feed', data),
