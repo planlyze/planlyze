@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { User, Transaction, CreditPackage, Settings, auth } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
 
 export default function Credits() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [packages, setPackages] = useState([]);
@@ -71,7 +73,7 @@ export default function Credits() {
     setCashModalOpen(true);
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
   const credits = currentUser?.premium_credits || 0;
 
   const calculateSavings = (pkg) => {
@@ -132,10 +134,10 @@ export default function Credits() {
             </Button>
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-orange-600">
-                {isArabic ? "المحفظة والأرصدة" : "Credits & Pricing"}
+                {t('credits.title')}
               </h1>
               <p className="text-slate-600 mt-1">
-                {isArabic ? "افتح القوة الكاملة لتحليلات Planlyze" : "Unlock the full power of Planlyze analytics"}
+                {t('credits.subtitle')}
               </p>
             </div>
           </motion.div>
@@ -159,18 +161,18 @@ export default function Credits() {
                     </div>
                     <div>
                       <p className="text-purple-200 text-sm font-medium uppercase tracking-wider mb-1">
-                        {isArabic ? "رصيدك المتاح" : "Available Balance"}
+                        {t('credits.availableBalance')}
                       </p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl md:text-6xl font-bold text-white">{credits}</span>
                         <span className="text-purple-200 text-lg">
-                          {isArabic ? "رصيد" : credits === 1 ? "credit" : "credits"}
+                          {credits === 1 ? t('credits.credit') : t('credits.credits')}
                         </span>
                       </div>
                       <p className="text-purple-200 mt-2 text-sm md:text-base">
                         {credits === 0 
-                          ? (isArabic ? "ابدأ رحلتك مع تقرير متميز" : "Start your journey with a premium report")
-                          : (isArabic ? `جاهز لإنشاء ${credits} تقرير متميز` : `Ready to create ${credits} premium ${credits === 1 ? 'report' : 'reports'}`)
+                          ? t('credits.startJourney')
+                          : t(credits === 1 ? 'credits.readyToCreate' : 'credits.readyToCreatePlural', { count: credits })
                         }
                       </p>
                     </div>
@@ -183,7 +185,7 @@ export default function Credits() {
                         className="bg-white text-purple-700 hover:bg-purple-50 shadow-xl hover:shadow-2xl transition-all duration-300 px-8 py-6 text-lg font-semibold group"
                       >
                         <Sparkles className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-                        {isArabic ? "احصل على أرصدة" : "Get Credits"}
+                        {t('credits.getCredits')}
                       </Button>
                     )}
                     <Button 
@@ -192,7 +194,7 @@ export default function Credits() {
                       className="text-white hover:bg-white/10 border border-white/20"
                     >
                       <Rocket className="w-4 h-4 mr-2" />
-                      {isArabic ? "ابدأ تحليل جديد" : "Start New Analysis"}
+                      {t('credits.startNewAnalysis')}
                     </Button>
                   </div>
                 </div>
@@ -217,16 +219,13 @@ export default function Credits() {
           >
             <Badge className="bg-purple-100 text-purple-700 mb-4 px-4 py-1.5 text-sm font-medium">
               <Gift className="w-4 h-4 mr-1 inline" />
-              {isArabic ? "عروض خاصة" : "Special Offers"}
+              {t('credits.specialOffers')}
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
-              {isArabic ? "اختر الباقة المناسبة لك" : "Choose Your Perfect Plan"}
+              {t('credits.choosePlan')}
             </h2>
             <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-              {isArabic 
-                ? "استثمر في نجاح مشروعك مع تحليلات احترافية بأسعار تنافسية"
-                : "Invest in your project's success with professional analytics at competitive prices"
-              }
+              {t('credits.investSuccess')}
             </p>
           </motion.div>
 
@@ -234,7 +233,7 @@ export default function Credits() {
             {packages.length === 0 ? (
               <div className="col-span-3 text-center py-16">
                 <Package className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500 text-lg">{isArabic ? "لا توجد باقات متاحة حاليًا" : "No packages available at the moment"}</p>
+                <p className="text-slate-500 text-lg">{t('credits.noPackages')}</p>
               </div>
             ) : (
               <>
@@ -263,7 +262,7 @@ export default function Credits() {
                       {isPopular && (
                         <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center py-2 text-sm font-semibold">
                           <Crown className="w-4 h-4 inline mr-1" />
-                          {isArabic ? pkg.badge_ar || "الأكثر شعبية" : pkg.badge_en || "Most Popular"}
+                          {isArabic ? pkg.badge_ar || t('credits.mostPopular') : pkg.badge_en || t('credits.mostPopular')}
                         </div>
                       )}
                       
@@ -271,7 +270,7 @@ export default function Credits() {
                       {savings && (
                         <div className="absolute top-4 right-4 z-10">
                           <Badge className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-3 py-1.5 text-sm font-bold shadow-lg">
-                            {isArabic ? `وفر ${savings.percent}%` : `Save ${savings.percent}%`}
+                            {t('credits.save', { percent: savings.percent })}
                           </Badge>
                         </div>
                       )}
@@ -308,7 +307,7 @@ export default function Credits() {
                           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-200">
                             <Sparkles className="w-4 h-4 text-purple-600" />
                             <span className="font-semibold text-purple-700">
-                              {pkg.credits} {isArabic ? "رصيد متميز" : "premium credits"}
+                              {pkg.credits} {t('credits.premiumCredits')}
                             </span>
                           </div>
                         </div>
@@ -324,7 +323,7 @@ export default function Credits() {
                           {(!pkg.features || pkg.features.length === 0) && (
                             <li className="flex items-center gap-3 text-slate-600">
                               <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                              <span>{isArabic ? "تقرير تحليل أعمال متكامل" : "Complete business analysis report"}</span>
+                              <span>{t('credits.completeReport')}</span>
                             </li>
                           )}
                         </ul>
@@ -339,7 +338,7 @@ export default function Credits() {
                           }`}
                         >
                           <Banknote className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                          {isArabic ? "اشتري الآن" : "Purchase Now"}
+                          {t('credits.purchaseNow')}
                         </Button>
 
 
@@ -365,7 +364,7 @@ export default function Credits() {
                   {/* Flexible Badge */}
                   <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-center py-2 text-sm font-semibold">
                     <Wallet className="w-4 h-4 inline mr-1" />
-                    {isArabic ? "مرن" : "Flexible"}
+                    {t('credits.customCreditsFlexible')}
                   </div>
 
                   <CardContent className="p-8 pt-14">
@@ -375,13 +374,10 @@ export default function Credits() {
                         <Wallet className="w-8 h-8 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                        {isArabic ? "رصيد مخصص" : "Custom Credits"}
+                        {t('credits.customCredits')}
                       </h3>
                       <p className="text-slate-500 text-sm min-h-[40px]">
-                        {isArabic 
-                          ? "اشترِ أي عدد واستخدمه لاحقاً"
-                          : "Buy any amount for your wallet"
-                        }
+                        {t('credits.customCreditsDesc')}
                       </p>
                     </div>
 
@@ -443,7 +439,7 @@ export default function Credits() {
                         </span>
                       </div>
                       <p className="text-xs text-slate-400 mt-2">
-                        ${pricePerCredit} {isArabic ? "لكل رصيد" : "per credit"}
+                        ${pricePerCredit} {t('credits.perCredit')}
                       </p>
                     </div>
 
@@ -451,15 +447,15 @@ export default function Credits() {
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-center gap-3 text-slate-600">
                         <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                        <span>{isArabic ? "اشترِ أي كمية تريدها" : "Buy any amount you need"}</span>
+                        <span>{t('credits.buyAnyAmount')}</span>
                       </li>
                       <li className="flex items-center gap-3 text-slate-600">
                         <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                        <span>{isArabic ? "الأرصدة لا تنتهي صلاحيتها" : "Credits never expire"}</span>
+                        <span>{t('credits.creditsNeverExpire')}</span>
                       </li>
                       <li className="flex items-center gap-3 text-slate-600">
                         <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                        <span>{isArabic ? "استخدمها في أي وقت" : "Use anytime you want"}</span>
+                        <span>{t('credits.useAnytime')}</span>
                       </li>
                     </ul>
 
@@ -469,7 +465,7 @@ export default function Credits() {
                       className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
                     >
                       <Banknote className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                      {isArabic ? "اشحن المحفظة" : "Top Up Wallet"}
+                      {t('credits.topUpWallet')}
                     </Button>
                   </CardContent>
                 </Card>

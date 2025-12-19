@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { auth, Referral } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -18,6 +19,7 @@ const REFERRER_REWARD = 1; // Credits for referrer
 const REFERRED_REWARD = 1; // Credits for new user
 
 export default function Referrals() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [referrals, setReferrals] = useState([]);
@@ -60,19 +62,17 @@ export default function Referrals() {
     try {
       await navigator.clipboard.writeText(getReferralLink());
       setCopied(true);
-      toast.success(isArabic ? "تم نسخ الرابط!" : "Link copied!");
+      toast.success(t('referrals.linkCopied'));
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      toast.error(isArabic ? "فشل نسخ الرابط" : "Failed to copy link");
+      toast.error(t('referrals.copyFailed'));
     }
   };
 
   const shareLink = async () => {
     const shareData = {
-      title: isArabic ? "انضم إلى Planlyze" : "Join Planlyze",
-      text: isArabic 
-        ? "احصل على رصيد مجاني عند التسجيل باستخدام رابط الإحالة الخاص بي!"
-        : "Get a free credit when you sign up using my referral link!",
+      title: t('referrals.joinPlanlyze'),
+      text: t('referrals.getFreeCredit'),
       url: getReferralLink()
     };
 
@@ -87,25 +87,25 @@ export default function Referrals() {
     }
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
   const stats = [
     {
-      label: isArabic ? "إجمالي الإحالات" : "Total Referrals",
+      label: t('referrals.totalReferrals'),
       value: currentUser?.total_referrals || 0,
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-100"
     },
     {
-      label: isArabic ? "الأرصدة المكتسبة" : "Credits Earned",
+      label: t('referrals.creditsEarned'),
       value: currentUser?.referral_credits_earned || 0,
       icon: Sparkles,
       color: "text-purple-600",
       bg: "bg-purple-100"
     },
     {
-      label: isArabic ? "بانتظار المكافأة" : "Pending Rewards",
+      label: t('referrals.pendingRewards'),
       value: referrals.filter(r => r.status === 'completed').length,
       icon: Gift,
       color: "text-amber-600",
@@ -146,10 +146,10 @@ export default function Referrals() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl md:text-4xl font-bold text-orange-600">
-              {isArabic ? "برنامج الإحالة" : "Referral Program"}
+              {t('referrals.title')}
             </h1>
             <p className="text-slate-600 mt-1">
-              {isArabic ? "ادعُ أصدقاءك واكسب أرصدة مجانية" : "Invite friends and earn free credits"}
+              {t('referrals.subtitle')}
             </p>
           </div>
         </motion.div>
@@ -170,22 +170,22 @@ export default function Referrals() {
                       <Gift className="w-6 h-6" />
                     </div>
                     <h2 className="text-2xl font-bold">
-                      {isArabic ? "كيف يعمل البرنامج؟" : "How It Works"}
+                      {t('referrals.howItWorks')}
                     </h2>
                   </div>
                   
                   <div className="grid gap-3">
                     <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">1</div>
-                      <span>{isArabic ? "شارك رابط الإحالة الخاص بك" : "Share your referral link"}</span>
+                      <span>{t('referrals.step1')}</span>
                     </div>
                     <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">2</div>
-                      <span>{isArabic ? "صديقك يسجل ويشتري رصيد" : "Friend signs up & purchases credits"}</span>
+                      <span>{t('referrals.step2')}</span>
                     </div>
                     <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">3</div>
-                      <span>{isArabic ? `كلاكما يحصل على ${REFERRER_REWARD} رصيد مجاني!` : `You both get ${REFERRER_REWARD} free credit!`}</span>
+                      <span>{t('referrals.step3', { reward: REFERRER_REWARD })}</span>
                     </div>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function Referrals() {
                     <Award className="w-12 h-12" />
                   </div>
                   <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-1">
-                    +{REFERRER_REWARD} {isArabic ? "رصيد" : "Credit"}
+                    +{REFERRER_REWARD} {t('credits.credit')}
                   </Badge>
                 </div>
               </div>
@@ -213,10 +213,10 @@ export default function Referrals() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-purple-600" />
-                {isArabic ? "رابط الإحالة الخاص بك" : "Your Referral Link"}
+                {t('referrals.yourReferralLink')}
               </CardTitle>
               <CardDescription>
-                {isArabic ? "شارك هذا الرابط مع أصدقائك" : "Share this link with your friends"}
+                {t('referrals.shareWithFriends')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -232,14 +232,14 @@ export default function Referrals() {
                   className="shrink-0 gap-2"
                 >
                   {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                  {copied ? (isArabic ? "تم النسخ" : "Copied") : (isArabic ? "نسخ" : "Copy")}
+                  {copied ? t('referrals.copied') : t('referrals.copy')}
                 </Button>
               </div>
               
               <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
                 <Sparkles className="w-5 h-5 text-purple-600" />
                 <span className="text-sm text-purple-800">
-                  {isArabic ? `كود الإحالة: ${currentUser?.referral_code}` : `Referral Code: ${currentUser?.referral_code}`}
+                  {t('referrals.referralCode')}: {currentUser?.referral_code}
                 </span>
               </div>
 
@@ -248,7 +248,7 @@ export default function Referrals() {
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2"
               >
                 <Share2 className="w-4 h-4" />
-                {isArabic ? "مشاركة الرابط" : "Share Link"}
+                {t('referrals.shareLink')}
               </Button>
             </CardContent>
           </Card>
@@ -288,7 +288,7 @@ export default function Referrals() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-purple-600" />
-                {isArabic ? "سجل الإحالات" : "Referral History"}
+                {t('referrals.referralHistory')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -298,10 +298,10 @@ export default function Referrals() {
                     <UserPlus className="w-8 h-8 text-slate-400" />
                   </div>
                   <p className="text-slate-600 mb-2">
-                    {isArabic ? "لا توجد إحالات بعد" : "No referrals yet"}
+                    {t('referrals.noReferralsYet')}
                   </p>
                   <p className="text-sm text-slate-500">
-                    {isArabic ? "شارك رابطك لبدء كسب الأرصدة" : "Share your link to start earning credits"}
+                    {t('referrals.shareToStart')}
                   </p>
                 </div>
               ) : (
@@ -317,7 +317,7 @@ export default function Referrals() {
                         </div>
                         <div>
                           <p className="font-medium text-slate-800">
-                            {referral.referred_email || (isArabic ? "مستخدم جديد" : "New User")}
+                            {referral.referred_email || t('referrals.newUser')}
                           </p>
                           <p className="text-sm text-slate-500">
                             {new Date(referral.created_date).toLocaleDateString()}
@@ -332,10 +332,10 @@ export default function Referrals() {
                           : 'bg-slate-100 text-slate-800'
                       }>
                         {referral.status === 'rewarded' 
-                          ? (isArabic ? "تمت المكافأة" : "Rewarded")
+                          ? t('referrals.rewarded')
                           : referral.status === 'completed'
-                          ? (isArabic ? "مكتمل" : "Completed")
-                          : (isArabic ? "معلق" : "Pending")
+                          ? t('referrals.completed')
+                          : t('referrals.pending')
                         }
                       </Badge>
                     </div>

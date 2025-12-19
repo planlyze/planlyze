@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { auth, Transaction, Payment } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -13,6 +14,7 @@ import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search } 
 import { format } from "date-fns";
 
 export default function Subscriptions() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -51,7 +53,7 @@ export default function Subscriptions() {
     }
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
   if (isLoading) {
     return (
@@ -79,10 +81,10 @@ export default function Subscriptions() {
           </Button>
           <div className="flex-1">
             <h1 className="text-4xl font-bold text-orange-600">
-              {isArabic ? "الاشتراكات والمدفوعات" : "Subscriptions & Payments"}
+              {t('subscriptions.title')}
             </h1>
             <p className="text-slate-600 mt-2 text-lg">
-              {isArabic ? "تتبع طلبات الدفع والمعاملات" : "Track your payment requests and transaction history"}
+              {t('subscriptions.subtitle')}
             </p>
           </div>
         </div>
@@ -95,14 +97,14 @@ export default function Subscriptions() {
               className="data-[state=inactive]:text-slate-600 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg font-semibold text-base transition-all duration-300"
             >
               <Banknote className="w-5 h-5 mr-2" />
-              {isArabic ? "طلبات الدفع" : "Payment Requests"}
+              {t('subscriptions.paymentRequests')}
             </TabsTrigger>
             <TabsTrigger 
               value="transactions" 
               className="data-[state=inactive]:text-slate-600 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg font-semibold text-base transition-all duration-300"
             >
               <Clock className="w-5 h-5 mr-2" />
-              {isArabic ? "المعاملات" : "Transactions"}
+              {t('subscriptions.transactions')}
             </TabsTrigger>
           </TabsList>
 
@@ -115,24 +117,24 @@ export default function Subscriptions() {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
                       <Banknote className="w-5 h-5 text-white" />
                     </div>
-                    {isArabic ? "سجل طلبات الدفع" : "Payment Requests History"}
+                    {t('subscriptions.paymentRequestsHistory')}
                   </CardTitle>
                   <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
                     <SelectTrigger className="w-48 h-11 border-2 border-slate-300 hover:border-purple-400 transition-colors">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{isArabic ? "جميع الحالات" : "All Status"}</SelectItem>
-                      <SelectItem value="pending">{isArabic ? "قيد المراجعة" : "Pending"}</SelectItem>
-                      <SelectItem value="approved">{isArabic ? "موافق عليه" : "Approved"}</SelectItem>
-                      <SelectItem value="rejected">{isArabic ? "مرفوض" : "Rejected"}</SelectItem>
+                      <SelectItem value="all">{t('subscriptions.allStatus')}</SelectItem>
+                      <SelectItem value="pending">{t('subscriptions.pending')}</SelectItem>
+                      <SelectItem value="approved">{t('subscriptions.approved')}</SelectItem>
+                      <SelectItem value="rejected">{t('subscriptions.rejected')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
-                    placeholder={isArabic ? "البحث برقم الطلب..." : "Search by Payment ID..."}
+                    placeholder={t('subscriptions.searchByPaymentId')}
                     value={paymentSearchQuery}
                     onChange={(e) => setPaymentSearchQuery(e.target.value)}
                     className="pl-11 h-12 border-2 border-slate-300 focus:border-purple-400 transition-colors"
@@ -150,7 +152,7 @@ export default function Subscriptions() {
                   return filtered.length === 0 ? (
                     <div className="text-center py-16">
                       <Banknote className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                      <p className="text-slate-500 text-lg">{isArabic ? "لا توجد طلبات دفع" : "No payment requests found"}</p>
+                      <p className="text-slate-500 text-lg">{t('subscriptions.noPaymentRequests')}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -174,7 +176,7 @@ export default function Subscriptions() {
                               )}
                               <div className="flex items-center gap-3 mb-2">
                                 <p className="text-lg font-bold text-slate-800">
-                                  {payment.credits} {isArabic ? "رصيد" : "credits"}
+                                  {payment.credits} {t('credits.credits')}
                                 </p>
                                 <span className="text-slate-400">•</span>
                                 <p className="text-lg font-semibold text-purple-600">
@@ -183,17 +185,17 @@ export default function Subscriptions() {
                               </div>
                               <p className="text-sm text-slate-600 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {isArabic ? "مُرسَل في" : "Submitted"}: {payment.created_at && format(new Date(payment.created_at), "MMM d, yyyy 'at' h:mm a")}
+                                {t('subscriptions.submitted')}: {payment.created_at && format(new Date(payment.created_at), "MMM d, yyyy 'at' h:mm a")}
                               </p>
                               {payment.approved_at && (
                                 <p className="text-sm text-slate-600 flex items-center gap-2 mt-1">
                                   <Check className="w-4 h-4" />
-                                  {isArabic ? "مُعالج في" : "Processed"}: {format(new Date(payment.approved_at), "MMM d, yyyy 'at' h:mm a")}
+                                  {t('subscriptions.processed')}: {format(new Date(payment.approved_at), "MMM d, yyyy 'at' h:mm a")}
                                 </p>
                               )}
                               {payment.admin_notes && (
                                 <p className="text-sm text-slate-700 bg-white/60 px-3 py-2 rounded-lg mt-3 border border-slate-200">
-                                  <span className="font-semibold">{isArabic ? "ملاحظة:" : "Note:"}</span> {payment.admin_notes}
+                                  <span className="font-semibold">{t('subscriptions.note')}:</span> {payment.admin_notes}
                                 </p>
                               )}
                             </div>
@@ -203,9 +205,9 @@ export default function Subscriptions() {
                                 payment.status === 'approved' ? 'bg-green-500 text-white border-green-600' :
                                 'bg-red-500 text-white border-red-600'
                               }`}>
-                                {payment.status === 'pending' ? (isArabic ? 'قيد المراجعة' : 'Pending') :
-                                 payment.status === 'approved' ? (isArabic ? 'موافق عليه' : 'Approved') :
-                                 (isArabic ? 'مرفوض' : 'Rejected')}
+                                {payment.status === 'pending' ? t('subscriptions.pending') :
+                                 payment.status === 'approved' ? t('subscriptions.approved') :
+                                 t('subscriptions.rejected')}
                               </Badge>
                             </div>
                           </div>
@@ -227,25 +229,25 @@ export default function Subscriptions() {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
                       <Clock className="w-5 h-5 text-white" />
                     </div>
-                    {isArabic ? "سجل المعاملات" : "Transaction History"}
+                    {t('subscriptions.transactionHistory')}
                   </CardTitle>
                   <Select value={txTypeFilter} onValueChange={(val) => { setTxTypeFilter(val); setTxCurrentPage(1); }}>
                     <SelectTrigger className="w-48 h-11 border-2 border-slate-300 hover:border-purple-400 transition-colors">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{isArabic ? "جميع الأنواع" : "All Types"}</SelectItem>
-                      <SelectItem value="purchase">{isArabic ? "شراء" : "Purchase"}</SelectItem>
-                      <SelectItem value="usage">{isArabic ? "استخدام" : "Usage"}</SelectItem>
-                      <SelectItem value="bonus">{isArabic ? "مجاني" : "Bonus"}</SelectItem>
-                      <SelectItem value="refund">{isArabic ? "استرداد" : "Refund"}</SelectItem>
+                      <SelectItem value="all">{t('subscriptions.allTypes')}</SelectItem>
+                      <SelectItem value="purchase">{t('subscriptions.purchase')}</SelectItem>
+                      <SelectItem value="usage">{t('subscriptions.usage')}</SelectItem>
+                      <SelectItem value="bonus">{t('subscriptions.bonus')}</SelectItem>
+                      <SelectItem value="refund">{t('subscriptions.refund')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
-                    placeholder={isArabic ? "البحث برقم المعاملة..." : "Search by Transaction ID..."}
+                    placeholder={t('subscriptions.searchByTransactionId')}
                     value={txSearchQuery}
                     onChange={(e) => { setTxSearchQuery(e.target.value); setTxCurrentPage(1); }}
                     className="pl-11 h-12 border-2 border-slate-300 focus:border-purple-400 transition-colors"
@@ -282,10 +284,10 @@ export default function Subscriptions() {
                               )}
                               <div className="flex items-center gap-3 mb-2">
                                 <p className="font-semibold text-lg text-slate-800">
-                                  {tx.type === 'purchase' && (isArabic ? 'شراء أرصدة' : 'Credit Purchase')}
-                                  {tx.type === 'usage' && (isArabic ? 'استخدام رصيد' : 'Credit Used')}
-                                  {tx.type === 'bonus' && (isArabic ? 'رصيد مجاني' : 'Bonus Credit')}
-                                  {tx.type === 'refund' && (isArabic ? 'استرداد' : 'Refund')}
+                                  {tx.type === 'purchase' && t('subscriptions.creditPurchase')}
+                                  {tx.type === 'usage' && t('subscriptions.creditUsed')}
+                                  {tx.type === 'bonus' && t('subscriptions.bonusCredit')}
+                                  {tx.type === 'refund' && t('subscriptions.refund')}
                                 </p>
                                 <Badge className={`px-3 py-1 font-semibold ${
                                   tx.type === 'purchase' ? 'bg-green-500 text-white border-green-600' :
@@ -306,7 +308,7 @@ export default function Subscriptions() {
                                 {tx.credits > 0 ? '+' : ''}{tx.credits}
                               </p>
                               <p className="text-sm text-slate-600 font-medium">
-                                {isArabic ? 'رصيد' : 'credits'}
+                                {t('credits.credits')}
                               </p>
                               {tx.amount_usd && (
                                 <p className="text-sm text-slate-500 font-semibold mt-1">${tx.amount_usd}</p>
@@ -317,7 +319,7 @@ export default function Subscriptions() {
                         {paginated.length === 0 && (
                           <div className="text-center py-16">
                             <Clock className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                            <p className="text-slate-500 text-lg">{isArabic ? "لا توجد معاملات" : "No transactions found"}</p>
+                            <p className="text-slate-500 text-lg">{t('subscriptions.noTransactions')}</p>
                           </div>
                         )}
                       </div>
@@ -325,7 +327,7 @@ export default function Subscriptions() {
                       {totalPages > 1 && (
                         <div className="flex items-center justify-between pt-6 border-t-2 mt-6">
                           <div className="text-sm text-slate-600 font-medium">
-                            {isArabic ? `عرض ${start + 1}-${Math.min(end, filtered.length)} من ${filtered.length}` : `Showing ${start + 1}-${Math.min(end, filtered.length)} of ${filtered.length}`}
+                            {t('subscriptions.showing', { start: start + 1, end: Math.min(end, filtered.length), total: filtered.length })}
                           </div>
                           <div className="flex gap-2">
                             <Button
@@ -336,10 +338,10 @@ export default function Subscriptions() {
                               className="border-2 hover:border-purple-400 disabled:opacity-50"
                             >
                               <ChevronLeft className="w-4 h-4 mr-1" />
-                              {isArabic ? "السابق" : "Previous"}
+                              {t('subscriptions.previous')}
                             </Button>
                             <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg border-2 border-slate-200 font-semibold">
-                              {isArabic ? `صفحة ${txCurrentPage} من ${totalPages}` : `Page ${txCurrentPage} of ${totalPages}`}
+                              {t('subscriptions.page', { current: txCurrentPage, total: totalPages })}
                             </div>
                             <Button
                               variant="outline"
@@ -348,7 +350,7 @@ export default function Subscriptions() {
                               disabled={txCurrentPage === totalPages}
                               className="border-2 hover:border-purple-400 disabled:opacity-50"
                             >
-                              {isArabic ? "التالي" : "Next"}
+                              {t('subscriptions.next')}
                               <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                           </div>
