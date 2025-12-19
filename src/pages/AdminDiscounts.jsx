@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, DiscountCode, CreditPackage } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,12 +41,12 @@ export default function AdminDiscounts() {
       }
 
       const [discountData, packageData] = await Promise.all([
-        api.DiscountCode.filter({}),
-        api.CreditPackage.filter({})
+        DiscountCode.list(),
+        CreditPackage.list()
       ]);
 
-      setDiscounts(discountData);
-      setPackages(packageData);
+      setDiscounts(Array.isArray(discountData) ? discountData : []);
+      setPackages(Array.isArray(packageData) ? packageData : []);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
@@ -91,10 +91,10 @@ export default function AdminDiscounts() {
       };
 
       if (editingDiscount.id) {
-        await api.DiscountCode.update(editingDiscount.id, data);
+        await DiscountCode.update(editingDiscount.id, data);
         toast.success("Discount code updated successfully");
       } else {
-        await api.DiscountCode.create(data);
+        await DiscountCode.create(data);
         toast.success("Discount code created successfully");
       }
 
@@ -110,7 +110,7 @@ export default function AdminDiscounts() {
     if (!confirm(`Delete discount code "${discount.code}"?`)) return;
 
     try {
-      await api.DiscountCode.delete(discount.id);
+      await DiscountCode.delete(discount.id);
       toast.success("Discount code deleted");
       loadData();
     } catch (error) {

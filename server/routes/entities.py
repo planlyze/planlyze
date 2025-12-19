@@ -521,6 +521,43 @@ def create_discount_code(user):
     db.session.commit()
     return jsonify(code.to_dict()), 201
 
+@entities_bp.route('/discount-codes/<id>', methods=['PUT'])
+@require_admin
+def update_discount_code(user, id):
+    code = DiscountCode.query.get(id)
+    if not code:
+        return jsonify({'error': 'Discount code not found'}), 404
+    
+    data = request.get_json()
+    if 'code' in data:
+        code.code = data['code']
+    if 'discount_percent' in data:
+        code.discount_percent = data['discount_percent']
+    if 'discount_amount' in data:
+        code.discount_amount = data['discount_amount']
+    if 'max_uses' in data:
+        code.max_uses = data['max_uses']
+    if 'is_active' in data:
+        code.is_active = data['is_active']
+    if 'valid_from' in data:
+        code.valid_from = datetime.fromisoformat(data['valid_from']) if data['valid_from'] else None
+    if 'valid_until' in data:
+        code.valid_until = datetime.fromisoformat(data['valid_until']) if data['valid_until'] else None
+    
+    db.session.commit()
+    return jsonify(code.to_dict())
+
+@entities_bp.route('/discount-codes/<id>', methods=['DELETE'])
+@require_admin
+def delete_discount_code(user, id):
+    code = DiscountCode.query.get(id)
+    if not code:
+        return jsonify({'error': 'Discount code not found'}), 404
+    
+    db.session.delete(code)
+    db.session.commit()
+    return jsonify({'message': 'Discount code deleted'})
+
 @entities_bp.route('/discount-codes/validate', methods=['POST'])
 @require_auth
 def validate_discount_code(user):
