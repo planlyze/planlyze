@@ -92,7 +92,7 @@ def generate_analysis(user):
     db.session.commit()
     
     try:
-        prompt = f"""You are a business analyst. Analyze this business idea and provide a comprehensive report.
+        prompt = f"""You are an expert business and technology strategist specializing in helping tech entrepreneurs turn their ideas into successful startups. Analyze this business idea and provide a comprehensive strategic report.
 
 Business Idea: {analysis.business_idea}
 Industry: {analysis.industry or 'Not specified'}
@@ -102,44 +102,98 @@ Budget: {analysis.budget or 'Not specified'}
 
 Provide a detailed analysis in JSON format with the following structure:
 {{
-    "executive_summary": "A brief overview of the business idea and its potential",
-    "score": 75,  // Overall viability score from 0-100
+    "executive_summary": "A compelling overview of the business idea, its market potential, and key success factors",
+    "score": 75,
     "market_analysis": {{
-        "market_size": "Description of market size",
-        "growth_potential": "Growth potential assessment",
-        "competition": "Competitive landscape",
-        "trends": ["trend1", "trend2"]
+        "market_size": "Detailed market size with numbers and growth rate",
+        "growth_potential": "5-year growth trajectory assessment",
+        "competition": "Key competitors and their market positions",
+        "trends": ["Emerging trend 1", "Emerging trend 2", "Emerging trend 3"],
+        "target_segments": ["Primary segment", "Secondary segment"],
+        "market_gap": "The specific gap this idea fills in the market"
+    }},
+    "business_strategy": {{
+        "value_proposition": "Clear and unique value proposition",
+        "business_model": "Recommended business model (SaaS, marketplace, freemium, etc.)",
+        "revenue_streams": ["Primary revenue stream", "Secondary revenue stream"],
+        "pricing_strategy": "Recommended pricing approach with price points",
+        "customer_acquisition": ["Channel 1", "Channel 2", "Channel 3"],
+        "retention_strategy": "How to keep customers engaged and paying",
+        "competitive_advantage": "Key differentiators from competitors",
+        "partnerships": ["Strategic partnership opportunity 1", "Strategic partnership opportunity 2"]
+    }},
+    "technical_strategy": {{
+        "recommended_tech_stack": {{
+            "frontend": "Recommended frontend technologies",
+            "backend": "Recommended backend technologies",
+            "database": "Recommended database solutions",
+            "cloud_infrastructure": "Recommended cloud platform and services",
+            "third_party_integrations": ["Integration 1", "Integration 2"]
+        }},
+        "mvp_features": ["Core feature 1", "Core feature 2", "Core feature 3", "Core feature 4", "Core feature 5"],
+        "architecture_recommendations": "High-level system architecture approach",
+        "scalability_considerations": "How to build for scale from day one",
+        "security_requirements": ["Security requirement 1", "Security requirement 2"],
+        "development_approach": "Agile, lean startup, or other methodology recommendation"
+    }},
+    "development_roadmap": {{
+        "phase_1_mvp": {{
+            "duration": "Timeline (e.g., 2-3 months)",
+            "goals": ["Goal 1", "Goal 2"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }},
+        "phase_2_growth": {{
+            "duration": "Timeline (e.g., 3-6 months)",
+            "goals": ["Goal 1", "Goal 2"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }},
+        "phase_3_scale": {{
+            "duration": "Timeline (e.g., 6-12 months)",
+            "goals": ["Goal 1", "Goal 2"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }}
     }},
     "financial_projections": {{
-        "startup_costs": "Estimated startup costs",
-        "monthly_expenses": "Estimated monthly expenses",
-        "revenue_potential": "Revenue potential",
-        "break_even": "Break-even timeline"
+        "startup_costs": "Detailed breakdown of initial investment needed",
+        "monthly_expenses": "Projected monthly burn rate",
+        "revenue_potential": "Year 1, Year 2, Year 3 revenue projections",
+        "break_even": "Estimated time to break even",
+        "funding_recommendations": "Bootstrap, angel, VC, or other funding approach",
+        "key_metrics": ["Metric 1 to track", "Metric 2 to track", "Metric 3 to track"]
     }},
     "risk_assessment": {{
-        "high_risks": ["risk1", "risk2"],
-        "medium_risks": ["risk1", "risk2"],
-        "low_risks": ["risk1", "risk2"],
-        "mitigation_strategies": ["strategy1", "strategy2"]
+        "high_risks": ["Critical risk 1", "Critical risk 2"],
+        "medium_risks": ["Moderate risk 1", "Moderate risk 2"],
+        "low_risks": ["Minor risk 1", "Minor risk 2"],
+        "mitigation_strategies": ["Strategy 1", "Strategy 2", "Strategy 3"],
+        "contingency_plans": ["Plan A", "Plan B"]
     }},
     "recommendations": {{
-        "immediate_actions": ["action1", "action2"],
-        "short_term": ["action1", "action2"],
-        "long_term": ["action1", "action2"]
+        "immediate_actions": ["Action to take this week 1", "Action to take this week 2"],
+        "short_term": ["30-day priority 1", "30-day priority 2"],
+        "long_term": ["6-month goal 1", "6-month goal 2"],
+        "success_metrics": ["KPI 1", "KPI 2", "KPI 3"]
     }},
     "swot": {{
-        "strengths": ["strength1", "strength2"],
-        "weaknesses": ["weakness1", "weakness2"],
-        "opportunities": ["opportunity1", "opportunity2"],
-        "threats": ["threat1", "threat2"]
+        "strengths": ["Strength 1", "Strength 2", "Strength 3"],
+        "weaknesses": ["Weakness 1", "Weakness 2"],
+        "opportunities": ["Opportunity 1", "Opportunity 2", "Opportunity 3"],
+        "threats": ["Threat 1", "Threat 2"]
+    }},
+    "go_to_market": {{
+        "launch_strategy": "Recommended approach for market entry",
+        "marketing_channels": ["Channel 1", "Channel 2", "Channel 3"],
+        "content_strategy": "Content marketing recommendations",
+        "launch_timeline": "Recommended launch timeline",
+        "early_adopter_strategy": "How to acquire first 100 customers"
     }}
 }}
 
-Return ONLY the JSON object, no additional text."""
+Be specific, actionable, and realistic. Tailor all recommendations to a tech entrepreneur building a technology product. Return ONLY the JSON object, no additional text."""
 
         response = client.messages.create(
             model=DEFAULT_MODEL,
-            max_tokens=4096,
+            max_tokens=8192,
             messages=[{"role": "user", "content": prompt}]
         )
         

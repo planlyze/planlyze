@@ -125,3 +125,22 @@ The platform includes comprehensive API audit logging that captures every API re
 
 ### Database Table
 `api_request_logs` - Stores all captured API request/response data with automatic cleanup recommended for production
+
+## AI Analysis Report Structure
+When a new analysis is generated, Claude AI provides comprehensive business and technical strategies including:
+
+### Report Sections
+- **Executive Summary**: Overview of business idea potential
+- **Market Analysis**: Market size, growth potential, competition, trends, target segments
+- **Business Strategy**: Value proposition, business model, revenue streams, pricing, customer acquisition, partnerships
+- **Technical Strategy**: Recommended tech stack (frontend, backend, database, cloud), MVP features, architecture, scalability, security
+- **Development Roadmap**: 3-phase plan (MVP, Growth, Scale) with timelines and deliverables
+- **Financial Projections**: Startup costs, monthly expenses, revenue projections, break-even, funding recommendations
+- **Risk Assessment**: High/medium/low risks with mitigation strategies and contingency plans
+- **SWOT Analysis**: Strengths, weaknesses, opportunities, threats
+- **Go-to-Market**: Launch strategy, marketing channels, content strategy, early adopter acquisition
+
+### Technical Notes
+- Uses Claude claude-sonnet-4-20250514 model via Anthropic API
+- Max tokens: 8192 for comprehensive responses
+- Cost: 1 credit per analysis
