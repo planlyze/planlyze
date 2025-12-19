@@ -97,3 +97,31 @@ Each role has a JSON permissions object with the following format:
 Run `python server/seed.py` to:
 1. Create/update all default roles with permissions
 2. Create/update super admin user (admin@planlyze.com / Admin@123)
+
+## API Audit Logging
+The platform includes comprehensive API audit logging that captures every API request with:
+
+### What is Logged
+- **Request**: Method, path, URL, query params, headers (masked), body (masked)
+- **Response**: Status code, body (truncated), error messages
+- **User**: Email, role (extracted from JWT)
+- **Metadata**: IP address, user agent, execution time (ms)
+
+### Security Features
+- Sensitive fields are automatically masked: passwords, tokens, API keys, credit cards, etc.
+- Authorization headers are masked
+- Large response bodies are truncated (max 10KB)
+- Recursive data structures are limited to 10 levels deep
+
+### Excluded Paths
+- `/api/health`, `/api/ping` - Health checks
+- `/api/apidocs`, `/flasgger_static` - Swagger docs
+- `/static`, `/assets`, `/_next` - Static files
+- Files with extensions: .js, .css, .png, .jpg, .gif, .svg, .ico, .woff
+
+### Admin Endpoints
+- `GET /api/api-request-logs` - List logs (supports filters: method, path, status, user_email, limit)
+- `GET /api/api-request-logs/<id>` - Get specific log details
+
+### Database Table
+`api_request_logs` - Stores all captured API request/response data with automatic cleanup recommended for production
