@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Role } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,8 +36,8 @@ export default function UserRoleAssignment() {
       }
 
       const [usersData, rolesData] = await Promise.all([
-        User.filter({}, "-created_date"),
-        api.Role.filter({ is_active: true }, "name")
+        User.filter({}, "-created_at"),
+        Role.filter({ is_active: true }, "name")
       ]);
 
       setUsers(usersData);
