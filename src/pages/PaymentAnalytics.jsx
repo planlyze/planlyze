@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,16 +48,16 @@ export default function PaymentAnalytics() {
       }
 
       const [txList, paymentsList, usersList, analysesList] = await Promise.all([
-        Transaction.filter({}, "-created_date", 1000),
-        Payment.filter({}, "-created_date", 1000),
-        User.filter({}, "-created_date", 1000),
-        Analysis.filter({}, "-created_date", 1000)
+        Transaction.list(),
+        Payment.list(),
+        User.list(),
+        Analysis.list()
       ]);
 
-      setTransactions(txList);
-      setPayments(paymentsList);
-      setUsers(usersList);
-      setAnalyses(analysesList.filter(a => a.is_deleted !== true));
+      setTransactions(Array.isArray(txList) ? txList : []);
+      setPayments(Array.isArray(paymentsList) ? paymentsList : []);
+      setUsers(Array.isArray(usersList) ? usersList : []);
+      setAnalyses((Array.isArray(analysesList) ? analysesList : []).filter(a => a.is_deleted !== true));
     } catch (error) {
       console.error("Error loading data:", error);
       window.location.href = "/login";
@@ -72,7 +72,7 @@ export default function PaymentAnalytics() {
     const end = endOfDay(parseISO(endDate));
     
     return items.filter(item => {
-      const itemDate = parseISO(item.created_date);
+      const itemDate = parseISO(item.created_at);
       return itemDate >= start && itemDate <= end;
     });
   };
@@ -91,7 +91,7 @@ export default function PaymentAnalytics() {
   const revenueOverTime = (() => {
     const dailyRevenue = {};
     filteredTransactions.forEach(tx => {
-      const date = format(parseISO(tx.created_date), 'MMM d');
+      const date = format(parseISO(tx.created_at), 'MMM d');
       dailyRevenue[date] = (dailyRevenue[date] || 0) + (tx.amount_usd || 0);
     });
     return Object.entries(dailyRevenue).map(([date, revenue]) => ({ date, revenue }));
@@ -158,9 +158,9 @@ export default function PaymentAnalytics() {
     
     return days.map(day => {
       const dayStr = format(day, 'MMM d');
-      const usersUpToDay = users.filter(u => parseISO(u.created_date) <= day).length;
+      const usersUpToDay = users.filter(u => parseISO(u.created_at) <= day).length;
       const newUsersOnDay = users.filter(u => {
-        const created = parseISO(u.created_date);
+        const created = parseISO(u.created_at);
         return format(created, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
       }).length;
       
@@ -178,13 +178,13 @@ export default function PaymentAnalytics() {
       const dayStr = format(day, 'MMM d');
       const usageOnDay = transactions.filter(t => {
         if (t.type !== 'usage') return false;
-        const txDate = parseISO(t.created_date);
+        const txDate = parseISO(t.created_at);
         return format(txDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
       }).reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
       
       const purchaseOnDay = transactions.filter(t => {
         if (t.type !== 'purchase' || t.status !== 'completed') return false;
-        const txDate = parseISO(t.created_date);
+        const txDate = parseISO(t.created_at);
         return format(txDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
       }).reduce((sum, t) => sum + (t.credits || 0), 0);
       
