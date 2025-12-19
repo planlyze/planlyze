@@ -77,12 +77,12 @@ export default function AdminCredits() {
     try {
       // Load all users
       const usersResp = await User.list();
-      const usersData = usersResp?.data || usersResp;
-      const usersList = usersData?.items || [];
+      const usersList = Array.isArray(usersResp) ? usersResp : (usersResp?.data || usersResp?.items || []);
       setUsers(usersList);
 
       // Load all transactions
-      const txList = await Transaction.list('-created_date', 500);
+      const txResp = await Transaction.list();
+      const txList = Array.isArray(txResp) ? txResp : (txResp?.data || txResp?.items || []);
       setTransactions(txList);
 
       // Load credit packages
