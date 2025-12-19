@@ -76,33 +76,33 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-4 md:p-8">
+      <div className="min-h-screen p-4 md:p-8 dark:bg-gray-900">
         <div className="max-w-3xl mx-auto">
-          <div className="h-8 w-40 bg-slate-200 rounded animate-pulse mb-6" />
-          <div className="h-72 bg-slate-100 rounded-lg animate-pulse" />
+          <div className="h-8 w-40 bg-slate-200 dark:bg-gray-700 rounded animate-pulse mb-6" />
+          <div className="h-72 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("Dashboard"))} className="shadow-sm">
+          <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("Dashboard"))} className="shadow-sm dark:border-gray-600 dark:bg-gray-800">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-orange-600">
+            <h1 className="text-3xl font-bold text-orange-600 dark:text-orange-500">
               {t('profile.title')}
             </h1>
-            <p className="text-slate-600 mt-1">{t('profile.subtitle')}</p>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">{t('profile.subtitle')}</p>
           </div>
         </div>
 
-        <Card className="glass-effect border-0 shadow-lg">
+        <Card className="glass-effect border-0 shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-800">
+            <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-white">
               <UserIcon className="w-5 h-5" />
               {t('profile.accountInfo')}
             </CardTitle>
@@ -110,33 +110,34 @@ export default function Profile() {
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="full_name">{t('profile.fullName')}</Label>
+                <Label htmlFor="full_name" className="dark:text-slate-300">{t('profile.fullName')}</Label>
                 <div className="relative">
                   <UserIcon className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
                     id="full_name"
                     value={form.full_name}
                     disabled
-                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50`}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     placeholder={t('profile.fullNamePlaceholder')}
                   />
                 </div>
-                <p className="text-xs text-slate-500">{t('profile.fullNameManaged')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('profile.fullNameManaged')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="display_name">{t('profile.displayName')}</Label>
+                <Label htmlFor="display_name" className="dark:text-slate-300">{t('profile.displayName')}</Label>
                 <Input
                   id="display_name"
                   value={form.display_name}
                   onChange={(e) => handleChange("display_name", e.target.value)}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   placeholder={t('profile.displayNamePlaceholder')}
                 />
-                <p className="text-xs text-slate-500">{t('profile.displayNameNote')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('profile.displayNameNote')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">{t('profile.email')}</Label>
+                <Label htmlFor="email" className="dark:text-slate-300">{t('profile.email')}</Label>
                 <div className="relative">
                   <Mail className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -144,57 +145,57 @@ export default function Profile() {
                     type="email"
                     value={form.email}
                     disabled
-                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50`}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     placeholder="you@example.com"
                   />
                 </div>
-                <p className="text-xs text-slate-500">{t('profile.emailManaged')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('profile.emailManaged')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">{t('profile.phoneNumber')}</Label>
+                <Label htmlFor="phone" className="dark:text-slate-300">{t('profile.phoneNumber')}</Label>
                 <div className="relative">
                   <Phone className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
                     id="phone"
                     value={form.phone_number}
                     onChange={(e) => handleChange("phone_number", e.target.value)}
-                    className={isArabic ? 'pr-9' : 'pl-9'}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     placeholder="+963 9xxxxxxxx"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="country">{t('profile.country')}</Label>
+                <Label htmlFor="country" className="dark:text-slate-300">{t('profile.country')}</Label>
                 <div className="relative">
                   <MapPin className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
                     id="country"
                     value={form.country}
                     onChange={(e) => handleChange("country", e.target.value)}
-                    className={isArabic ? 'pr-9' : 'pl-9'}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     placeholder={t('profile.countryPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="city">{t('profile.city')}</Label>
+                <Label htmlFor="city" className="dark:text-slate-300">{t('profile.city')}</Label>
                 <div className="relative">
                   <MapPin className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
                     id="city"
                     value={form.city}
                     onChange={(e) => handleChange("city", e.target.value)}
-                    className={isArabic ? 'pr-9' : 'pl-9'}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     placeholder={t('profile.cityPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">{t('profile.password')}</Label>
+                <Label htmlFor="password" className="dark:text-slate-300">{t('profile.password')}</Label>
                 <div className="relative">
                   <Lock className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -202,16 +203,16 @@ export default function Profile() {
                     type="password"
                     value="********"
                     disabled
-                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50`}
+                    className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   />
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {t('profile.passwordManaged')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="language">{t('profile.language')}</Label>
+                <Label htmlFor="language" className="dark:text-slate-300">{t('profile.language')}</Label>
                 <div className="relative">
                   <Globe className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3 z-10`} />
                   <Select
@@ -223,7 +224,7 @@ export default function Profile() {
                       toast.success(t('profile.languageChanged'));
                     }}
                   >
-                    <SelectTrigger className={isArabic ? 'pr-9' : 'pl-9'}>
+                    <SelectTrigger className={`${isArabic ? 'pr-9' : 'pl-9'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -232,7 +233,7 @@ export default function Profile() {
                     </SelectContent>
                   </Select>
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {t('profile.languagePlaceholder')}
                 </p>
               </div>

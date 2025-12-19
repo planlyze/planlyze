@@ -110,7 +110,7 @@ export default function Credits() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-orange-500/5" />
@@ -128,15 +128,15 @@ export default function Credits() {
               variant="outline"
               size="icon"
               onClick={() => navigate(createPageUrl("Dashboard"))}
-              className="shadow-md hover:shadow-lg transition-all border-slate-300 hover:border-purple-400 bg-white/80 backdrop-blur-sm"
+              className="shadow-md hover:shadow-lg transition-all border-slate-300 dark:border-gray-600 hover:border-purple-400 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-orange-600">
+              <h1 className="text-3xl md:text-4xl font-bold text-orange-600 dark:text-orange-500">
                 {t('credits.title')}
               </h1>
-              <p className="text-slate-600 mt-1">
+              <p className="text-slate-600 dark:text-slate-400 mt-1">
                 {t('credits.subtitle')}
               </p>
             </div>
@@ -217,14 +217,14 @@ export default function Credits() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <Badge className="bg-purple-100 text-purple-700 mb-4 px-4 py-1.5 text-sm font-medium">
+            <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 mb-4 px-4 py-1.5 text-sm font-medium">
               <Gift className="w-4 h-4 mr-1 inline" />
               {t('credits.specialOffers')}
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white mb-3">
               {t('credits.choosePlan')}
             </h2>
-            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
               {t('credits.investSuccess')}
             </p>
           </motion.div>
@@ -255,7 +255,7 @@ export default function Credits() {
                     <Card className={`relative h-full transition-all duration-500 overflow-hidden ${
                       isPopular 
                         ? 'border-2 border-purple-500 shadow-2xl shadow-purple-500/20 scale-[1.02]' 
-                        : 'border-2 border-slate-200 hover:border-purple-300 shadow-xl hover:shadow-2xl'
+                        : 'border-2 border-slate-200 dark:border-gray-700 hover:border-purple-300 shadow-xl hover:shadow-2xl dark:bg-gray-800'
                     } ${isHovered ? 'transform -translate-y-2' : ''}`}>
                       
                       {/* Popular Badge */}
@@ -288,25 +288,25 @@ export default function Credits() {
                               : <Sparkles className={`w-8 h-8 ${isPopular ? 'text-white' : 'text-slate-600'}`} />
                             }
                           </div>
-                          <h3 className="text-2xl font-bold text-slate-800 mb-2">
+                          <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
                             {isArabic ? (pkg.name_ar || pkg.name) : pkg.name}
                           </h3>
-                          <p className="text-slate-500 text-sm min-h-[40px]">
+                          <p className="text-slate-500 dark:text-slate-400 text-sm min-h-[40px]">
                             {isArabic ? (pkg.description_ar || pkg.description) : pkg.description}
                           </p>
                         </div>
 
                         {/* Price */}
-                        <div className="text-center mb-6 py-6 border-y border-slate-100">
+                        <div className="text-center mb-6 py-6 border-y border-slate-100 dark:border-gray-700">
                           <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-2xl font-medium text-slate-500">$</span>
+                            <span className="text-2xl font-medium text-slate-500 dark:text-slate-400">$</span>
                             <span className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                               {pkg.price_usd}
                             </span>
                           </div>
-                          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 border border-purple-200">
-                            <Sparkles className="w-4 h-4 text-purple-600" />
-                            <span className="font-semibold text-purple-700">
+                          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700">
+                            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <span className="font-semibold text-purple-700 dark:text-purple-400">
                               {pkg.credits} {t('credits.premiumCredits')}
                             </span>
                           </div>
@@ -315,13 +315,13 @@ export default function Credits() {
                         {/* Features List */}
                         <ul className="space-y-3 mb-8">
                           {(isArabic ? (pkg.features_ar?.length ? pkg.features_ar : pkg.features) : pkg.features)?.map((feature, idx) => (
-                            <li key={idx} className="flex items-center gap-3 text-slate-600">
+                            <li key={idx} className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                               <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
                           {(!pkg.features || pkg.features.length === 0) && (
-                            <li className="flex items-center gap-3 text-slate-600">
+                            <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                               <CheckCircle2 className="w-5 h-5 text-orange-500 flex-shrink-0" />
                               <span>{t('credits.completeReport')}</span>
                             </li>

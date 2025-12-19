@@ -43,10 +43,10 @@ const statusIcons = {
 };
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-800",
-  analyzing: "bg-amber-100 text-amber-800",
-  completed: "bg-emerald-100 text-emerald-800",
-  failed: "bg-red-100 text-red-800"
+  draft: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200",
+  analyzing: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300",
+  completed: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300",
+  failed: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
 };
 
 export default function Reports() {
@@ -171,7 +171,7 @@ export default function Reports() {
   });
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <motion.div 
@@ -188,7 +188,7 @@ export default function Reports() {
               variant="outline"
               size="icon"
               onClick={() => navigate(createPageUrl("Dashboard"))}
-              className="shadow-md hover:shadow-xl transition-all duration-300 border-2 border-slate-300 hover:border-purple-500 bg-white"
+              className="shadow-md hover:shadow-xl transition-all duration-300 border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 bg-white dark:bg-gray-800"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -198,7 +198,7 @@ export default function Reports() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-4xl font-bold text-orange-600"
+              className="text-4xl font-bold text-orange-600 dark:text-orange-500"
             >
               {viewingEmail && !isOwnReports ? (
                 `${t('reports.titleOther')} - ${viewingEmail}`
@@ -208,7 +208,7 @@ export default function Reports() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-slate-600 mt-2 text-lg"
+              className="text-slate-600 dark:text-slate-400 mt-2 text-lg"
             >
               {t('reports.subtitle')}
             </motion.p>
@@ -232,7 +232,7 @@ export default function Reports() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <Card className="glass-effect border-2 border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/80 backdrop-blur-sm">
+          <Card className="glass-effect border-2 border-slate-200 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <motion.div 
@@ -254,7 +254,7 @@ export default function Reports() {
                       placeholder={t('reports.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`${isArabic ? 'pr-12' : 'pl-12'} h-12 border-2 border-slate-300 focus:border-purple-500 hover:border-purple-400 transition-all text-base bg-white shadow-sm`}
+                      className={`${isArabic ? 'pr-12' : 'pl-12'} h-12 border-2 border-slate-300 dark:border-gray-600 focus:border-purple-500 hover:border-purple-400 transition-all text-base bg-white dark:bg-gray-700 dark:text-white shadow-sm`}
                     />
                   </div>
                 </motion.div>
@@ -267,7 +267,7 @@ export default function Reports() {
                     <Filter className="w-5 h-5 text-purple-600" />
                   </motion.div>
                   <Select value={premiumFilter} onValueChange={setPremiumFilter}>
-                    <SelectTrigger className="w-48 h-12 border-2 border-slate-300 hover:border-purple-500 focus:border-purple-500 transition-all text-base bg-white shadow-sm">
+                    <SelectTrigger className="w-48 h-12 border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 focus:border-purple-500 transition-all text-base bg-white dark:bg-gray-700 dark:text-white shadow-sm">
                       <SelectValue placeholder={t('reports.filterByType')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -316,10 +316,10 @@ export default function Reports() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="glass-effect border-2 border-slate-200 shadow-xl overflow-hidden relative bg-white/80 backdrop-blur-sm">
+            <Card className="glass-effect border-2 border-slate-200 dark:border-gray-700 shadow-xl overflow-hidden relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <CardContent className="text-center py-20 relative">
                 <motion.div 
-                  className="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center mx-auto mb-6 shadow-lg"
+                  className="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 flex items-center justify-center mx-auto mb-6 shadow-lg"
                   animate={{ 
                     rotate: [0, 5, -5, 0],
                     scale: [1, 1.05, 1]
@@ -336,7 +336,7 @@ export default function Reports() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl font-bold text-slate-800 mb-3"
+                  className="text-2xl font-bold text-slate-800 dark:text-white mb-3"
                 >
                   {searchQuery || premiumFilter !== "all" 
                     ? t('reports.noMatchingReports')
@@ -346,7 +346,7 @@ export default function Reports() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-slate-600 text-lg mb-8 max-w-md mx-auto"
+                  className="text-slate-600 dark:text-slate-400 text-lg mb-8 max-w-md mx-auto"
                 >
                   {searchQuery || premiumFilter !== "all"
                     ? t('reports.adjustFilters')
@@ -397,13 +397,13 @@ export default function Reports() {
                     }}
                   >
                     <Card 
-                      className="glass-effect border-2 border-slate-200 shadow-xl hover:shadow-2xl hover:border-purple-400 transition-all duration-300 overflow-hidden group bg-white/80 backdrop-blur-sm"
+                      className="glass-effect border-2 border-slate-200 dark:border-gray-700 shadow-xl hover:shadow-2xl hover:border-purple-400 transition-all duration-300 overflow-hidden group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
                     >
                       <CardContent className="p-8 relative">
                       <div className="flex justify-between items-start mb-6 gap-6">
                         <div className="flex-1 min-w-0">
                           <motion.h3 
-                            className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-purple-700 transition-colors line-clamp-2 cursor-pointer"
+                            className="text-2xl font-bold text-slate-800 dark:text-white mb-3 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors line-clamp-2 cursor-pointer"
                             whileHover={{ x: 5 }}
                             transition={{ type: "spring", stiffness: 300 }}
                           >
@@ -443,7 +443,7 @@ export default function Reports() {
                                   Premium
                                 </Badge>
                               ) : (
-                                <Badge variant="outline" className="text-slate-600 border-slate-300 px-3 py-1.5 text-sm font-semibold hover:border-slate-400 transition-colors">
+                                <Badge variant="outline" className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm font-semibold hover:border-slate-400 transition-colors">
                                   Free
                                 </Badge>
                               )}
@@ -451,11 +451,11 @@ export default function Reports() {
                           </div>
                           {typeof analysis.user_rating === 'number' && (
                             <motion.div 
-                              className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg hover:shadow-md transition-shadow"
+                              className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg hover:shadow-md transition-shadow"
                               whileHover={{ scale: 1.05 }}
                             >
                               <StarRating value={analysis.user_rating} disabled size={18} />
-                              <span className="text-sm font-semibold text-amber-700">{analysis.user_rating}/5</span>
+                              <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">{analysis.user_rating}/5</span>
                             </motion.div>
                           )}
                         </div>
@@ -463,33 +463,33 @@ export default function Reports() {
 
                       <div className="flex flex-wrap items-center gap-4 mb-6">
                         <motion.div 
-                          className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                          className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-gray-700 rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                           whileHover={{ scale: 1.05, x: 5 }}
                           transition={{ type: "spring", stiffness: 400 }}
                         >
-                          <Clock className="w-4 h-4 text-slate-600" />
-                          <span className="text-sm font-medium text-slate-700">
+                          <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                             {format(new Date(analysis.created_date), "MMM d, yyyy 'at' h:mm a")}
                           </span>
                         </motion.div>
                         {analysis.country && (
                           <motion.div 
-                            className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
                             whileHover={{ scale: 1.05, x: 5 }}
                             transition={{ type: "spring", stiffness: 400 }}
                           >
-                            <MapPin className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm font-semibold text-purple-700">{analysis.country}</span>
+                            <MapPin className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <span className="text-sm font-semibold text-purple-700 dark:text-purple-400">{analysis.country}</span>
                           </motion.div>
                         )}
                         {analysis.report_language && (
                           <motion.div 
-                            className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
                             whileHover={{ scale: 1.05, x: 5 }}
                             transition={{ type: "spring", stiffness: 400 }}
                           >
-                            <Globe className="w-4 h-4 text-orange-600" />
-                            <span className="text-sm font-semibold text-orange-700">
+                            <Globe className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                            <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
                               {analysis.report_language === 'arabic' ? (isArabic ? 'عربي' : 'Arabic') : (isArabic ? 'إنجليزي' : 'English')}
                             </span>
                           </motion.div>

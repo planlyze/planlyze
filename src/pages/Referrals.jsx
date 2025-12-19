@@ -115,12 +115,12 @@ export default function Referrals() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20">
+      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
         <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-12 w-80 rounded-xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-80 rounded-xl dark:bg-gray-700" />
+          <Skeleton className="h-48 w-full rounded-2xl dark:bg-gray-700" />
           <div className="grid md:grid-cols-3 gap-4">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
+            {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl dark:bg-gray-700" />)}
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function Referrals() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 space-y-8">
         {/* Header */}
         <motion.div 
@@ -140,15 +140,15 @@ export default function Referrals() {
             variant="outline"
             size="icon"
             onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-md hover:shadow-lg transition-all border-slate-300 hover:border-purple-400 bg-white/80 backdrop-blur-sm"
+            className="shadow-md hover:shadow-lg transition-all border-slate-300 dark:border-gray-600 hover:border-purple-400 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-orange-600">
+            <h1 className="text-3xl md:text-4xl font-bold text-orange-600 dark:text-orange-500">
               {t('referrals.title')}
             </h1>
-            <p className="text-slate-600 mt-1">
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
               {t('referrals.subtitle')}
             </p>
           </div>
@@ -209,13 +209,13 @@ export default function Referrals() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-2 border-slate-200 shadow-xl">
+          <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-xl dark:bg-gray-800">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-purple-600" />
+              <CardTitle className="flex items-center gap-2 dark:text-white">
+                <Share2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 {t('referrals.yourReferralLink')}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="dark:text-slate-400">
                 {t('referrals.shareWithFriends')}
               </CardDescription>
             </CardHeader>
@@ -224,21 +224,21 @@ export default function Referrals() {
                 <Input 
                   value={getReferralLink()} 
                   readOnly 
-                  className="font-mono text-sm bg-slate-50"
+                  className="font-mono text-sm bg-slate-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
                 <Button 
                   onClick={copyToClipboard}
                   variant="outline"
-                  className="shrink-0 gap-2"
+                  className="shrink-0 gap-2 dark:border-gray-600"
                 >
                   {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                   {copied ? t('referrals.copied') : t('referrals.copy')}
                 </Button>
               </div>
               
-              <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <span className="text-sm text-purple-800">
+              <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm text-purple-800 dark:text-purple-300">
                   {t('referrals.referralCode')}: {currentUser?.referral_code}
                 </span>
               </div>
