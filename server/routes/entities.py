@@ -829,6 +829,19 @@ def mark_all_notifications_read(user):
     db.session.commit()
     return jsonify({'message': 'All notifications marked as read'})
 
+@entities_bp.route('/notifications/<id>', methods=['DELETE'])
+@require_auth
+def delete_notification(user, id):
+    notification = Notification.query.get(id)
+    if not notification:
+        return jsonify({'error': 'Notification not found'}), 404
+    if notification.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    db.session.delete(notification)
+    db.session.commit()
+    return jsonify({'message': 'Notification deleted'})
+
 # Report Share endpoints
 @entities_bp.route('/report-shares', methods=['GET'])
 @require_auth

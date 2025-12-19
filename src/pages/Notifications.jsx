@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
-
-const Notification = api.Notification;
+import { auth, Notification } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,8 +53,9 @@ export default function NotificationsPage() {
       const user = await auth.me();
       setCurrentUser(user);
       
-      const data = await Notification.filter({ user_email: user.email }, "-created_date", 100);
-      setNotifications(data);
+      const data = await Notification.filter({ user_email: user.email });
+      const sorted = Array.isArray(data) ? data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 100) : [];
+      setNotifications(sorted);
     } catch (error) {
       console.error("Error loading notifications:", error);
       window.location.href = "/login";
@@ -68,7 +67,7 @@ export default function NotificationsPage() {
   const markAsRead = async (notification) => {
     if (notification.is_read) return;
     try {
-      await Notification.update(notification.id, { is_read: true });
+      await Notification.markRead(notification.id);
       setNotifications(prev => 
         prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
       );
@@ -79,8 +78,7 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      const unread = notifications.filter(n => !n.is_read);
-      await Promise.all(unread.map(n => Notification.update(n.id, { is_read: true })));
+      await Notification.markAllRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (error) {
       console.error("Error marking all as read:", error);
@@ -245,7 +243,7 @@ function NotificationsList({ notifications, onMarkAsRead, onDelete, isArabic }) 
                       </div>
                       <p className="text-sm text-slate-600 mt-1">{notification.message}</p>
                       <p className="text-xs text-slate-400 mt-2">
-                        {format(new Date(notification.created_date), "MMMM d, yyyy 'at' h:mm a")}
+                        {notification.created_at && format(new Date(notification.created_at), "MMMM d, yyyy 'at' h:mm a")}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

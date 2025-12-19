@@ -256,6 +256,7 @@ export const Notification = {
   create: (data) => api.post('/notifications', data),
   markRead: (id) => api.post(`/notifications/${id}/read`),
   markAllRead: () => api.post('/notifications/mark-all-read'),
+  delete: (id) => api.delete(`/notifications/${id}`),
   filter: async (filters) => {
     const notifications = await api.get('/notifications');
     if (!filters || Object.keys(filters).length === 0) return notifications;

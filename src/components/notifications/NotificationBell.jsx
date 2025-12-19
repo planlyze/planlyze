@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
-
-const Notification = api.Notification;
+import { auth, api, Notification } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -53,8 +51,9 @@ export default function NotificationBell({ userEmail, isArabic = false }) {
 
   const loadNotifications = async () => {
     try {
-      const data = await Notification.filter({ user_email: userEmail }, "-created_date", 20);
-      setNotifications(data);
+      const data = await Notification.filter({ user_email: userEmail });
+      const sorted = Array.isArray(data) ? data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 20) : [];
+      setNotifications(sorted);
     } catch (error) {
       console.error("Error loading notifications:", error);
     }
@@ -65,7 +64,7 @@ export default function NotificationBell({ userEmail, isArabic = false }) {
   const markAsRead = async (notification) => {
     if (notification.is_read) return;
     try {
-      await Notification.update(notification.id, { is_read: true });
+      await Notification.markRead(notification.id);
       setNotifications(prev => 
         prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
       );
@@ -77,8 +76,7 @@ export default function NotificationBell({ userEmail, isArabic = false }) {
   const markAllAsRead = async () => {
     setIsLoading(true);
     try {
-      const unread = notifications.filter(n => !n.is_read);
-      await Promise.all(unread.map(n => Notification.update(n.id, { is_read: true })));
+      await Notification.markAllRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (error) {
       console.error("Error marking all as read:", error);
