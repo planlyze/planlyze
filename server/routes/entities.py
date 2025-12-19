@@ -185,6 +185,25 @@ def chain_analysis(user):
     if analysis.user_email != user.email:
         return jsonify({'error': 'Access denied'}), 403
     
+    # Reserve credit upfront
+    user_record = User.query.filter_by(email=user.email).first()
+    if not user_record or user_record.credits <= 0:
+        return jsonify({'error': 'Insufficient credits'}), 402
+    
+    # Deduct credit and create pending transaction
+    user_record.credits -= 1
+    pending_tx = Transaction(
+        user_email=user.email,
+        type='usage',
+        credits=-1,
+        description=f'Analysis: {analysis.business_idea[:50] if analysis.business_idea else "New analysis"}...',
+        reference_id=analysis_id,
+        status='pending'
+    )
+    db.session.add(pending_tx)
+    db.session.commit()
+    pending_tx_id = pending_tx.id
+    
     def run_analysis():
         from server.app import create_app
         app = create_app()
@@ -352,20 +371,11 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 analysis_record.score = report.get('score', 0)
                 analysis_record.progress_percent = 100
                 
-                user_record = User.query.filter_by(email=analysis_record.user_email).first()
-                if user_record and user_record.credits > 0:
-                    user_record.credits -= 1
-                    
-                    from server.models import Transaction
-                    tx = Transaction(
-                        user_email=user_record.email,
-                        type='usage',
-                        credits=-1,
-                        description=f'Analysis: {business_idea[:50]}...',
-                        reference_id=analysis_id,
-                        status='completed'
-                    )
-                    db.session.add(tx)
+                # Mark pending transaction as completed
+                pending_tx_record = Transaction.query.get(pending_tx_id)
+                if pending_tx_record:
+                    pending_tx_record.status = 'completed'
+                    pending_tx_record.description = f'Analysis: {business_idea[:50]}...'
                 
                 db.session.commit()
                 
@@ -375,7 +385,18 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                     if analysis_record:
                         analysis_record.status = 'failed'
                         analysis_record.last_error = str(e)
-                        db.session.commit()
+                    
+                    # Restore credit and mark transaction as failed
+                    user_record = User.query.filter_by(email=analysis_record.user_email).first()
+                    if user_record:
+                        user_record.credits += 1
+                    
+                    pending_tx_record = Transaction.query.get(pending_tx_id)
+                    if pending_tx_record:
+                        pending_tx_record.status = 'failed'
+                        pending_tx_record.description = f'Failed analysis (refunded): {str(e)[:100]}'
+                    
+                    db.session.commit()
                 except Exception:
                     pass
     
