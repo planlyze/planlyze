@@ -180,7 +180,7 @@ export default function AnalysisResult() {
       csvRows.push(['General', 'Industry', analysis.industry || '']);
       csvRows.push(['General', 'Experience Level', analysis.experience_level || '']);
       csvRows.push(['General', 'Report Language', analysis.report_language || '']);
-      csvRows.push(['General', 'Created Date', analysis.created_date || '']);
+      csvRows.push(['General', 'Created Date', analysis.created_at || '']);
       csvRows.push(['General', 'Premium', analysis.is_premium ? 'Yes' : 'No']);
       
       // Scores
@@ -620,7 +620,7 @@ export default function AnalysisResult() {
               </h1>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 <p className="text-slate-600">
-                  {isArabic ? 'تم إكمال التحليل في' : 'Analysis completed on'} {format(new Date(analysis.created_date), "MMMM d, yyyy")}
+                  {isArabic ? 'تم إكمال التحليل في' : 'Analysis completed on'} {analysis.created_at ? format(new Date(analysis.created_at), "MMMM d, yyyy") : ''}
                 </p>
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Globe className="w-3 h-3" />

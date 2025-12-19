@@ -119,7 +119,7 @@ export default function RecentAnalyses({ analyses, isLoading, onRefresh, isArabi
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <p className="text-xs text-slate-500 font-medium">
-                          {isArabic ? "تم الإنشاء" : "Created"} {format(new Date(analysis.created_date), "MMM d, yyyy")}
+                          {isArabic ? "تم الإنشاء" : "Created"} {analysis.created_at ? format(new Date(analysis.created_at), "MMM d, yyyy") : ''}
                         </p>
                       </div>
                       

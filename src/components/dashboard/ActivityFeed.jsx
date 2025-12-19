@@ -199,7 +199,7 @@ export default function ActivityFeed({ userEmail, isArabic = false, limit = 10, 
                         </p>
                       )}
                       <p className="text-xs text-slate-400 mt-1.5 font-medium">
-                        {formatDistanceToNow(new Date(activity.created_date), { addSuffix: true })}
+                        {activity.created_at ? formatDistanceToNow(new Date(activity.created_at), { addSuffix: true }) : ''}
                       </p>
                     </div>
                   </div>

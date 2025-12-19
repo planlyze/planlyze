@@ -69,7 +69,7 @@ export default function RecentTransactionsTable({ transactions }) {
                   <div className="flex items-center gap-3 text-sm text-slate-600">
                     <span className="truncate">{tx.user_email}</span>
                     <span className="text-slate-400">•</span>
-                    <span>{format(new Date(tx.created_date), "MMM d, h:mm a")}</span>
+                    <span>{tx.created_at ? format(new Date(tx.created_at), "MMM d, h:mm a") : ''}</span>
                   </div>
                 </div>
               </div>

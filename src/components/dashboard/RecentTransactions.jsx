@@ -123,7 +123,7 @@ export default function RecentTransactions({ transactions, isArabic = false }) {
                         {tx.notes || (isArabic ? 'معاملة رصيد' : 'Credit transaction')}
                       </p>
                       <p className="text-xs text-slate-500 mt-1 font-medium">
-                        {format(new Date(tx.created_date), "MMM d, yyyy 'at' h:mm a")}
+                        {tx.created_at ? format(new Date(tx.created_at), "MMM d, yyyy 'at' h:mm a") : ''}
                       </p>
                     </div>
                   </div>

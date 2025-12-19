@@ -143,7 +143,7 @@ export default function UserProfile() {
                 <div className="text-slate-500 text-xs uppercase">Joined</div>
                 <div className="flex items-center gap-2 text-slate-800">
                   <Calendar className="w-4 h-4" />
-                  {format(new Date(targetUser.created_date), "MMM d, yyyy")}
+                  {targetUser.created_at ? format(new Date(targetUser.created_at), "MMM d, yyyy") : '—'}
                 </div>
               </div>
 

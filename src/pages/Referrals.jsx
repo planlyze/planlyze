@@ -320,7 +320,7 @@ export default function Referrals() {
                             {referral.referred_email || t('referrals.newUser')}
                           </p>
                           <p className="text-sm text-slate-500">
-                            {new Date(referral.created_date).toLocaleDateString()}
+                            {referral.created_at ? new Date(referral.created_at).toLocaleDateString() : ''}
                           </p>
                         </div>
                       </div>

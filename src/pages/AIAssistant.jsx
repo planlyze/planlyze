@@ -124,7 +124,7 @@ export default function AIAssistant() {
         country: analysis.country,
         status: analysis.status,
         is_premium: analysis.is_premium,
-        created_date: analysis.created_date,
+        created_date: analysis.created_at,
         summary: {
           problem_solution: analysis.step1_problem_solution,
           target_audience: analysis.step2_target_audience,

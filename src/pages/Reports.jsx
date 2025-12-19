@@ -469,7 +469,7 @@ export default function Reports() {
                         >
                           <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {format(new Date(analysis.created_date), "MMM d, yyyy 'at' h:mm a")}
+                            {analysis.created_at ? format(new Date(analysis.created_at), "MMM d, yyyy 'at' h:mm a") : ''}
                           </span>
                         </motion.div>
                         {analysis.country && (

@@ -275,9 +275,9 @@ export default function SharedReport() {
               Planlyze AI
             </a>
           </p>
-          {analysis?.created_date && (
+          {analysis?.created_at && (
             <p className="text-slate-400 text-xs mt-1">
-              Created on {format(new Date(analysis.created_date), "MMMM d, yyyy")}
+              Created on {format(new Date(analysis.created_at), "MMMM d, yyyy")}
             </p>
           )}
         </div>

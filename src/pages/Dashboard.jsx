@@ -290,7 +290,7 @@ export default function Dashboard() {
                                 </h4>
                               </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {format(new Date(analysis.created_date), "MMM d, yyyy")}
+                                {analysis.created_at && format(new Date(analysis.created_at), "MMM d, yyyy")}
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
@@ -377,7 +377,7 @@ export default function Dashboard() {
                                 {tx.description || tx.type}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {tx.created_date && format(new Date(tx.created_date), "MMM d, yyyy")}
+                                {tx.created_at && format(new Date(tx.created_at), "MMM d, yyyy")}
                               </p>
                             </div>
                           </div>

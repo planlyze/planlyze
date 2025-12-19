@@ -295,7 +295,7 @@ export default function ShareReportModal({
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Calendar className="w-3 h-3" />
-                          {t("Created", "أنشئ")}: {format(new Date(share.created_date), "MMM d, yyyy")}
+                          {t("Created", "أنشئ")}: {share.created_at ? format(new Date(share.created_at), "MMM d, yyyy") : ''}
                           {share.expires_at && (
                             <>
                               <Clock className="w-3 h-3 ml-2" />

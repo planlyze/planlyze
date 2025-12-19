@@ -180,7 +180,7 @@ export default function OwnerDashboard() {
       const thirtyDaysAgo = subDays(new Date(), 30);
       const activeUsers = allUsersForStats.filter((u) => {
         if (!u) return false;
-        const hasRecentAnalysis = activeAnalyses.some(a => a.created_by === u.email && new Date(a.created_date) > thirtyDaysAgo);
+        const hasRecentAnalysis = activeAnalyses.some(a => a.created_by === u.email && a.created_at && new Date(a.created_at) > thirtyDaysAgo);
         const hasRecentLogin = u.last_login && new Date(u.last_login) > thirtyDaysAgo;
         return hasRecentAnalysis || hasRecentLogin;
       }).length;
@@ -211,7 +211,8 @@ export default function OwnerDashboard() {
         const nextDay = subDays(new Date(), i - 1);
         
         const newUsers = allUsersForStats.filter(u => {
-          const created = new Date(u.created_date);
+          if (!u.created_at) return false;
+          const created = new Date(u.created_at);
           return created >= date && created < nextDay;
         }).length;
 
@@ -233,7 +234,8 @@ export default function OwnerDashboard() {
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
         
         const monthTxs = purchaseTransactions.filter(tx => {
-          const txDate = new Date(tx.created_date);
+          if (!tx.created_at) return false;
+          const txDate = new Date(tx.created_at);
           return txDate >= monthStart && txDate <= monthEnd;
         });
 
