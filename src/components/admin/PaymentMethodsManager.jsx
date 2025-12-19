@@ -147,7 +147,7 @@ export default function PaymentMethodsManager({ isArabic }) {
                     <div className="text-sm text-slate-600 space-y-1">
                       {Object.entries(method.description || {}).map(([key, value]) => (
                         <div key={key}>
-                          <span className="font-medium">{key}:</span> {value}
+                          <span>{key}:</span> {value}
                         </div>
                       ))}
                     </div>
