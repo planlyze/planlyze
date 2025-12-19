@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Search, Shield, Users as UsersIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { ArrowLeft, Search, Shield, Users as UsersIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { PERMISSION_LABELS, hasPermission, PERMISSIONS, canAccessAdmin } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
@@ -21,6 +22,7 @@ export default function UserRoleAssignment() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, userId: null, roleId: null, roleName: null, userName: null });
 
   useEffect(() => {
     loadData();
@@ -50,19 +52,31 @@ export default function UserRoleAssignment() {
     }
   };
 
-  const handleRoleChange = async (userId, roleId, roleName) => {
+  const openConfirmDialog = (userId, roleId, roleName) => {
+    const targetUser = users.find(u => u.id === userId);
+    setConfirmDialog({
+      open: true,
+      userId,
+      roleId,
+      roleName: roleName || 'User',
+      userName: targetUser?.full_name || targetUser?.email || 'User'
+    });
+  };
+
+  const handleRoleChange = async () => {
+    const { userId, roleId, roleName } = confirmDialog;
+    setConfirmDialog({ open: false, userId: null, roleId: null, roleName: null, userName: null });
     setUpdatingUserId(userId);
+    
     try {
-      const selectedRole = roles.find(r => r.id === roleId);
-      
       await User.update(userId, {
-        custom_role_id: roleId || null,
-        permissions: selectedRole?.permissions || []
+        role_id: roleId || null
       });
 
-      // Log role assignment
       const currentAdmin = await auth.me();
       const targetUser = users.find(u => u.id === userId);
+      const selectedRole = roles.find(r => r.id === roleId);
+      
       await auditLogger.logRoleAssignment(
         currentAdmin.email,
         targetUser.email,
@@ -70,11 +84,11 @@ export default function UserRoleAssignment() {
         selectedRole?.permissions || []
       );
 
-      toast.success(`Role updated to ${roleName || 'User'}`);
+      toast.success(`Role successfully updated to "${roleName}"`);
       loadData();
     } catch (error) {
       console.error("Error updating user role:", error);
-      toast.error("Failed to update user role");
+      toast.error("Failed to update user role. Please try again.");
     } finally {
       setUpdatingUserId(null);
     }
@@ -83,8 +97,8 @@ export default function UserRoleAssignment() {
   const getRoleName = (user) => {
     if (user.role === 'super_admin') return 'Super Admin';
     if (user.role === 'admin') return 'Admin';
-    if (user.custom_role_id) {
-      const role = roles.find(r => r.id === user.custom_role_id);
+    if (user.role_id) {
+      const role = roles.find(r => r.id === user.role_id);
       return role?.name || 'Custom Role';
     }
     return 'User';
@@ -170,7 +184,7 @@ export default function UserRoleAssignment() {
                       <Badge className={
                         canAccessAdmin(user)
                           ? 'bg-purple-100 text-purple-800' 
-                          : user.custom_role_id
+                          : user.role_id
                             ? 'bg-blue-100 text-blue-800'
                             : 'bg-slate-100 text-slate-800'
                       }>
@@ -182,11 +196,11 @@ export default function UserRoleAssignment() {
                         <span className="text-sm text-slate-500">Cannot modify admin</span>
                       ) : (
                         <Select
-                          value={user.custom_role_id || 'none'}
+                          value={user.role_id || 'none'}
                           onValueChange={(value) => {
                             const roleId = value === 'none' ? null : value;
                             const roleName = value === 'none' ? 'User' : roles.find(r => r.id === value)?.name;
-                            handleRoleChange(user.id, roleId, roleName);
+                            openConfirmDialog(user.id, roleId, roleName);
                           }}
                           disabled={updatingUserId === user.id}
                         >
@@ -220,6 +234,36 @@ export default function UserRoleAssignment() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, userId: null, roleId: null, roleName: null, userName: null })}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              Confirm Role Change
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-600">
+              Are you sure you want to change the role for <span className="font-semibold text-slate-800">{confirmDialog.userName}</span> to <span className="font-semibold text-purple-600">{confirmDialog.roleName}</span>?
+            </p>
+            <p className="text-sm text-slate-500 mt-2">
+              This will update the user's permissions immediately.
+            </p>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button 
+              onClick={handleRoleChange}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Confirm Change
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
