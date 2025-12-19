@@ -509,7 +509,7 @@ export default function AdminCredits() {
                                   </span>
                                 </TableCell>
                                 <TableCell>
-                                  {format(new Date(tx.created_date), "MMM d, yyyy HH:mm")}
+                                  {tx.created_at ? format(new Date(tx.created_at), "MMM d, yyyy HH:mm") : '—'}
                                 </TableCell>
                                 <TableCell className="text-sm">{tx.user_email}</TableCell>
                                 <TableCell>
