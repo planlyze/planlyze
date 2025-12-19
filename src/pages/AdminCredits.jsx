@@ -410,7 +410,14 @@ export default function AdminCredits() {
                             </TableCell>
                           </TableRow>
                         ) : (
-                          filtered.map((user) => (
+                          filtered.map((user) => {
+                            const userPurchased = transactions
+                              .filter(t => t.user_email === user.email && t.type === 'purchase')
+                              .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+                            const userUsed = transactions
+                              .filter(t => t.user_email === user.email && t.type === 'usage')
+                              .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+                            return (
                             <TableRow key={user.id}>
                           <TableCell>
                             <div className="font-medium">{user.full_name}</div>
@@ -422,10 +429,10 @@ export default function AdminCredits() {
                             </span>
                           </TableCell>
                           <TableCell className="text-center">
-                            {user.total_credits_purchased || 0}
+                            {userPurchased}
                           </TableCell>
                           <TableCell className="text-center">
-                            {user.total_credits_used || 0}
+                            {userUsed}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
@@ -450,7 +457,8 @@ export default function AdminCredits() {
                             </div>
                           </TableCell>
                         </TableRow>
-                          ))
+                            );
+                          })
                         );
                       })()}
                     </TableBody>
