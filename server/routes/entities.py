@@ -74,6 +74,65 @@ def get_analysis(user, id):
         return jsonify({'error': 'Access denied'}), 403
     return jsonify(analysis.to_dict())
 
+@entities_bp.route('/analyses/generate', methods=['POST'])
+@require_auth
+def generate_analysis_entry(user):
+    """
+    Create a new analysis entry for report generation
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            business_idea:
+              type: string
+            industry:
+              type: string
+            report_language:
+              type: string
+            country:
+              type: string
+            target_market:
+              type: string
+    responses:
+      201:
+        description: Analysis created successfully
+      400:
+        description: Missing required fields
+      402:
+        description: Insufficient credits
+    """
+    if user.credits < 1:
+        return jsonify({'error': 'Insufficient credits'}), 402
+    
+    data = request.get_json() or {}
+    business_idea = data.get('business_idea', '').strip()
+    
+    if not business_idea:
+        return jsonify({'error': 'Business idea is required'}), 400
+    
+    analysis = Analysis(
+        user_email=user.email,
+        business_idea=business_idea,
+        industry=data.get('industry', 'Other'),
+        target_market=data.get('target_market', ''),
+        location=data.get('country', ''),
+        report_language=data.get('report_language', 'english'),
+        status='analyzing',
+        progress_percent=10
+    )
+    db.session.add(analysis)
+    db.session.commit()
+    
+    return jsonify(analysis.to_dict()), 201
+
 
 # Public contact endpoint for landing page contact form
 @entities_bp.route('/contact', methods=['POST'])
