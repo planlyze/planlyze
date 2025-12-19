@@ -61,5 +61,5 @@ externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "wsgi:app"]
-build = ["npm", "run", "build"]
+run = [".venv/bin/gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "wsgi:app"]
+build = ["bash", "-c", "npm run build && python -m venv .venv && .venv/bin/pip install -r requirements.txt"]
