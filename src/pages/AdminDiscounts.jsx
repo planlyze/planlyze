@@ -75,6 +75,11 @@ export default function AdminDiscounts() {
   const handleEdit = (discount) => {
     setEditingDiscount({
       ...discount,
+      discount_type: discount.discount_percent ? "percentage" : "fixed",
+      discount_value: discount.discount_percent || discount.discount_amount || 0,
+      description_en: discount.description_en || "",
+      description_ar: discount.description_ar || "",
+      min_purchase_amount: discount.min_purchase_amount || 0,
       valid_from: discount.valid_from ? new Date(discount.valid_from).toISOString().split('T')[0] : "",
       valid_until: discount.valid_until ? new Date(discount.valid_until).toISOString().split('T')[0] : ""
     });
@@ -84,8 +89,11 @@ export default function AdminDiscounts() {
   const handleSave = async () => {
     try {
       const data = {
-        ...editingDiscount,
         code: editingDiscount.code.toUpperCase(),
+        discount_percent: editingDiscount.discount_type === "percentage" ? editingDiscount.discount_value : null,
+        discount_amount: editingDiscount.discount_type === "fixed" ? editingDiscount.discount_value : null,
+        max_uses: editingDiscount.max_uses,
+        is_active: editingDiscount.is_active,
         valid_from: editingDiscount.valid_from ? new Date(editingDiscount.valid_from).toISOString() : null,
         valid_until: editingDiscount.valid_until ? new Date(editingDiscount.valid_until).toISOString() : null
       };
@@ -155,15 +163,15 @@ export default function AdminDiscounts() {
                         <Badge className={discount.is_active ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-800"}>
                           {discount.is_active ? (isArabic ? "نشط" : "Active") : (isArabic ? "غير نشط" : "Inactive")}
                         </Badge>
-                        {discount.discount_type === "percentage" ? (
+                        {discount.discount_percent ? (
                           <Badge className="bg-orange-100 text-orange-800">
                             <Percent className="w-3 h-3 mr-1" />
-                            {discount.discount_value}% OFF
+                            {discount.discount_percent}% OFF
                           </Badge>
                         ) : (
                           <Badge className="bg-green-100 text-green-800">
                             <DollarSign className="w-3 h-3 mr-1" />
-                            ${discount.discount_value} OFF
+                            ${discount.discount_amount} OFF
                           </Badge>
                         )}
                       </div>
