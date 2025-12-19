@@ -88,7 +88,6 @@ export default function NewAnalysis() {
               industry: analysis.industry,
               report_language: analysis.report_language,
               country: analysis.country,
-              experience_level: analysis.experience_level,
               target_hint: "",
               chat_context: decodeURIComponent(contextParam)
             });
@@ -150,7 +149,6 @@ export default function NewAnalysis() {
           // Fallback path on network/5xx errors: create via entity SDK directly
           const {
             business_idea,
-            experience_level,
             report_language,
             country,
             industry,
@@ -158,7 +156,6 @@ export default function NewAnalysis() {
           } = combinedFormData;
           createdAnalysis = await Analysis.create({
             business_idea: String(business_idea || "").trim(),
-            experience_level: (experience_level || "beginner").toLowerCase(),
             report_language: (report_language || "english").toLowerCase(),
             country: country || "Syria",
             industry: industry || "Other",
