@@ -9,6 +9,7 @@ from .models import db
 from server.config import get_config
 from server.exceptions import APIException
 from server.utils.response import APIResponse
+from server.utils.audit_middleware import setup_audit_logging
 import logging
 import os
 
@@ -81,6 +82,10 @@ def create_app(config=None):
     with app.app_context():
         db.create_all()
         logger.info("Database initialized")
+    
+    # Setup audit logging middleware
+    setup_audit_logging(app)
+    logger.info("Audit logging middleware initialized")
     
     logger.info(f"Application created with {app.config.get('FLASK_ENV', 'development')} configuration")
     logger.info(f"Swagger UI available at http://localhost:3000/api/apidocs")

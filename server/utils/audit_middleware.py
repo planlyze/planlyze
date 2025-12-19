@@ -1,8 +1,5 @@
 import time
 import json
-import re
-import threading
-from functools import wraps
 from flask import request, g
 import jwt
 import os
@@ -112,36 +109,9 @@ def get_request_body():
         return None
 
 
-def log_request_async(log_data):
-    from server.app import create_app
+def setup_audit_logging(app):
     from server.models import ApiRequestLog, db
     
-    def save_log():
-        try:
-            app = create_app()
-            with app.app_context():
-                log = ApiRequestLog(**log_data)
-                db.session.add(log)
-                db.session.commit()
-        except Exception as e:
-            print(f"Failed to save audit log: {e}")
-    
-    thread = threading.Thread(target=save_log)
-    thread.daemon = True
-    thread.start()
-
-
-class AuditMiddleware:
-    def __init__(self, app):
-        self.app = app
-        self.wsgi_app = app.wsgi_app
-        app.wsgi_app = self
-        
-    def __call__(self, environ, start_response):
-        return self.wsgi_app(environ, start_response)
-
-
-def setup_audit_logging(app):
     @app.before_request
     def before_request():
         g.start_time = time.time()
@@ -176,27 +146,31 @@ def setup_audit_logging(app):
                 except:
                     pass
             
-            log_data = {
-                'method': request.method,
-                'path': request.path,
-                'full_url': request.url[:2000] if request.url else None,
-                'query_params': dict(request.args) if request.args else None,
-                'request_headers': mask_headers(dict(request.headers)),
-                'request_body': truncate_body(getattr(g, 'request_body', None)),
-                'response_status': response.status_code,
-                'response_body': response_body,
-                'user_email': user_email,
-                'user_role': user_role,
-                'ip_address': request.remote_addr or request.headers.get('X-Forwarded-For', '')[:50],
-                'user_agent': request.headers.get('User-Agent', '')[:500],
-                'execution_time_ms': round(execution_time, 2),
-                'error_message': error_message
-            }
-            
-            log_request_async(log_data)
+            log = ApiRequestLog(
+                method=request.method,
+                path=request.path,
+                full_url=request.url[:2000] if request.url else None,
+                query_params=dict(request.args) if request.args else None,
+                request_headers=mask_headers(dict(request.headers)),
+                request_body=truncate_body(getattr(g, 'request_body', None)),
+                response_status=response.status_code,
+                response_body=response_body,
+                user_email=user_email,
+                user_role=user_role,
+                ip_address=request.remote_addr or request.headers.get('X-Forwarded-For', '')[:50],
+                user_agent=request.headers.get('User-Agent', '')[:500],
+                execution_time_ms=round(execution_time, 2),
+                error_message=error_message
+            )
+            db.session.add(log)
+            db.session.commit()
             
         except Exception as e:
             print(f"Audit logging error: {e}")
+            try:
+                db.session.rollback()
+            except:
+                pass
         
         return response
     

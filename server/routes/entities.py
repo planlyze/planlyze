@@ -704,6 +704,80 @@ def create_audit_log(user):
     db.session.commit()
     return jsonify(log.to_dict()), 201
 
+# API Request Logs endpoints
+@entities_bp.route('/api-request-logs', methods=['GET'])
+@require_admin
+def get_api_request_logs(user):
+    """
+    Get API request logs (admin only)
+    ---
+    tags:
+      - Audit
+    security:
+      - Bearer: []
+    parameters:
+      - name: limit
+        in: query
+        type: integer
+        default: 100
+      - name: method
+        in: query
+        type: string
+      - name: path
+        in: query
+        type: string
+      - name: status
+        in: query
+        type: integer
+      - name: user_email
+        in: query
+        type: string
+    responses:
+      200:
+        description: List of API request logs
+    """
+    from server.models import ApiRequestLog
+    
+    limit = request.args.get('limit', 100, type=int)
+    limit = min(limit, 500)
+    
+    query = ApiRequestLog.query
+    
+    if request.args.get('method'):
+        query = query.filter(ApiRequestLog.method == request.args.get('method'))
+    if request.args.get('path'):
+        query = query.filter(ApiRequestLog.path.contains(request.args.get('path')))
+    if request.args.get('status'):
+        query = query.filter(ApiRequestLog.response_status == request.args.get('status', type=int))
+    if request.args.get('user_email'):
+        query = query.filter(ApiRequestLog.user_email == request.args.get('user_email'))
+    
+    logs = query.order_by(ApiRequestLog.created_at.desc()).limit(limit).all()
+    return jsonify([l.to_dict() for l in logs])
+
+@entities_bp.route('/api-request-logs/<log_id>', methods=['GET'])
+@require_admin
+def get_api_request_log(user, log_id):
+    """
+    Get a specific API request log (admin only)
+    ---
+    tags:
+      - Audit
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: API request log details
+      404:
+        description: Log not found
+    """
+    from server.models import ApiRequestLog
+    
+    log = ApiRequestLog.query.get(log_id)
+    if not log:
+        return jsonify({'error': 'Log not found'}), 404
+    return jsonify(log.to_dict())
+
 # Activity Feed endpoints
 @entities_bp.route('/activity-feed', methods=['GET'])
 @require_auth
