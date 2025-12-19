@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, User } from "@/api/client";
+import { auth, Referral } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -34,12 +34,9 @@ export default function Referrals() {
       const user = await auth.me();
       setCurrentUser(user);
       
-      // Load users referred by this user
-      const allUsers = await User.filter({});
-      const referredUsers = Array.isArray(allUsers) 
-        ? allUsers.filter(u => u.referred_by === user.email)
-        : [];
-      setReferrals(referredUsers);
+      // Load referrals for this user
+      const userReferrals = await Referral.list();
+      setReferrals(Array.isArray(userReferrals) ? userReferrals : []);
     } catch (error) {
       console.error("Error loading referral data:", error);
       window.location.href = "/login";
