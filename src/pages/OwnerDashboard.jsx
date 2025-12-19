@@ -513,7 +513,7 @@ export default function OwnerDashboard() {
                           {user.last_login ? format(new Date(user.last_login), "MMM d, yyyy") : "—"}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {format(new Date(user.created_date), "MMM d, yyyy")}
+                          {user.created_at ? format(new Date(user.created_at), "MMM d, yyyy") : "—"}
                         </TableCell>
                         <TableCell>
                           <div className="hidden md:flex flex-wrap gap-2">
