@@ -391,7 +391,7 @@ export default function Credits() {
                         <Button
                           variant="outline"
                           size="icon"
-                          onClick={() => setCustomCredits(Math.max(1, customCredits - 5))}
+                          onClick={() => setCustomCredits(Math.max(1, customCredits - 1))}
                           disabled={customCredits <= 1}
                           className="h-10 w-10 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-100 transition-all"
                         >
@@ -409,7 +409,7 @@ export default function Credits() {
                         <Button
                           variant="outline"
                           size="icon"
-                          onClick={() => setCustomCredits(customCredits + 5)}
+                          onClick={() => setCustomCredits(customCredits + 1)}
                           className="h-10 w-10 rounded-full border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-100 transition-all"
                         >
                           <Plus className="w-4 h-4" />
