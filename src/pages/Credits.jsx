@@ -9,23 +9,28 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Wallet, Sparkles, Package, ArrowLeft, Banknote, 
-  Crown, Gift, Rocket, CheckCircle2, Plus, Minus
+  Crown, Gift, Rocket, CheckCircle2, Plus, Minus,
+  History, TrendingUp, TrendingDown, Clock, CreditCard,
+  ArrowUpRight, ArrowDownRight, Zap, Star
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
+import { format } from "date-fns";
 
 export default function Credits() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [packages, setPackages] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cashModalOpen, setCashModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [hoveredPackage, setHoveredPackage] = useState(null);
   const [customCredits, setCustomCredits] = useState(5);
   const [pricePerCredit, setPricePerCredit] = useState(1.99);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -38,6 +43,9 @@ export default function Credits() {
       setCurrentUser(user);
       const pkgs = await CreditPackage.filter({ is_active: true }, "price");
       setPackages(pkgs);
+      
+      const txns = await Transaction.filter({ user_email: user.email }, "-created_at");
+      setTransactions(txns.slice(0, 10));
       
       const settings = await Settings.get();
       if (settings?.price_per_credit) {
@@ -475,8 +483,172 @@ export default function Credits() {
           </div>
         </section>
 
+        {/* Transaction History Section */}
+        {transactions.length > 0 && (
+          <section>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-10"
+            >
+              <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 mb-4 px-4 py-1.5 text-sm font-medium">
+                <History className="w-4 h-4 mr-1 inline" />
+                {t('credits.recentActivity')}
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white mb-3">
+                {t('credits.transactionHistory')}
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
+                {t('credits.trackYourCredits')}
+              </p>
+            </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-800 overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-gray-800 dark:to-gray-900 border-b dark:border-gray-700 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-purple-600" />
+                      {t('credits.creditTransactions')}
+                    </CardTitle>
+                    <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-slate-300">
+                      {transactions.length} {t('credits.transactions')}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y dark:divide-gray-700">
+                    {(showAllTransactions ? transactions : transactions.slice(0, 5)).map((txn, index) => {
+                      const isPositive = txn.credits > 0;
+                      const isPending = txn.status === 'pending';
+                      
+                      return (
+                        <motion.div
+                          key={txn.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors ${isPending ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+                              isPending 
+                                ? 'bg-amber-100 dark:bg-amber-900/30' 
+                                : isPositive 
+                                  ? 'bg-green-100 dark:bg-green-900/30' 
+                                  : 'bg-red-100 dark:bg-red-900/30'
+                            }`}>
+                              {isPending ? (
+                                <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                              ) : isPositive ? (
+                                <ArrowDownRight className="w-5 h-5 text-green-600 dark:text-green-400" />
+                              ) : (
+                                <ArrowUpRight className="w-5 h-5 text-red-600 dark:text-red-400" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-800 dark:text-white">
+                                {txn.type === 'purchase' ? t('credits.creditPurchase') :
+                                 txn.type === 'usage' ? t('credits.creditUsage') :
+                                 txn.type === 'bonus' ? t('credits.bonusCredit') :
+                                 txn.type === 'adjustment' ? t('credits.adjustment') :
+                                 txn.type}
+                              </p>
+                              <p className="text-sm text-slate-500 dark:text-slate-400">
+                                {txn.description || txn.notes || '-'}
+                              </p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                {txn.created_at ? format(new Date(txn.created_at), 'MMM dd, yyyy - h:mm a') : '-'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-lg font-bold ${
+                              isPending 
+                                ? 'text-amber-600 dark:text-amber-400' 
+                                : isPositive 
+                                  ? 'text-green-600 dark:text-green-400' 
+                                  : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {isPositive ? '+' : ''}{txn.credits} {t('credits.credits')}
+                            </p>
+                            <Badge className={`text-xs ${
+                              isPending 
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' 
+                                : txn.status === 'completed' 
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                  : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                            }`}>
+                              {isPending ? t('credits.pending') : t('credits.completed')}
+                            </Badge>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  
+                  {transactions.length > 5 && (
+                    <div className="p-4 border-t dark:border-gray-700 bg-slate-50 dark:bg-gray-900/50">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowAllTransactions(!showAllTransactions)}
+                        className="w-full text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                      >
+                        {showAllTransactions ? t('credits.showLess') : t('credits.showMore', { count: transactions.length - 5 })}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </section>
+        )}
 
+        {/* Quick Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        >
+          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-lg overflow-hidden relative">
+            <div className="absolute inset-0 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 w-32 h-32" />
+            <CardContent className="p-5 text-center relative">
+              <Wallet className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-3xl font-bold">{currentUser?.credits || 0}</p>
+              <p className="text-purple-200 text-sm">{t('credits.currentBalance')}</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-lg overflow-hidden relative">
+            <div className="absolute inset-0 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 w-32 h-32" />
+            <CardContent className="p-5 text-center relative">
+              <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-3xl font-bold">{transactions.filter(tx => tx.credits > 0 && tx.status === 'completed').reduce((sum, tx) => sum + tx.credits, 0)}</p>
+              <p className="text-green-200 text-sm">{t('credits.totalEarned')}</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-orange-500 to-amber-600 text-white border-0 shadow-lg overflow-hidden relative">
+            <div className="absolute inset-0 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 w-32 h-32" />
+            <CardContent className="p-5 text-center relative">
+              <Zap className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-3xl font-bold">{Math.abs(transactions.filter(tx => tx.credits < 0 && tx.status === 'completed').reduce((sum, tx) => sum + tx.credits, 0))}</p>
+              <p className="text-orange-200 text-sm">{t('credits.totalUsed')}</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-indigo-500 to-blue-600 text-white border-0 shadow-lg overflow-hidden relative">
+            <div className="absolute inset-0 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 w-32 h-32" />
+            <CardContent className="p-5 text-center relative">
+              <Star className="w-8 h-8 mx-auto mb-2 opacity-80" />
+              <p className="text-3xl font-bold">{transactions.filter(tx => tx.status === 'completed').length}</p>
+              <p className="text-indigo-200 text-sm">{t('credits.totalTransactions')}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
 
       </div>
