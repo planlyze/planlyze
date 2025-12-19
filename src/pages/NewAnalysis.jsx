@@ -67,7 +67,7 @@ export default function NewAnalysis() {
   React.useEffect(() => {
     (async () => {
       try {
-        await User.me();
+        await auth.me();
         
         // Check for regeneration mode
         const urlParams = new URLSearchParams(window.location.search);
@@ -94,7 +94,7 @@ export default function NewAnalysis() {
           }
         }
       } catch {
-        await User.loginWithRedirect(window.location.href);
+        window.location.href = "/login";
       } finally {
         setAuthChecked(true);
       }
@@ -104,34 +104,35 @@ export default function NewAnalysis() {
   const handleFormSubmit = async (formDataFromWizard) => {
     const combinedFormData = { ...formDataFromWizard };
     setAnalysisData(combinedFormData);
-    setCurrentStep("processing");
     setProgress(0);
     setLastError("");
 
     try {
-      // Check if user has premium credits - automatically use for premium generation
-      const user = await User.me();
-      const currentCredits = user.premium_credits || 0;
-      const hasPremiumCredits = currentCredits > 0;
+      // Check if user has credits available
+      const user = await auth.me();
+      const currentCredits = user.credits || 0;
       
-      // Deduct credit upfront and create pending transaction to prevent race conditions (only if has credits)
-      let transactionId = null;
-      if (hasPremiumCredits) {
-        await User.updateMyUserData({
-          premium_credits: currentCredits - 1,
-          total_credits_used: (user.total_credits_used || 0) + 1
-        });
-        
-        const tx = await Transaction.create({
-          user_email: user.email,
-          type: 'usage',
-          credits: -1,
-          status: 'pending',
-          notes: 'Premium credit reserved for analysis report'
-        });
-        transactionId = tx.id;
-        setPendingTransactionId(transactionId);
+      // User must have at least 1 credit to generate a report
+      if (currentCredits < 1) {
+        toast.error("You don't have enough credits. Please purchase credits to generate a report.");
+        setCurrentStep("form");
+        return;
       }
+      
+      setCurrentStep("processing");
+      
+      // Deduct credit upfront as "pending" to prevent race conditions
+      // This prevents user from generating multiple reports with one credit simultaneously
+      let transactionId = null;
+      const tx = await Transaction.create({
+        user_email: user.email,
+        type: 'usage',
+        credits: -1,
+        status: 'pending',
+        description: 'Credit reserved for analysis report generation'
+      });
+      transactionId = tx.id;
+      setPendingTransactionId(transactionId);
       
       // Try via API first
       let createdAnalysis;
@@ -163,8 +164,7 @@ export default function NewAnalysis() {
             status: "analyzing",
             report_generated: false,
             progress_percent: 10,
-            last_error: null,
-            is_premium: hasPremiumCredits
+            last_error: null
           });
         } else {
           // Non-retryable (e.g., validation errors) -> propagate
