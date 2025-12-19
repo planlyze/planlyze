@@ -210,9 +210,15 @@ class PaymentMethod(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
+        details = self.details or {}
         return {
             'id': self.id,
             'name': self.name,
+            'name_en': details.get('name_en') or self.name,
+            'name_ar': details.get('name_ar'),
+            'logo_url': details.get('logo_url'),
+            'description': details.get('description'),
+            'sort_order': details.get('sort_order', 0),
             'type': self.type,
             'details': self.details,
             'instructions': self.instructions,
