@@ -76,11 +76,8 @@ export default function VerifyEmail() {
         setUser(response.user);
         localStorage.removeItem("pending_verification_email");
       }
-      setStatus("success");
       toast.success(response.message || t('auth.emailVerified') || 'Email verified successfully!');
-      setTimeout(() => {
-        navigate("/Dashboard");
-      }, 2000);
+      navigate("/Dashboard");
     } catch (error) {
       setStatus("error");
       setOtp(["", "", "", "", "", ""]);
