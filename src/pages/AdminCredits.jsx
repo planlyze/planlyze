@@ -196,6 +196,7 @@ export default function AdminCredits() {
       credits: 10,
       price_usd: 9.99,
       description: '',
+      features: [],
       is_active: true,
       is_popular: false
     }]);
@@ -671,6 +672,21 @@ export default function AdminCredits() {
                           </SelectContent>
                         </Select>
                       </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Features (one per line)</Label>
+                      <Textarea
+                        value={(pkg.features || []).join('\n')}
+                        onChange={(e) => {
+                          const features = e.target.value.split('\n').filter(f => f.trim());
+                          updatePackageField(index, 'features', features);
+                        }}
+                        placeholder="e.g., Full business analysis report&#10;Market research insights&#10;Competitor analysis"
+                        rows={4}
+                        className="font-mono text-sm"
+                      />
+                      <p className="text-xs text-slate-500">Enter each feature on a new line</p>
                     </div>
 
                     <div className="text-sm text-slate-600 bg-white p-3 rounded-lg">

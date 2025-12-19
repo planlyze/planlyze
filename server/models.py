@@ -124,6 +124,7 @@ class CreditPackage(db.Model):
     credits = db.Column(db.Integer, nullable=False)
     price_usd = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text)
+    features = db.Column(db.JSON, default=list)
     is_active = db.Column(db.Boolean, default=True)
     is_popular = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -135,6 +136,7 @@ class CreditPackage(db.Model):
             'credits': self.credits,
             'price_usd': self.price_usd,
             'description': self.description,
+            'features': self.features or [],
             'is_active': self.is_active,
             'is_popular': self.is_popular,
             'created_at': self.created_at.isoformat() if self.created_at else None
