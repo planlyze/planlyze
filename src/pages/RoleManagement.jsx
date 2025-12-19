@@ -133,7 +133,7 @@ export default function RoleManagement() {
   };
 
   const handleDelete = async (role) => {
-    const usersWithRole = users.filter(u => u.custom_role_id === role.id);
+    const usersWithRole = users.filter(u => u.role_id === role.id);
     
     if (usersWithRole.length > 0) {
       toast.error(`Cannot delete role. ${usersWithRole.length} user(s) are assigned to this role.`);
@@ -155,7 +155,7 @@ export default function RoleManagement() {
   };
 
   const getUserCountForRole = (roleId) => {
-    return users.filter(u => u.custom_role_id === roleId).length;
+    return users.filter(u => u.role_id === roleId).length;
   };
 
   if (isLoading) {
