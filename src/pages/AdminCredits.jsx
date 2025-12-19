@@ -135,7 +135,7 @@ export default function AdminCredits() {
 
     // Validate deduction doesn't exceed current credits
     if (adjustmentType === "deduct") {
-      const currentCredits = selectedUser.premium_credits || 0;
+      const currentCredits = selectedUser.credits || 0;
       if (amount > currentCredits) {
         toast.error(`Cannot deduct ${amount} credits. User only has ${currentCredits} credits.`);
         return;
@@ -243,12 +243,17 @@ export default function AdminCredits() {
     }
   };
 
-  const totalCreditsIssued = users.reduce((sum, u) => sum + (u.total_credits_purchased || 0), 0);
-  const totalCreditsUsed = users.reduce((sum, u) => sum + (u.total_credits_used || 0), 0);
-  const totalCreditsRemaining = users.reduce((sum, u) => sum + (u.premium_credits || 0), 0);
+  const totalCreditsIssued = transactions
+    .filter(t => t.type === 'purchase' && t.status === 'completed')
+    .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+  const totalCreditsUsed = transactions
+    .filter(t => t.type === 'usage' && t.status === 'completed')
+    .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+  const totalCreditsRemaining = users.reduce((sum, u) => sum + (u.credits || 0), 0);
   const totalRevenue = transactions
     .filter(t => t.type === 'purchase' && t.status === 'completed')
     .reduce((sum, t) => sum + (t.amount_usd || 0), 0);
+  const totalReports = transactions.filter(t => t.type === 'usage').length;
 
   if (isLoading) {
     return (
@@ -283,40 +288,58 @@ export default function AdminCredits() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <Card className="glass-effect border border-purple-200">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Users</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">${totalRevenue.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-slate-800">{users.length}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-effect border border-purple-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-indigo-600">{totalReports}</div>
             </CardContent>
           </Card>
           
           <Card className="glass-effect border border-purple-200">
-            <CardHeader>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">${totalRevenue.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="glass-effect border border-purple-200">
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-slate-600">Credits Issued</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{totalCreditsIssued}</div>
+              <div className="text-2xl font-bold text-blue-600">{totalCreditsIssued}</div>
             </CardContent>
           </Card>
 
           <Card className="glass-effect border border-purple-200">
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-slate-600">Credits Used</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-600">{totalCreditsUsed}</div>
+              <div className="text-2xl font-bold text-orange-600">{totalCreditsUsed}</div>
             </CardContent>
           </Card>
 
           <Card className="glass-effect border border-purple-200">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-slate-600">Credits Remaining</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">Credits Available</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-600">{totalCreditsRemaining}</div>
+              <div className="text-2xl font-bold text-purple-600">{totalCreditsRemaining}</div>
             </CardContent>
           </Card>
         </div>
@@ -395,7 +418,7 @@ export default function AdminCredits() {
                           </TableCell>
                           <TableCell className="text-center">
                             <span className="font-bold text-purple-600">
-                              {user.premium_credits || 0}
+                              {user.credits || 0}
                             </span>
                           </TableCell>
                           <TableCell className="text-center">
@@ -844,7 +867,7 @@ export default function AdminCredits() {
                   <div>
                     <Label>Current Balance</Label>
                     <div className="text-2xl font-bold text-purple-600">
-                      {selectedUser?.premium_credits || 0} credits
+                      {selectedUser?.credits || 0} credits
                     </div>
                   </div>
                   <div>
@@ -855,11 +878,11 @@ export default function AdminCredits() {
                       value={adjustmentAmount}
                       onChange={(e) => setAdjustmentAmount(e.target.value)}
                       min="1"
-                      max={adjustmentType === "deduct" ? (selectedUser?.premium_credits || 0) : undefined}
+                      max={adjustmentType === "deduct" ? (selectedUser?.credits || 0) : undefined}
                     />
                     {adjustmentType === "deduct" && (
                       <p className="text-sm text-slate-500 mt-1">
-                        Maximum: {selectedUser?.premium_credits || 0} credits
+                        Maximum: {selectedUser?.credits || 0} credits
                       </p>
                     )}
                   </div>
@@ -898,9 +921,9 @@ export default function AdminCredits() {
                     <div className="mt-3 pt-3 border-t border-amber-200">
                       <div className="text-sm">
                         <span className="text-amber-700">Current balance:</span>{" "}
-                        <span className="font-bold">{selectedUser?.premium_credits || 0}</span> →{" "}
+                        <span className="font-bold">{selectedUser?.credits || 0}</span> →{" "}
                         <span className="font-bold text-purple-600">
-                          {(selectedUser?.premium_credits || 0) + (adjustmentType === "add" ? parseInt(adjustmentAmount) : -parseInt(adjustmentAmount))}
+                          {(selectedUser?.credits || 0) + (adjustmentType === "add" ? parseInt(adjustmentAmount) : -parseInt(adjustmentAmount))}
                         </span>
                       </div>
                     </div>
