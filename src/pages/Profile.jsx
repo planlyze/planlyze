@@ -55,18 +55,21 @@ export default function Profile() {
 
   const handleSave = async () => {
     setSaving(true);
-    await User.updateMyUserData({
-      display_name: form.display_name || "",
-      phone_number: form.phone_number || "",
-      country: form.country || "",
-      city: form.city || ""
-    });
-    // Log activity
-    if (user?.email) {
-      await logProfileUpdated(user.email);
+    try {
+      await User.updateProfile({
+        full_name: form.full_name || "",
+        language: user?.language || "en"
+      });
+      if (user?.email) {
+        await logProfileUpdated(user.email);
+      }
+      toast.success(isArabic ? "تم تحديث الملف الشخصي" : "Profile updated");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(isArabic ? "فشل في تحديث الملف الشخصي" : "Failed to update profile");
+    } finally {
+      setSaving(false);
     }
-    toast.success(isArabic ? "تم تحديث الملف الشخصي" : "Profile updated");
-    setSaving(false);
   };
 
   if (loading) {
