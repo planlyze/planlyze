@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { User } from "@/api/client";
+import { useTranslation } from "react-i18next";
+import { User, auth } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { ArrowLeft, User as UserIcon, Mail, Phone, MapPin, Lock, Save, Globe } f
 import { logProfileUpdated } from "@/components/utils/activityHelper";
 
 export default function Profile() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,12 +29,12 @@ export default function Profile() {
     city: ""
   });
 
-  const isArabic = user?.preferred_language === 'arabic';
+  const isArabic = i18n.language === 'ar' || user?.preferred_language === 'arabic';
 
   useEffect(() => {
     const init = async () => {
       try {
-        const me = await User.me();
+        const me = await auth.me();
         setUser(me);
         setForm({
           full_name: me.full_name || "",
@@ -43,7 +45,7 @@ export default function Profile() {
           city: me.city || ""
         });
       } catch (e) {
-        await User.loginWithRedirect(window.location.href);
+        window.location.href = "/login";
       } finally {
         setLoading(false);
       }
@@ -56,17 +58,17 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await User.updateProfile({
+      await auth.updateProfile({
         full_name: form.full_name || "",
         language: user?.language || "en"
       });
       if (user?.email) {
         await logProfileUpdated(user.email);
       }
-      toast.success(isArabic ? "تم تحديث الملف الشخصي" : "Profile updated");
+      toast.success(t('profile.profileUpdated'));
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(isArabic ? "فشل في تحديث الملف الشخصي" : "Failed to update profile");
+      toast.error(t('profile.profileUpdateFailed'));
     } finally {
       setSaving(false);
     }
@@ -86,31 +88,29 @@ export default function Profile() {
   return (
     <div className="min-h-screen p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("Dashboard"))} className="shadow-sm">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "الملف الشخصي" : "Profile"}
+              {t('profile.title')}
             </h1>
-            <p className="text-slate-600 mt-1">{isArabic ? "إدارة معلوماتك الشخصية" : "Manage your personal information"}</p>
+            <p className="text-slate-600 mt-1">{t('profile.subtitle')}</p>
           </div>
         </div>
 
-        {/* Profile Card */}
         <Card className="glass-effect border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-slate-800">
               <UserIcon className="w-5 h-5" />
-              {isArabic ? "معلومات الحساب" : "Account Information"}
+              {t('profile.accountInfo')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="full_name">{isArabic ? "الاسم الكامل" : "Full name"}</Label>
+                <Label htmlFor="full_name">{t('profile.fullName')}</Label>
                 <div className="relative">
                   <UserIcon className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -118,25 +118,25 @@ export default function Profile() {
                     value={form.full_name}
                     disabled
                     className={`${isArabic ? 'pr-9' : 'pl-9'} bg-slate-50`}
-                    placeholder={isArabic ? "اسمك" : "Your name"}
+                    placeholder={t('profile.fullNamePlaceholder')}
                   />
                 </div>
-                <p className="text-xs text-slate-500">{isArabic ? "يُدار بواسطة مزود تسجيل الدخول." : "Managed by your login provider."}</p>
+                <p className="text-xs text-slate-500">{t('profile.fullNameManaged')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="display_name">{isArabic ? "الاسم المعروض" : "Display name"}</Label>
+                <Label htmlFor="display_name">{t('profile.displayName')}</Label>
                 <Input
                   id="display_name"
                   value={form.display_name}
                   onChange={(e) => handleChange("display_name", e.target.value)}
-                  placeholder={isArabic ? "الاسم المعروض في التطبيق" : "Name shown in the app"}
+                  placeholder={t('profile.displayNamePlaceholder')}
                 />
-                <p className="text-xs text-slate-500">{isArabic ? "يظهر في التطبيق؛ لا يغير اسم تسجيل الدخول." : "Shown across the app; does not change your login name."}</p>
+                <p className="text-xs text-slate-500">{t('profile.displayNameNote')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">{isArabic ? "البريد الإلكتروني" : "Email"}</Label>
+                <Label htmlFor="email">{t('profile.email')}</Label>
                 <div className="relative">
                   <Mail className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -148,11 +148,11 @@ export default function Profile() {
                     placeholder="you@example.com"
                   />
                 </div>
-                <p className="text-xs text-slate-500">{isArabic ? "البريد الإلكتروني يُدار بواسطة المنصة ولا يمكن تغييره هنا." : "Email is managed by the platform and cannot be changed here."}</p>
+                <p className="text-xs text-slate-500">{t('profile.emailManaged')}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">{isArabic ? "رقم الهاتف" : "Phone number"}</Label>
+                <Label htmlFor="phone">{t('profile.phoneNumber')}</Label>
                 <div className="relative">
                   <Phone className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -166,7 +166,7 @@ export default function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="country">{isArabic ? "الدولة" : "Country"}</Label>
+                <Label htmlFor="country">{t('profile.country')}</Label>
                 <div className="relative">
                   <MapPin className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -174,13 +174,13 @@ export default function Profile() {
                     value={form.country}
                     onChange={(e) => handleChange("country", e.target.value)}
                     className={isArabic ? 'pr-9' : 'pl-9'}
-                    placeholder={isArabic ? "سوريا" : "Syria"}
+                    placeholder={t('profile.countryPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="city">{isArabic ? "المدينة" : "City"}</Label>
+                <Label htmlFor="city">{t('profile.city')}</Label>
                 <div className="relative">
                   <MapPin className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -188,13 +188,13 @@ export default function Profile() {
                     value={form.city}
                     onChange={(e) => handleChange("city", e.target.value)}
                     className={isArabic ? 'pr-9' : 'pl-9'}
-                    placeholder={isArabic ? "دمشق" : "Damascus"}
+                    placeholder={t('profile.cityPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">{isArabic ? "كلمة المرور" : "Password"}</Label>
+                <Label htmlFor="password">{t('profile.password')}</Label>
                 <div className="relative">
                   <Lock className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3`} />
                   <Input
@@ -206,12 +206,12 @@ export default function Profile() {
                   />
                 </div>
                 <p className="text-xs text-slate-500">
-                  {isArabic ? "تغييرات كلمة المرور تتم بواسطة مزود تسجيل الدخول ولا يمكن تغييرها هنا." : "Password changes are handled by the login provider and cannot be changed here."}
+                  {t('profile.passwordManaged')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="language">{isArabic ? "اللغة" : "Language"}</Label>
+                <Label htmlFor="language">{t('profile.language')}</Label>
                 <div className="relative">
                   <Globe className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3 z-10`} />
                   <Select
@@ -219,7 +219,8 @@ export default function Profile() {
                     onValueChange={async (value) => {
                       await User.updateMyUserData({ preferred_language: value });
                       setUser(prev => ({ ...prev, preferred_language: value }));
-                      toast.success(value === 'arabic' ? "تم تغيير اللغة" : "Language changed");
+                      i18n.changeLanguage(value === 'arabic' ? 'ar' : 'en');
+                      toast.success(t('profile.languageChanged'));
                     }}
                   >
                     <SelectTrigger className={isArabic ? 'pr-9' : 'pl-9'}>
@@ -232,7 +233,7 @@ export default function Profile() {
                   </Select>
                 </div>
                 <p className="text-xs text-slate-500">
-                  {isArabic ? "اختر لغة واجهة التطبيق" : "Choose the app interface language"}
+                  {t('profile.languagePlaceholder')}
                 </p>
               </div>
             </div>
@@ -242,7 +243,7 @@ export default function Profile() {
             <div className="flex justify-end">
               <Button onClick={handleSave} disabled={saving} className="gap-2 gradient-primary text-white">
                 <Save className="w-4 h-4" />
-                {saving ? (isArabic ? "جارٍ الحفظ..." : "Saving...") : (isArabic ? "حفظ التغييرات" : "Save Changes")}
+                {saving ? t('profile.saving') : t('profile.saveChanges')}
               </Button>
             </div>
           </CardContent>

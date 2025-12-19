@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { auth, Notification } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -37,11 +38,14 @@ const notificationColors = {
 };
 
 export default function NotificationsPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
   useEffect(() => {
     loadData();
@@ -94,7 +98,6 @@ export default function NotificationsPage() {
     }
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
   const unreadCount = notifications.filter(n => !n.is_read).length;
   
   const filteredNotifications = activeTab === "unread" 
@@ -115,7 +118,6 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -127,10 +129,10 @@ export default function NotificationsPage() {
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "الإشعارات" : "Notifications"}
+              {t('notifications.title')}
             </h1>
             <p className="text-slate-600">
-              {isArabic ? "إدارة إشعاراتك وتفضيلاتك" : "Manage your notifications and preferences"}
+              {t('notifications.subtitle')}
             </p>
           </div>
           {unreadCount > 0 && (
@@ -140,7 +142,7 @@ export default function NotificationsPage() {
               className="border-2 border-purple-300 hover:bg-purple-50"
             >
               <CheckCheck className="w-4 h-4 mr-2" />
-              {isArabic ? "قراءة الكل" : "Mark all read"}
+              {t('notifications.markAllRead')}
             </Button>
           )}
         </div>
@@ -149,19 +151,19 @@ export default function NotificationsPage() {
           <TabsList className="grid w-full grid-cols-3 mb-6 [&>button]:text-slate-600 [&>button[data-state=inactive]]:text-slate-500">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Bell className="w-4 h-4" />
-              {isArabic ? "الكل" : "All"}
+              {t('notifications.all')}
               <Badge variant="secondary" className="ml-1">{notifications.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex items-center gap-2">
               <Info className="w-4 h-4" />
-              {isArabic ? "غير مقروء" : "Unread"}
+              {t('notifications.unread')}
               {unreadCount > 0 && (
                 <Badge className="ml-1 bg-red-500">{unreadCount}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              {isArabic ? "الإعدادات" : "Settings"}
+              {t('notifications.settings')}
             </TabsTrigger>
           </TabsList>
 
@@ -170,7 +172,7 @@ export default function NotificationsPage() {
               notifications={filteredNotifications}
               onMarkAsRead={markAsRead}
               onDelete={deleteNotification}
-              isArabic={isArabic}
+              t={t}
             />
           </TabsContent>
 
@@ -179,14 +181,13 @@ export default function NotificationsPage() {
               notifications={filteredNotifications}
               onMarkAsRead={markAsRead}
               onDelete={deleteNotification}
-              isArabic={isArabic}
+              t={t}
             />
           </TabsContent>
 
           <TabsContent value="settings">
             <NotificationPreferences 
               user={currentUser} 
-              isArabic={isArabic}
               onUpdate={(prefs) => setCurrentUser(prev => ({ ...prev, notification_preferences: prefs }))}
             />
           </TabsContent>
@@ -196,17 +197,17 @@ export default function NotificationsPage() {
   );
 }
 
-function NotificationsList({ notifications, onMarkAsRead, onDelete, isArabic }) {
+function NotificationsList({ notifications, onMarkAsRead, onDelete, t }) {
   if (notifications.length === 0) {
     return (
       <Card className="border-2 border-slate-200">
         <CardContent className="py-16 text-center">
           <Bell className="w-16 h-16 mx-auto mb-4 text-slate-300" />
           <h3 className="text-lg font-semibold text-slate-700 mb-2">
-            {isArabic ? "لا توجد إشعارات" : "No notifications"}
+            {t('notifications.noNotifications')}
           </h3>
           <p className="text-slate-500">
-            {isArabic ? "ستظهر إشعاراتك هنا" : "Your notifications will appear here"}
+            {t('notifications.notificationsAppearHere')}
           </p>
         </CardContent>
       </Card>
@@ -250,7 +251,7 @@ function NotificationsList({ notifications, onMarkAsRead, onDelete, isArabic }) 
                       {notification.link && (
                         <Link to={notification.link} onClick={(e) => e.stopPropagation()}>
                           <Button size="sm" variant="outline" className="border-purple-300 hover:bg-purple-50">
-                            {isArabic ? "عرض" : "View"}
+                            {t('notifications.view')}
                           </Button>
                         </Link>
                       )}

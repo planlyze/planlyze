@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { useTranslation } from "react-i18next";
+import { auth } from "@/api/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -11,62 +12,49 @@ const notificationTypes = [
   {
     id: "analysis_complete",
     icon: FileText,
-    titleEn: "Analysis Complete",
-    titleAr: "اكتمال التحليل",
-    descEn: "Get notified when your analysis report is ready",
-    descAr: "احصل على إشعار عند جاهزية تقرير التحليل"
+    titleKey: "analysisComplete",
+    descKey: "analysisCompleteDesc"
   },
   {
     id: "analysis_failed",
     icon: AlertCircle,
-    titleEn: "Analysis Failed",
-    titleAr: "فشل التحليل",
-    descEn: "Get notified if an analysis fails to complete",
-    descAr: "احصل على إشعار في حال فشل التحليل"
+    titleKey: "analysisFailed",
+    descKey: "analysisFailedDesc"
   },
   {
     id: "credits_low",
     icon: Wallet,
-    titleEn: "Low Credits",
-    titleAr: "رصيد منخفض",
-    descEn: "Get notified when your credits are running low",
-    descAr: "احصل على إشعار عند انخفاض رصيدك"
+    titleKey: "lowCredits",
+    descKey: "lowCreditsDesc"
   },
   {
     id: "credits_purchased",
     icon: Sparkles,
-    titleEn: "Credits Purchased",
-    titleAr: "شراء الأرصدة",
-    descEn: "Get notified when credits are added to your account",
-    descAr: "احصل على إشعار عند إضافة أرصدة لحسابك"
+    titleKey: "creditsPurchased",
+    descKey: "creditsPurchasedDesc"
   },
   {
     id: "payment_approved",
     icon: Check,
-    titleEn: "Payment Approved",
-    titleAr: "الموافقة على الدفع",
-    descEn: "Get notified when your payment is approved",
-    descAr: "احصل على إشعار عند الموافقة على دفعتك"
+    titleKey: "paymentApproved",
+    descKey: "paymentApprovedDesc"
   },
   {
     id: "payment_rejected",
     icon: AlertCircle,
-    titleEn: "Payment Rejected",
-    titleAr: "رفض الدفع",
-    descEn: "Get notified if your payment is rejected",
-    descAr: "احصل على إشعار في حال رفض دفعتك"
+    titleKey: "paymentRejected",
+    descKey: "paymentRejectedDesc"
   },
   {
     id: "system",
     icon: Bell,
-    titleEn: "System Updates",
-    titleAr: "تحديثات النظام",
-    descEn: "Get notified about important system updates",
-    descAr: "احصل على إشعارات حول تحديثات النظام المهمة"
+    titleKey: "systemUpdates",
+    descKey: "systemUpdatesDesc"
   }
 ];
 
-export default function NotificationPreferences({ user, onUpdate, isArabic = false }) {
+export default function NotificationPreferences({ user, onUpdate }) {
+  const { t } = useTranslation();
   const [preferences, setPreferences] = useState(user?.notification_preferences || {
     analysis_complete: true,
     analysis_failed: true,
@@ -90,11 +78,11 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
     setIsSaving(true);
     try {
       await auth.updateProfile({ notification_preferences: preferences });
-      toast.success(isArabic ? "تم حفظ التفضيلات" : "Preferences saved successfully");
+      toast.success(t('notifications.preferencesSaved'));
       if (onUpdate) onUpdate(preferences);
     } catch (error) {
       console.error("Error saving preferences:", error);
-      toast.error(isArabic ? "فشل حفظ التفضيلات" : "Failed to save preferences");
+      toast.error(t('notifications.preferencesSaveFailed'));
     } finally {
       setIsSaving(false);
     }
@@ -105,17 +93,13 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-purple-600" />
-          {isArabic ? "تفضيلات الإشعارات" : "Notification Preferences"}
+          {t('notifications.preferencesTitle')}
         </CardTitle>
         <CardDescription>
-          {isArabic 
-            ? "اختر الإشعارات التي تريد تلقيها"
-            : "Choose which notifications you want to receive"
-          }
+          {t('notifications.preferencesSubtitle')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Email notifications toggle */}
         <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -123,13 +107,10 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
             </div>
             <div>
               <p className="font-medium text-slate-800">
-                {isArabic ? "إشعارات البريد الإلكتروني" : "Email Notifications"}
+                {t('notifications.emailNotifications')}
               </p>
               <p className="text-sm text-slate-500">
-                {isArabic 
-                  ? "تلقي الإشعارات عبر البريد الإلكتروني"
-                  : "Receive notifications via email"
-                }
+                {t('notifications.emailNotificationsDesc')}
               </p>
             </div>
           </div>
@@ -139,7 +120,6 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
           />
         </div>
 
-        {/* Individual notification types */}
         <div className="space-y-4">
           {notificationTypes.map((type) => {
             const Icon = type.icon;
@@ -151,10 +131,10 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
                   </div>
                   <div>
                     <Label htmlFor={type.id} className="font-medium text-slate-700 cursor-pointer">
-                      {isArabic ? type.titleAr : type.titleEn}
+                      {t(`notifications.${type.titleKey}`)}
                     </Label>
                     <p className="text-xs text-slate-500">
-                      {isArabic ? type.descAr : type.descEn}
+                      {t(`notifications.${type.descKey}`)}
                     </p>
                   </div>
                 </div>
@@ -174,8 +154,8 @@ export default function NotificationPreferences({ user, onUpdate, isArabic = fal
           className="w-full bg-purple-600 hover:bg-purple-700 text-white"
         >
           {isSaving 
-            ? (isArabic ? "جاري الحفظ..." : "Saving...") 
-            : (isArabic ? "حفظ التفضيلات" : "Save Preferences")
+            ? t('notifications.savingPreferences')
+            : t('notifications.savePreferences')
           }
         </Button>
       </CardContent>
