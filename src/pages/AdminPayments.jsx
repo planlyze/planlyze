@@ -94,7 +94,12 @@ export default function AdminPayments() {
 
       // Update payment status
       const currentAdmin = await auth.me();
-      await Payment.list(); // Refresh list - or use API endpoint to update
+      await Payment.update(payment.id, {
+        status: 'approved',
+        approved_by: currentAdmin.email,
+        approved_at: new Date().toISOString(),
+        notes: adminNotes || null
+      });
       
       toast.success("Payment approved and credits added!");
       setSelectedPayment(null);
@@ -119,6 +124,12 @@ export default function AdminPayments() {
     try {
       const currentAdmin = await auth.me();
       // Update payment rejection status via API
+      await Payment.update(payment.id, {
+        status: 'rejected',
+        approved_by: currentAdmin.email,
+        approved_at: new Date().toISOString(),
+        notes: adminNotes || null
+      });
       
       toast.success("Payment rejected");
       setSelectedPayment(null);
