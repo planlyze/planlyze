@@ -15,6 +15,7 @@ import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
 import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
 import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
 import i18n from '@/i18n/config';
+import { ThemeProvider } from 'next-themes';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -151,15 +152,17 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-        <SonnerToaster position="top-center" richColors />
-      </QueryClientProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+          <SonnerToaster position="top-center" richColors />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

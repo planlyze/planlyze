@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'next-themes';
 import { createPageUrl } from "@/utils";
-import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell, ChevronRight, Sparkles } from "lucide-react";
+import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell, ChevronRight, Sparkles, Sun, Moon } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { User } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
@@ -160,6 +161,7 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { i18n, t } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const { user: authUser, isAuthenticated, logout: authLogout, updateMyUserData } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
   const [navigationItems, setNavigationItems] = useState([]);
@@ -450,10 +452,21 @@ export default function Layout({ children, currentPageName }) {
               </div>
               
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
-                  <Globe className="w-4 h-4 mr-1" />
-                  <span className="text-xs">{isArabic ? 'EN' : 'AR'}</span>
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={toggleLanguage} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" title={isArabic ? "Switch to English" : "التبديل إلى العربية"}>
+                    <Globe className="w-4 h-4 mr-1" />
+                    <span className="text-xs">{isArabic ? 'EN' : 'AR'}</span>
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title={theme === 'dark' ? (isArabic ? 'الوضع الفاتح' : 'Light Mode') : (isArabic ? 'الوضع الداكن' : 'Dark Mode')}
+                  >
+                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  </Button>
+                </div>
                 <div className="flex items-center gap-1">
                   <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
                   <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30">
@@ -478,6 +491,14 @@ export default function Layout({ children, currentPageName }) {
                   />
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  >
+                    {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                  </Button>
                   <NotificationBell userEmail={currentUser?.email} isArabic={isArabic} />
                   <Button variant="ghost" size="icon" onClick={() => setIsLogoutConfirmOpen(true)} className="text-gray-400 hover:text-red-500 dark:hover:text-red-400">
                     <LogOut className="w-5 h-5" />
