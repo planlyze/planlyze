@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +50,7 @@ const statusColors = {
 };
 
 export default function Reports() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function Reports() {
   const [selectedAnalysisForShare, setSelectedAnalysisForShare] = useState(null);
   const [exportingId, setExportingId] = useState(null);
   
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
   // Function to load analyses, now capable of handling admin views
   const loadAnalyses = async (userEmail, admin, myEmailParam, selectedUserPresent = false) => {
@@ -116,18 +118,17 @@ export default function Reports() {
   }, [navigate]);
 
   const handleDelete = async (analysis) => {
-    const confirmed = window.confirm(`Are you sure you want to delete this analysis?\n\n"${analysis.business_idea}"`);
+    const confirmed = window.confirm(`${t('reports.confirmDelete')}\n\n"${analysis.business_idea}"`);
     if (!confirmed) return;
     setDeletingId(analysis.id);
     try {
-      // Soft delete: mark as deleted, keep data
       await Analysis.update(analysis.id, { is_deleted: true, deleted_at: new Date().toISOString() });
-      toast.success("Analysis moved to trash.");
+      toast.success(t('reports.deleteSuccess'));
       // Reload analyses after deletion, passing current admin status and email
       await loadAnalyses(viewingEmail, isAdmin, myEmail, hasSelectedUser);
     } catch (e) {
       console.error("Error deleting analysis:", e);
-      toast.error("Failed to delete analysis. Please try again.");
+      toast.error(t('reports.deleteFailed'));
     } finally {
       setDeletingId(null);
     }
@@ -146,10 +147,10 @@ export default function Reports() {
       a.click();
       window.URL.revokeObjectURL(url);
       a.remove();
-      toast.success(isArabic ? "تم تصدير التقرير بنجاح" : "Report exported successfully");
+      toast.success(t('reports.exportSuccess'));
     } catch (error) {
       console.error("Error exporting report:", error);
-      toast.error(isArabic ? "فشل تصدير التقرير" : "Failed to export report");
+      toast.error(t('reports.exportFailed'));
     } finally {
       setExportingId(null);
     }
@@ -200,8 +201,8 @@ export default function Reports() {
               className="text-4xl font-bold text-orange-600"
             >
               {viewingEmail && !isOwnReports ? (
-                isArabic ? `تقارير التحليل - ${viewingEmail}` : `Analysis Reports - ${viewingEmail}`
-              ) : (isArabic ? "تقاريري" : "My Analysis Reports")}
+                `${t('reports.titleOther')} - ${viewingEmail}`
+              ) : t('reports.title')}
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0 }}
@@ -209,7 +210,7 @@ export default function Reports() {
               transition={{ delay: 0.3 }}
               className="text-slate-600 mt-2 text-lg"
             >
-              {isArabic ? "عرض وإدارة تقارير تحليل أعمالك" : "View and manage your business analysis reports"}
+              {t('reports.subtitle')}
             </motion.p>
           </div>
           <motion.div
@@ -219,7 +220,7 @@ export default function Reports() {
             <Link to={createPageUrl("NewAnalysis")}>
               <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-2xl transition-all duration-300 px-6 py-6 text-base">
                 <Plus className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                {isArabic ? "تحليل جديد" : "New Analysis"}
+                {t('reports.newAnalysis')}
               </Button>
             </Link>
           </motion.div>
@@ -250,7 +251,7 @@ export default function Reports() {
                       <Search className={`w-5 h-5 absolute ${isArabic ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2`} />
                     </motion.div>
                     <Input
-                      placeholder={isArabic ? "البحث في التحليلات حسب فكرة العمل..." : "Search analyses by business idea..."}
+                      placeholder={t('reports.searchPlaceholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className={`${isArabic ? 'pr-12' : 'pl-12'} h-12 border-2 border-slate-300 focus:border-purple-500 hover:border-purple-400 transition-all text-base bg-white shadow-sm`}
@@ -267,12 +268,12 @@ export default function Reports() {
                   </motion.div>
                   <Select value={premiumFilter} onValueChange={setPremiumFilter}>
                     <SelectTrigger className="w-48 h-12 border-2 border-slate-300 hover:border-purple-500 focus:border-purple-500 transition-all text-base bg-white shadow-sm">
-                      <SelectValue placeholder={isArabic ? "تصفية حسب النوع" : "Filter by type"} />
+                      <SelectValue placeholder={t('reports.filterByType')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{isArabic ? "الكل" : "All"}</SelectItem>
-                      <SelectItem value="premium">{isArabic ? "متميز" : "Premium"}</SelectItem>
-                      <SelectItem value="free">{isArabic ? "مجاني" : "Free"}</SelectItem>
+                      <SelectItem value="all">{t('reports.all')}</SelectItem>
+                      <SelectItem value="premium">{t('reports.premium')}</SelectItem>
+                      <SelectItem value="free">{t('reports.free')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -338,8 +339,8 @@ export default function Reports() {
                   className="text-2xl font-bold text-slate-800 mb-3"
                 >
                   {searchQuery || premiumFilter !== "all" 
-                    ? (isArabic ? "لا توجد تقارير مطابقة" : "No Matching Reports") 
-                    : (isArabic ? "لا توجد تقارير بعد" : "No Reports Yet")}
+                    ? t('reports.noMatchingReports')
+                    : t('reports.noReportsYet')}
                 </motion.h3>
                 <motion.p 
                   initial={{ opacity: 0 }}
@@ -348,8 +349,8 @@ export default function Reports() {
                   className="text-slate-600 text-lg mb-8 max-w-md mx-auto"
                 >
                   {searchQuery || premiumFilter !== "all"
-                    ? (isArabic ? "جرب تعديل البحث أو الفلاتر للعثور على ما تبحث عنه" : "Try adjusting your search or filters to find what you're looking for")
-                    : (isArabic ? "ابدأ تحليلك الأول لرؤية التقارير الشاملة هنا" : "Start your first business analysis to see comprehensive reports here")
+                    ? t('reports.adjustFilters')
+                    : t('reports.startFirstAnalysis')
                   }
                 </motion.p>
                 {(!searchQuery && premiumFilter === "all") && (
@@ -363,7 +364,7 @@ export default function Reports() {
                     <Link to={createPageUrl("NewAnalysis")}>
                       <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg">
                         <Plus className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                        {isArabic ? "إنشاء أول تحليل" : "Create First Analysis"}
+                        {t('reports.createFirstAnalysis')}
                       </Button>
                     </Link>
                   </motion.div>
