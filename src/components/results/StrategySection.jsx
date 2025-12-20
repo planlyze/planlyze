@@ -2,8 +2,9 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Shield, ListChecks, ArrowRight, Clock } from "lucide-react";
+import LockedContent from "./LockedContent";
 
-export default function StrategySection({ data, isArabic = false }) {
+export default function StrategySection({ data, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
 
   if (!data) {
@@ -84,51 +85,61 @@ export default function StrategySection({ data, isArabic = false }) {
         </CardContent>
       </Card>
 
-      <Card className="glass-effect border-0 shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-4">
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <ListChecks className="w-6 h-6" />
-            {t("Action Plan", "خطة العمل")}
-          </h2>
-        </div>
-        <CardContent className="p-6">
-          {actionPlan.length > 0 ? (
-            <div className="space-y-4">
-              {actionPlan.map((step, idx) => (
-                <div key={idx} className="relative">
-                  {idx < actionPlan.length - 1 && (
-                    <div className="absolute left-5 top-14 bottom-0 w-0.5 bg-emerald-200"></div>
-                  )}
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg">
-                      {step.step_number || idx + 1}
-                    </div>
-                    <div className="flex-1 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-bold text-lg text-slate-800">{step.title}</h4>
-                        {step.priority && (
-                          <Badge className={`${priorityColors[step.priority?.toLowerCase()] || priorityColors.medium}`}>
-                            {step.priority}
-                          </Badge>
+      {isPremium ? (
+        <Card className="glass-effect border-0 shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-4">
+            <h2 className="text-xl font-bold text-white flex items-center gap-3">
+              <ListChecks className="w-6 h-6" />
+              {t("Action Plan", "خطة العمل")}
+            </h2>
+          </div>
+          <CardContent className="p-6">
+            {actionPlan.length > 0 ? (
+              <div className="space-y-4">
+                {actionPlan.map((step, idx) => (
+                  <div key={idx} className="relative">
+                    {idx < actionPlan.length - 1 && (
+                      <div className="absolute left-5 top-14 bottom-0 w-0.5 bg-emerald-200"></div>
+                    )}
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg">
+                        {step.step_number || idx + 1}
+                      </div>
+                      <div className="flex-1 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-bold text-lg text-slate-800">{step.title}</h4>
+                          {step.priority && (
+                            <Badge className={`${priorityColors[step.priority?.toLowerCase()] || priorityColors.medium}`}>
+                              {step.priority}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-slate-600 mb-3">{step.description}</p>
+                        {step.timeline && (
+                          <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{step.timeline}</span>
+                          </div>
                         )}
                       </div>
-                      <p className="text-slate-600 mb-3">{step.description}</p>
-                      {step.timeline && (
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
-                          <Clock className="w-4 h-4" />
-                          <span>{step.timeline}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-slate-500 text-center py-4">{t("No action plan available.", "لا توجد خطة عمل.")}</p>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-4">{t("No action plan available.", "لا توجد خطة عمل.")}</p>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <LockedContent
+          title={t("Action Plan", "خطة العمل")}
+          description={t("Unlock step-by-step action plan with timeline and priorities", "افتح خطة العمل خطوة بخطوة مع الجدول الزمني والأولويات")}
+          isArabic={isArabic}
+          onUnlock={onUnlock}
+          isUnlocking={isUnlocking}
+        />
+      )}
     </div>
   );
 }

@@ -2,8 +2,9 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code, Users, Clock, Cpu, Layers, Rocket, Wrench, CheckCircle, XCircle, DollarSign, Sparkles } from "lucide-react";
+import LockedContent from "./LockedContent";
 
-export default function TechnicalSection({ data, isArabic = false }) {
+export default function TechnicalSection({ data, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
 
   if (!data) {
@@ -94,39 +95,50 @@ export default function TechnicalSection({ data, isArabic = false }) {
             </div>
           )}
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {techStack.estimated_time && (
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <h4 className="font-semibold text-slate-800">{t("Estimated Time", "الوقت المقدر")}</h4>
+          {isPremium ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {techStack.estimated_time && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-semibold text-slate-800">{t("Estimated Time", "الوقت المقدر")}</h4>
+                  </div>
+                  <p className="text-slate-600">{techStack.estimated_time}</p>
                 </div>
-                <p className="text-slate-600">{techStack.estimated_time}</p>
-              </div>
-            )}
-            {techStack.languages && techStack.languages.length > 0 && (
-              <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <Code className="w-5 h-5 text-indigo-600" />
-                  <h4 className="font-semibold text-slate-800">{t("Languages", "اللغات")}</h4>
+              )}
+              {techStack.languages && techStack.languages.length > 0 && (
+                <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Code className="w-5 h-5 text-indigo-600" />
+                    <h4 className="font-semibold text-slate-800">{t("Languages", "اللغات")}</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {techStack.languages.map((lang, idx) => (
+                      <Badge key={idx} className="bg-indigo-100 text-indigo-700">{lang}</Badge>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {techStack.languages.map((lang, idx) => (
-                    <Badge key={idx} className="bg-indigo-100 text-indigo-700">{lang}</Badge>
-                  ))}
+              )}
+              {techStack.total_team_cost_monthly && (
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                    <h4 className="font-semibold text-slate-800">{t("Monthly Team Cost", "تكلفة الفريق الشهرية")}</h4>
+                  </div>
+                  <p className="text-2xl font-bold text-green-600">${techStack.total_team_cost_monthly.toLocaleString()}</p>
                 </div>
-              </div>
-            )}
-            {techStack.total_team_cost_monthly && (
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                  <h4 className="font-semibold text-slate-800">{t("Monthly Team Cost", "تكلفة الفريق الشهرية")}</h4>
-                </div>
-                <p className="text-2xl font-bold text-green-600">${techStack.total_team_cost_monthly.toLocaleString()}</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <LockedContent
+              title={t("Time & Cost Details", "تفاصيل الوقت والتكلفة")}
+              description={t("Unlock estimated time, languages, and team cost breakdown", "افتح الوقت المقدر واللغات وتفاصيل تكلفة الفريق")}
+              isArabic={isArabic}
+              onUnlock={onUnlock}
+              isUnlocking={isUnlocking}
+              variant="inline"
+            />
+          )}
 
           {techStack.implementation_details && (
             <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">

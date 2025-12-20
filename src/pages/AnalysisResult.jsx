@@ -59,6 +59,7 @@ import BusinessSection from "../components/results/BusinessSection";
 import TechnicalSection from "../components/results/TechnicalSection";
 import FinancialSection from "../components/results/FinancialSection";
 import StrategySection from "../components/results/StrategySection";
+import LockedContent from "../components/results/LockedContent";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -872,7 +873,7 @@ export default function AnalysisResult() {
               </div>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Market Fit */}
+                  {/* Market Fit - Always visible */}
                   <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
@@ -893,53 +894,80 @@ export default function AnalysisResult() {
                     </div>
                   </div>
 
-                  {/* Time to Build */}
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 hover:shadow-lg transition-all">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-white" />
+                  {/* Time to Build - Locked for free */}
+                  {isPremium ? (
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                          <Clock className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-600">{isArabic ? "وقت البناء" : "Time to Build"}</p>
+                          <p className="text-2xl font-bold text-blue-600">
+                            {tabData.overview?.time_to_build_months || analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-600">{isArabic ? "وقت البناء" : "Time to Build"}</p>
-                        <p className="text-2xl font-bold text-blue-600">
-                          {tabData.overview?.time_to_build_months || analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
-                        </p>
-                      </div>
+                      <p className="text-xs text-slate-500">{isArabic ? "للوصول إلى MVP" : "to reach MVP"}</p>
                     </div>
-                    <p className="text-xs text-slate-500">{isArabic ? "للوصول إلى MVP" : "to reach MVP"}</p>
-                  </div>
+                  ) : (
+                    <LockedContent
+                      title={isArabic ? "وقت البناء" : "Time to Build"}
+                      description={isArabic ? "افتح لمعرفة الوقت المطلوب" : "Unlock to see build time"}
+                      isArabic={isArabic}
+                      variant="inline"
+                    />
+                  )}
 
-                  {/* Competitors */}
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200 hover:shadow-lg transition-all">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
-                        <Users className="w-6 h-6 text-white" />
+                  {/* Competitors - Locked for free */}
+                  {isPremium ? (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                          <Users className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-600">{isArabic ? "المنافسون" : "Competitors"}</p>
+                          <p className="text-2xl font-bold text-amber-600">
+                            {tabData.overview?.competitors_count || analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-600">{isArabic ? "المنافسون" : "Competitors"}</p>
-                        <p className="text-2xl font-bold text-amber-600">
-                          {tabData.overview?.competitors_count || analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
-                        </p>
-                      </div>
+                      <p className="text-xs text-slate-500">{isArabic ? "منافسون في السوق" : "competitors in market"}</p>
                     </div>
-                    <p className="text-xs text-slate-500">{isArabic ? "منافسون في السوق" : "competitors in market"}</p>
-                  </div>
+                  ) : (
+                    <LockedContent
+                      title={isArabic ? "المنافسون" : "Competitors"}
+                      description={isArabic ? "افتح لمعرفة عدد المنافسين" : "Unlock to see competitor count"}
+                      isArabic={isArabic}
+                      variant="inline"
+                    />
+                  )}
 
-                  {/* Starting Cost */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-lg transition-all">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                        <DollarSign className="w-6 h-6 text-white" />
+                  {/* Starting Cost - Locked for free */}
+                  {isPremium ? (
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                          <DollarSign className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-600">{isArabic ? "تكلفة البدء" : "Starting Cost"}</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            ${tabData.overview?.starting_cost_usd || analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-600">{isArabic ? "تكلفة البدء" : "Starting Cost"}</p>
-                        <p className="text-2xl font-bold text-green-600">
-                          ${tabData.overview?.starting_cost_usd || analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
-                        </p>
-                      </div>
+                      <p className="text-xs text-slate-500">{isArabic ? "رأس المال المطلوب" : "required capital"}</p>
                     </div>
-                    <p className="text-xs text-slate-500">{isArabic ? "رأس المال المطلوب" : "required capital"}</p>
-                  </div>
+                  ) : (
+                    <LockedContent
+                      title={isArabic ? "تكلفة البدء" : "Starting Cost"}
+                      description={isArabic ? "افتح لمعرفة رأس المال المطلوب" : "Unlock to see starting cost"}
+                      isArabic={isArabic}
+                      variant="inline"
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -966,7 +994,7 @@ export default function AnalysisResult() {
             <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
             
             {tabData.market ? (
-              <MarketSection data={tabData.market} isArabic={isArabic} />
+              <MarketSection data={tabData.market} isArabic={isArabic} isPremium={isPremium} />
             ) : (
               <>
                 <section id="market_opportunity">
@@ -1059,7 +1087,7 @@ export default function AnalysisResult() {
           <TabsContent value="technical" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
             {tabData.technical ? (
-              <TechnicalSection data={tabData.technical} isArabic={isArabic} />
+              <TechnicalSection data={tabData.technical} isArabic={isArabic} isPremium={isPremium} />
             ) : (
               <>
                 <section id="tech_stack_suggestions">
@@ -1131,7 +1159,7 @@ export default function AnalysisResult() {
           <TabsContent value="strategy" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
             {tabData.strategy ? (
-              <StrategySection data={tabData.strategy} isArabic={isArabic} />
+              <StrategySection data={tabData.strategy} isArabic={isArabic} isPremium={isPremium} />
             ) : (
               <>
                 <section id="swot">
