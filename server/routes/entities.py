@@ -1004,6 +1004,17 @@ def update_payment_method(user, id):
     db.session.commit()
     return jsonify(method.to_dict())
 
+@entities_bp.route('/payment-methods/<id>', methods=['DELETE'])
+@require_admin
+def delete_payment_method(user, id):
+    method = PaymentMethod.query.get(id)
+    if not method:
+        return jsonify({'error': 'Method not found'}), 404
+    
+    db.session.delete(method)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Payment method deleted'})
+
 # Discount Code endpoints
 @entities_bp.route('/discount-codes', methods=['GET'])
 @require_admin
