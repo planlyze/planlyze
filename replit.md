@@ -142,6 +142,6 @@ When a new analysis is generated, Claude AI provides comprehensive business and 
 - **Go-to-Market**: Launch strategy, marketing channels, content strategy, early adopter acquisition
 
 ### Technical Notes
-- Uses Claude claude-sonnet-4-20250514 model via Anthropic API
+- Uses Claude claude-sonnet-4-5 model via Replit AI Integrations
 - Max tokens: 8192 for comprehensive responses
 - Cost: 1 credit per analysis

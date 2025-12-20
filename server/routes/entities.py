@@ -356,12 +356,12 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 analysis_record.progress_percent = 40
                 db.session.commit()
                 
-                logger.info(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-20250514")
-                print(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-20250514")
+                logger.info(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-5")
+                print(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-5")
                 print(f"[Claude LLM] Business idea: {business_idea[:100]}...")
                 
                 response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-sonnet-4-5",
                     max_tokens=8192,
                     messages=[{"role": "user", "content": prompt}]
                 )
