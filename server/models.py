@@ -84,6 +84,14 @@ class Analysis(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    # Tab-specific data fields (generated separately via Claude API)
+    tab_overview = db.Column(db.JSON)
+    tab_market = db.Column(db.JSON)
+    tab_business = db.Column(db.JSON)
+    tab_technical = db.Column(db.JSON)
+    tab_financial = db.Column(db.JSON)
+    tab_strategy = db.Column(db.JSON)
+    
     # Relationship to pending transaction
     pending_transaction = db.relationship('Transaction', foreign_keys=[pending_transaction_id])
     
@@ -110,7 +118,13 @@ class Analysis(db.Model):
             'is_deleted': self.is_deleted,
             'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'tab_overview': self.tab_overview,
+            'tab_market': self.tab_market,
+            'tab_business': self.tab_business,
+            'tab_technical': self.tab_technical,
+            'tab_financial': self.tab_financial,
+            'tab_strategy': self.tab_strategy
         }
 
 class Transaction(db.Model):

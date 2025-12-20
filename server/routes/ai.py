@@ -472,3 +472,256 @@ def invoke_llm(user):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+TAB_PROMPTS = {
+    'overview': """Generate an Overview analysis for this business idea. Focus on:
+1. Executive summary (brief compelling overview)
+2. Market fit score (0-100%)
+3. Time to build (in months)
+4. Number of competitors
+5. Starting cost estimate
+6. Value proposition
+7. Problem-Solution framework
+
+Respond in JSON format:
+{{
+    "executive_summary": "...",
+    "market_fit_score": 75,
+    "time_to_build_months": 6,
+    "competitors_count": 5,
+    "starting_cost_usd": 10000,
+    "value_proposition": "...",
+    "problem_solution": {{
+        "core_problem": "...",
+        "solution_approach": "...",
+        "unique_value": "..."
+    }}
+}}""",
+
+    'market': """Generate a Market & Competition analysis for this business idea. Focus on:
+1. Market opportunity and size
+2. Target audience demographics and needs
+3. Competitor analysis (local and international)
+4. Market trends and growth potential
+5. Market gaps and opportunities
+
+Respond in JSON format:
+{{
+    "market_opportunity": {{
+        "description": "...",
+        "market_size_usd": 1000000,
+        "growth_rate_percent": 15
+    }},
+    "target_audience": {{
+        "primary_segment": "...",
+        "demographics": ["..."],
+        "needs": ["..."],
+        "pain_points": ["..."]
+    }},
+    "competitors": [
+        {{"name": "...", "type": "local|international", "strengths": ["..."], "weaknesses": ["..."]}}
+    ],
+    "market_trends": ["..."],
+    "market_gaps": ["..."]
+}}""",
+
+    'business': """Generate a Business Model analysis for this business idea. Focus on:
+1. Revenue streams and pricing models
+2. Business model type (B2B, B2C, marketplace, etc.)
+3. Go-to-market strategy
+4. Partnership opportunities
+5. Customer acquisition strategy
+
+Respond in JSON format:
+{{
+    "business_model": {{
+        "type": "...",
+        "description": "..."
+    }},
+    "revenue_streams": [
+        {{"name": "...", "type": "subscription|transaction|advertising|etc", "pricing": "..."}}
+    ],
+    "go_to_market": {{
+        "strategy": "...",
+        "channels": ["..."],
+        "timeline": "..."
+    }},
+    "partnerships": [
+        {{"type": "...", "potential_partners": ["..."], "value": "..."}}
+    ],
+    "customer_acquisition": {{
+        "strategy": "...",
+        "cost_estimate": "...",
+        "channels": ["..."]
+    }}
+}}""",
+
+    'technical': """Generate a Technical Implementation analysis for this business idea. Focus on:
+1. Technology stack recommendations
+2. Development phases and timeline
+3. MVP features
+4. AI tools that could accelerate development
+5. Scalability considerations
+6. Security requirements
+
+Respond in JSON format:
+{{
+    "technology_stack": {{
+        "frontend": ["..."],
+        "backend": ["..."],
+        "database": ["..."],
+        "infrastructure": ["..."]
+    }},
+    "development_phases": [
+        {{"phase": "...", "duration_weeks": 4, "deliverables": ["..."]}}
+    ],
+    "mvp_features": ["..."],
+    "ai_tools": [
+        {{"name": "...", "purpose": "...", "benefit": "..."}}
+    ],
+    "scalability": {{
+        "approach": "...",
+        "considerations": ["..."]
+    }},
+    "security": ["..."]
+}}""",
+
+    'financial': """Generate a Financial Projections analysis for this business idea. Focus on:
+1. Startup costs breakdown
+2. Monthly operating expenses
+3. Revenue projections (12 months)
+4. Break-even analysis
+5. Funding recommendations
+
+Respond in JSON format:
+{{
+    "startup_costs": {{
+        "total_usd": 50000,
+        "breakdown": [
+            {{"category": "...", "amount_usd": 10000, "description": "..."}}
+        ]
+    }},
+    "monthly_expenses": {{
+        "total_usd": 5000,
+        "breakdown": [
+            {{"category": "...", "amount_usd": 1000}}
+        ]
+    }},
+    "revenue_projections": [
+        {{"month": 1, "revenue_usd": 0}},
+        {{"month": 6, "revenue_usd": 5000}},
+        {{"month": 12, "revenue_usd": 20000}}
+    ],
+    "break_even": {{
+        "months": 12,
+        "conditions": "..."
+    }},
+    "funding_recommendations": [
+        {{"type": "...", "amount_usd": 50000, "terms": "..."}}
+    ]
+}}""",
+
+    'strategy': """Generate a Strategy & Risk analysis for this business idea. Focus on:
+1. SWOT analysis
+2. Risk assessment and mitigation strategies
+3. Success metrics and KPIs
+4. Validation methodology
+5. Next steps and recommendations
+
+Respond in JSON format:
+{{
+    "swot": {{
+        "strengths": ["..."],
+        "weaknesses": ["..."],
+        "opportunities": ["..."],
+        "threats": ["..."]
+    }},
+    "risks": [
+        {{"risk": "...", "severity": "high|medium|low", "mitigation": "..."}}
+    ],
+    "success_metrics": [
+        {{"metric": "...", "target": "...", "timeframe": "..."}}
+    ],
+    "validation_methodology": {{
+        "approach": "...",
+        "steps": ["..."]
+    }},
+    "next_steps": ["..."],
+    "recommendations": ["..."]
+}}"""
+}
+
+
+@ai_bp.route('/generate-tab-content', methods=['POST'])
+@require_auth
+def generate_tab_content(user):
+    """
+    Generate AI content for a specific analysis tab
+    """
+    client = get_anthropic_client()
+    if not client:
+        return jsonify({'error': 'AI service not configured'}), 500
+    
+    data = request.get_json()
+    analysis_id = data.get('analysis_id')
+    tab_name = data.get('tab_name')
+    language = data.get('language', 'en')
+    
+    if not analysis_id or not tab_name:
+        return jsonify({'error': 'analysis_id and tab_name are required'}), 400
+    
+    if tab_name not in TAB_PROMPTS:
+        return jsonify({'error': f'Invalid tab_name: {tab_name}'}), 400
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis:
+        return jsonify({'error': 'Analysis not found'}), 404
+    if analysis.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    tab_field = f'tab_{tab_name}'
+    existing_data = getattr(analysis, tab_field, None)
+    if existing_data:
+        return jsonify({'data': existing_data, 'cached': True})
+    
+    try:
+        language_instruction = "Respond in Arabic language." if language == 'ar' else "Respond in English."
+        
+        prompt = f"""You are an expert business and technology strategist specializing in helping tech entrepreneurs turn their ideas into successful startups.
+
+Business Idea: {analysis.business_idea}
+Industry: {analysis.industry or 'Not specified'}
+Target Market: {analysis.target_market or 'Not specified'}
+Location: {analysis.location or 'Not specified'}
+Budget: {analysis.budget or 'Not specified'}
+
+{language_instruction}
+
+{TAB_PROMPTS[tab_name]}"""
+
+        response = client.messages.create(
+            model=DEFAULT_MODEL,
+            max_tokens=4096,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        response_text = response.content[0].text
+        
+        try:
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0]
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0]
+            
+            tab_data = json.loads(response_text.strip())
+        except json.JSONDecodeError:
+            tab_data = {"raw_response": response_text}
+        
+        setattr(analysis, tab_field, tab_data)
+        db.session.commit()
+        
+        return jsonify({'data': tab_data, 'cached': False})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
