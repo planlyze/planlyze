@@ -26,6 +26,8 @@ import {
   Code,
   Calculator,
   Shield,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/common/StarRating";
@@ -64,7 +66,23 @@ const TabLoadingSpinner = ({ isArabic, message }) => (
   </div>
 );
 
-const LazyTabContent = ({ isLoaded, isLoading, isArabic, children }) => {
+const LazyTabContent = ({ isLoaded, isLoading, isArabic, hasError, onRetry, children }) => {
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 space-y-4">
+        <AlertCircle className="w-12 h-12 text-red-500" />
+        <p className="text-slate-700 font-medium">{isArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}</p>
+        <p className="text-slate-500 text-sm">{isArabic ? "انقر على الزر أدناه للمحاولة مرة أخرى" : "Click the button below to try again"}</p>
+        <button
+          onClick={onRetry}
+          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          {isArabic ? "إعادة المحاولة" : "Retry"}
+        </button>
+      </div>
+    );
+  }
   if (isLoading || !isLoaded) {
     return <TabLoadingSpinner isArabic={isArabic} />;
   }
@@ -90,9 +108,10 @@ export default function AnalysisResult() {
   const [loadedTabs, setLoadedTabs] = useState({ overview: true });
   const [tabData, setTabData] = useState({});
   const [tabLoading, setTabLoading] = useState({});
+  const [tabError, setTabError] = useState({});
   
   const loadTabContent = useCallback(async (tabName) => {
-    if (tabData[tabName] || tabLoading[tabName] || !analysis) return;
+    if (tabData[tabName] || tabLoading[tabName] || tabError[tabName] || !analysis) return;
     
     const cachedData = analysis[`tab_${tabName}`];
     if (cachedData) {
@@ -103,12 +122,13 @@ export default function AnalysisResult() {
     
     setTabLoading(prev => ({ ...prev, [tabName]: true }));
     const isAr = analysis?.report_language === 'arabic';
+    const lang = analysis?.report_language === 'arabic' ? 'ar' : 'en';
     
     try {
       const response = await api.post('/ai/generate-tab-content', {
         analysis_id: analysis.id,
         tab_name: tabName,
-        language: analysis.language || 'en'
+        language: lang
       });
       
       if (response.data) {
@@ -117,17 +137,23 @@ export default function AnalysisResult() {
       }
     } catch (error) {
       console.error(`Error loading ${tabName} tab:`, error);
-      toast.error(isAr ? "خطأ في تحميل المحتوى" : "Error loading content");
+      toast.error(isAr ? "خطأ في تحميل المحتوى. انقر للمحاولة مرة أخرى." : "Error loading content. Click to retry.");
+      setTabError(prev => ({ ...prev, [tabName]: true }));
     } finally {
       setTabLoading(prev => ({ ...prev, [tabName]: false }));
     }
-  }, [analysis, tabData, tabLoading]);
+  }, [analysis, tabData, tabLoading, tabError]);
+
+  const retryTab = useCallback((tabName) => {
+    setTabError(prev => ({ ...prev, [tabName]: false }));
+    setTimeout(() => loadTabContent(tabName), 100);
+  }, [loadTabContent]);
 
   useEffect(() => {
-    if (activeTab && analysis && !loadedTabs[activeTab]) {
+    if (activeTab && analysis && !loadedTabs[activeTab] && !tabError[activeTab]) {
       loadTabContent(activeTab);
     }
-  }, [activeTab, analysis, loadedTabs, loadTabContent]);
+  }, [activeTab, analysis, loadedTabs, tabError, loadTabContent]);
 
   // Smooth scroll for quick navigation - REMOVED as quick nav is removed
   // const scrollTo = (id) => {
@@ -146,6 +172,10 @@ export default function AnalysisResult() {
     }
 
     setIsLoading(true);
+    setTabData({});
+    setTabError({});
+    setTabLoading({});
+    setLoadedTabs({ overview: true });
     try {
       const user = await auth.me();
       setCurrentUser(user);
@@ -826,7 +856,7 @@ export default function AnalysisResult() {
 
           {/* Tab 1: Overview - Syrian Market Metrics */}
           <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
             {/* Key Syrian Market Metrics Card */}
             <Card className="glass-effect border-0 shadow-xl overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
@@ -956,7 +986,7 @@ export default function AnalysisResult() {
 
           {/* Tab 2: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
             <section id="market_opportunity">
               <MarketOpportunity
                 report={{
@@ -1014,7 +1044,7 @@ export default function AnalysisResult() {
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isArabic={isArabic} hasError={tabError.business} onRetry={() => retryTab('business')}>
             <section id="business_model_revenue">
               <BusinessModelRevenue
                 report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
@@ -1040,7 +1070,7 @@ export default function AnalysisResult() {
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
             <section id="tech_stack_suggestions">
               <TechStackSuggestions
                 suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
@@ -1081,7 +1111,7 @@ export default function AnalysisResult() {
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isArabic={isArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')}>
             <section id="financial_proj">
               <FinancialProjections
                 report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
@@ -1100,7 +1130,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
             <section id="swot">
               <SwotSimple
                 report={{ swot_analysis: fp.swot_analysis || report.swot }}
