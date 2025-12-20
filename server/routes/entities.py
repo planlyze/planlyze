@@ -205,12 +205,21 @@ def chain_analysis(user):
     pending_tx_id = pending_tx.id
     
     def run_analysis():
+        import logging
+        import traceback
+        logger = logging.getLogger('claude_llm')
+        
         from server.app import create_app
         app = create_app()
         with app.app_context():
             try:
+                logger.info(f"[Claude LLM] Starting analysis for ID: {analysis_id}")
+                print(f"[Claude LLM] Starting analysis for ID: {analysis_id}")
+                
                 analysis_record = Analysis.query.get(analysis_id)
                 if not analysis_record:
+                    logger.error(f"[Claude LLM] Analysis record not found: {analysis_id}")
+                    print(f"[Claude LLM] ERROR: Analysis record not found: {analysis_id}")
                     return
                 
                 analysis_record.status = 'processing'
@@ -219,9 +228,16 @@ def chain_analysis(user):
                 
                 api_key = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_API_KEY') or os.environ.get('ANTHROPIC_API_KEY')
                 base_url = os.environ.get('AI_INTEGRATIONS_ANTHROPIC_BASE_URL')
+                
+                logger.info(f"[Claude LLM] API Key present: {bool(api_key)}, Base URL: {base_url or 'default'}")
+                print(f"[Claude LLM] API Key present: {bool(api_key)}, Base URL: {base_url or 'default'}")
+                
                 if not api_key:
+                    error_msg = 'AI service not configured - no API key found'
+                    logger.error(f"[Claude LLM] {error_msg}")
+                    print(f"[Claude LLM] ERROR: {error_msg}")
                     analysis_record.status = 'failed'
-                    analysis_record.last_error = 'AI service not configured'
+                    analysis_record.last_error = error_msg
                     db.session.commit()
                     return
                 
@@ -340,16 +356,26 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 analysis_record.progress_percent = 40
                 db.session.commit()
                 
+                logger.info(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-20250514")
+                print(f"[Claude LLM] Calling Claude API with model: claude-sonnet-4-20250514")
+                print(f"[Claude LLM] Business idea: {business_idea[:100]}...")
+                
                 response = client.messages.create(
                     model="claude-sonnet-4-20250514",
                     max_tokens=8192,
                     messages=[{"role": "user", "content": prompt}]
                 )
                 
+                logger.info(f"[Claude LLM] Response received - Stop reason: {response.stop_reason}, Usage: input={response.usage.input_tokens}, output={response.usage.output_tokens}")
+                print(f"[Claude LLM] Response received - Stop reason: {response.stop_reason}")
+                print(f"[Claude LLM] Token usage - Input: {response.usage.input_tokens}, Output: {response.usage.output_tokens}")
+                
                 analysis_record.progress_percent = 80
                 db.session.commit()
                 
                 response_text = response.content[0].text
+                logger.info(f"[Claude LLM] Response text length: {len(response_text)} characters")
+                print(f"[Claude LLM] Response text length: {len(response_text)} characters")
                 
                 try:
                     if "```json" in response_text:
@@ -358,7 +384,12 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                         response_text = response_text.split("```")[1].split("```")[0]
                     
                     report = json.loads(response_text.strip())
-                except json.JSONDecodeError:
+                    logger.info(f"[Claude LLM] Successfully parsed JSON response")
+                    print(f"[Claude LLM] Successfully parsed JSON response")
+                except json.JSONDecodeError as json_err:
+                    logger.warning(f"[Claude LLM] JSON parse error: {json_err}. Using raw response.")
+                    print(f"[Claude LLM] WARNING: JSON parse error: {json_err}")
+                    print(f"[Claude LLM] Raw response preview: {response_text[:500]}...")
                     report = {"raw_response": response_text}
                 
                 analysis_record.status = 'completed'
@@ -379,27 +410,48 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 
                 db.session.commit()
                 
+                logger.info(f"[Claude LLM] Analysis completed successfully - ID: {analysis_id}, Score: {report.get('score', 0)}")
+                print(f"[Claude LLM] Analysis completed successfully!")
+                print(f"[Claude LLM] Analysis ID: {analysis_id}")
+                print(f"[Claude LLM] Score: {report.get('score', 0)}")
+                
             except Exception as e:
+                error_details = str(e)
+                error_type = type(e).__name__
+                full_traceback = traceback.format_exc()
+                
+                logger.error(f"[Claude LLM] Analysis failed - Type: {error_type}, Error: {error_details}")
+                logger.error(f"[Claude LLM] Full traceback:\n{full_traceback}")
+                print(f"[Claude LLM] ERROR - Analysis failed!")
+                print(f"[Claude LLM] Error type: {error_type}")
+                print(f"[Claude LLM] Error message: {error_details}")
+                print(f"[Claude LLM] Full traceback:\n{full_traceback}")
+                
                 try:
                     analysis_record = Analysis.query.get(analysis_id)
                     if analysis_record:
                         analysis_record.status = 'failed'
-                        analysis_record.last_error = str(e)
+                        analysis_record.last_error = f"{error_type}: {error_details}"
                     
                     # Restore credit and mark transaction as refunded
                     user_record = User.query.filter_by(email=analysis_record.user_email).first()
                     if user_record:
                         user_record.credits += 1
+                        logger.info(f"[Claude LLM] Credit refunded to user: {analysis_record.user_email}")
+                        print(f"[Claude LLM] Credit refunded to user: {analysis_record.user_email}")
                     
                     pending_tx_record = Transaction.query.get(pending_tx_id)
                     if pending_tx_record:
                         pending_tx_record.status = 'completed'
                         pending_tx_record.type = 'refunded'
-                        pending_tx_record.description = f'Refunded: Analysis failed - {str(e)[:80]}'
+                        pending_tx_record.description = f'Refunded: {error_type} - {error_details[:60]}'
                     
                     db.session.commit()
-                except Exception:
-                    pass
+                    logger.info(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
+                    print(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
+                except Exception as cleanup_error:
+                    logger.error(f"[Claude LLM] Cleanup failed: {cleanup_error}")
+                    print(f"[Claude LLM] ERROR during cleanup: {cleanup_error}")
     
     thread = threading.Thread(target=run_analysis)
     thread.daemon = True
