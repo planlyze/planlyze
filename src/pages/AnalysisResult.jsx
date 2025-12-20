@@ -1145,7 +1145,6 @@ export default function AnalysisResult() {
           <ReportFooter
             analysis={analysis}
             businessReport={businessReport}
-            technicalReport={technicalReport}
             isArabic={isArabic}
           />
         </section>
