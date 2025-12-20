@@ -547,35 +547,48 @@ Respond in JSON format:
     }}
 }}""",
 
-    'business': """Generate a Business Model analysis for this business idea. Focus on:
-1. Revenue streams and pricing models
-2. Business model type (B2B, B2C, marketplace, etc.)
-3. Go-to-market strategy
-4. Partnership opportunities
-5. Customer acquisition strategy
+    'business': """Generate a Go-to-Market Strategy analysis for this business idea. Focus on:
+
+1. Go-to-Market Strategy:
+   - Validation steps (how to validate the idea before full launch)
+   - Marketing strategy (overall approach to reaching customers)
+
+2. Distribution Channels:
+   - List key distribution channels with name and details
+
+3. Marketing Ideas and Partnerships:
+   - Creative marketing ideas
+   - Potential partnership opportunities
+
+4. KPIs:
+   - Key Performance Indicators to track success
 
 Respond in JSON format:
 {{
-    "business_model": {{
-        "type": "...",
-        "description": "..."
+    "go_to_market_strategy": {{
+        "validation_steps": [
+            {{"step": "...", "description": "...", "timeline": "..."}}
+        ],
+        "marketing_strategy": {{
+            "overview": "...",
+            "key_messages": ["..."],
+            "target_approach": "..."
+        }}
     }},
-    "revenue_streams": [
-        {{"name": "...", "type": "subscription|transaction|advertising|etc", "pricing": "..."}}
+    "distribution_channels": [
+        {{"channel_name": "...", "details": "...", "priority": "high|medium|low"}}
     ],
-    "go_to_market": {{
-        "strategy": "...",
-        "channels": ["..."],
-        "timeline": "..."
+    "marketing_ideas_and_partnerships": {{
+        "marketing_ideas": [
+            {{"idea": "...", "description": "...", "estimated_cost": "..."}}
+        ],
+        "partnerships": [
+            {{"partner_type": "...", "potential_partners": ["..."], "value_proposition": "..."}}
+        ]
     }},
-    "partnerships": [
-        {{"type": "...", "potential_partners": ["..."], "value": "..."}}
-    ],
-    "customer_acquisition": {{
-        "strategy": "...",
-        "cost_estimate": "...",
-        "channels": ["..."]
-    }}
+    "kpis": [
+        {{"metric": "...", "target": "...", "measurement_frequency": "..."}}
+    ]
 }}""",
 
     'technical': """Generate a Technical Implementation analysis for this business idea. Focus on:

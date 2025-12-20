@@ -55,6 +55,7 @@ import AIToolsSuggestions from "../components/results/AIToolsSuggestions";
 import CompetitorMatrix from "../components/results/CompetitorMatrix";
 import SyrianCompetitors from "../components/results/SyrianCompetitors";
 import MarketSection from "../components/results/MarketSection";
+import BusinessSection from "../components/results/BusinessSection";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -1022,26 +1023,32 @@ export default function AnalysisResult() {
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isArabic={isArabic} hasError={tabError.business} onRetry={() => retryTab('business')}>
-            <section id="business_model_revenue">
-              <BusinessModelRevenue
-                report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
-                isArabic={isArabic}
-              />
-            </section>
+            {tabData.business ? (
+              <BusinessSection data={tabData.business} isArabic={isArabic} />
+            ) : (
+              <>
+                <section id="business_model_revenue">
+                  <BusinessModelRevenue
+                    report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="go_to_market">
-              <GoToMarket
-                report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="go_to_market">
+                  <GoToMarket
+                    report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="partnerships">
-              <Partnerships
-                report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="partnerships">
+                  <Partnerships
+                    report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
+                    isArabic={isArabic}
+                  />
+                </section>
+              </>
+            )}
             </LazyTabContent>
           </TabsContent>
 
