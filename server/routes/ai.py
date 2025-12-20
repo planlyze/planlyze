@@ -499,31 +499,60 @@ Respond in JSON format:
     }}
 }}""",
 
-    'market': """Generate a Market & Competition analysis for this business idea. Focus on:
-1. Market opportunity and size
-2. Target audience demographics and needs
-3. Competitor analysis (local and international)
-4. Market trends and growth potential
-5. Market gaps and opportunities
+    'market': """Generate a comprehensive Market & Competition analysis for this business idea. Focus on:
+
+1. Target Audiences (identify 4 distinct customer segments)
+2. Key Problems (2-4 main problems, each with 4 detailed sub-points)
+3. Solution Overview
+4. Syrian Market Opportunity (market size, growth potential, unique factors)
+5. Syrian Competitors Analysis (local competitors with name, website, pros, cons)
+6. SWOT Analysis for this idea
 
 Respond in JSON format:
 {{
-    "market_opportunity": {{
-        "description": "...",
-        "market_size_usd": 1000000,
-        "growth_rate_percent": 15
-    }},
-    "target_audience": {{
-        "primary_segment": "...",
-        "demographics": ["..."],
-        "needs": ["..."],
-        "pain_points": ["..."]
-    }},
-    "competitors": [
-        {{"name": "...", "type": "local|international", "strengths": ["..."], "weaknesses": ["..."]}}
+    "target_audiences": [
+        {{"segment": "Audience 1 name", "description": "...", "size_estimate": "...", "needs": ["..."], "behavior": "..."}},
+        {{"segment": "Audience 2 name", "description": "...", "size_estimate": "...", "needs": ["..."], "behavior": "..."}},
+        {{"segment": "Audience 3 name", "description": "...", "size_estimate": "...", "needs": ["..."], "behavior": "..."}},
+        {{"segment": "Audience 4 name", "description": "...", "size_estimate": "...", "needs": ["..."], "behavior": "..."}}
     ],
-    "market_trends": ["..."],
-    "market_gaps": ["..."]
+    "problems": [
+        {{
+            "title": "Problem 1 title",
+            "description": "...",
+            "details": ["detail 1", "detail 2", "detail 3", "detail 4"]
+        }},
+        {{
+            "title": "Problem 2 title", 
+            "description": "...",
+            "details": ["detail 1", "detail 2", "detail 3", "detail 4"]
+        }}
+    ],
+    "solution": {{
+        "overview": "...",
+        "key_features": ["..."],
+        "unique_value": "...",
+        "how_it_solves": "..."
+    }},
+    "syrian_market": {{
+        "opportunity": "...",
+        "market_size_usd": 1000000,
+        "growth_rate_percent": 15,
+        "unique_factors": ["..."],
+        "challenges": ["..."],
+        "regulations": "..."
+    }},
+    "syrian_competitors": [
+        {{"name": "Competitor 1", "website": "https://...", "pros": ["..."], "cons": ["..."]}},
+        {{"name": "Competitor 2", "website": "https://...", "pros": ["..."], "cons": ["..."]}},
+        {{"name": "Competitor 3", "website": "https://...", "pros": ["..."], "cons": ["..."]}}
+    ],
+    "swot": {{
+        "strengths": ["strength 1", "strength 2", "strength 3"],
+        "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
+        "opportunities": ["opportunity 1", "opportunity 2", "opportunity 3"],
+        "threats": ["threat 1", "threat 2", "threat 3"]
+    }}
 }}""",
 
     'business': """Generate a Business Model analysis for this business idea. Focus on:

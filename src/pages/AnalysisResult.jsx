@@ -54,6 +54,7 @@ import TechStackSuggestions from "../components/results/TechStackSuggestions";
 import AIToolsSuggestions from "../components/results/AIToolsSuggestions";
 import CompetitorMatrix from "../components/results/CompetitorMatrix";
 import SyrianCompetitors from "../components/results/SyrianCompetitors";
+import MarketSection from "../components/results/MarketSection";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -987,58 +988,62 @@ export default function AnalysisResult() {
           {/* Tab 2: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
-            <section id="market_opportunity">
-              <MarketOpportunity
-                report={{
-                  market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
-                  market_size: analysis.step4_market_size || report.market_analysis || {},
-                  local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
-                  competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
-                  infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
-                }}
-                isArabic={isArabic}
-              />
-            </section>
+            
+            {tabData.market ? (
+              <MarketSection data={tabData.market} isArabic={isArabic} />
+            ) : (
+              <>
+                <section id="market_opportunity">
+                  <MarketOpportunity
+                    report={{
+                      market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
+                      market_size: analysis.step4_market_size || report.market_analysis || {},
+                      local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
+                      competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
+                      infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
+                    }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            {/* Competitors */}
-            <section id="competitors">
-              {isPremium ? (
-                <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
-              ) : (
-                <Card className="glass-effect border-2 border-purple-300">
-                  <CardContent className="p-6 text-center">
-                    <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
-                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
-                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                  </CardContent>
-                </Card>
-              )}
-            </section>
+                <section id="competitors">
+                  {isPremium ? (
+                    <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
+                  ) : (
+                    <Card className="glass-effect border-2 border-purple-300">
+                      <CardContent className="p-6 text-center">
+                        <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
+                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
+                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </section>
 
-            {/* Syrian Competitors */}
-            <section id="competitors_syrian">
-              {isPremium ? (
-                <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
-              ) : (
-                <Card className="glass-effect border-2 border-rose-300">
-                  <CardContent className="p-6 text-center">
-                    <Badge className="bg-rose-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
-                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
-                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                  </CardContent>
-                </Card>
-              )}
-            </section>
+                <section id="competitors_syrian">
+                  {isPremium ? (
+                    <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
+                  ) : (
+                    <Card className="glass-effect border-2 border-rose-300">
+                      <CardContent className="p-6 text-center">
+                        <Badge className="bg-rose-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
+                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
+                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </section>
 
-            {/* Target Audience */}
-            <section id="target_audience">
-              <TargetAudience
-                report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || { target_description: report.market_analysis?.target_segments?.join(', ') || '', demographics: report.market_analysis?.target_segments || [] } } }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="target_audience">
+                  <TargetAudience
+                    report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || { target_description: report.market_analysis?.target_segments?.join(', ') || '', demographics: report.market_analysis?.target_segments || [] } } }}
+                    isArabic={isArabic}
+                  />
+                </section>
+              </>
+            )}
             </LazyTabContent>
           </TabsContent>
 
