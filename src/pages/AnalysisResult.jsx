@@ -56,6 +56,7 @@ import CompetitorMatrix from "../components/results/CompetitorMatrix";
 import SyrianCompetitors from "../components/results/SyrianCompetitors";
 import MarketSection from "../components/results/MarketSection";
 import BusinessSection from "../components/results/BusinessSection";
+import TechnicalSection from "../components/results/TechnicalSection";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -1055,41 +1056,47 @@ export default function AnalysisResult() {
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
-            <section id="tech_stack_suggestions">
-              <TechStackSuggestions
-                suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
-                isArabic={isArabic}
-              />
-            </section>
+            {tabData.technical ? (
+              <TechnicalSection data={tabData.technical} isArabic={isArabic} />
+            ) : (
+              <>
+                <section id="tech_stack_suggestions">
+                  <TechStackSuggestions
+                    suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="ai_tools">
-              {isPremium ? (
-                <AIToolsSuggestions technicalReport={technicalReport} isArabic={isArabic} />
-              ) : (
-                <Card className="glass-effect border-2 border-purple-300">
-                  <CardContent className="p-6 text-center">
-                    <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
-                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
-                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                  </CardContent>
-                </Card>
-              )}
-            </section>
+                <section id="ai_tools">
+                  {isPremium ? (
+                    <AIToolsSuggestions technicalReport={technicalReport} isArabic={isArabic} />
+                  ) : (
+                    <Card className="glass-effect border-2 border-purple-300">
+                      <CardContent className="p-6 text-center">
+                        <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
+                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
+                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </section>
 
-            <section id="technical_impl">
-              <TechnicalImplementation
-                report={analysis.step8_technical_implementation || { architecture_overview: report.technical_strategy?.architecture || '', mvp_features: technicalReport.mvp_core_features || [], technology_stack: technicalReport.technology_stack || {}, scalability: report.technical_strategy?.scalability || '', security_considerations: report.technical_strategy?.security || '' }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="technical_impl">
+                  <TechnicalImplementation
+                    report={analysis.step8_technical_implementation || { architecture_overview: report.technical_strategy?.architecture || '', mvp_features: technicalReport.mvp_core_features || [], technology_stack: technicalReport.technology_stack || {}, scalability: report.technical_strategy?.scalability || '', security_considerations: report.technical_strategy?.security || '' }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="dev_plan">
-              <DevelopmentPlan
-                report={analysis.step9_development_plan || report.development_roadmap || {}}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="dev_plan">
+                  <DevelopmentPlan
+                    report={analysis.step9_development_plan || report.development_roadmap || {}}
+                    isArabic={isArabic}
+                  />
+                </section>
+              </>
+            )}
             </LazyTabContent>
           </TabsContent>
 

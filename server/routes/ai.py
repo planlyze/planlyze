@@ -592,33 +592,71 @@ Respond in JSON format:
 }}""",
 
     'technical': """Generate a Technical Implementation analysis for this business idea. Focus on:
-1. Technology stack recommendations
-2. Development phases and timeline
-3. MVP features
-4. AI tools that could accelerate development
-5. Scalability considerations
-6. Security requirements
+
+1. Technical Stack:
+   - Recommended technologies with pros and cons
+   - Estimated time to implement
+   - Programming languages needed
+   - Technical implementation details
+   - Team requirements and estimated costs
+
+2. Development Plan:
+   - Version/phase name
+   - List of features for each version
+   - How to build each feature
+   - Prototype approach
+
+3. MVP:
+   - Core MVP features
+   - MVP scope and timeline
+
+4. AI Tools:
+   - AI tools that can accelerate development
+   - How each tool helps
 
 Respond in JSON format:
 {{
-    "technology_stack": {{
-        "frontend": ["..."],
-        "backend": ["..."],
-        "database": ["..."],
-        "infrastructure": ["..."]
+    "technical_stack": {{
+        "recommended_stack": [
+            {{
+                "category": "Frontend|Backend|Database|Infrastructure",
+                "technology": "...",
+                "pros": ["..."],
+                "cons": ["..."]
+            }}
+        ],
+        "estimated_time": "...",
+        "languages": ["..."],
+        "implementation_details": "...",
+        "team_requirements": [
+            {{"role": "...", "count": 1, "monthly_cost_usd": 3000}}
+        ],
+        "total_team_cost_monthly": 10000
     }},
-    "development_phases": [
-        {{"phase": "...", "duration_weeks": 4, "deliverables": ["..."]}}
+    "development_plan": [
+        {{
+            "version": "v1.0 - Prototype",
+            "features": [
+                {{"feature": "...", "how_to_build": "..."}}
+            ],
+            "prototype_approach": "..."
+        }},
+        {{
+            "version": "v2.0 - MVP",
+            "features": [
+                {{"feature": "...", "how_to_build": "..."}}
+            ],
+            "prototype_approach": "..."
+        }}
     ],
-    "mvp_features": ["..."],
+    "mvp": {{
+        "core_features": ["..."],
+        "scope": "...",
+        "timeline": "..."
+    }},
     "ai_tools": [
-        {{"name": "...", "purpose": "...", "benefit": "..."}}
-    ],
-    "scalability": {{
-        "approach": "...",
-        "considerations": ["..."]
-    }},
-    "security": ["..."]
+        {{"name": "...", "purpose": "...", "how_it_helps": "..."}}
+    ]
 }}""",
 
     'financial': """Generate a Financial Projections analysis for this business idea. Focus on:
