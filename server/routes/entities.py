@@ -125,7 +125,7 @@ def generate_analysis_entry(user):
         target_market=data.get('target_market', ''),
         location=data.get('country', ''),
         report_language=report_language,
-        status='pending',
+        status='completed',  # Set to completed since tab content is lazy-loaded on demand
         report_type=expected_report_type
     )
     db.session.add(analysis)
