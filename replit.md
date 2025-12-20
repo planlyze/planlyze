@@ -142,9 +142,32 @@ When a new analysis is generated, Claude AI provides comprehensive business and 
 - **Go-to-Market**: Launch strategy, marketing channels, content strategy, early adopter acquisition
 
 ### Technical Notes
-- Uses Claude claude-sonnet-4-5 model via Replit AI Integrations
+- Uses Claude claude-3-5-sonnet-20241022 model via Replit AI Integrations
 - Max tokens: 8192 for comprehensive responses
 - Cost: 1 credit per premium analysis (free reports available for users without credits)
+
+## Per-Tab Lazy Loading System
+The analysis result page uses a lazy loading architecture where each of the 6 tabs generates its content via separate Claude API calls on first access.
+
+### Tab Structure
+1. **Overview**: Key metrics, executive summary, problem/solution framework
+2. **Market**: Market opportunity, competitor analysis, target audience
+3. **Business**: Business model, revenue streams, partnerships, go-to-market
+4. **Technical**: Tech stack suggestions, AI tools, development plan
+5. **Financial**: Financial projections, funding recommendations
+6. **Strategy**: SWOT analysis, risk mitigation, success metrics
+
+### Architecture
+- **Database Columns**: `tab_overview`, `tab_market`, `tab_business`, `tab_technical`, `tab_financial`, `tab_strategy` (JSON columns for caching)
+- **API Endpoint**: `POST /api/ai/generate-tab-content`
+- **Frontend States**: `loadedTabs`, `tabData`, `tabLoading`, `tabError` for managing tab lifecycle
+- **Error Handling**: Tabs that fail to load show retry button; prevents automatic retry loops
+- **Language Support**: Respects `report_language` field (arabic/english) for localized content
+
+### Tab Content Generation
+- Each tab has a specific Claude prompt optimized for that content type
+- Generated content is cached in the database for subsequent views
+- Overview tab uses existing analysis data (no additional API call needed)
 
 ## Analysis Credit System
 The platform uses a transactional credit system for premium analysis reports:
