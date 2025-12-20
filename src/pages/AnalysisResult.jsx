@@ -3,6 +3,7 @@ import { Analysis, User, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
@@ -15,6 +16,16 @@ import {
   Download,
   FileSpreadsheet,
   Share2,
+  Target,
+  Clock,
+  Users,
+  DollarSign,
+  Sparkles,
+  TrendingUp,
+  Briefcase,
+  Code,
+  Calculator,
+  Shield,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/common/StarRating";
@@ -60,6 +71,7 @@ export default function AnalysisResult() {
   const [userCredits, setUserCredits] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Smooth scroll for quick navigation - REMOVED as quick nav is removed
   // const scrollTo = (id) => {
@@ -144,7 +156,7 @@ export default function AnalysisResult() {
 
     try {
       const reportData = await api.get("/analyses/export");
-      const blob = new Blob([data], { type: "application/pdf" });
+      const blob = new Blob([reportData], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -707,388 +719,352 @@ export default function AnalysisResult() {
           isArabic={isArabic}
         />
 
-        {/* Removed: Sticky quick navigation bar with section buttons */}
+        {/* Tabbed Analysis Results */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-1 bg-slate-100/80 p-1 rounded-xl mb-6">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Target className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "نظرة عامة" : "Overview"}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="market" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white rounded-lg"
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "السوق" : "Market"}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="business" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Briefcase className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "الأعمال" : "Business"}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="technical" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Code className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "التقني" : "Technical"}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="financial" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Calculator className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "المالي" : "Financial"}</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="strategy" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-pink-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "الاستراتيجية" : "Strategy"}</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Ordered sections */}
-        <section id="exec_summary" className="scroll-mt-28 print:scroll-mt-0">
-          <ExecutiveSummary
-            analysis={analysis}
-            businessReport={businessReport}
-            technicalReport={technicalReport}
-            isArabic={isArabic}
-          />
-        </section>
-
-        <section id="problem_solution" className="scroll-mt-28 print:scroll-mt-0">
-          <ProblemSolutionFramework
-            report={{ 
-              problem_solution_framework: analysis.step1_problem_solution || {
-                core_problem: report.business_strategy?.value_proposition || '',
-                solution_approach: report.executive_summary || analysis.executive_summary || '',
-                value_proposition: report.business_strategy?.value_proposition || '',
-                target_audience: { target_description: report.market_analysis?.target_segments?.join(', ') || '' }
-              }
-            }}
-            isArabic={isArabic}
-          />
-        </section>
-
-        <section id="market_opportunity" className="scroll-mt-28 print:scroll-mt-0">
-          <MarketOpportunity
-            report={{
-              market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
-              market_size: analysis.step4_market_size || report.market_analysis || {},
-              local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
-              competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
-              infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
-            }}
-            isArabic={isArabic}
-          />
-        </section>
-
-        {/* Premium Feature: Competitors detailed section */}
-        <section id="competitors" className="scroll-mt-28 print:scroll-mt-0">
-          {isPremium ? (
-            <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
-          ) : (
-            <div className="relative glass-effect border-2 border-purple-300 rounded-xl overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-indigo-50 opacity-60"></div>
-              <div className="relative p-8 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+          {/* Tab 1: Overview - Syrian Market Metrics */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Key Syrian Market Metrics Card */}
+            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <Target className="w-7 h-7" />
+                  {isArabic ? "مؤشرات السوق السوري" : "Syrian Market Indicators"}
+                </h2>
+                <p className="text-emerald-100 mt-1">
+                  {isArabic ? "المقاييس الرئيسية لفكرة مشروعك في السوق السوري" : "Key metrics for your business idea in the Syrian market"}
+                </p>
+              </div>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {/* Market Fit */}
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                        <Target className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">{isArabic ? "ملاءمة السوق" : "Market Fit"}</p>
+                        <p className="text-2xl font-bold text-emerald-600">
+                          {analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
+                        </p>
+                      </div>
+                    </div>
+                    <div className="w-full bg-emerald-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                        {isArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}
-                      </h2>
-                      <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold rounded-full">
-                        {isArabic ? "متميز" : "PREMIUM"}
-                      </span>
+
+                  {/* Time to Build */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                        <Clock className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">{isArabic ? "وقت البناء" : "Time to Build"}</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-slate-700 text-lg mb-4 leading-relaxed">
-                      {isArabic 
-                        ? "احصل على تحليل مفصل لأكثر من 15 منافس، يشمل نقاط القوة والضعف، استراتيجيات التسعير، حصص السوق، والميزات التنافسية."
-                        : "Get detailed analysis of 15+ competitors including their strengths, weaknesses, pricing strategies, market share, and competitive advantages."
-                      }
+                    <p className="text-xs text-slate-500">{isArabic ? "للوصول إلى MVP" : "to reach MVP"}</p>
+                  </div>
+
+                  {/* Competitors */}
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                        <Users className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">{isArabic ? "المنافسون" : "Competitors"}</p>
+                        <p className="text-2xl font-bold text-amber-600">
+                          {analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500">{isArabic ? "منافسون في السوق" : "competitors in market"}</p>
+                  </div>
+
+                  {/* Starting Cost */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                        <DollarSign className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">{isArabic ? "تكلفة البدء" : "Starting Cost"}</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          ${analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500">{isArabic ? "رأس المال المطلوب" : "required capital"}</p>
+                  </div>
+
+                  {/* Value Proposition */}
+                  <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-5 border border-purple-200 hover:shadow-lg transition-all md:col-span-2 lg:col-span-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center">
+                        <Sparkles className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">{isArabic ? "القيمة المقترحة" : "Value Proposition"}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-700 line-clamp-3">
+                      {analysis.step1_problem_solution?.value_proposition || report.business_strategy?.value_proposition || businessReport.problem_solution_framework?.value_proposition || (isArabic ? "حل مبتكر يلبي احتياجات السوق" : "An innovative solution addressing market needs")}
                     </p>
-                    <div className="grid md:grid-cols-2 gap-3 mb-4">
-                      {[
-                        isArabic ? "تحليل 15+ منافس" : "15+ Competitor Analysis",
-                        isArabic ? "نقاط القوة والضعف" : "Strengths & Weaknesses",
-                        isArabic ? "استراتيجيات التسعير" : "Pricing Strategies",
-                        isArabic ? "حصص السوق" : "Market Share Data"
-                      ].map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-slate-700">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-100 to-indigo-100 border-2 border-purple-300 rounded-xl p-4 shadow-inner">
-                      <p className="text-base font-bold text-purple-800 flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        {isArabic 
-                          ? "رصيد واحد فقط يفتح جميع الميزات المتميزة في هذا التقرير"
-                          : "Only 1 credit unlocks ALL premium features in this report"
-                        }
-                      </p>
-                    </div>
                   </div>
                 </div>
-                <UpgradePrompt 
-                  isArabic={isArabic} 
-                  variant="inline"
-                  feature={isArabic ? "تحليل المنافسين الكامل" : "Full Competitor Analysis"}
-                  userCredits={userCredits}
-                  onUpgrade={handleUpgradeToPremium}
-                  isUpgrading={isUpgrading}
-                />
-              </div>
-            </div>
-          )}
-        </section>
+              </CardContent>
+            </Card>
 
-        {/* Premium Feature: Syrian competitors section (from user-supplied file) */}
-        <section id="competitors_syrian" className="scroll-mt-28 print:scroll-mt-0">
-          {isPremium ? (
-            <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
-          ) : (
-            <div className="relative glass-effect border-2 border-rose-300 rounded-xl overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-pink-50 opacity-60"></div>
-              <div className="relative p-8 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-                        {isArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}
-                      </h2>
-                      <span className="px-3 py-1 bg-gradient-to-r from-rose-600 to-pink-600 text-white text-xs font-bold rounded-full">
-                        {isArabic ? "متميز" : "PREMIUM"}
-                      </span>
-                    </div>
-                    <p className="text-slate-700 text-lg mb-4 leading-relaxed">
-                      {isArabic 
-                        ? "بيانات حصرية عن السوق السوري والإقليمي، تشمل المنافسين المحليين، اتجاهات السوق، والفرص الفريدة."
-                        : "Exclusive data about the Syrian and regional market, including local competitors, market trends, and unique opportunities."
-                      }
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-3 mb-4">
-                      {[
-                        isArabic ? "المنافسون المحليون" : "Local Competitors",
-                        isArabic ? "اتجاهات السوق" : "Market Trends",
-                        isArabic ? "التحديات الإقليمية" : "Regional Challenges",
-                        isArabic ? "فرص فريدة" : "Unique Opportunities"
-                      ].map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-slate-700">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-100 to-indigo-100 border-2 border-purple-300 rounded-xl p-4 shadow-inner">
-                      <p className="text-base font-bold text-purple-800 flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        {isArabic 
-                          ? "رصيد واحد فقط يفتح جميع الميزات المتميزة في هذا التقرير"
-                          : "Only 1 credit unlocks ALL premium features in this report"
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <UpgradePrompt 
-                  isArabic={isArabic} 
-                  variant="inline"
-                  feature={isArabic ? "بيانات السوق السوري" : "Syrian Market Data"}
-                  userCredits={userCredits}
-                  onUpgrade={handleUpgradeToPremium}
-                  isUpgrading={isUpgrading}
-                />
-              </div>
-            </div>
-          )}
-        </section>
+            {/* Executive Summary */}
+            <section id="exec_summary">
+              <ExecutiveSummary
+                analysis={analysis}
+                businessReport={businessReport}
+                technicalReport={technicalReport}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="target_audience" className="scroll-mt-28 print:scroll-mt-0">
-          <TargetAudience
-            report={{ 
-              problem_solution_framework: { 
-                target_audience: analysis.step2_target_audience || {
-                  target_description: report.market_analysis?.target_segments?.join(', ') || '',
-                  demographics: report.market_analysis?.target_segments || []
-                }
-              } 
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+            {/* Problem & Solution */}
+            <section id="problem_solution">
+              <ProblemSolutionFramework
+                report={{ 
+                  problem_solution_framework: analysis.step1_problem_solution || {
+                    core_problem: report.business_strategy?.value_proposition || '',
+                    solution_approach: report.executive_summary || analysis.executive_summary || '',
+                    value_proposition: report.business_strategy?.value_proposition || '',
+                    target_audience: { target_description: report.market_analysis?.target_segments?.join(', ') || '' }
+                  }
+                }}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
 
-        <section id="business_model_revenue" className="scroll-mt-28 print:scroll-mt-0">
-          <BusinessModelRevenue
-            report={{
-              business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model,
-              revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+          {/* Tab 2: Market & Competition */}
+          <TabsContent value="market" className="space-y-6">
+            <section id="market_opportunity">
+              <MarketOpportunity
+                report={{
+                  market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
+                  market_size: analysis.step4_market_size || report.market_analysis || {},
+                  local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
+                  competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
+                  infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
+                }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="go_to_market" className="scroll-mt-28 print:scroll-mt-0">
-          <GoToMarket
-            report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
-            isArabic={isArabic}
-          />
-        </section>
+            {/* Competitors */}
+            <section id="competitors">
+              {isPremium ? (
+                <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
+              ) : (
+                <Card className="glass-effect border-2 border-purple-300">
+                  <CardContent className="p-6 text-center">
+                    <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
+                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
+                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                  </CardContent>
+                </Card>
+              )}
+            </section>
 
-        {/* Step 8a - Technology Stack Suggestions */}
-        <section id="tech_stack_suggestions" className="scroll-mt-28 print:scroll-mt-0">
-          <TechStackSuggestions
-            suggestionsData={analysis.step8_tech_stack_suggestions || {
-              technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [],
-              recommended_option_index: 0,
-              recommended_rationale: report.technical_strategy?.architecture || ""
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+            {/* Syrian Competitors */}
+            <section id="competitors_syrian">
+              {isPremium ? (
+                <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
+              ) : (
+                <Card className="glass-effect border-2 border-rose-300">
+                  <CardContent className="p-6 text-center">
+                    <Badge className="bg-rose-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
+                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
+                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                  </CardContent>
+                </Card>
+              )}
+            </section>
 
-        {/* Premium Feature: AI Tools suggestions from step 8b if present */}
-        <section id="ai_tools" className="scroll-mt-28 print:scroll-mt-0">
-          {isPremium ? (
-            <AIToolsSuggestions
-              technicalReport={technicalReport}
-              isArabic={isArabic}
-            />
-          ) : (
-            <div className="relative glass-effect border-2 border-purple-300 rounded-xl overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-violet-50 opacity-60"></div>
-              <div className="relative p-8 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-                        {isArabic ? "توصيات أدوات الذكاء الاصطناعي المتقدمة" : "Advanced AI Tools & Predictions"}
-                      </h2>
-                      <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-violet-600 text-white text-xs font-bold rounded-full">
-                        {isArabic ? "متميز" : "PREMIUM"}
-                      </span>
-                    </div>
-                    <p className="text-slate-700 text-lg mb-4 leading-relaxed">
-                      {isArabic 
-                        ? "توصيات مفصلة لأدوات الذكاء الاصطناعي والتعلم الآلي المناسبة لمشروعك، مع تحليل للتكامل والتكاليف."
-                        : "Detailed recommendations for AI and machine learning tools suitable for your project, with integration analysis and costs."
-                      }
-                    </p>
-                    <div className="grid md:grid-cols-2 gap-3 mb-4">
-                      {[
-                        isArabic ? "أدوات الذكاء الاصطناعي" : "AI Tool Recommendations",
-                        isArabic ? "تحليل التكامل" : "Integration Analysis",
-                        isArabic ? "نماذج التنبؤ" : "Prediction Models",
-                        isArabic ? "تقدير التكاليف" : "Cost Estimates"
-                      ].map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-slate-700">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-100 to-indigo-100 border-2 border-purple-300 rounded-xl p-4 shadow-inner">
-                      <p className="text-base font-bold text-purple-800 flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        {isArabic 
-                          ? "رصيد واحد فقط يفتح جميع الميزات المتميزة في هذا التقرير"
-                          : "Only 1 credit unlocks ALL premium features in this report"
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <UpgradePrompt 
-                  isArabic={isArabic} 
-                  variant="inline"
-                  feature={isArabic ? "توقعات الذكاء الاصطناعي المتقدمة" : "Advanced AI Predictions"}
-                  userCredits={userCredits}
-                  onUpgrade={handleUpgradeToPremium}
-                  isUpgrading={isUpgrading}
-                />
-              </div>
-            </div>
-          )}
-        </section>
+            {/* Target Audience */}
+            <section id="target_audience">
+              <TargetAudience
+                report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || { target_description: report.market_analysis?.target_segments?.join(', ') || '', demographics: report.market_analysis?.target_segments || [] } } }}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
 
-        <section id="technical_impl" className="scroll-mt-28 print:scroll-mt-0">
-          <TechnicalImplementation
-            report={analysis.step8_technical_implementation || {
-              architecture_overview: report.technical_strategy?.architecture || '',
-              mvp_features: technicalReport.mvp_core_features || [],
-              technology_stack: technicalReport.technology_stack || {},
-              scalability: report.technical_strategy?.scalability || '',
-              security_considerations: report.technical_strategy?.security || ''
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+          {/* Tab 3: Business Model */}
+          <TabsContent value="business" className="space-y-6">
+            <section id="business_model_revenue">
+              <BusinessModelRevenue
+                report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="dev_plan" className="scroll-mt-28 print:scroll-mt-0">
-          <DevelopmentPlan
-            report={analysis.step9_development_plan || report.development_roadmap || {}}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="go_to_market">
+              <GoToMarket
+                report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="financial_proj" className="scroll-mt-28 print:scroll-mt-0">
-          <FinancialProjections
-            report={{
-              country_pricing_basis: fp.country_pricing_basis || analysis.location,
-              pricing_country: fp.pricing_country || analysis.location,
-              pricing_currency: fp.pricing_currency || 'USD',
-              cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs,
-              timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="partnerships">
+              <Partnerships
+                report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
 
-        <section id="risk_mitigation" className="scroll-mt-28 print:scroll-mt-0">
-          <RiskMitigation
-            businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
-            technicalReport={technicalReport}
-            isArabic={isArabic}
-          />
-        </section>
+          {/* Tab 4: Technical */}
+          <TabsContent value="technical" className="space-y-6">
+            <section id="tech_stack_suggestions">
+              <TechStackSuggestions
+                suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="swot" className="scroll-mt-28 print:scroll-mt-0">
-          <SwotSimple
-            report={{ swot_analysis: fp.swot_analysis || report.swot }}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="ai_tools">
+              {isPremium ? (
+                <AIToolsSuggestions technicalReport={technicalReport} isArabic={isArabic} />
+              ) : (
+                <Card className="glass-effect border-2 border-purple-300">
+                  <CardContent className="p-6 text-center">
+                    <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
+                    <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
+                    <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                  </CardContent>
+                </Card>
+              )}
+            </section>
 
-        <section id="success_validation" className="scroll-mt-28 print:scroll-mt-0">
-          <SuccessMetricsValidation
-            report={{
-              success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [],
-              validation_methodology: fp.validation_methodology
-            }}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="technical_impl">
+              <TechnicalImplementation
+                report={analysis.step8_technical_implementation || { architecture_overview: report.technical_strategy?.architecture || '', mvp_features: technicalReport.mvp_core_features || [], technology_stack: technicalReport.technology_stack || {}, scalability: report.technical_strategy?.scalability || '', security_considerations: report.technical_strategy?.security || '' }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="funding" className="scroll-mt-28 print:scroll-mt-0">
-          <FundingRecommendations
-            report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="dev_plan">
+              <DevelopmentPlan
+                report={analysis.step9_development_plan || report.development_roadmap || {}}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
 
-        <section id="partnerships" className="scroll-mt-28 print:scroll-mt-0">
-          <Partnerships
-            report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
-            isArabic={isArabic}
-          />
-        </section>
+          {/* Tab 5: Financial */}
+          <TabsContent value="financial" className="space-y-6">
+            <section id="financial_proj">
+              <FinancialProjections
+                report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
+                isArabic={isArabic}
+              />
+            </section>
 
-        <section id="recommendations_next" className="scroll-mt-28 print:scroll-mt-0">
-          <RecommendationsNext
-            report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
-            isArabic={isArabic}
-          />
-        </section>
+            <section id="funding">
+              <FundingRecommendations
+                report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
 
-        {/* New: Standardized footer */}
-        <section className="scroll-mt-28 print:scroll-mt-0">
+          {/* Tab 6: Strategy & Risks */}
+          <TabsContent value="strategy" className="space-y-6">
+            <section id="swot">
+              <SwotSimple
+                report={{ swot_analysis: fp.swot_analysis || report.swot }}
+                isArabic={isArabic}
+              />
+            </section>
+
+            <section id="risk_mitigation">
+              <RiskMitigation
+                businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
+                technicalReport={technicalReport}
+                isArabic={isArabic}
+              />
+            </section>
+
+            <section id="success_validation">
+              <SuccessMetricsValidation
+                report={{ success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [], validation_methodology: fp.validation_methodology }}
+                isArabic={isArabic}
+              />
+            </section>
+
+            <section id="recommendations_next">
+              <RecommendationsNext
+                report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
+                isArabic={isArabic}
+              />
+            </section>
+          </TabsContent>
+        </Tabs>
+
+        {/* Report Footer */}
+        <section>
           <ReportFooter
             analysis={analysis}
             businessReport={businessReport}
