@@ -705,33 +705,43 @@ Respond in JSON format:
     ]
 }}""",
 
-    'strategy': """Generate a Strategy & Risk analysis for this business idea. Focus on:
-1. SWOT analysis
-2. Risk assessment and mitigation strategies
-3. Success metrics and KPIs
-4. Validation methodology
-5. Next steps and recommendations
+    'strategy': """Generate a Strategy & Action Plan for this business idea. Focus on:
+
+1. Risk Assessment & Mitigation:
+   - Identify key risks
+   - Severity level for each risk
+   - Mitigation strategies
+
+2. Action Plan:
+   - Numbered steps to launch and grow the business
+   - Clear, actionable items with descriptions
 
 Respond in JSON format:
 {{
-    "swot": {{
-        "strengths": ["..."],
-        "weaknesses": ["..."],
-        "opportunities": ["..."],
-        "threats": ["..."]
-    }},
-    "risks": [
-        {{"risk": "...", "severity": "high|medium|low", "mitigation": "..."}}
+    "risk_assessment": [
+        {{
+            "risk": "...",
+            "severity": "high|medium|low",
+            "impact": "...",
+            "mitigation": "..."
+        }}
     ],
-    "success_metrics": [
-        {{"metric": "...", "target": "...", "timeframe": "..."}}
-    ],
-    "validation_methodology": {{
-        "approach": "...",
-        "steps": ["..."]
-    }},
-    "next_steps": ["..."],
-    "recommendations": ["..."]
+    "action_plan": [
+        {{
+            "step_number": 1,
+            "title": "...",
+            "description": "...",
+            "timeline": "...",
+            "priority": "high|medium|low"
+        }},
+        {{
+            "step_number": 2,
+            "title": "...",
+            "description": "...",
+            "timeline": "...",
+            "priority": "high|medium|low"
+        }}
+    ]
 }}"""
 }
 

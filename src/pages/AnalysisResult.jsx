@@ -58,6 +58,7 @@ import MarketSection from "../components/results/MarketSection";
 import BusinessSection from "../components/results/BusinessSection";
 import TechnicalSection from "../components/results/TechnicalSection";
 import FinancialSection from "../components/results/FinancialSection";
+import StrategySection from "../components/results/StrategySection";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -1129,34 +1130,40 @@ export default function AnalysisResult() {
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
-            <section id="swot">
-              <SwotSimple
-                report={{ swot_analysis: fp.swot_analysis || report.swot }}
-                isArabic={isArabic}
-              />
-            </section>
+            {tabData.strategy ? (
+              <StrategySection data={tabData.strategy} isArabic={isArabic} />
+            ) : (
+              <>
+                <section id="swot">
+                  <SwotSimple
+                    report={{ swot_analysis: fp.swot_analysis || report.swot }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="risk_mitigation">
-              <RiskMitigation
-                businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
-                technicalReport={technicalReport}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="risk_mitigation">
+                  <RiskMitigation
+                    businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
+                    technicalReport={technicalReport}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="success_validation">
-              <SuccessMetricsValidation
-                report={{ success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [], validation_methodology: fp.validation_methodology }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="success_validation">
+                  <SuccessMetricsValidation
+                    report={{ success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [], validation_methodology: fp.validation_methodology }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="recommendations_next">
-              <RecommendationsNext
-                report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="recommendations_next">
+                  <RecommendationsNext
+                    report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
+                    isArabic={isArabic}
+                  />
+                </section>
+              </>
+            )}
             </LazyTabContent>
           </TabsContent>
         </Tabs>
