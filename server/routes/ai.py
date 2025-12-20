@@ -25,8 +25,8 @@ def require_auth(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
-# claude-sonnet-4-20250514 is the latest model
-DEFAULT_MODEL = "claude-sonnet-4-20250514"
+# Use the latest supported Claude model
+DEFAULT_MODEL = "claude-3-5-sonnet-20241022"
 
 @ai_bp.route('/generate-analysis', methods=['POST'])
 @require_auth

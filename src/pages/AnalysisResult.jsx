@@ -56,15 +56,16 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 
-const TabLoadingSpinner = ({ isArabic }) => (
+const TabLoadingSpinner = ({ isArabic, message }) => (
   <div className="flex flex-col items-center justify-center py-16 space-y-4">
     <div className="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
-    <p className="text-slate-600 text-sm">{isArabic ? "جارٍ تحميل البيانات..." : "Loading data..."}</p>
+    <p className="text-slate-600 text-sm">{message || (isArabic ? "جارٍ تحميل البيانات..." : "Loading data...")}</p>
+    <p className="text-slate-400 text-xs">{isArabic ? "يتم توليد المحتوى بالذكاء الاصطناعي" : "AI is generating your content..."}</p>
   </div>
 );
 
-const LazyTabContent = ({ isLoaded, isArabic, children }) => {
-  if (!isLoaded) {
+const LazyTabContent = ({ isLoaded, isLoading, isArabic, children }) => {
+  if (isLoading || !isLoaded) {
     return <TabLoadingSpinner isArabic={isArabic} />;
   }
   return <>{children}</>;
@@ -87,12 +88,46 @@ export default function AnalysisResult() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [loadedTabs, setLoadedTabs] = useState({ overview: true });
+  const [tabData, setTabData] = useState({});
+  const [tabLoading, setTabLoading] = useState({});
+  
+  const loadTabContent = useCallback(async (tabName) => {
+    if (tabData[tabName] || tabLoading[tabName] || !analysis) return;
+    
+    const cachedData = analysis[`tab_${tabName}`];
+    if (cachedData) {
+      setTabData(prev => ({ ...prev, [tabName]: cachedData }));
+      setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
+      return;
+    }
+    
+    setTabLoading(prev => ({ ...prev, [tabName]: true }));
+    const isAr = analysis?.report_language === 'arabic';
+    
+    try {
+      const response = await api.post('/ai/generate-tab-content', {
+        analysis_id: analysis.id,
+        tab_name: tabName,
+        language: analysis.language || 'en'
+      });
+      
+      if (response.data) {
+        setTabData(prev => ({ ...prev, [tabName]: response.data }));
+        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
+      }
+    } catch (error) {
+      console.error(`Error loading ${tabName} tab:`, error);
+      toast.error(isAr ? "خطأ في تحميل المحتوى" : "Error loading content");
+    } finally {
+      setTabLoading(prev => ({ ...prev, [tabName]: false }));
+    }
+  }, [analysis, tabData, tabLoading]);
 
   useEffect(() => {
-    if (activeTab && !loadedTabs[activeTab]) {
-      setLoadedTabs(prev => ({ ...prev, [activeTab]: true }));
+    if (activeTab && analysis && !loadedTabs[activeTab]) {
+      loadTabContent(activeTab);
     }
-  }, [activeTab, loadedTabs]);
+  }, [activeTab, analysis, loadedTabs, loadTabContent]);
 
   // Smooth scroll for quick navigation - REMOVED as quick nav is removed
   // const scrollTo = (id) => {
@@ -129,6 +164,7 @@ export default function AnalysisResult() {
         setRating(data.user_rating ?? null);
         setFeedback(data.user_feedback ?? "");
         setCanRate(false); // Admins shouldn't rate others' reports
+        setLoadedTabs({ overview: true });
       } else {
         // Owner flow (RLS enforced)
         const filter = { user_email: user.email };
@@ -144,6 +180,7 @@ export default function AnalysisResult() {
         setRating(analysisItem.user_rating ?? null);
         setFeedback(analysisItem.user_feedback ?? "");
         setCanRate(analysisItem.user_email === user.email && analysisItem.status === 'completed');
+        setLoadedTabs({ overview: true });
       }
     } catch (error) {
       console.error("Error loading analysis:", error);
@@ -789,6 +826,7 @@ export default function AnalysisResult() {
 
           {/* Tab 1: Overview - Syrian Market Metrics */}
           <TabsContent value="overview" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic}>
             {/* Key Syrian Market Metrics Card */}
             <Card className="glass-effect border-0 shadow-xl overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
@@ -913,11 +951,12 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
 
           {/* Tab 2: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic}>
             <section id="market_opportunity">
               <MarketOpportunity
                 report={{
@@ -975,7 +1014,7 @@ export default function AnalysisResult() {
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isArabic={isArabic}>
             <section id="business_model_revenue">
               <BusinessModelRevenue
                 report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
@@ -1001,7 +1040,7 @@ export default function AnalysisResult() {
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic}>
             <section id="tech_stack_suggestions">
               <TechStackSuggestions
                 suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
@@ -1042,7 +1081,7 @@ export default function AnalysisResult() {
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isArabic={isArabic}>
             <section id="financial_proj">
               <FinancialProjections
                 report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
@@ -1061,7 +1100,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isArabic={isArabic}>
+            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic}>
             <section id="swot">
               <SwotSimple
                 report={{ swot_analysis: fp.swot_analysis || report.swot }}
