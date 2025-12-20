@@ -659,38 +659,49 @@ Respond in JSON format:
     ]
 }}""",
 
-    'financial': """Generate a Financial Projections analysis for this business idea. Focus on:
-1. Startup costs breakdown
-2. Monthly operating expenses
-3. Revenue projections (12 months)
-4. Break-even analysis
-5. Funding recommendations
+    'financial': """Generate a Financial & Revenue analysis for this business idea. Focus on:
+
+1. Revenue Streams:
+   - Different ways to generate revenue
+   - Description and potential of each stream
+
+2. Pricing Strategy:
+   - Pricing model and approach
+   - Price points and tiers
+   - Justification for pricing
+
+3. Funding Opportunities:
+   - Types of funding available
+   - Potential investors or funding sources
+   - Amount and terms
 
 Respond in JSON format:
 {{
-    "startup_costs": {{
-        "total_usd": 50000,
-        "breakdown": [
-            {{"category": "...", "amount_usd": 10000, "description": "..."}}
-        ]
-    }},
-    "monthly_expenses": {{
-        "total_usd": 5000,
-        "breakdown": [
-            {{"category": "...", "amount_usd": 1000}}
-        ]
-    }},
-    "revenue_projections": [
-        {{"month": 1, "revenue_usd": 0}},
-        {{"month": 6, "revenue_usd": 5000}},
-        {{"month": 12, "revenue_usd": 20000}}
+    "revenue_streams": [
+        {{
+            "name": "...",
+            "type": "subscription|transaction|advertising|licensing|freemium|etc",
+            "description": "...",
+            "potential": "high|medium|low",
+            "estimated_monthly_revenue": "..."
+        }}
     ],
-    "break_even": {{
-        "months": 12,
-        "conditions": "..."
+    "pricing_strategy": {{
+        "model": "...",
+        "approach": "...",
+        "tiers": [
+            {{"name": "...", "price": "...", "features": ["..."]}}
+        ],
+        "justification": "..."
     }},
-    "funding_recommendations": [
-        {{"type": "...", "amount_usd": 50000, "terms": "..."}}
+    "funding_opportunities": [
+        {{
+            "type": "...",
+            "source": "...",
+            "amount_range": "...",
+            "terms": "...",
+            "suitability": "..."
+        }}
     ]
 }}""",
 

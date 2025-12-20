@@ -57,6 +57,7 @@ import SyrianCompetitors from "../components/results/SyrianCompetitors";
 import MarketSection from "../components/results/MarketSection";
 import BusinessSection from "../components/results/BusinessSection";
 import TechnicalSection from "../components/results/TechnicalSection";
+import FinancialSection from "../components/results/FinancialSection";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
@@ -1103,19 +1104,25 @@ export default function AnalysisResult() {
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isArabic={isArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')}>
-            <section id="financial_proj">
-              <FinancialProjections
-                report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
-                isArabic={isArabic}
-              />
-            </section>
+            {tabData.financial ? (
+              <FinancialSection data={tabData.financial} isArabic={isArabic} />
+            ) : (
+              <>
+                <section id="financial_proj">
+                  <FinancialProjections
+                    report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
+                    isArabic={isArabic}
+                  />
+                </section>
 
-            <section id="funding">
-              <FundingRecommendations
-                report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
-                isArabic={isArabic}
-              />
-            </section>
+                <section id="funding">
+                  <FundingRecommendations
+                    report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
+                    isArabic={isArabic}
+                  />
+                </section>
+              </>
+            )}
             </LazyTabContent>
           </TabsContent>
 
