@@ -79,6 +79,8 @@ class Analysis(db.Model):
     risk_assessment = db.Column(db.JSON)
     recommendations = db.Column(db.JSON)
     score = db.Column(db.Integer)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -105,6 +107,8 @@ class Analysis(db.Model):
             'risk_assessment': self.risk_assessment,
             'recommendations': self.recommendations,
             'score': self.score,
+            'is_deleted': self.is_deleted,
+            'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
