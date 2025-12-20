@@ -305,39 +305,39 @@ export default function PlanlyzeAIPage() {
                       {
                         icon: Brain,
                         label: t.heroStat1,
-                        bg: "bg-purple-50",
-                        border: "border-purple-200",
+                        bg: "bg-purple-50 dark:bg-purple-900/30",
+                        border: "border-purple-200 dark:border-purple-700",
                         hoverBorder: "hover:border-purple-400",
-                        iconColor: "text-purple-600",
+                        iconColor: "text-purple-600 dark:text-purple-400",
                       },
                       {
                         icon: MapPin,
                         label: t.heroStat2,
-                        bg: "bg-orange-50",
-                        border: "border-orange-200",
+                        bg: "bg-orange-50 dark:bg-orange-900/30",
+                        border: "border-orange-200 dark:border-orange-700",
                         hoverBorder: "hover:border-orange-400",
-                        iconColor: "text-orange-500",
+                        iconColor: "text-orange-500 dark:text-orange-400",
                       },
                       {
                         icon: FileText,
                         label: t.heroStat3,
-                        bg: "bg-purple-50",
-                        border: "border-purple-200",
+                        bg: "bg-purple-50 dark:bg-purple-900/30",
+                        border: "border-purple-200 dark:border-purple-700",
                         hoverBorder: "hover:border-purple-400",
-                        iconColor: "text-purple-600",
+                        iconColor: "text-purple-600 dark:text-purple-400",
                       },
                       {
                         icon: Clock,
                         label: t.heroStat4,
-                        bg: "bg-orange-50",
-                        border: "border-orange-200",
+                        bg: "bg-orange-50 dark:bg-orange-900/30",
+                        border: "border-orange-200 dark:border-orange-700",
                         hoverBorder: "hover:border-orange-400",
-                        iconColor: "text-orange-500",
+                        iconColor: "text-orange-500 dark:text-orange-400",
                       },
                     ].map((stat, index) => (
                       <motion.div
                         key={index}
-                        className={`text-center p-6 ${stat.bg} dark:bg-gray-700 rounded-2xl border ${stat.border} dark:border-gray-600 ${stat.hoverBorder} transition-all duration-300 hover:scale-105 hover:shadow-lg`}
+                        className={`text-center p-6 ${stat.bg} rounded-2xl border ${stat.border} ${stat.hoverBorder} transition-all duration-300 hover:scale-105 hover:shadow-lg`}
                         whileHover={{ y: -5 }}
                       >
                         <stat.icon
