@@ -30,6 +30,8 @@ export default function AuditLogs() {
   const [apiMethodFilter, setApiMethodFilter] = useState("all");
   const [apiStatusFilter, setApiStatusFilter] = useState("all");
   const [apiCurrentPage, setApiCurrentPage] = useState(1);
+  const [apiTotalPages, setApiTotalPages] = useState(1);
+  const [apiTotal, setApiTotal] = useState(0);
   
   const logsPerPage = 50;
 
@@ -38,10 +40,10 @@ export default function AuditLogs() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === "api" && apiLogs.length === 0 && !isLoadingApi) {
+    if (activeTab === "api") {
       loadApiLogs();
     }
-  }, [activeTab]);
+  }, [activeTab, apiCurrentPage, apiMethodFilter]);
 
   const loadLogs = async () => {
     setIsLoading(true);
@@ -67,8 +69,17 @@ export default function AuditLogs() {
   const loadApiLogs = async () => {
     setIsLoadingApi(true);
     try {
-      const apiLogsData = await ApiRequestLog.list({ limit: 500 });
-      setApiLogs(Array.isArray(apiLogsData) ? apiLogsData : []);
+      const params = {
+        page: apiCurrentPage,
+        per_page: logsPerPage
+      };
+      if (apiMethodFilter !== "all") {
+        params.method = apiMethodFilter;
+      }
+      const response = await ApiRequestLog.list(params);
+      setApiLogs(Array.isArray(response.data) ? response.data : []);
+      setApiTotalPages(response.pagination?.total_pages || 1);
+      setApiTotal(response.pagination?.total || 0);
     } catch (error) {
       console.error("Error loading API logs:", error);
       toast.error("Failed to load API request logs");
@@ -207,14 +218,13 @@ export default function AuditLogs() {
       log.user_email?.toLowerCase().includes(apiSearchQuery.toLowerCase()) ||
       log.ip_address?.includes(apiSearchQuery);
 
-    const matchesMethod = apiMethodFilter === "all" || log.method === apiMethodFilter;
     const matchesStatus = apiStatusFilter === "all" || 
       (apiStatusFilter === "2xx" && log.response_status >= 200 && log.response_status < 300) ||
       (apiStatusFilter === "3xx" && log.response_status >= 300 && log.response_status < 400) ||
       (apiStatusFilter === "4xx" && log.response_status >= 400 && log.response_status < 500) ||
       (apiStatusFilter === "5xx" && log.response_status >= 500);
 
-    return matchesSearch && matchesMethod && matchesStatus;
+    return matchesSearch && matchesStatus;
   });
 
   const startIndex = (currentPage - 1) * logsPerPage;
@@ -223,9 +233,8 @@ export default function AuditLogs() {
   const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
 
   const apiStartIndex = (apiCurrentPage - 1) * logsPerPage;
-  const apiEndIndex = apiStartIndex + logsPerPage;
-  const paginatedApiLogs = filteredApiLogs.slice(apiStartIndex, apiEndIndex);
-  const apiTotalPages = Math.ceil(filteredApiLogs.length / logsPerPage);
+  const apiEndIndex = Math.min(apiStartIndex + logsPerPage, apiTotal);
+  const paginatedApiLogs = filteredApiLogs;
 
   if (isLoading) {
     return (
@@ -466,7 +475,7 @@ export default function AuditLogs() {
                   <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Requests</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{apiLogs.length}</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{apiTotal}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -569,7 +578,7 @@ export default function AuditLogs() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="w-5 h-5" />
-                  API Requests ({filteredApiLogs.length})
+                  API Requests ({apiTotal})
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -660,7 +669,7 @@ export default function AuditLogs() {
                     {apiTotalPages > 1 && (
                       <div className="flex items-center justify-between pt-4 border-t mt-4">
                         <div className="text-sm text-slate-600 dark:text-slate-400">
-                          Showing {apiStartIndex + 1}-{Math.min(apiEndIndex, filteredApiLogs.length)} of {filteredApiLogs.length}
+                          Showing {apiStartIndex + 1}-{apiEndIndex} of {apiTotal}
                         </div>
                         <div className="flex gap-2">
                           <Button

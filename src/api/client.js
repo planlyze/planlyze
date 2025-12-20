@@ -249,7 +249,8 @@ export const AuditLog = {
 export const ApiRequestLog = {
   list: (params = {}) => {
     const queryParams = new URLSearchParams();
-    if (params.limit) queryParams.set('limit', params.limit);
+    if (params.page) queryParams.set('page', params.page);
+    if (params.per_page) queryParams.set('per_page', params.per_page);
     if (params.method) queryParams.set('method', params.method);
     if (params.path) queryParams.set('path', params.path);
     if (params.status) queryParams.set('status', params.status);

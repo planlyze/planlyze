@@ -1086,10 +1086,14 @@ def get_api_request_logs(user):
     security:
       - Bearer: []
     parameters:
-      - name: limit
+      - name: page
         in: query
         type: integer
-        default: 100
+        default: 1
+      - name: per_page
+        in: query
+        type: integer
+        default: 50
       - name: method
         in: query
         type: string
@@ -1104,12 +1108,13 @@ def get_api_request_logs(user):
         type: string
     responses:
       200:
-        description: List of API request logs
+        description: Paginated list of API request logs
     """
     from server.models import ApiRequestLog
     
-    limit = request.args.get('limit', 100, type=int)
-    limit = min(limit, 500)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    per_page = min(per_page, 100)
     
     query = ApiRequestLog.query
     
@@ -1122,8 +1127,18 @@ def get_api_request_logs(user):
     if request.args.get('user_email'):
         query = query.filter(ApiRequestLog.user_email == request.args.get('user_email'))
     
-    logs = query.order_by(ApiRequestLog.created_at.desc()).limit(limit).all()
-    return jsonify([l.to_dict() for l in logs])
+    total = query.count()
+    logs = query.order_by(ApiRequestLog.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+    
+    return jsonify({
+        'data': [l.to_dict() for l in logs],
+        'pagination': {
+            'page': page,
+            'per_page': per_page,
+            'total': total,
+            'total_pages': (total + per_page - 1) // per_page
+        }
+    })
 
 @entities_bp.route('/api-request-logs/<log_id>', methods=['GET'])
 @require_admin
