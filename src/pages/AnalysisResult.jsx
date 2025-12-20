@@ -873,26 +873,37 @@ export default function AnalysisResult() {
               </div>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Market Fit - Always visible */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                        <Target className="w-6 h-6 text-white" />
+                  {/* Market Fit - Locked for free */}
+                  {isPremium ? (
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                          <Target className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-600">{isArabic ? "ملاءمة السوق" : "Market Fit"}</p>
+                          <p className="text-2xl font-bold text-emerald-600">
+                            {tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-600">{isArabic ? "ملاءمة السوق" : "Market Fit"}</p>
-                        <p className="text-2xl font-bold text-emerald-600">
-                          {tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
-                        </p>
+                      <div className="w-full bg-emerald-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
+                        ></div>
                       </div>
                     </div>
-                    <div className="w-full bg-emerald-200 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                  ) : (
+                    <LockedContent
+                      title={isArabic ? "ملاءمة السوق" : "Market Fit"}
+                      description={isArabic ? "افتح لمعرفة نسبة ملاءمة السوق" : "Unlock to see market fit score"}
+                      isArabic={isArabic}
+                      onUnlock={handleUpgradeToPremium}
+                      isUnlocking={isUpgrading}
+                      variant="inline"
+                    />
+                  )}
 
                   {/* Time to Build - Locked for free */}
                   {isPremium ? (
@@ -915,6 +926,8 @@ export default function AnalysisResult() {
                       title={isArabic ? "وقت البناء" : "Time to Build"}
                       description={isArabic ? "افتح لمعرفة الوقت المطلوب" : "Unlock to see build time"}
                       isArabic={isArabic}
+                      onUnlock={handleUpgradeToPremium}
+                      isUnlocking={isUpgrading}
                       variant="inline"
                     />
                   )}
@@ -940,6 +953,8 @@ export default function AnalysisResult() {
                       title={isArabic ? "المنافسون" : "Competitors"}
                       description={isArabic ? "افتح لمعرفة عدد المنافسين" : "Unlock to see competitor count"}
                       isArabic={isArabic}
+                      onUnlock={handleUpgradeToPremium}
+                      isUnlocking={isUpgrading}
                       variant="inline"
                     />
                   )}
@@ -965,6 +980,8 @@ export default function AnalysisResult() {
                       title={isArabic ? "تكلفة البدء" : "Starting Cost"}
                       description={isArabic ? "افتح لمعرفة رأس المال المطلوب" : "Unlock to see starting cost"}
                       isArabic={isArabic}
+                      onUnlock={handleUpgradeToPremium}
+                      isUnlocking={isUpgrading}
                       variant="inline"
                     />
                   )}
@@ -994,7 +1011,7 @@ export default function AnalysisResult() {
             <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
             
             {tabData.market ? (
-              <MarketSection data={tabData.market} isArabic={isArabic} isPremium={isPremium} />
+              <MarketSection data={tabData.market} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="market_opportunity">
@@ -1087,7 +1104,7 @@ export default function AnalysisResult() {
           <TabsContent value="technical" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
             {tabData.technical ? (
-              <TechnicalSection data={tabData.technical} isArabic={isArabic} isPremium={isPremium} />
+              <TechnicalSection data={tabData.technical} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="tech_stack_suggestions">
@@ -1159,7 +1176,7 @@ export default function AnalysisResult() {
           <TabsContent value="strategy" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
             {tabData.strategy ? (
-              <StrategySection data={tabData.strategy} isArabic={isArabic} isPremium={isPremium} />
+              <StrategySection data={tabData.strategy} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="swot">
