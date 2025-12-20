@@ -43,13 +43,6 @@ def validate_business_idea(business_idea: str, language: str = 'en') -> dict:
         }
     
     words = cleaned.split()
-    if len(words) < 3:
-        return {
-            'valid': False,
-            'reason': 'Please provide a more detailed business idea with at least a few words.' if language == 'en'
-                      else 'يرجى تقديم فكرة عمل أكثر تفصيلاً.',
-            'confidence': 1.0
-        }
     
     if len(set(words)) < len(words) * 0.3 and len(words) > 5:
         return {
