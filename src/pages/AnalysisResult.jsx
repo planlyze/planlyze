@@ -98,7 +98,7 @@ export default function AnalysisResult() {
         setCanRate(false); // Admins shouldn't rate others' reports
       } else {
         // Owner flow (RLS enforced)
-        const filter = { created_by: user.email };
+        const filter = { user_email: user.email };
         const userAnalyses = await Analysis.filter(filter);
         const analysisItem = userAnalyses.find((a) => a.id === id);
 
@@ -110,7 +110,7 @@ export default function AnalysisResult() {
         setAnalysis(analysisItem);
         setRating(analysisItem.user_rating ?? null);
         setFeedback(analysisItem.user_feedback ?? "");
-        setCanRate(analysisItem.created_by === user.email && analysisItem.status === 'completed');
+        setCanRate(analysisItem.user_email === user.email && analysisItem.status === 'completed');
       }
     } catch (error) {
       console.error("Error loading analysis:", error);
