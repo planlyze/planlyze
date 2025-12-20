@@ -103,20 +103,8 @@ export default function NewAnalysis() {
     setLastError("");
 
     try {
-      // Check if user has credits available
-      const user = await auth.me();
-      const currentCredits = user.credits || 0;
-      
-      // User must have at least 1 credit to generate a report
-      if (currentCredits < 1) {
-        toast.error("You don't have enough credits. Please purchase credits to generate a report.");
-        setCurrentStep("form");
-        return;
-      }
-      
       setCurrentStep("processing");
       
-      // Create analysis record via API (backend handles credit check)
       let createdAnalysis;
       try {
         const resp = await api.post('/analyses/generate', combinedFormData);
@@ -124,12 +112,21 @@ export default function NewAnalysis() {
       } catch (err) {
         const msg = String(err?.message || err || "");
         const status = err?.response?.status;
+        const errorData = err?.response?.data || {};
+        
+        if (status === 422 && errorData.validation_failed) {
+          const reason = errorData.reason || "The submitted text does not appear to be a valid business idea.";
+          toast.error(reason);
+          setLastError(reason);
+          setCurrentStep("form");
+          return;
+        }
+        
         const isRetryable =
           (typeof status === "number" && status >= 500) ||
           /network|timeout|502|bad gateway|failed to fetch/i.test(msg);
 
         if (isRetryable) {
-          // Fallback path on network/5xx errors: create via entity SDK directly
           const {
             business_idea,
             report_language,
@@ -211,15 +208,6 @@ export default function NewAnalysis() {
   const handleRetry = async () => {
     if (!analysisId || !analysisData) {
       setCurrentStep("form");
-      return;
-    }
-    
-    // Check if user has credits for retry
-    const user = await auth.me();
-    const currentCredits = user.credits || 0;
-    
-    if (currentCredits < 1) {
-      toast.error("Not enough credits for retry. Please purchase credits.");
       return;
     }
     

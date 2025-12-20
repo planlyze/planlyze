@@ -69,6 +69,9 @@ class Analysis(db.Model):
     location = db.Column(db.String(255))
     budget = db.Column(db.String(100))
     status = db.Column(db.String(50), default='pending')
+    report_type = db.Column(db.String(20), default='free')  # 'free' or 'premium'
+    pending_transaction_id = db.Column(db.String(36), db.ForeignKey('transactions.id'))
+    last_error = db.Column(db.Text)  # Store error message on failure
     report = db.Column(db.JSON)
     executive_summary = db.Column(db.Text)
     market_analysis = db.Column(db.JSON)
@@ -78,6 +81,9 @@ class Analysis(db.Model):
     score = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship to pending transaction
+    pending_transaction = db.relationship('Transaction', foreign_keys=[pending_transaction_id])
     
     def to_dict(self):
         return {
@@ -89,6 +95,9 @@ class Analysis(db.Model):
             'location': self.location,
             'budget': self.budget,
             'status': self.status,
+            'report_type': self.report_type,
+            'pending_transaction_id': self.pending_transaction_id,
+            'last_error': self.last_error,
             'report': self.report,
             'executive_summary': self.executive_summary,
             'market_analysis': self.market_analysis,

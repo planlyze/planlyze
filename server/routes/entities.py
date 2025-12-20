@@ -106,17 +106,29 @@ def generate_analysis_entry(user):
         description: Analysis created successfully
       400:
         description: Missing required fields
-      402:
-        description: Insufficient credits
+      422:
+        description: Invalid business idea
     """
-    if user.credits < 1:
-        return jsonify({'error': 'Insufficient credits'}), 402
+    from server.services.analysis_service import validate_business_idea, reserve_premium_credit, get_report_type_for_user
     
     data = request.get_json() or {}
     business_idea = data.get('business_idea', '').strip()
+    report_language = data.get('report_language', 'english').lower()
     
     if not business_idea:
         return jsonify({'error': 'Business idea is required'}), 400
+    
+    lang = 'ar' if report_language == 'arabic' else 'en'
+    validation = validate_business_idea(business_idea, lang)
+    
+    if not validation.get('valid', True):
+        return jsonify({
+            'error': 'Invalid business idea',
+            'reason': validation.get('reason', 'The submitted text does not appear to be a valid business idea.'),
+            'validation_failed': True
+        }), 422
+    
+    expected_report_type = get_report_type_for_user(user.email)
     
     analysis = Analysis(
         user_email=user.email,
@@ -124,12 +136,16 @@ def generate_analysis_entry(user):
         industry=data.get('industry', 'Other'),
         target_market=data.get('target_market', ''),
         location=data.get('country', ''),
-        status='analyzing'
+        status='analyzing',
+        report_type=expected_report_type
     )
     db.session.add(analysis)
     db.session.commit()
     
-    return jsonify(analysis.to_dict()), 201
+    response_data = analysis.to_dict()
+    response_data['expected_report_type'] = expected_report_type
+    
+    return jsonify(response_data), 201
 
 
 @entities_bp.route('/analyses/chain', methods=['POST'])
@@ -172,6 +188,7 @@ def chain_analysis(user):
     import threading
     import anthropic
     import json
+    from server.services.analysis_service import reserve_premium_credit, finalize_transaction
     
     data = request.get_json() or {}
     analysis_id = data.get('analysisId')
@@ -185,24 +202,13 @@ def chain_analysis(user):
     if analysis.user_email != user.email:
         return jsonify({'error': 'Access denied'}), 403
     
-    # Reserve credit upfront
-    user_record = User.query.filter_by(email=user.email).first()
-    if not user_record or user_record.credits <= 0:
-        return jsonify({'error': 'Insufficient credits'}), 402
+    reserve_result = reserve_premium_credit(user.email, analysis_id)
     
-    # Deduct credit and create pending transaction
-    user_record.credits -= 1
-    pending_tx = Transaction(
-        user_email=user.email,
-        type='usage',
-        credits=-1,
-        description=f'Analysis: {analysis.business_idea[:50] if analysis.business_idea else "New analysis"}...',
-        reference_id=analysis_id,
-        status='pending'
-    )
-    db.session.add(pending_tx)
-    db.session.commit()
-    pending_tx_id = pending_tx.id
+    if not reserve_result['success']:
+        return jsonify({'error': reserve_result.get('error', 'Failed to reserve credit')}), 500
+    
+    report_type = reserve_result['report_type']
+    pending_tx_id = reserve_result.get('transaction_id')
     
     def run_analysis():
         import logging
@@ -401,16 +407,13 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 analysis_record.recommendations = report.get('recommendations')
                 analysis_record.score = report.get('score', 0)
                 analysis_record.progress_percent = 100
-                
-                # Mark pending transaction as completed
-                pending_tx_record = Transaction.query.get(pending_tx_id)
-                if pending_tx_record:
-                    pending_tx_record.status = 'completed'
-                    pending_tx_record.description = f'Analysis: {business_idea[:50]}...'
-                
                 db.session.commit()
                 
+                from server.services.analysis_service import finalize_transaction
+                finalize_result = finalize_transaction(analysis_id, success=True)
+                
                 logger.info(f"[Claude LLM] Analysis completed successfully - ID: {analysis_id}, Score: {report.get('score', 0)}")
+                logger.info(f"[Claude LLM] Transaction finalized: {finalize_result}")
                 print(f"[Claude LLM] Analysis completed successfully!")
                 print(f"[Claude LLM] Analysis ID: {analysis_id}")
                 print(f"[Claude LLM] Score: {report.get('score', 0)}")
@@ -432,21 +435,15 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                     if analysis_record:
                         analysis_record.status = 'failed'
                         analysis_record.last_error = f"{error_type}: {error_details}"
+                        db.session.commit()
                     
-                    # Restore credit and mark transaction as refunded
-                    user_record = User.query.filter_by(email=analysis_record.user_email).first()
-                    if user_record:
-                        user_record.credits += 1
-                        logger.info(f"[Claude LLM] Credit refunded to user: {analysis_record.user_email}")
-                        print(f"[Claude LLM] Credit refunded to user: {analysis_record.user_email}")
+                    from server.services.analysis_service import finalize_transaction
+                    refund_result = finalize_transaction(analysis_id, success=False, error_message=f"{error_type}: {error_details}")
                     
-                    pending_tx_record = Transaction.query.get(pending_tx_id)
-                    if pending_tx_record:
-                        pending_tx_record.status = 'completed'
-                        pending_tx_record.type = 'refunded'
-                        pending_tx_record.description = f'Refunded: {error_type} - {error_details[:60]}'
+                    if refund_result.get('refunded'):
+                        logger.info(f"[Claude LLM] Credit refunded for analysis: {analysis_id}")
+                        print(f"[Claude LLM] Credit refunded for analysis: {analysis_id}")
                     
-                    db.session.commit()
                     logger.info(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
                     print(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
                 except Exception as cleanup_error:
