@@ -393,7 +393,7 @@ export default function Reports() {
           <div className="grid gap-6">
             <AnimatePresence mode="popLayout">
               {filteredAnalyses.map((analysis, index) => {
-                const StatusIcon = statusIcons[analysis.status];
+                const StatusIcon = statusIcons[analysis.status] || AlertCircle;
                 const isDeleting = deletingId === analysis.id;
                 return (
                   <motion.div

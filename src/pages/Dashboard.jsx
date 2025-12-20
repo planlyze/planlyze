@@ -270,7 +270,7 @@ export default function Dashboard() {
                 ) : (
                   <div className="divide-y divide-gray-100 dark:divide-gray-700">
                     {recentAnalyses.map((analysis, index) => {
-                      const StatusIcon = statusIcons[analysis.status];
+                      const StatusIcon = statusIcons[analysis.status] || AlertCircle;
                       return (
                         <motion.div
                           key={analysis.id}
