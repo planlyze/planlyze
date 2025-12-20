@@ -56,6 +56,20 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 
+const TabLoadingSpinner = ({ isArabic }) => (
+  <div className="flex flex-col items-center justify-center py-16 space-y-4">
+    <div className="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
+    <p className="text-slate-600 text-sm">{isArabic ? "جارٍ تحميل البيانات..." : "Loading data..."}</p>
+  </div>
+);
+
+const LazyTabContent = ({ isLoaded, isArabic, children }) => {
+  if (!isLoaded) {
+    return <TabLoadingSpinner isArabic={isArabic} />;
+  }
+  return <>{children}</>;
+};
+
 export default function AnalysisResult() {
   const navigate = useNavigate();
   const [analysis, setAnalysis] = useState(null);
@@ -72,6 +86,13 @@ export default function AnalysisResult() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [loadedTabs, setLoadedTabs] = useState({ overview: true });
+
+  useEffect(() => {
+    if (activeTab && !loadedTabs[activeTab]) {
+      setLoadedTabs(prev => ({ ...prev, [activeTab]: true }));
+    }
+  }, [activeTab, loadedTabs]);
 
   // Smooth scroll for quick navigation - REMOVED as quick nav is removed
   // const scrollTo = (id) => {
@@ -896,6 +917,7 @@ export default function AnalysisResult() {
 
           {/* Tab 2: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.market} isArabic={isArabic}>
             <section id="market_opportunity">
               <MarketOpportunity
                 report={{
@@ -948,10 +970,12 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.business} isArabic={isArabic}>
             <section id="business_model_revenue">
               <BusinessModelRevenue
                 report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
@@ -972,10 +996,12 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.technical} isArabic={isArabic}>
             <section id="tech_stack_suggestions">
               <TechStackSuggestions
                 suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
@@ -1011,10 +1037,12 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.financial} isArabic={isArabic}>
             <section id="financial_proj">
               <FinancialProjections
                 report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
@@ -1028,10 +1056,12 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.strategy} isArabic={isArabic}>
             <section id="swot">
               <SwotSimple
                 report={{ swot_analysis: fp.swot_analysis || report.swot }}
@@ -1060,6 +1090,7 @@ export default function AnalysisResult() {
                 isArabic={isArabic}
               />
             </section>
+            </LazyTabContent>
           </TabsContent>
         </Tabs>
 
