@@ -7,6 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
@@ -66,6 +76,8 @@ export default function Reports() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedAnalysisForShare, setSelectedAnalysisForShare] = useState(null);
   const [exportingId, setExportingId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [analysisToDelete, setAnalysisToDelete] = useState(null);
   
   const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
@@ -117,20 +129,25 @@ export default function Reports() {
     checkAuthAndLoadData();
   }, [navigate]);
 
-  const handleDelete = async (analysis) => {
-    const confirmed = window.confirm(`${t('reports.confirmDelete')}\n\n"${analysis.business_idea}"`);
-    if (!confirmed) return;
-    setDeletingId(analysis.id);
+  const handleDelete = (analysis) => {
+    setAnalysisToDelete(analysis);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!analysisToDelete) return;
+    setDeletingId(analysisToDelete.id);
+    setDeleteDialogOpen(false);
     try {
-      await Analysis.update(analysis.id, { is_deleted: true, deleted_at: new Date().toISOString() });
+      await Analysis.update(analysisToDelete.id, { is_deleted: true, deleted_at: new Date().toISOString() });
       toast.success(t('reports.deleteSuccess'));
-      // Reload analyses after deletion, passing current admin status and email
       await loadAnalyses(viewingEmail, isAdmin, myEmail, hasSelectedUser);
     } catch (e) {
       console.error("Error deleting analysis:", e);
       toast.error(t('reports.deleteFailed'));
     } finally {
       setDeletingId(null);
+      setAnalysisToDelete(null);
     }
   };
 
@@ -600,6 +617,38 @@ export default function Reports() {
           isArabic={isArabic}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent dir={isArabic ? 'rtl' : 'ltr'}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={isArabic ? 'text-right' : ''}>
+              {isArabic ? 'تأكيد الحذف' : 'Confirm Delete'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className={isArabic ? 'text-right' : ''}>
+              {isArabic 
+                ? 'هل أنت متأكد من حذف هذا التقرير؟ لا يمكن التراجع عن هذا الإجراء.'
+                : 'Are you sure you want to delete this report? This action cannot be undone.'}
+              {analysisToDelete && (
+                <span className="block mt-2 font-medium text-slate-700 dark:text-slate-300">
+                  "{analysisToDelete.business_idea?.substring(0, 100)}{analysisToDelete.business_idea?.length > 100 ? '...' : ''}"
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className={isArabic ? 'flex-row-reverse gap-2' : ''}>
+            <AlertDialogCancel onClick={() => setAnalysisToDelete(null)}>
+              {isArabic ? 'إلغاء' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isArabic ? 'حذف' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       </div>
       );
       }
