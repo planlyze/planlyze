@@ -78,7 +78,7 @@ def get_analysis(user, id):
 @require_auth
 def generate_analysis_entry(user):
     """
-    Create a new analysis entry for report generation
+    Create a new analysis entry - tabs load lazily on demand
     ---
     tags:
       - Analyses
@@ -106,10 +106,8 @@ def generate_analysis_entry(user):
         description: Analysis created successfully
       400:
         description: Missing required fields
-      422:
-        description: Invalid business idea
     """
-    from server.services.analysis_service import validate_business_idea, reserve_premium_credit, get_report_type_for_user
+    from server.services.analysis_service import get_report_type_for_user
     
     data = request.get_json() or {}
     business_idea = data.get('business_idea', '').strip()
@@ -117,16 +115,6 @@ def generate_analysis_entry(user):
     
     if not business_idea:
         return jsonify({'error': 'Business idea is required'}), 400
-    
-    lang = 'ar' if report_language == 'arabic' else 'en'
-    validation = validate_business_idea(business_idea, lang)
-    
-    if not validation.get('valid', True):
-        return jsonify({
-            'error': 'Invalid business idea',
-            'reason': validation.get('reason', 'The submitted text does not appear to be a valid business idea.'),
-            'validation_failed': True
-        }), 422
     
     expected_report_type = get_report_type_for_user(user.email)
     
@@ -136,7 +124,8 @@ def generate_analysis_entry(user):
         industry=data.get('industry', 'Other'),
         target_market=data.get('target_market', ''),
         location=data.get('country', ''),
-        status='analyzing',
+        report_language=report_language,
+        status='pending',
         report_type=expected_report_type
     )
     db.session.add(analysis)

@@ -106,7 +106,7 @@ export default function AnalysisResult() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [loadedTabs, setLoadedTabs] = useState({ overview: true });
+  const [loadedTabs, setLoadedTabs] = useState({});
   const [tabData, setTabData] = useState({});
   const [tabLoading, setTabLoading] = useState({});
   const [tabError, setTabError] = useState({});
@@ -176,7 +176,7 @@ export default function AnalysisResult() {
     setTabData({});
     setTabError({});
     setTabLoading({});
-    setLoadedTabs({ overview: true });
+    setLoadedTabs({});
     try {
       const user = await auth.me();
       setCurrentUser(user);
@@ -195,7 +195,7 @@ export default function AnalysisResult() {
         setRating(data.user_rating ?? null);
         setFeedback(data.user_feedback ?? "");
         setCanRate(false); // Admins shouldn't rate others' reports
-        setLoadedTabs({ overview: true });
+        setLoadedTabs({});
       } else {
         // Owner flow (RLS enforced)
         const filter = { user_email: user.email };
@@ -211,7 +211,7 @@ export default function AnalysisResult() {
         setRating(analysisItem.user_rating ?? null);
         setFeedback(analysisItem.user_feedback ?? "");
         setCanRate(analysisItem.user_email === user.email && analysisItem.status === 'completed');
-        setLoadedTabs({ overview: true });
+        setLoadedTabs({});
       }
     } catch (error) {
       console.error("Error loading analysis:", error);

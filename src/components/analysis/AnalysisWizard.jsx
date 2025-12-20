@@ -6,10 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Globe, Sparkles, Lightbulb } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion } from "framer-motion";
-import { api } from "@/api/client";
 
 const REPORT_LANGUAGES = [
   { value: "english", label: "English", flag: "🇺🇸" },
@@ -27,8 +26,6 @@ export default function AnalysisWizard({ onSubmit }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  const [isValidatingIdea, setIsValidatingIdea] = useState(false);
-  const [ideaValidation, setIdeaValidation] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -41,42 +38,6 @@ export default function AnalysisWizard({ onSubmit }) {
         ...prev,
         [field]: null
       }));
-    }
-    
-    if (field === 'business_idea') {
-      setIdeaValidation(null);
-    }
-  };
-
-  const validateBusinessIdea = async () => {
-    if (!formData.business_idea.trim() || formData.business_idea.trim().length < 10) {
-      setIdeaValidation({
-        valid: false,
-        reason: formData.report_language === 'arabic' 
-          ? 'يرجى تقديم وصف أكثر تفصيلاً لفكرتك (10 أحرف على الأقل)'
-          : 'Please provide a more detailed description of your idea (at least 10 characters)'
-      });
-      return false;
-    }
-
-    setIsValidatingIdea(true);
-    setIdeaValidation(null);
-    
-    try {
-      const response = await api.post('/analyses/validate-idea', {
-        business_idea: formData.business_idea,
-        report_language: formData.report_language
-      });
-      
-      const result = response.data || response;
-      setIdeaValidation(result);
-      return result.valid;
-    } catch (error) {
-      console.error('Validation error:', error);
-      setIdeaValidation({ valid: true, reason: '' });
-      return true;
-    } finally {
-      setIsValidatingIdea(false);
     }
   };
 
@@ -115,13 +76,6 @@ export default function AnalysisWizard({ onSubmit }) {
     if (!validateForm()) return;
     
     setIsSubmitting(true);
-    
-    const isValid = await validateBusinessIdea();
-    if (!isValid) {
-      setIsSubmitting(false);
-      return;
-    }
-
     await onSubmit(formData);
     setIsSubmitting(false);
   };
@@ -322,9 +276,7 @@ export default function AnalysisWizard({ onSubmit }) {
           {isSubmitting ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-              {isValidatingIdea 
-                ? (formData.report_language === 'arabic' ? 'جاري التحقق...' : 'Validating...') 
-                : (formData.report_language === 'arabic' ? 'جاري التحليل...' : 'Analyzing...')}
+              {formData.report_language === 'arabic' ? 'جاري الإنشاء...' : 'Creating...'}
             </>
           ) : (
             <>
