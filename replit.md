@@ -144,4 +144,36 @@ When a new analysis is generated, Claude AI provides comprehensive business and 
 ### Technical Notes
 - Uses Claude claude-sonnet-4-5 model via Replit AI Integrations
 - Max tokens: 8192 for comprehensive responses
-- Cost: 1 credit per analysis
+- Cost: 1 credit per premium analysis (free reports available for users without credits)
+
+## Analysis Credit System
+The platform uses a transactional credit system for premium analysis reports:
+
+### Business Idea Validation
+- All submitted ideas are validated by Claude AI before analysis begins
+- Validation rejects gibberish, random text, spam, or non-business content
+- Ideas in any language (English, Arabic, etc.) are accepted
+- Invalid ideas return HTTP 422 with a user-friendly error message
+
+### Credit Flow
+1. **Validation**: Business idea is validated by AI (no credit cost)
+2. **Credit Reservation**: If user has credits, 1 credit is deducted upfront with a pending transaction
+3. **Report Generation**: Analysis is generated (premium or free based on credit availability)
+4. **Transaction Finalization**:
+   - On success: Transaction marked as 'completed'
+   - On failure: Credit refunded, transaction marked as 'refunded'
+
+### Report Types
+- **Premium**: Full analysis with all sections (1 credit)
+- **Free**: Limited analysis available when user has no credits
+
+### Database Fields (Analysis model)
+- `report_type`: 'premium' or 'free'
+- `pending_transaction_id`: Links to pending transaction during generation
+- `last_error`: Stores error message on failure
+
+### Service Functions (server/services/analysis_service.py)
+- `validate_business_idea()`: AI-powered idea validation
+- `reserve_premium_credit()`: Deducts credit and creates pending transaction
+- `finalize_transaction()`: Completes or refunds transaction based on outcome
+- `get_report_type_for_user()`: Determines report tier based on user's credits
