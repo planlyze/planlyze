@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Sparkles, Lightbulb } from "lucide-react";
+import { Globe, Sparkles, Lightbulb, AlertCircle } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion } from "framer-motion";
 
@@ -119,26 +119,7 @@ export default function AnalysisWizard({ onSubmit }) {
                   <p className={`text-sm ${formData.business_idea.length >= 10 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
                     {formData.business_idea.length} characters {formData.business_idea.length < 10 && (formData.report_language === 'arabic' ? '(10 أحرف على الأقل)' : '(min 10)')}
                   </p>
-                  {ideaValidation?.valid && (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  )}
                 </div>
-                
-                {ideaValidation && !ideaValidation.valid && (
-                  <div className="mt-2 p-3 rounded-lg flex items-start gap-2 bg-red-50 border border-red-200">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-red-700">
-                        {formData.report_language === 'arabic' ? 'فكرة غير صالحة' : 'Invalid idea'}
-                      </p>
-                      {ideaValidation.reason && (
-                        <p className="text-sm mt-1 text-red-600">
-                          {ideaValidation.reason}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
                 
                 {validationErrors.business_idea && (
                   <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
