@@ -151,9 +151,13 @@ The platform uses a transactional credit system for premium analysis reports:
 
 ### Business Idea Validation
 - All submitted ideas are validated by Claude AI before analysis begins
+- **Inline validation**: Users can validate their idea on the form before submitting
 - Validation rejects gibberish, random text, spam, or non-business content
 - Ideas in any language (English, Arabic, etc.) are accepted
-- Invalid ideas return HTTP 422 with a user-friendly error message
+- A "Validate Idea" button appears when the idea has 10+ characters
+- Validation result shown inline with success/error feedback
+- Submit button only enabled after successful validation
+- Endpoint: `POST /api/analyses/validate-idea` (no credit cost)
 
 ### Credit Flow
 1. **Validation**: Business idea is validated by AI (no credit cost)

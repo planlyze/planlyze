@@ -6,9 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion } from "framer-motion";
+import { api } from "@/api/client";
 
 const REPORT_LANGUAGES = [
   { value: "english", label: "English", flag: "🇺🇸" },
@@ -26,6 +27,8 @@ export default function AnalysisWizard({ onSubmit }) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [isValidatingIdea, setIsValidatingIdea] = useState(false);
+  const [ideaValidation, setIdeaValidation] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -38,6 +41,42 @@ export default function AnalysisWizard({ onSubmit }) {
         ...prev,
         [field]: null
       }));
+    }
+    
+    if (field === 'business_idea') {
+      setIdeaValidation(null);
+    }
+  };
+
+  const validateBusinessIdea = async () => {
+    if (!formData.business_idea.trim() || formData.business_idea.trim().length < 10) {
+      setIdeaValidation({
+        valid: false,
+        reason: formData.report_language === 'arabic' 
+          ? 'يرجى تقديم وصف أكثر تفصيلاً لفكرتك (10 أحرف على الأقل)'
+          : 'Please provide a more detailed description of your idea (at least 10 characters)'
+      });
+      return false;
+    }
+
+    setIsValidatingIdea(true);
+    setIdeaValidation(null);
+    
+    try {
+      const response = await api.post('/analyses/validate-idea', {
+        business_idea: formData.business_idea,
+        report_language: formData.report_language
+      });
+      
+      const result = response.data || response;
+      setIdeaValidation(result);
+      return result.valid;
+    } catch (error) {
+      console.error('Validation error:', error);
+      setIdeaValidation({ valid: true, reason: '' });
+      return true;
+    } finally {
+      setIsValidatingIdea(false);
     }
   };
 
@@ -69,11 +108,17 @@ export default function AnalysisWizard({ onSubmit }) {
            !!formData.industry && 
            (autoTarget || formData.target_market.trim().length >= 3) &&
            !!formData.country?.trim() &&
-           !!formData.report_language;
+           !!formData.report_language &&
+           ideaValidation?.valid === true;
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+    
+    if (!ideaValidation?.valid) {
+      const isValid = await validateBusinessIdea();
+      if (!isValid) return;
+    }
 
     setIsSubmitting(true);
     await onSubmit(formData);
@@ -113,16 +158,66 @@ export default function AnalysisWizard({ onSubmit }) {
                   value={formData.business_idea}
                   onChange={(e) => handleInputChange('business_idea', e.target.value)}
                   className={`mt-2 min-h-[140px] resize-none border-2 ${validationErrors.business_idea ? 'border-red-400' : 'border-slate-300'} focus:border-purple-400`}
-                  maxLength={100}
+                  maxLength={5000}
                 />
                 <div className="flex items-center justify-between mt-1">
-                  <p className={`text-sm ${formData.business_idea.length >= 1 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
+                  <p className={`text-sm ${formData.business_idea.length >= 10 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
                     {formData.business_idea.length} characters
                   </p>
-                  {formData.business_idea.length >= 1 && (
+                  {ideaValidation?.valid && (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   )}
                 </div>
+                
+                {formData.business_idea.trim().length >= 10 && !ideaValidation && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={validateBusinessIdea}
+                    disabled={isValidatingIdea}
+                    className="mt-2 border-purple-300 text-purple-600 hover:bg-purple-50"
+                  >
+                    {isValidatingIdea ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {formData.report_language === 'arabic' ? 'جاري التحقق...' : 'Validating...'}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {formData.report_language === 'arabic' ? 'تحقق من الفكرة' : 'Validate Idea'}
+                      </>
+                    )}
+                  </Button>
+                )}
+                
+                {ideaValidation && (
+                  <div className={`mt-2 p-3 rounded-lg flex items-start gap-2 ${
+                    ideaValidation.valid 
+                      ? 'bg-emerald-50 border border-emerald-200' 
+                      : 'bg-red-50 border border-red-200'
+                  }`}>
+                    {ideaValidation.valid ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div>
+                      <p className={`text-sm font-medium ${ideaValidation.valid ? 'text-emerald-700' : 'text-red-700'}`}>
+                        {ideaValidation.valid 
+                          ? (formData.report_language === 'arabic' ? 'فكرة صالحة!' : 'Valid idea!') 
+                          : (formData.report_language === 'arabic' ? 'فكرة غير صالحة' : 'Invalid idea')}
+                      </p>
+                      {ideaValidation.reason && (
+                        <p className={`text-sm mt-1 ${ideaValidation.valid ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {ideaValidation.reason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 {validationErrors.business_idea && (
                   <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="w-4 h-4" />

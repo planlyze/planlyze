@@ -148,6 +148,59 @@ def generate_analysis_entry(user):
     return jsonify(response_data), 201
 
 
+@entities_bp.route('/analyses/validate-idea', methods=['POST'])
+@require_auth
+def validate_idea_inline(user):
+    """
+    Validate a business idea without creating an analysis
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            business_idea:
+              type: string
+            report_language:
+              type: string
+    responses:
+      200:
+        description: Validation result
+        schema:
+          type: object
+          properties:
+            valid:
+              type: boolean
+            reason:
+              type: string
+            confidence:
+              type: number
+    """
+    from server.services.analysis_service import validate_business_idea
+    
+    data = request.get_json() or {}
+    business_idea = data.get('business_idea', '').strip()
+    report_language = data.get('report_language', 'english').lower()
+    
+    if not business_idea:
+        return jsonify({
+            'valid': False,
+            'reason': 'Please provide a business idea' if report_language != 'arabic' else 'يرجى تقديم فكرة عمل',
+            'confidence': 1.0
+        }), 200
+    
+    lang = 'ar' if report_language == 'arabic' else 'en'
+    validation = validate_business_idea(business_idea, lang)
+    
+    return jsonify(validation), 200
+
+
 @entities_bp.route('/analyses/chain', methods=['POST'])
 @require_auth
 def chain_analysis(user):
