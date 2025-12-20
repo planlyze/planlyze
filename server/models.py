@@ -70,6 +70,7 @@ class Analysis(db.Model):
     budget = db.Column(db.String(100))
     status = db.Column(db.String(50), default='pending')
     report_type = db.Column(db.String(20), default='free')  # 'free' or 'premium'
+    report_language = db.Column(db.String(20), default='english')  # 'english' or 'arabic'
     pending_transaction_id = db.Column(db.String(36), db.ForeignKey('transactions.id'))
     last_error = db.Column(db.Text)  # Store error message on failure
     report = db.Column(db.JSON)
@@ -106,6 +107,7 @@ class Analysis(db.Model):
             'budget': self.budget,
             'status': self.status,
             'report_type': self.report_type,
+            'report_language': self.report_language,
             'pending_transaction_id': self.pending_transaction_id,
             'last_error': self.last_error,
             'report': self.report,
