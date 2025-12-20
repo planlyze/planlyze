@@ -104,23 +104,24 @@ export default function AnalysisWizard({ onSubmit }) {
   };
 
   const canSubmit = () => {
-    return formData.business_idea.trim().length >= 1 && 
+    return formData.business_idea.trim().length >= 10 && 
            !!formData.industry && 
            (autoTarget || formData.target_market.trim().length >= 3) &&
            !!formData.country?.trim() &&
-           !!formData.report_language &&
-           ideaValidation?.valid === true;
+           !!formData.report_language;
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
-    if (!ideaValidation?.valid) {
-      const isValid = await validateBusinessIdea();
-      if (!isValid) return;
+    setIsSubmitting(true);
+    
+    const isValid = await validateBusinessIdea();
+    if (!isValid) {
+      setIsSubmitting(false);
+      return;
     }
 
-    setIsSubmitting(true);
     await onSubmit(formData);
     setIsSubmitting(false);
   };
@@ -162,55 +163,22 @@ export default function AnalysisWizard({ onSubmit }) {
                 />
                 <div className="flex items-center justify-between mt-1">
                   <p className={`text-sm ${formData.business_idea.length >= 10 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
-                    {formData.business_idea.length} characters
+                    {formData.business_idea.length} characters {formData.business_idea.length < 10 && (formData.report_language === 'arabic' ? '(10 أحرف على الأقل)' : '(min 10)')}
                   </p>
                   {ideaValidation?.valid && (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   )}
                 </div>
                 
-                {formData.business_idea.trim().length >= 10 && !ideaValidation && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={validateBusinessIdea}
-                    disabled={isValidatingIdea}
-                    className="mt-2 border-purple-300 text-purple-600 hover:bg-purple-50"
-                  >
-                    {isValidatingIdea ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {formData.report_language === 'arabic' ? 'جاري التحقق...' : 'Validating...'}
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        {formData.report_language === 'arabic' ? 'تحقق من الفكرة' : 'Validate Idea'}
-                      </>
-                    )}
-                  </Button>
-                )}
-                
-                {ideaValidation && (
-                  <div className={`mt-2 p-3 rounded-lg flex items-start gap-2 ${
-                    ideaValidation.valid 
-                      ? 'bg-emerald-50 border border-emerald-200' 
-                      : 'bg-red-50 border border-red-200'
-                  }`}>
-                    {ideaValidation.valid ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    ) : (
-                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    )}
+                {ideaValidation && !ideaValidation.valid && (
+                  <div className="mt-2 p-3 rounded-lg flex items-start gap-2 bg-red-50 border border-red-200">
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className={`text-sm font-medium ${ideaValidation.valid ? 'text-emerald-700' : 'text-red-700'}`}>
-                        {ideaValidation.valid 
-                          ? (formData.report_language === 'arabic' ? 'فكرة صالحة!' : 'Valid idea!') 
-                          : (formData.report_language === 'arabic' ? 'فكرة غير صالحة' : 'Invalid idea')}
+                      <p className="text-sm font-medium text-red-700">
+                        {formData.report_language === 'arabic' ? 'فكرة غير صالحة' : 'Invalid idea'}
                       </p>
                       {ideaValidation.reason && (
-                        <p className={`text-sm mt-1 ${ideaValidation.valid ? 'text-emerald-600' : 'text-red-600'}`}>
+                        <p className="text-sm mt-1 text-red-600">
                           {ideaValidation.reason}
                         </p>
                       )}
@@ -354,12 +322,14 @@ export default function AnalysisWizard({ onSubmit }) {
           {isSubmitting ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-              Analyzing...
+              {isValidatingIdea 
+                ? (formData.report_language === 'arabic' ? 'جاري التحقق...' : 'Validating...') 
+                : (formData.report_language === 'arabic' ? 'جاري التحليل...' : 'Analyzing...')}
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4 mr-2" />
-              Start AI Analysis
+              {formData.report_language === 'arabic' ? 'بدء تحليل الذكاء الاصطناعي' : 'Start AI Analysis'}
             </>
           )}
         </Button>
