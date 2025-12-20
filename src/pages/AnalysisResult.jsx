@@ -855,22 +855,19 @@ export default function AnalysisResult() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Tab 1: Overview - Syrian Market Metrics */}
+          {/* Tab 1: Overview - Key Metrics */}
           <TabsContent value="overview" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
-            {/* Key Syrian Market Metrics Card */}
+            {/* Key Metrics Card */}
             <Card className="glass-effect border-0 shadow-xl overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                   <Target className="w-7 h-7" />
-                  {isArabic ? "مؤشرات السوق السوري" : "Syrian Market Indicators"}
+                  {isArabic ? "المؤشرات الرئيسية" : "Key Metrics"}
                 </h2>
-                <p className="text-emerald-100 mt-1">
-                  {isArabic ? "المقاييس الرئيسية لفكرة مشروعك في السوق السوري" : "Key metrics for your business idea in the Syrian market"}
-                </p>
               </div>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Market Fit */}
                   <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-3">
@@ -880,14 +877,14 @@ export default function AnalysisResult() {
                       <div>
                         <p className="text-sm text-slate-600">{isArabic ? "ملاءمة السوق" : "Market Fit"}</p>
                         <p className="text-2xl font-bold text-emerald-600">
-                          {analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
+                          {tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
                         </p>
                       </div>
                     </div>
                     <div className="w-full bg-emerald-200 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
+                        style={{ width: `${tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
                       ></div>
                     </div>
                   </div>
@@ -901,7 +898,7 @@ export default function AnalysisResult() {
                       <div>
                         <p className="text-sm text-slate-600">{isArabic ? "وقت البناء" : "Time to Build"}</p>
                         <p className="text-2xl font-bold text-blue-600">
-                          {analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
+                          {tabData.overview?.time_to_build_months || analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
                         </p>
                       </div>
                     </div>
@@ -917,7 +914,7 @@ export default function AnalysisResult() {
                       <div>
                         <p className="text-sm text-slate-600">{isArabic ? "المنافسون" : "Competitors"}</p>
                         <p className="text-2xl font-bold text-amber-600">
-                          {analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
+                          {tabData.overview?.competitors_count || analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
                         </p>
                       </div>
                     </div>
@@ -933,55 +930,30 @@ export default function AnalysisResult() {
                       <div>
                         <p className="text-sm text-slate-600">{isArabic ? "تكلفة البدء" : "Starting Cost"}</p>
                         <p className="text-2xl font-bold text-green-600">
-                          ${analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
+                          ${tabData.overview?.starting_cost_usd || analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
                         </p>
                       </div>
                     </div>
                     <p className="text-xs text-slate-500">{isArabic ? "رأس المال المطلوب" : "required capital"}</p>
                   </div>
-
-                  {/* Value Proposition */}
-                  <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-5 border border-purple-200 hover:shadow-lg transition-all md:col-span-2 lg:col-span-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center">
-                        <Sparkles className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-600">{isArabic ? "القيمة المقترحة" : "Value Proposition"}</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-700 line-clamp-3">
-                      {analysis.step1_problem_solution?.value_proposition || report.business_strategy?.value_proposition || businessReport.problem_solution_framework?.value_proposition || (isArabic ? "حل مبتكر يلبي احتياجات السوق" : "An innovative solution addressing market needs")}
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Executive Summary */}
-            <section id="exec_summary">
-              <ExecutiveSummary
-                analysis={analysis}
-                businessReport={businessReport}
-                technicalReport={technicalReport}
-                isArabic={isArabic}
-              />
-            </section>
-
-            {/* Problem & Solution */}
-            <section id="problem_solution">
-              <ProblemSolutionFramework
-                report={{ 
-                  problem_solution_framework: analysis.step1_problem_solution || {
-                    core_problem: report.business_strategy?.value_proposition || '',
-                    solution_approach: report.executive_summary || analysis.executive_summary || '',
-                    value_proposition: report.business_strategy?.value_proposition || '',
-                    target_audience: { target_description: report.market_analysis?.target_segments?.join(', ') || '' }
-                  }
-                }}
-                isArabic={isArabic}
-              />
-            </section>
+            {/* Value Proposition - Separate Card */}
+            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-violet-500 p-4">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <Sparkles className="w-6 h-6" />
+                  {isArabic ? "القيمة المقترحة" : "Value Proposition"}
+                </h2>
+              </div>
+              <CardContent className="p-6">
+                <p className="text-lg text-slate-700 leading-relaxed">
+                  {tabData.overview?.value_proposition || analysis.step1_problem_solution?.value_proposition || report.business_strategy?.value_proposition || businessReport.problem_solution_framework?.value_proposition || (isArabic ? "حل مبتكر يلبي احتياجات السوق ويوفر قيمة فريدة للعملاء المستهدفين." : "An innovative solution that addresses market needs and provides unique value to target customers.")}
+                </p>
+              </CardContent>
+            </Card>
             </LazyTabContent>
           </TabsContent>
 

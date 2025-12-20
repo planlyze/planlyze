@@ -475,28 +475,20 @@ def invoke_llm(user):
 
 
 TAB_PROMPTS = {
-    'overview': """Generate an Overview analysis for this business idea. Focus on:
-1. Executive summary (brief compelling overview)
-2. Market fit score (0-100%)
-3. Time to build (in months)
-4. Number of competitors
-5. Starting cost estimate
-6. Value proposition
-7. Problem-Solution framework
+    'overview': """Generate a brief Overview analysis for this business idea. Focus only on:
+1. Market fit score (0-100%)
+2. Time to build (in months)
+3. Number of competitors in the market
+4. Starting cost estimate (USD)
+5. Value proposition (2-3 lines of concise text describing the core value)
 
 Respond in JSON format:
 {{
-    "executive_summary": "...",
     "market_fit_score": 75,
     "time_to_build_months": 6,
     "competitors_count": 5,
     "starting_cost_usd": 10000,
-    "value_proposition": "...",
-    "problem_solution": {{
-        "core_problem": "...",
-        "solution_approach": "...",
-        "unique_value": "..."
-    }}
+    "value_proposition": "A concise 2-3 line description of the core value this business provides to customers and what makes it unique in the market."
 }}""",
 
     'market': """Generate a comprehensive Market & Competition analysis for this business idea. Focus on:
