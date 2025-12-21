@@ -287,7 +287,7 @@ export default function AnalysisResult() {
       csvRows.push(['General', 'Experience Level', analysis.experience_level || '']);
       csvRows.push(['General', 'Report Language', analysis.report_language || '']);
       csvRows.push(['General', 'Created Date', analysis.created_at || '']);
-      csvRows.push(['General', 'Premium', analysis.is_premium ? 'Yes' : 'No']);
+      csvRows.push(['General', 'Premium', analysis.report_type === 'premium' ? 'Yes' : 'No']);
       
       // Scores
       csvRows.push(['Scores', 'Business Viability Score', br.overall_viability_score || '']);
@@ -514,7 +514,7 @@ export default function AnalysisResult() {
   }
 
   const isArabic = analysis.report_language === 'arabic';
-  const isPremium = analysis.is_premium === true;
+  const isPremium = analysis.report_type === 'premium';
   
   // Map backend report structure to frontend expected structure
   const report = analysis.report || {};
