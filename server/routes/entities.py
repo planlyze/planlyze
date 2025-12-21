@@ -639,7 +639,7 @@ def upgrade_analysis_premium(user, id):
     if analysis.user_email != user.email:
         return jsonify({'error': 'Access denied'}), 403
     
-    if analysis.is_premium:
+    if analysis.report_type == 'premium':
         return jsonify({'error': 'Analysis is already premium'}), 400
     
     user_record = User.query.filter_by(email=user.email).first()
@@ -650,7 +650,7 @@ def upgrade_analysis_premium(user, id):
     user_record.credits -= 1
     
     # Update analysis to premium
-    analysis.is_premium = True
+    analysis.report_type = 'premium'
     
     # Create transaction record
     tx = Transaction(
