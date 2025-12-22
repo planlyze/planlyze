@@ -7,7 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
+
+const safeFormatDate = (dateValue, formatStr = "MMM d, yyyy") => {
+  if (!dateValue) return null;
+  try {
+    const date = typeof dateValue === 'string' ? parseISO(dateValue) : new Date(dateValue);
+    return isValid(date) ? format(date, formatStr) : null;
+  } catch {
+    return null;
+  }
+};
 import {
   Wallet,
   FileText,
@@ -290,7 +300,7 @@ export default function Dashboard() {
                                 </h4>
                               </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {analysis.created_at && format(new Date(analysis.created_at), "MMM d, yyyy")}
+                                {safeFormatDate(analysis.created_at)}
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
@@ -377,7 +387,7 @@ export default function Dashboard() {
                                 {tx.description || tx.type}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {tx.created_at && format(new Date(tx.created_at), "MMM d, yyyy")}
+                                {safeFormatDate(tx.created_at)}
                               </p>
                             </div>
                           </div>

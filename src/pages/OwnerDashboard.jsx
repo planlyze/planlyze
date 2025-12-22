@@ -6,7 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, FileText, BarChart, ArrowLeft, Eye, User as UserIcon, Star, Download, ChevronLeft, ChevronRight, DollarSign, Activity, Sparkles } from "lucide-react";
-import { format, subDays, startOfDay } from "date-fns";
+import { format, subDays, startOfDay, isValid, parseISO } from "date-fns";
+
+const safeFormatDate = (dateValue, formatStr = "MMM d, yyyy") => {
+  if (!dateValue) return null;
+  try {
+    const date = typeof dateValue === 'string' ? parseISO(dateValue) : new Date(dateValue);
+    return isValid(date) ? format(date, formatStr) : null;
+  } catch {
+    return null;
+  }
+};
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
@@ -541,10 +551,10 @@ export default function OwnerDashboard() {
                           )}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {user.last_login ? format(new Date(user.last_login), "MMM d, yyyy") : "—"}
+                          {safeFormatDate(user.last_login) || "—"}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {user.created_at ? format(new Date(user.created_at), "MMM d, yyyy") : "—"}
+                          {safeFormatDate(user.created_at) || "—"}
                         </TableCell>
                         <TableCell>
                           <div className="hidden md:flex flex-wrap gap-2">
