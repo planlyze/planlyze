@@ -109,8 +109,11 @@ export default function PlanlyzeAIPage() {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await api.get('/api/credit-packages');
-        setPackages(response.data || []);
+        const response = await fetch('/api/credit-packages');
+        if (response.ok) {
+          const data = await response.json();
+          setPackages(data || []);
+        }
       } catch (error) {
         console.error('Failed to fetch packages:', error);
       } finally {
