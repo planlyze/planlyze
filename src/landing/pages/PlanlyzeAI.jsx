@@ -102,7 +102,23 @@ export default function PlanlyzeAIPage() {
   const lang = i18n?.language || "en";
   const [theme, setTheme] = useState("light");
   const [isSending, setIsSending] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await api.get('/api/credit-packages');
+        setPackages(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch packages:', error);
+      } finally {
+        setPackagesLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("planlyze-language");
@@ -588,26 +604,48 @@ export default function PlanlyzeAIPage() {
                 notIncludedKeys={["freeTierNotIncluded1", "freeTierNotIncluded2", "freeTierNotIncluded3"]}
                 selectTextKey="selectPlan"
               />
-              <PricingCard
-                icon={Zap}
-                titleKey="payPerReport"
-                price={t.payPerReportPrice}
-                descriptionKey="payPerReportDesc"
-                featuresKeys={["payPerReportFeature1","payPerReportFeature2","payPerReportFeature3","payPerReportFeature4","payPerReportFeature5","payPerReportFeature6"]}
-                badge={t.mostPopular}
-                variant="popular"
-                selectTextKey="selectPlan"
-              />
-              <PricingCard
-                icon={Crown}
-                titleKey="bundlePackage"
-                price={t.bundlePackagePrice}
-                descriptionKey="bundlePackageDesc"
-                featuresKeys={["bundlePackageFeature1","bundlePackageFeature2","bundlePackageFeature3","bundlePackageFeature4","bundlePackageFeature5","bundlePackageFeature6"]}
-                badge={t.bestValue}
-                variant="best"
-                selectTextKey="selectPlan"
-              />
+              {packagesLoading ? (
+                <div className="col-span-2 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              ) : packages.length > 0 ? (
+                packages.map((pkg, index) => (
+                  <PricingCard
+                    key={pkg.id}
+                    icon={pkg.is_popular ? Zap : Crown}
+                    title={lang === 'ar' ? (pkg.name_ar || pkg.name) : pkg.name}
+                    price={`$${pkg.price_usd}`}
+                    description={lang === 'ar' ? (pkg.description_ar || pkg.description) : pkg.description}
+                    features={lang === 'ar' ? (pkg.features_ar || pkg.features || []) : (pkg.features || [])}
+                    badge={pkg.is_popular ? t.mostPopular : (index === packages.length - 1 ? t.bestValue : null)}
+                    variant={pkg.is_popular ? 'popular' : (index === packages.length - 1 ? 'best' : 'default')}
+                    selectText={t.selectPlan}
+                  />
+                ))
+              ) : (
+                <>
+                  <PricingCard
+                    icon={Zap}
+                    titleKey="payPerReport"
+                    price={t.payPerReportPrice}
+                    descriptionKey="payPerReportDesc"
+                    featuresKeys={["payPerReportFeature1","payPerReportFeature2","payPerReportFeature3","payPerReportFeature4","payPerReportFeature5","payPerReportFeature6"]}
+                    badge={t.mostPopular}
+                    variant="popular"
+                    selectTextKey="selectPlan"
+                  />
+                  <PricingCard
+                    icon={Crown}
+                    titleKey="bundlePackage"
+                    price={t.bundlePackagePrice}
+                    descriptionKey="bundlePackageDesc"
+                    featuresKeys={["bundlePackageFeature1","bundlePackageFeature2","bundlePackageFeature3","bundlePackageFeature4","bundlePackageFeature5","bundlePackageFeature6"]}
+                    badge={t.bestValue}
+                    variant="best"
+                    selectTextKey="selectPlan"
+                  />
+                </>
+              )}
             </div>
           </div>
         </motion.section>

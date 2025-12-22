@@ -123,8 +123,24 @@ def seed_credit_packages():
             'name_ar': 'المبتدئ',
             'credits': 1,
             'price_usd': 10.00,
-            'description': 'Perfect for trying out the platform',
-            'description_ar': 'مثالي لتجربة المنصة',
+            'description': 'Perfect for trying out the platform with 1 premium report',
+            'description_ar': 'مثالي لتجربة المنصة مع تقرير مميز واحد',
+            'features': [
+                '1 Premium AI Report',
+                'Full Market Analysis',
+                'Technical Strategy',
+                'Financial Projections',
+                'Risk Assessment',
+                'PDF & Excel Export'
+            ],
+            'features_ar': [
+                'تقرير ذكاء اصطناعي مميز واحد',
+                'تحليل سوق كامل',
+                'استراتيجية تقنية',
+                'توقعات مالية',
+                'تقييم المخاطر',
+                'تصدير PDF و Excel'
+            ],
             'is_active': True,
             'is_popular': False
         },
@@ -133,8 +149,24 @@ def seed_credit_packages():
             'name_ar': 'الأساسي',
             'credits': 10,
             'price_usd': 90.00,
-            'description': 'Great for small businesses',
-            'description_ar': 'رائع للشركات الصغيرة',
+            'description': 'Great for small businesses with 10 premium reports',
+            'description_ar': 'رائع للشركات الصغيرة مع 10 تقارير مميزة',
+            'features': [
+                '10 Premium AI Reports',
+                'All Starter Features',
+                'Syrian Market Intelligence',
+                'AI Chat Assistant',
+                'Competitor Analysis',
+                'Priority Support'
+            ],
+            'features_ar': [
+                '10 تقارير ذكاء اصطناعي مميزة',
+                'جميع ميزات المبتدئ',
+                'بيانات السوق السوري',
+                'مساعد ذكاء اصطناعي للدردشة',
+                'تحليل المنافسين',
+                'دعم ذو أولوية'
+            ],
             'is_active': True,
             'is_popular': True
         }
@@ -155,6 +187,8 @@ def seed_credit_packages():
             existing.description = pkg_data['description']
             existing.description_ar = pkg_data.get('description_ar')
             existing.name_ar = pkg_data.get('name_ar')
+            existing.features = pkg_data.get('features', [])
+            existing.features_ar = pkg_data.get('features_ar', [])
             existing.is_active = pkg_data['is_active']
             existing.is_popular = pkg_data['is_popular']
             print(f"Updated credit package: {pkg_data['name']}")

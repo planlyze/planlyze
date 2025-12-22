@@ -13,14 +13,18 @@ const itemVariants = {
 
 export default function PricingCard({ 
   icon: Icon, 
-  titleKey, 
+  titleKey,
+  title: directTitle,
   price, 
-  descriptionKey, 
-  featuresKeys = [], 
+  descriptionKey,
+  description: directDescription,
+  featuresKeys = [],
+  features: directFeatures = [],
   notIncludedKeys = [],
   badge,
   variant = 'default',
-  selectTextKey
+  selectTextKey,
+  selectText: directSelectText
 }) {
   const variants = {
     default: {
@@ -47,11 +51,11 @@ export default function PricingCard({
 
   const { t } = useAppTranslation('landing');
 
-  const title = titleKey ? t[titleKey] : '';
-  const description = descriptionKey ? t[descriptionKey] : '';
-  const features = featuresKeys.map(k => (typeof k === 'string' ? t[k] : k));
+  const title = directTitle || (titleKey ? t[titleKey] : '');
+  const description = directDescription || (descriptionKey ? t[descriptionKey] : '');
+  const features = directFeatures.length > 0 ? directFeatures : featuresKeys.map(k => (typeof k === 'string' ? t[k] : k));
   const notIncluded = notIncludedKeys.map(k => (typeof k === 'string' ? t[k] : k));
-  const selectText = selectTextKey ? t[selectTextKey] : '';
+  const selectText = directSelectText || (selectTextKey ? t[selectTextKey] : '');
 
   return (
     <motion.div 
