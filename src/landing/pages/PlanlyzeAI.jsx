@@ -655,7 +655,7 @@ export default function PlanlyzeAIPage() {
                 descriptionKey="freeTierDesc"
                 featuresKeys={["freeTierFeature1", "freeTierFeature2"]}
                 notIncludedKeys={["freeTierNotIncluded1", "freeTierNotIncluded2", "freeTierNotIncluded3"]}
-                selectTextKey="selectPlan"
+                selectTextKey="tryAiNow"
               />
               {packagesLoading ? (
                 <div className="col-span-2 flex items-center justify-center">
@@ -672,7 +672,7 @@ export default function PlanlyzeAIPage() {
                     features={lang === 'ar' ? (pkg.features_ar || pkg.features || []) : (pkg.features || [])}
                     badge={pkg.is_popular ? t.mostPopular : (index === packages.length - 1 ? t.bestValue : null)}
                     variant={pkg.is_popular ? 'popular' : (index === packages.length - 1 ? 'best' : 'default')}
-                    selectText={t.selectPlan}
+                    selectText={t.tryAiNow}
                   />
                 ))
               ) : (
