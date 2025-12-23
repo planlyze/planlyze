@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Image as ImageIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Edit, Trash2, Image as ImageIcon, Filter } from "lucide-react";
 import { auth, api, Analysis, Payment, PaymentMethod, User, AI } from "@/api/client";
 import { toast } from "sonner";
 
@@ -15,6 +16,7 @@ export default function PaymentMethodsManager({ isArabic }) {
   const [isLoading, setIsLoading] = useState(true);
   const [editDialog, setEditDialog] = useState(false);
   const [currentMethod, setCurrentMethod] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [formData, setFormData] = useState({
     name_en: "",
     name_ar: "",
@@ -103,29 +105,54 @@ export default function PaymentMethodsManager({ isArabic }) {
     }));
   };
 
+  const filteredMethods = methods.filter(method => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "active") return method.is_active === true;
+    if (statusFilter === "inactive") return method.is_active === false;
+    return true;
+  });
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h3 className="text-lg font-semibold">
           {isArabic ? "إدارة طرق الدفع" : "Payment Methods Management"}
         </h3>
-        <Button onClick={handleNew} className="gap-2">
-          <Plus className="w-4 h-4" />
-          {isArabic ? "إضافة طريقة دفع" : "Add Payment Method"}
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder={isArabic ? "الحالة" : "Status"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{isArabic ? "الكل" : "All"}</SelectItem>
+                <SelectItem value="active">{isArabic ? "نشط" : "Active"}</SelectItem>
+                <SelectItem value="inactive">{isArabic ? "معطل" : "Inactive"}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleNew} className="gap-2">
+            <Plus className="w-4 h-4" />
+            {isArabic ? "إضافة طريقة دفع" : "Add Payment Method"}
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
         <div className="text-center py-8 text-slate-500">Loading...</div>
-      ) : methods.length === 0 ? (
+      ) : filteredMethods.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8 text-slate-500">
-            {isArabic ? "لا توجد طرق دفع" : "No payment methods"}
+            {statusFilter !== "all" 
+              ? (isArabic ? "لا توجد طرق دفع بهذه الحالة" : "No payment methods with this status")
+              : (isArabic ? "لا توجد طرق دفع" : "No payment methods")
+            }
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4">
-          {methods.map((method) => (
+          {filteredMethods.map((method) => (
             <Card key={method.id}>
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
