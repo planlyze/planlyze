@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search, Eye, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 
 export default function Subscriptions() {
@@ -26,6 +27,8 @@ export default function Subscriptions() {
   const [txTypeFilter, setTxTypeFilter] = useState("all");
   const [txSearchQuery, setTxSearchQuery] = useState("");
   const [txCurrentPage, setTxCurrentPage] = useState(1);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const txPerPage = 10;
 
   useEffect(() => {
@@ -199,7 +202,7 @@ export default function Subscriptions() {
                                 </p>
                               )}
                             </div>
-                            <div>
+                            <div className="flex flex-col items-end gap-2">
                               <Badge className={`px-4 py-2 text-sm font-semibold shadow-sm ${
                                 payment.status === 'pending' ? 'bg-amber-500 text-white border-amber-600' :
                                 payment.status === 'approved' ? 'bg-green-500 text-white border-green-600' :
@@ -209,6 +212,18 @@ export default function Subscriptions() {
                                  payment.status === 'approved' ? t('subscriptions.approved') :
                                  t('subscriptions.rejected')}
                               </Badge>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedPayment(payment);
+                                  setIsDetailsOpen(true);
+                                }}
+                                className="gap-2 border-slate-300 hover:border-purple-400"
+                              >
+                                <Eye className="w-4 h-4" />
+                                {isArabic ? "عرض التفاصيل" : "View Details"}
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -364,6 +379,110 @@ export default function Subscriptions() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Payment Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir={isArabic ? 'rtl' : 'ltr'}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
+                <Banknote className="w-6 h-6 text-white" />
+              </div>
+              {isArabic ? "تفاصيل الدفع" : "Payment Details"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPayment && (
+            <div className="space-y-6 py-4">
+              {/* Payment ID */}
+              {selectedPayment.unique_id && (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg">
+                  <span className="text-sm font-mono font-bold text-purple-700">
+                    {selectedPayment.unique_id}
+                  </span>
+                </div>
+              )}
+
+              {/* Status Badge */}
+              <div className="flex items-center gap-3">
+                <span className="text-slate-600 font-medium">{isArabic ? "الحالة:" : "Status:"}</span>
+                <Badge className={`px-4 py-2 text-sm font-semibold ${
+                  selectedPayment.status === 'pending' ? 'bg-amber-500 text-white' :
+                  selectedPayment.status === 'approved' ? 'bg-green-500 text-white' :
+                  'bg-red-500 text-white'
+                }`}>
+                  {selectedPayment.status === 'pending' ? t('subscriptions.pending') :
+                   selectedPayment.status === 'approved' ? t('subscriptions.approved') :
+                   t('subscriptions.rejected')}
+                </Badge>
+              </div>
+
+              {/* Payment Info */}
+              <div className="bg-slate-50 rounded-xl p-5 border-2 border-slate-200 space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{isArabic ? "الأرصدة:" : "Credits:"}</span>
+                  <span className="font-bold text-purple-700">{selectedPayment.credits}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{isArabic ? "المبلغ:" : "Amount:"}</span>
+                  <span className="font-bold text-purple-700">${selectedPayment.amount_usd}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{isArabic ? "طريقة الدفع:" : "Payment Method:"}</span>
+                  <span className="font-semibold text-slate-800">{selectedPayment.payment_method || '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">{isArabic ? "تاريخ الإرسال:" : "Submitted:"}</span>
+                  <span className="font-medium text-slate-700">
+                    {selectedPayment.created_at && format(new Date(selectedPayment.created_at), "MMM d, yyyy 'at' h:mm a")}
+                  </span>
+                </div>
+                {selectedPayment.approved_at && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">{isArabic ? "تاريخ المعالجة:" : "Processed:"}</span>
+                    <span className="font-medium text-slate-700">
+                      {format(new Date(selectedPayment.approved_at), "MMM d, yyyy 'at' h:mm a")}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Admin Notes */}
+              {selectedPayment.admin_notes && (
+                <div className="bg-amber-50 rounded-xl p-4 border-2 border-amber-200">
+                  <p className="text-sm font-semibold text-amber-800 mb-1">
+                    {isArabic ? "ملاحظات الإدارة:" : "Admin Notes:"}
+                  </p>
+                  <p className="text-slate-700">{selectedPayment.admin_notes}</p>
+                </div>
+              )}
+
+              {/* Payment Proof Image */}
+              {selectedPayment.payment_proof && (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-slate-700">
+                    {isArabic ? "صورة الإيصال:" : "Receipt Image:"}
+                  </p>
+                  <div className="border-2 border-slate-200 rounded-xl overflow-hidden">
+                    <img 
+                      src={selectedPayment.payment_proof} 
+                      alt="Payment proof" 
+                      className="w-full max-h-96 object-contain bg-slate-100"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Close Button */}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={() => setIsDetailsOpen(false)} variant="outline" className="px-6">
+                  {isArabic ? "إغلاق" : "Close"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
