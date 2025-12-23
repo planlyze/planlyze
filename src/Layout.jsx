@@ -154,6 +154,13 @@ const adminNavigationItems = [
     url: createPageUrl("AuditLogs"),
     icon: Shield,
     requiredPermissions: [PERMISSIONS.VIEW_AUDIT_LOGS]
+  },
+  {
+    id: "admin_settings",
+    title: "Landing Page Settings",
+    url: createPageUrl("AdminSettings"),
+    icon: Settings,
+    requiredPermissions: [PERMISSIONS.MANAGE_SETTINGS]
   }
 ];
 

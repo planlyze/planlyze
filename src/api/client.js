@@ -231,6 +231,20 @@ export const Settings = {
   update: (data) => api.post('/settings', data)
 };
 
+export const Partner = {
+  list: () => api.get('/partners'),
+  get: (id) => api.get(`/partners/${id}`),
+  create: (data) => api.post('/partners', data),
+  update: (id, data) => api.put(`/partners/${id}`, data),
+  delete: (id) => api.delete(`/partners/${id}`)
+};
+
+export const SystemSettings = {
+  get: (key) => api.get(`/system-settings/${key}`),
+  update: (key, value) => api.put(`/system-settings/${key}`, { value }),
+  list: () => api.get('/system-settings')
+};
+
 export const AuditLog = {
   list: () => api.get('/audit-logs'),
   create: (data) => api.post('/audit-logs', data),

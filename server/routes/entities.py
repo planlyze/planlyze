@@ -885,6 +885,36 @@ def delete_partner(user, id):
     db.session.commit()
     return jsonify({'message': 'Partner deleted'})
 
+# System Settings endpoints
+@entities_bp.route('/system-settings', methods=['GET'])
+@require_admin
+def get_system_settings(user):
+    settings = SystemSettings.query.all()
+    return jsonify([s.to_dict() for s in settings])
+
+@entities_bp.route('/system-settings/<key>', methods=['GET'])
+@require_admin
+def get_system_setting(user, key):
+    setting = SystemSettings.query.filter_by(key=key).first()
+    if not setting:
+        return jsonify({'error': 'Setting not found'}), 404
+    return jsonify(setting.to_dict())
+
+@entities_bp.route('/system-settings/<key>', methods=['PUT'])
+@require_admin
+def update_system_setting(user, key):
+    data = request.get_json()
+    setting = SystemSettings.query.filter_by(key=key).first()
+    
+    if not setting:
+        setting = SystemSettings(key=key, value=data.get('value'))
+        db.session.add(setting)
+    else:
+        setting.value = data.get('value')
+    
+    db.session.commit()
+    return jsonify(setting.to_dict())
+
 # Payment endpoints
 @entities_bp.route('/payments', methods=['GET'])
 @require_auth

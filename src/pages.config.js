@@ -20,6 +20,7 @@ import Referrals from './pages/Referrals';
 import EmailTemplates from './pages/EmailTemplates';
 import AdminNotifications from './pages/AdminNotifications';
 import AdminDiscounts from './pages/AdminDiscounts';
+import AdminSettings from './pages/AdminSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "EmailTemplates": EmailTemplates,
     "AdminNotifications": AdminNotifications,
     "AdminDiscounts": AdminDiscounts,
+    "AdminSettings": AdminSettings,
 }
 
 export const pagesConfig = {
