@@ -240,7 +240,7 @@ export default function Layout({ children, currentPageName }) {
       localStorage.setItem('language', lang);
       localStorage.setItem('planlyze-language', lang);
       setNavigationItems(buildNavigationItems(authUser, lang === 'ar'));
-      setNewDisplayName(authUser?.full_name || '');
+      setNewDisplayName(authUser?.display_name || authUser?.full_name || '');
     } else if (isAuthenticated === false) {
       setCurrentUser(null);
       setIsLoggedIn(false);
@@ -281,13 +281,13 @@ export default function Layout({ children, currentPageName }) {
   const handleSaveDisplayName = async () => {
     setIsSavingDisplayName(true);
     try {
-      await updateMyUserData({ full_name: newDisplayName });
-      setCurrentUser((prev) => prev ? { ...prev, full_name: newDisplayName } : prev);
-      toast.success('Display name updated successfully!');
+      await updateMyUserData({ display_name: newDisplayName });
+      setCurrentUser((prev) => prev ? { ...prev, display_name: newDisplayName } : prev);
+      toast.success(isArabic ? 'تم تحديث الاسم بنجاح!' : 'Display name updated successfully!');
       setIsEditingDisplayName(false);
     } catch (error) {
       console.error('Failed to update display name:', error);
-      toast.error('Failed to update display name. Please try again.');
+      toast.error(isArabic ? 'فشل تحديث الاسم. حاول مرة أخرى.' : 'Failed to update display name. Please try again.');
     } finally {
       setIsSavingDisplayName(false);
     }

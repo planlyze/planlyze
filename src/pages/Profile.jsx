@@ -12,10 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, User as UserIcon, Mail, Phone, MapPin, Lock, Save, Globe } from "lucide-react";
 import { logProfileUpdated } from "@/components/utils/activityHelper";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Profile() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { updateMyUserData } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState(null);
@@ -65,7 +67,7 @@ export default function Profile() {
         city: form.city || ""
       };
       
-      await auth.updateProfile(updateData);
+      await updateMyUserData(updateData);
       
       setUser(prev => ({ ...prev, ...updateData }));
       
