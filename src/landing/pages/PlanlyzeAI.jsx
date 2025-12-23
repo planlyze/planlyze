@@ -606,15 +606,24 @@ export default function PlanlyzeAIPage() {
                   >
                     <CardWrapper
                       {...cardProps}
-                      className={`flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
+                      className={`flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
                     >
-                      <img
-                        src={partner.logo_url || `https://via.placeholder.com/150x60/${
-                          partner.color || '6B46C1'
-                        }/FFFFFF?text=${partnerName.replace(/ /g, "+")}`}
-                        alt={partnerName}
-                        className="w-full h-auto mb-4 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
-                      />
+                      <div className="w-full h-24 mb-4 flex items-center justify-center">
+                        {partner.logo_url ? (
+                          <img
+                            src={partner.logo_url}
+                            alt={partnerName}
+                            className="max-w-full max-h-full object-contain rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
+                          />
+                        ) : (
+                          <div 
+                            className="w-full h-full rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                            style={{ backgroundColor: `#${partner.color || '6B46C1'}` }}
+                          >
+                            {partnerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
                         {partnerName}
                       </h4>
