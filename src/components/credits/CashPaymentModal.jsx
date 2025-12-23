@@ -31,6 +31,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
   const loadPaymentMethods = async () => {
     try {
       const methods = await PaymentMethod.filter({ is_active: true }, "sort_order");
+      console.log('Loaded payment methods:', methods);
       setPaymentMethods(methods);
       if (methods.length > 0) {
         setSelectedMethod(methods[0]);
@@ -128,7 +129,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
         amount_usd: finalAmount,
         original_amount: packagePrice,
         credits: selectedPackage.credits,
-        payment_method: selectedMethod?.name_en || "cash",
+        payment_method: selectedMethod?.name_en || selectedMethod?.name_ar || "cash",
         payment_proof: base64Image,
         discount_code: appliedDiscount?.code || null,
         discount_amount: discountAmt
@@ -294,7 +295,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                 {isArabic ? "تفاصيل التحويل" : "Transfer Details"}
               </h3>
               <div className="space-y-2">
-                {Object.entries(selectedMethod.description || {}).map(([key, value]) => (
+                {Object.entries(selectedMethod.details || {}).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0">
                     <span className="font-semibold text-slate-700">{key}:</span>
                     <span className="text-slate-900 font-medium text-right">{value}</span>

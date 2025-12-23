@@ -278,28 +278,31 @@ class PaymentMethod(db.Model):
     name_ar = db.Column(db.String(255))
     type = db.Column(db.String(100))
     details = db.Column(db.JSON)
+    logo_url = db.Column(db.Text)
     instructions = db.Column(db.Text)
     instructions_ar = db.Column(db.String(255))
     is_active = db.Column(db.Boolean, default=True)
+    sort_order= db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
         details = self.details or {}
-        return {
+        js = {
             'id': self.id,
             'name': self.name,
-            'name_en': details.get('name_en') or self.name,
-            'name_ar': details.get('name_ar'),
-            'logo_url': details.get('logo_url'),
-            'description': details.get('description'),
-            'sort_order': details.get('sort_order', 0),
+            'name_en': self.name,
+            'name_ar': self.name_ar,
+            'logo_url': self.logo_url,
+            'sort_order': self.sort_order,
             'type': self.type,
             'details': self.details,
-            'instructions':  details.get('instructions') or self.instructions,
-            'instructions_ar': details.get('instructions_ar'),
+            'instructions':  self.instructions,
+            'instructions_ar': self.instructions_ar,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+        print("PaymentMethod to_dict:", js)
+        return js
 
 class DiscountCode(db.Model):
     __tablename__ = 'discount_codes'

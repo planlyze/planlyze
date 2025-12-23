@@ -21,7 +21,7 @@ export default function PaymentMethodsManager({ isArabic }) {
     name_en: "",
     name_ar: "",
     logo_url: "",
-    description: {},
+    details: {},
     is_active: true,
     sort_order: 0
   });
@@ -49,7 +49,7 @@ export default function PaymentMethodsManager({ isArabic }) {
       name_en: method.name_en || "",
       name_ar: method.name_ar || "",
       logo_url: method.logo_url || "",
-      description: method.description || {},
+      details: method.details || {},
       is_active: method.is_active !== false,
       sort_order: method.sort_order || 0
     });
@@ -62,7 +62,7 @@ export default function PaymentMethodsManager({ isArabic }) {
       name_en: "",
       name_ar: "",
       logo_url: "",
-      description: {},
+      details: {},
       is_active: true,
       sort_order: 0
     });
@@ -101,7 +101,7 @@ export default function PaymentMethodsManager({ isArabic }) {
   const updateDescriptionField = (key, value) => {
     setFormData(prev => ({
       ...prev,
-      description: { ...prev.description, [key]: value }
+      details: { ...prev.details, [key]: value }
     }));
   };
 
@@ -172,7 +172,7 @@ export default function PaymentMethodsManager({ isArabic }) {
                       </Badge>
                     </div>
                     <div className="text-sm text-slate-600 space-y-1">
-                      {Object.entries(method.description || {}).map(([key, value]) => (
+                      {Object.entries(method.details || {}).map(([key, value]) => (
                         <div key={key}>
                           <span>{key}:</span> {value}
                         </div>
@@ -258,15 +258,15 @@ export default function PaymentMethodsManager({ isArabic }) {
               <div className="space-y-2 mt-2 p-3 bg-slate-50 rounded-lg">
                 <p className="text-xs text-slate-600">Add key-value pairs for payment details:</p>
                 <div className="space-y-2">
-                  {Object.entries(formData.description).map(([key, value]) => (
+                  {Object.entries(formData.details).map(([key, value]) => (
                     <div key={key} className="flex gap-2">
                       <Input 
                         value={key} 
                         onChange={(e) => {
-                          const newDesc = {...formData.description};
+                          const newDesc = {...formData.details};
                           delete newDesc[key];
                           newDesc[e.target.value] = value;
-                          setFormData({...formData, description: newDesc});
+                          setFormData({...formData, details: newDesc});
                         }}
                         placeholder="Key (e.g., Bank Name)"
                         className="flex-1"
@@ -281,9 +281,9 @@ export default function PaymentMethodsManager({ isArabic }) {
                         variant="outline" 
                         size="icon"
                         onClick={() => {
-                          const newDesc = {...formData.description};
+                          const newDesc = {...formData.details};
                           delete newDesc[key];
-                          setFormData({...formData, description: newDesc});
+                          setFormData({...formData, details: newDesc});
                         }}
                       >
                         <Trash2 className="w-4 h-4" />

@@ -1238,27 +1238,18 @@ def get_payment_methods():
 @entities_bp.route('/payment-methods', methods=['POST'])
 @require_admin
 def create_payment_method(user):
-    data = request.get_json()
-    
+    data = request.get_json()    
     name = data.get('name') or data.get('name_en') or 'Unnamed Method'
-    
-    details = data.get('details') or {}
-    if data.get('name_en'):
-        details['name_en'] = data.get('name_en')
-    if data.get('name_ar'):
-        details['name_ar'] = data.get('name_ar')
-    if data.get('logo_url'):
-        details['logo_url'] = data.get('logo_url')
-    if data.get('description'):
-        details['description'] = data.get('description')
-    if data.get('sort_order') is not None:
-        details['sort_order'] = data.get('sort_order')
-    
+    details = data.get('details') or {}    
     method = PaymentMethod(
-        name=name,
+        name=name,        
+        name_ar=data.get('name_ar'),
         type=data.get('type'),
+        logo_url=data.get('logo_url'),
+        sort_order=data.get('sort_order', 0),
         details=details if details else None,
         instructions=data.get('instructions'),
+        instructions_ar=data.get('instructions_ar'),
         is_active=data.get('is_active', True)
     )
     db.session.add(method)
@@ -1278,25 +1269,29 @@ def update_payment_method(user, id):
         method.name = data.get('name')
     elif data.get('name_en'):
         method.name = data.get('name_en')
+        
+    if data.get('name_ar'):
+        method.name_ar = data.get('name_ar')
+        
+    if data.get('logo_url'):
+        method.logo_url = data.get('logo_url')
+        
+    if data.get('sort_order'):
+        method.sort_order = data.get('sort_order')
     
     if data.get('type'):
         method.type = data.get('type')
+        
     if data.get('instructions'):
         method.instructions = data.get('instructions')
+    if data.get('instructions_ar'):
+        method.instructions_ar = data.get('instructions_ar')
+        
     if 'is_active' in data:
         method.is_active = data.get('is_active')
     
-    details = method.details or {}
-    if data.get('name_en'):
-        details['name_en'] = data.get('name_en')
-    if data.get('name_ar'):
-        details['name_ar'] = data.get('name_ar')
-    if data.get('logo_url'):
-        details['logo_url'] = data.get('logo_url')
-    if data.get('description'):
-        details['description'] = data.get('description')
-    if data.get('sort_order') is not None:
-        details['sort_order'] = data.get('sort_order')
+    details = data.get('details') or {}
+    
     if details:
         method.details = details
     
