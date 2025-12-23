@@ -4,4 +4,4 @@ venv
 *.pyc
 *.pyo
 .env
-migrations/
+migrations
