@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from server.app import create_app
-from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate
+from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings
 import bcrypt
 
 PERMISSIONS = {
@@ -459,6 +459,28 @@ def seed_email_templates():
     db.session.commit()
     print("Email templates seeded successfully!")
 
+def seed_system_settings():
+    """Seed system settings with default values"""
+    settings_data = [
+        {
+            'key': 'syrian_apps_count',
+            'value': '150',
+            'description': 'Number of Syrian apps to display on landing page'
+        }
+    ]
+    
+    for setting_data in settings_data:
+        existing = SystemSettings.query.filter_by(key=setting_data['key']).first()
+        if not existing:
+            setting = SystemSettings(**setting_data)
+            db.session.add(setting)
+            print(f"Created system setting: {setting_data['key']}")
+        else:
+            print(f"System setting already exists: {setting_data['key']}")
+    
+    db.session.commit()
+    print("System settings seeded successfully!")
+
 def run_seed():
     """Run all seed operations"""
     app = create_app()
@@ -468,6 +490,7 @@ def run_seed():
         seed_credit_packages()
         seed_payment_methods()
         seed_email_templates()
+        seed_system_settings()
         
         super_admin_email = os.environ.get('SUPER_ADMIN_EMAIL', 'admin@planlyze.com')
         super_admin_password = os.environ.get('SUPER_ADMIN_PASSWORD', 'Admin@123')

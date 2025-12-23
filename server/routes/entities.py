@@ -762,6 +762,51 @@ def delete_credit_package(user, id):
     db.session.commit()
     return jsonify({'message': 'Package deleted'})
 
+# Landing Page Stats endpoint (public)
+@entities_bp.route('/landing-stats', methods=['GET'])
+def get_landing_stats():
+    """
+    Get public landing page statistics
+    ---
+    tags:
+      - Public
+    responses:
+      200:
+        description: Landing page statistics
+        schema:
+          type: object
+          properties:
+            users_count:
+              type: integer
+            reports_count:
+              type: integer
+            syrian_apps_count:
+              type: integer
+    """
+    try:
+        # Get user count from database
+        users_count = User.query.filter_by(is_active=True).count()
+        
+        # Get completed reports count from database
+        reports_count = Analysis.query.filter(Analysis.status == 'completed').count()
+        
+        # Get Syrian apps count from system settings
+        syrian_apps_setting = SystemSettings.query.filter_by(key='syrian_apps_count').first()
+        syrian_apps_count = int(syrian_apps_setting.value) if syrian_apps_setting and syrian_apps_setting.value else 150
+        
+        return jsonify({
+            'users_count': users_count,
+            'reports_count': reports_count,
+            'syrian_apps_count': syrian_apps_count
+        })
+    except Exception as e:
+        # Return default values on error
+        return jsonify({
+            'users_count': 500,
+            'reports_count': 2000,
+            'syrian_apps_count': 150
+        })
+
 # Payment endpoints
 @entities_bp.route('/payments', methods=['GET'])
 @require_auth

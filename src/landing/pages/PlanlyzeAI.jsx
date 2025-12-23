@@ -104,6 +104,7 @@ export default function PlanlyzeAIPage() {
   const [isSending, setIsSending] = useState(false);
   const [packages, setPackages] = useState([]);
   const [packagesLoading, setPackagesLoading] = useState(true);
+  const [stats, setStats] = useState({ users_count: 500, reports_count: 2000, syrian_apps_count: 150 });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -121,6 +122,21 @@ export default function PlanlyzeAIPage() {
       }
     };
     fetchPackages();
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/landing-stats');
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      }
+    };
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -385,9 +401,9 @@ export default function PlanlyzeAIPage() {
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { number: 500, label: t.statsUsers, icon: User },
-                { number: 2000, label: t.statsReports, icon: FileText },
-                { number: 150, label: t.syApps, icon: Smartphone },
+                { number: stats.users_count, label: t.statsUsers, icon: User },
+                { number: stats.reports_count, label: t.statsReports, icon: FileText },
+                { number: stats.syrian_apps_count, label: t.syApps, icon: Smartphone },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
