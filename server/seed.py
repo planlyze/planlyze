@@ -596,16 +596,7 @@ def seed_partners():
         print("Partners seed already applied (version up to date), skipping...")
         return
     
-    partners_data = [
-        { 'name': 'Tech Startup', 'name_ar': 'شركة ناشئة تقنية', 'color': '6B46C1', 'display_order': 1 },
-        { 'name': 'Tech Accelerator', 'name_ar': 'مسرّع تقني', 'color': 'F59E0B', 'display_order': 2 },
-        { 'name': 'Innovation Center', 'name_ar': 'مركز الابتكار', 'color': '6B46C1', 'display_order': 3 },
-        { 'name': 'Venture Partners', 'name_ar': 'شركاء الاستثمار', 'color': 'F59E0B', 'display_order': 4 },
-        { 'name': 'Digital Solutions', 'name_ar': 'حلول رقمية', 'color': '6B46C1', 'display_order': 5 },
-        { 'name': 'Tech Institute', 'name_ar': 'معهد التقنية', 'color': 'F59E0B', 'display_order': 6 },
-        { 'name': 'Business Network', 'name_ar': 'شبكة الأعمال', 'color': '6B46C1', 'display_order': 7 },
-        { 'name': 'Growth Lab', 'name_ar': 'مختبر النمو', 'color': 'F59E0B', 'display_order': 8 },
-    ]
+    partners_data = []
     
     for partner_data in partners_data:
         existing = Partner.query.filter_by(name=partner_data['name']).first()
