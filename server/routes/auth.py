@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from server.models import db, User, Role, Referral, Notification, Transaction
-from server.utils.translations import get_message
+from server.utils.translations import get_message, get_language
 from server.services.email_service import (
     send_verification_email, 
     send_referral_bonus_email_to_referrer,
@@ -93,8 +93,7 @@ def register():
         description: Invalid input or user already exists
     """
     data = request.get_json()
-    raw_lang = request.headers.get('Accept-Language', 'en')
-    lang = 'ar' if 'ar' in raw_lang else 'en'
+    lang = get_language(request.headers)
     
     email = data.get('email')
     password = data.get('password')
@@ -152,8 +151,8 @@ def register():
         referrer_notification = Notification(
             user_email=referrer.email,
             type='referral_bonus',
-            title='You earned a referral bonus!' if lang == 'en' else 'لقد حصلت على مكافأة إحالة!',
-            message=f'{user.email} signed up using your referral code. You earned 1 credit!' if lang == 'en' else f'{user.email} قام بالتسجيل باستخدام رمز الإحالة الخاص بك. لقد حصلت على 1 رصيد!',
+            title=get_message('auth.referral_bonus_title', lang),
+            message=get_message('auth.referral_bonus_message', lang).format(email=user.email),
             meta_data={'referred_email': user.email, 'credits_earned': 1}
         )
         db.session.add(referrer_notification)
@@ -161,8 +160,8 @@ def register():
         referred_notification = Notification(
             user_email=user.email,
             type='referral_welcome',
-            title='Welcome! You got a bonus credit!' if lang == 'en' else 'مرحباً! حصلت على رصيد إضافي!',
-            message=f'You signed up with a referral from {referrer.email} and received 1 bonus credit!' if lang == 'en' else f'لقد قمت بالتسجيل باستخدام رمز إحالة من {referrer.email} وحصلت على 1 رصيد إضافي!',
+            title=get_message('auth.referral_welcome_title', lang),
+            message=get_message('auth.referral_welcome_message', lang).format(email=referrer.email),
             meta_data={'referrer_email': referrer.email, 'credits_received': 1}
         )
         db.session.add(referred_notification)
@@ -213,13 +212,8 @@ def register():
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)
     
-    if lang == 'ar':
-        message = 'تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.'
-    else:
-        message = 'Registration successful. Please check your email to verify your account.'
-    
     return jsonify({
-        'message': message,
+        'message': get_message('auth.register_success', lang),
         'email_sent': email_sent,
         'requires_verification': True
     }), 201
@@ -256,36 +250,26 @@ def verify_email():
         description: Invalid or expired code
     """
     data = request.get_json()
-    lang = request.headers.get('Accept-Language', 'en')
+    lang = get_language(request.headers)
     email = data.get('email')
     code = data.get('code')
     
     if not email or not code:
-        if lang == 'ar':
-            return jsonify({'error': 'البريد الإلكتروني ورمز التحقق مطلوبان'}), 400
-        return jsonify({'error': 'Email and verification code are required'}), 400
+        return jsonify({'error': get_message('auth.email_code_required', lang)}), 400
     
     user = User.query.filter_by(email=email).first()
     
     if not user:
-        if lang == 'ar':
-            return jsonify({'error': 'البريد الإلكتروني غير مسجل'}), 400
-        return jsonify({'error': 'Email not found'}), 400
+        return jsonify({'error': get_message('auth.email_not_found', lang)}), 400
     
     if user.email_verified:
-        if lang == 'ar':
-            return jsonify({'error': 'البريد الإلكتروني مؤكد بالفعل'}), 400
-        return jsonify({'error': 'Email is already verified'}), 400
+        return jsonify({'error': get_message('auth.email_already_verified', lang)}), 400
     
     if user.verification_token != code:
-        if lang == 'ar':
-            return jsonify({'error': 'رمز التحقق غير صحيح'}), 400
-        return jsonify({'error': 'Invalid verification code'}), 400
+        return jsonify({'error': get_message('auth.invalid_code', lang)}), 400
     
     if user.verification_token_expires and user.verification_token_expires < datetime.utcnow():
-        if lang == 'ar':
-            return jsonify({'error': 'انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.'}), 400
-        return jsonify({'error': 'Verification code has expired. Please request a new code.'}), 400
+        return jsonify({'error': get_message('auth.code_expired', lang)}), 400
     
     user.email_verified = True
     user.verification_token = None
@@ -294,13 +278,8 @@ def verify_email():
     
     auth_token = create_token(user.id, user.email)
     
-    if lang == 'ar':
-        message = 'تم تأكيد البريد الإلكتروني بنجاح!'
-    else:
-        message = 'Email verified successfully!'
-    
     return jsonify({
-        'message': message,
+        'message': get_message('auth.email_verified', lang),
         'token': auth_token,
         'user': user.to_dict()
     })
@@ -334,23 +313,19 @@ def resend_verification():
         description: Email not found or already verified
     """
     data = request.get_json()
-    lang = request.headers.get('Accept-Language', 'en')
+    lang = get_language(request.headers)
     email = data.get('email')
     
     if not email:
-        return jsonify({'error': 'Email is required'}), 400
+        return jsonify({'error': get_message('auth.email_required', lang)}), 400
     
     user = User.query.filter_by(email=email).first()
     
     if not user:
-        if lang == 'ar':
-            return jsonify({'error': 'البريد الإلكتروني غير مسجل'}), 400
-        return jsonify({'error': 'Email not found'}), 400
+        return jsonify({'error': get_message('auth.email_not_found', lang)}), 400
     
     if user.email_verified:
-        if lang == 'ar':
-            return jsonify({'error': 'البريد الإلكتروني مؤكد بالفعل'}), 400
-        return jsonify({'error': 'Email is already verified'}), 400
+        return jsonify({'error': get_message('auth.email_already_verified', lang)}), 400
     
     verification_token = generate_verification_token()
     verification_expires = datetime.utcnow() + timedelta(minutes=15)
@@ -361,13 +336,8 @@ def resend_verification():
     
     email_sent = send_verification_email(email, user.full_name, verification_token, lang)
     
-    if lang == 'ar':
-        message = 'تم إرسال رابط التحقق إلى بريدك الإلكتروني.'
-    else:
-        message = 'Verification link has been sent to your email.'
-    
     return jsonify({
-        'message': message,
+        'message': get_message('auth.verification_sent', lang),
         'email_sent': email_sent
     })
 
@@ -408,7 +378,7 @@ def login():
         description: Email not verified
     """
     data = request.get_json()
-    lang = request.headers.get('Accept-Language', 'en')
+    lang = get_language(request.headers)
     
     email = data.get('email')
     password = data.get('password')
@@ -424,17 +394,11 @@ def login():
         return jsonify({'error': get_message('auth.invalid_credentials', lang)}), 401
     
     if not user.is_active:
-        return jsonify({'error': 'Account is deactivated'}), 401
+        return jsonify({'error': get_message('auth.account_deactivated', lang)}), 401
     
     if not user.email_verified:
-        if lang == 'ar':
-            return jsonify({
-                'error': 'يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.',
-                'requires_verification': True,
-                'email': email
-            }), 403
         return jsonify({
-            'error': 'Please verify your email before logging in.',
+            'error': get_message('auth.verify_email_first', lang),
             'requires_verification': True,
             'email': email
         }), 403
@@ -462,9 +426,10 @@ def get_me():
       401:
         description: Not authenticated
     """
+    lang = get_language(request.headers)
     user = get_current_user()
     if not user:
-        return jsonify({'error': 'Not authenticated'}), 401
+        return jsonify({'error': get_message('auth.not_authenticated', lang)}), 401
     
     return jsonify(user.to_dict())
 
@@ -505,9 +470,10 @@ def update_me():
       401:
         description: Not authenticated
     """
+    lang = get_language(request.headers)
     user = get_current_user()
     if not user:
-        return jsonify({'error': 'Not authenticated'}), 401
+        return jsonify({'error': get_message('auth.not_authenticated', lang)}), 401
     
     data = request.get_json()
     
@@ -567,8 +533,8 @@ def change_password():
       401:
         description: Invalid current password or not authenticated
     """
+    lang = get_language(request.headers)
     user = get_current_user()
-    lang = request.headers.get('Accept-Language', 'en')
     
     if not user:
         return jsonify({'error': get_message('auth.not_authenticated', lang)}), 401
@@ -578,10 +544,10 @@ def change_password():
     new_password = data.get('new_password')
     
     if not current_password or not new_password:
-        return jsonify({'error': 'Current and new password are required'}), 400
+        return jsonify({'error': get_message('auth.current_new_password_required', lang)}), 400
     
     if not bcrypt.checkpw(current_password.encode('utf-8'), user.password_hash.encode('utf-8')):
-        return jsonify({'error': 'Current password is incorrect'}), 401
+        return jsonify({'error': get_message('auth.current_password_incorrect', lang)}), 401
     
     user.password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     db.session.commit()
@@ -601,4 +567,5 @@ def logout():
       200:
         description: Logged out successfully
     """
-    return jsonify({'message': 'Logged out successfully'})
+    lang = get_language(request.headers)
+    return jsonify({'message': get_message('auth.logout_success', lang)})
