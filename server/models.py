@@ -7,6 +7,18 @@ db = SQLAlchemy()
 def generate_uuid():
     return str(uuid.uuid4())
 
+def default_notification_preferences():
+    return {
+        'email_notifications': True,
+        'analysis_complete': True,
+        'analysis_failed': True,
+        'credits_low': True,
+        'credits_purchased': True,
+        'payment_approved': True,
+        'payment_rejected': True,
+        'system': True
+    }
+
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -24,7 +36,7 @@ class User(db.Model):
     phone_number = db.Column(db.String(50))
     country = db.Column(db.String(100))
     city = db.Column(db.String(100))
-    notification_preferences = db.Column(db.JSON, default=dict)
+    notification_preferences = db.Column(db.JSON, default=default_notification_preferences)
     email_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100))
     verification_token_expires = db.Column(db.DateTime)
