@@ -156,56 +156,56 @@ def seed_credit_packages():
     
     packages_data = [
         {
-            'name': 'Starter',
-            'name_ar': 'المبتدئ',
+            'name': 'Entrepreneurial',
+            'name_ar': 'ريادي',
             'credits': 1,
             'price_usd': 10.00,
-            'description': 'Perfect for trying out the platform with 1 premium report',
-            'description_ar': 'مثالي لتجربة المنصة مع تقرير مميز واحد',
+            'description': 'Complete analysis for serious entrepreneurs',
+            'description_ar': 'تحليل شامل لرواد الأعمال الجادين',
             'features': [
-                '1 Premium AI Report',
-                'Full Market Analysis',
-                'Technical Strategy',
-                'Financial Projections',
-                'Risk Assessment',
-                'PDF & Excel Export'
+                '1 premium report credit',
+                'Detailed competitor analysis',
+                'Syrian market data & local opportunities',
+                'AI-powered strategic recommendations',
+                'Interactive AI Assistant for Q&A',
+                'Export to PDF & Excel formats'
             ],
             'features_ar': [
-                'تقرير ذكاء اصطناعي مميز واحد',
-                'تحليل سوق كامل',
-                'استراتيجية تقنية',
-                'توقعات مالية',
-                'تقييم المخاطر',
-                'تصدير PDF و Excel'
-            ],
-            'is_active': True,
-            'is_popular': False
-        },
-        {
-            'name': 'Basic',
-            'name_ar': 'الأساسي',
-            'credits': 10,
-            'price_usd': 90.00,
-            'description': 'Great for small businesses with 10 premium reports',
-            'description_ar': 'رائع للشركات الصغيرة مع 10 تقارير مميزة',
-            'features': [
-                '10 Premium AI Reports',
-                'All Starter Features',
-                'Syrian Market Intelligence',
-                'AI Chat Assistant',
-                'Competitor Analysis',
-                'Priority Support'
-            ],
-            'features_ar': [
-                '10 تقارير ذكاء اصطناعي مميزة',
-                'جميع ميزات المبتدئ',
-                'بيانات السوق السوري',
-                'مساعد ذكاء اصطناعي للدردشة',
-                'تحليل المنافسين',
-                'دعم ذو أولوية'
+                'رصيد تقرير مميز واحد',
+                'تحليل تفصيلي للمنافسين',
+                'بيانات السوق السوري والفرص المحلية',
+                'توصيات استراتيجية مدعومة بالذكاء الاصطناعي',
+                'مساعد ذكاء اصطناعي تفاعلي للأسئلة',
+                'تصدير بصيغ PDF و Excel'
             ],
             'is_active': True,
             'is_popular': True
+        },
+        {
+            'name': 'Enterprise',
+            'name_ar': 'الأساسي',
+            'credits': 10,
+            'price_usd': 90.00,
+            'description': 'Best value - Save 10%',
+            'description_ar': 'رائع للشركات الصغيرة مع 10 تقارير مميزة',
+            'features': [
+                '1 premium report credit',
+                'Detailed competitor analysis',
+                'Syrian market data & local opportunities',
+                'AI-powered strategic recommendations',
+                'Interactive AI Assistant for Q&A',
+                'Export to PDF & Excel formats'
+            ],
+            'features_ar': [
+                'رصيد تقرير مميز واحد',
+                'تحليل تفصيلي للمنافسين',
+                'بيانات السوق السوري والفرص المحلية',
+                'توصيات استراتيجية مدعومة بالذكاء الاصطناعي',
+                'مساعد ذكاء اصطناعي تفاعلي للأسئلة',
+                'تصدير بصيغ PDF و Excel'
+            ],
+            'is_active': True,
+            'is_popular': False
         }
     ]
     
