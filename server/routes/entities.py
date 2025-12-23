@@ -1123,9 +1123,19 @@ def delete_payment_method(user, id):
     if not method:
         return jsonify({'error': 'Method not found'}), 404
     
+    # Check for related payments using this method
+    related_payments = Payment.query.filter_by(payment_method=method.name).count()
+    
+    if related_payments > 0:
+        # Option 1: Prevent deletion if there are related payments
+        # return jsonify({'error': f'Cannot delete: {related_payments} payments use this method. Please reassign them first.'}), 400
+        
+        # Option 2: Set payment_method to null for related payments (soft handling)
+        Payment.query.filter_by(payment_method=method.name).update({'payment_method': None})
+    
     db.session.delete(method)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Payment method deleted'})
+    return jsonify({'success': True, 'message': f'Payment method deleted. {related_payments} related payments updated.'})
 
 # Discount Code endpoints
 @entities_bp.route('/discount-codes', methods=['GET'])
