@@ -1853,13 +1853,23 @@ def update_user(user, id):
     if not target_user:
         return jsonify({'error': 'User not found'}), 404
     
+    target_role_name = target_user.role.name if target_user.role else 'user'
+    if target_role_name == 'super_admin':
+        return jsonify({'error': 'Cannot modify super_admin users'}), 403
+    
     data = request.get_json()
+    
+    new_role = None
     if 'role' in data:
-        role = Role.query.filter_by(name=data['role']).first()
-        if role:
-            target_user.role_id = role.id
+        new_role = Role.query.filter_by(name=data['role']).first()
     if 'role_id' in data:
-        target_user.role_id = data['role_id']
+        new_role = Role.query.get(data['role_id'])
+    
+    if new_role:
+        if new_role.name == 'super_admin':
+            return jsonify({'error': 'Cannot assign super_admin role'}), 403
+        target_user.role_id = new_role.id
+    
     if 'credits' in data:
         target_user.credits = data['credits']
     if 'is_active' in data:

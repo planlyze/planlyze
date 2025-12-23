@@ -193,8 +193,8 @@ export default function UserRoleAssignment() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {canAccessAdmin(user) ? (
-                        <span className="text-sm text-slate-500">Cannot modify admin</span>
+                      {user.role === 'super_admin' ? (
+                        <span className="text-sm text-slate-500">Cannot modify super_admin</span>
                       ) : (
                         <Select
                           value={user.role_id || 'none'}
@@ -210,7 +210,7 @@ export default function UserRoleAssignment() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">User (No Role)</SelectItem>
-                            {roles.map((role) => (
+                            {roles.filter(role => role.name !== 'super_admin').map((role) => (
                               <SelectItem key={role.id} value={role.id}>
                                 {role.name}
                               </SelectItem>
