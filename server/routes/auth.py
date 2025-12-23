@@ -84,7 +84,7 @@ def register():
       - name: Accept-Language
         in: header
         type: string
-        default: en
+        default: ar
         description: Language code (en or ar)
     responses:
       201:
