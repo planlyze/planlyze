@@ -23,7 +23,7 @@ i18n
       escapeValue: false
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       lookupLocalStorage: 'planlyze-language',
       caches: ['localStorage'],
     }
