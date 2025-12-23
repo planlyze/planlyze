@@ -593,3 +593,27 @@ class ContactMessage(db.Model):
             'email_sent': self.email_sent,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+class SocialMedia(db.Model):
+    __tablename__ = 'social_media'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    platform = db.Column(db.String(50), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    icon = db.Column(db.String(50), nullable=False)
+    hover_color = db.Column(db.String(100), default='hover:bg-orange-500 hover:border-orange-500')
+    display_order = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'platform': self.platform,
+            'url': self.url,
+            'icon': self.icon,
+            'hover_color': self.hover_color,
+            'display_order': self.display_order,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }

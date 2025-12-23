@@ -602,6 +602,87 @@ def delete_contact_message(user, id):
     db.session.commit()
     return jsonify({'success': True})
 
+# Social Media endpoints
+@entities_bp.route('/social-media', methods=['GET'])
+def get_social_media():
+    from server.models import SocialMedia
+    links = SocialMedia.query.filter_by(is_active=True).order_by(SocialMedia.display_order).all()
+    return jsonify([link.to_dict() for link in links])
+
+@entities_bp.route('/social-media/all', methods=['GET'])
+@require_auth
+def get_all_social_media(user):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import SocialMedia
+    links = SocialMedia.query.order_by(SocialMedia.display_order).all()
+    return jsonify([link.to_dict() for link in links])
+
+@entities_bp.route('/social-media', methods=['POST'])
+@require_auth
+def create_social_media(user):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import SocialMedia
+    data = request.get_json() or {}
+    
+    link = SocialMedia(
+        platform=data.get('platform'),
+        url=data.get('url'),
+        icon=data.get('icon'),
+        hover_color=data.get('hover_color', 'hover:bg-orange-500 hover:border-orange-500'),
+        display_order=data.get('display_order', 0),
+        is_active=data.get('is_active', True)
+    )
+    db.session.add(link)
+    db.session.commit()
+    return jsonify(link.to_dict()), 201
+
+@entities_bp.route('/social-media/<id>', methods=['PUT'])
+@require_auth
+def update_social_media(user, id):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import SocialMedia
+    link = SocialMedia.query.get(id)
+    if not link:
+        return jsonify({'error': 'Social media link not found'}), 404
+    
+    data = request.get_json() or {}
+    if 'platform' in data:
+        link.platform = data['platform']
+    if 'url' in data:
+        link.url = data['url']
+    if 'icon' in data:
+        link.icon = data['icon']
+    if 'hover_color' in data:
+        link.hover_color = data['hover_color']
+    if 'display_order' in data:
+        link.display_order = data['display_order']
+    if 'is_active' in data:
+        link.is_active = data['is_active']
+    
+    db.session.commit()
+    return jsonify(link.to_dict())
+
+@entities_bp.route('/social-media/<id>', methods=['DELETE'])
+@require_auth
+def delete_social_media(user, id):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import SocialMedia
+    link = SocialMedia.query.get(id)
+    if not link:
+        return jsonify({'error': 'Social media link not found'}), 404
+    
+    db.session.delete(link)
+    db.session.commit()
+    return jsonify({'success': True})
+
 @entities_bp.route('/analyses', methods=['POST'])
 @require_auth
 def create_analysis(user):

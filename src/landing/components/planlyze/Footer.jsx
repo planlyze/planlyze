@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Facebook, Linkedin, Instagram, MessageCircle, Send } from 'lucide-react';
+import { Facebook, Linkedin, Instagram, MessageCircle, Send, Twitter, Youtube, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SocialLink from './SocialLink';
 import { HEADER_CTA_CLASS, useAppTranslation } from '@/config';
 import { createPageUrl } from '@/utils';
+import api from '@/api/client';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d7be088a309080879f3d/1d57ae70b_Main_logo-01.png";
 
@@ -18,7 +19,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-const socialLinks = [
+const iconMap = {
+  Facebook,
+  Linkedin,
+  Instagram,
+  MessageCircle,
+  Send,
+  Twitter,
+  Youtube,
+  ExternalLink
+};
+
+const fallbackSocialLinks = [
   { href: "https://facebook.com/planlyze", icon: Facebook },
   { href: "https://www.linkedin.com/company/planlyzeco", icon: Linkedin },
   { href: "https://www.instagram.com/planlyze/", icon: Instagram },
@@ -28,6 +40,29 @@ const socialLinks = [
 
 export default function Footer() {
   const { t } = useAppTranslation('landing');
+  const [socialLinks, setSocialLinks] = useState([]);
+  
+  useEffect(() => {
+    const fetchSocialLinks = async () => {
+      try {
+        const data = await api.get('/social-media');
+        if (Array.isArray(data) && data.length > 0) {
+          setSocialLinks(data.map(link => ({
+            href: link.url,
+            icon: iconMap[link.icon] || ExternalLink,
+            hoverColor: link.hover_color
+          })));
+        } else {
+          setSocialLinks(fallbackSocialLinks);
+        }
+      } catch (e) {
+        console.log("Using fallback social links");
+        setSocialLinks(fallbackSocialLinks);
+      }
+    };
+    fetchSocialLinks();
+  }, []);
+  
   return (
     <motion.footer
       variants={containerVariants}

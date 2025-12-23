@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check } from "lucide-react";
+import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check, Share2, Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import api from "@/api/client";
@@ -28,6 +29,30 @@ export default function AdminSettings() {
   const [contactMessages, setContactMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  
+  const [socialMediaLinks, setSocialMediaLinks] = useState([]);
+  const [isSocialDialogOpen, setIsSocialDialogOpen] = useState(false);
+  const [editingSocial, setEditingSocial] = useState(null);
+  const [socialForm, setSocialForm] = useState({
+    platform: "",
+    url: "",
+    icon: "Facebook",
+    hover_color: "hover:bg-orange-500 hover:border-orange-500",
+    display_order: 0,
+    is_active: true
+  });
+  const [isSavingSocial, setIsSavingSocial] = useState(false);
+  
+  const iconOptions = [
+    { value: "Facebook", label: "Facebook", color: "hover:bg-blue-600 hover:border-blue-600" },
+    { value: "Linkedin", label: "LinkedIn", color: "hover:bg-blue-700 hover:border-blue-700" },
+    { value: "Instagram", label: "Instagram", color: "hover:bg-pink-500 hover:border-pink-500" },
+    { value: "Twitter", label: "Twitter/X", color: "hover:bg-black hover:border-black" },
+    { value: "Youtube", label: "YouTube", color: "hover:bg-red-600 hover:border-red-600" },
+    { value: "MessageCircle", label: "WhatsApp", color: "hover:bg-green-500 hover:border-green-500" },
+    { value: "Send", label: "Telegram", color: "hover:bg-blue-500 hover:border-blue-500" },
+    { value: "ExternalLink", label: "Other", color: "hover:bg-orange-500 hover:border-orange-500" }
+  ];
   
   const [isPartnerDialogOpen, setIsPartnerDialogOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState(null);
@@ -84,6 +109,13 @@ export default function AdminSettings() {
       } catch (e) {
         console.log("Error loading contact messages:", e);
       }
+      
+      try {
+        const socialData = await api.get('/social-media/all');
+        setSocialMediaLinks(Array.isArray(socialData) ? socialData : []);
+      } catch (e) {
+        console.log("Error loading social media:", e);
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load settings data");
@@ -117,6 +149,74 @@ export default function AdminSettings() {
       console.error("Error deleting message:", e);
       toast.error("Failed to delete message");
     }
+  };
+
+  const openSocialDialog = (social = null) => {
+    if (social) {
+      setEditingSocial(social);
+      setSocialForm({
+        platform: social.platform || "",
+        url: social.url || "",
+        icon: social.icon || "Facebook",
+        hover_color: social.hover_color || "hover:bg-orange-500 hover:border-orange-500",
+        display_order: social.display_order || 0,
+        is_active: social.is_active !== false
+      });
+    } else {
+      setEditingSocial(null);
+      setSocialForm({
+        platform: "",
+        url: "",
+        icon: "Facebook",
+        hover_color: "hover:bg-blue-600 hover:border-blue-600",
+        display_order: socialMediaLinks.length + 1,
+        is_active: true
+      });
+    }
+    setIsSocialDialogOpen(true);
+  };
+
+  const handleSaveSocial = async () => {
+    if (!socialForm.platform || !socialForm.url) {
+      toast.error("Platform name and URL are required");
+      return;
+    }
+    
+    setIsSavingSocial(true);
+    try {
+      if (editingSocial) {
+        await api.put(`/social-media/${editingSocial.id}`, socialForm);
+        toast.success("Social media link updated");
+      } else {
+        await api.post('/social-media', socialForm);
+        toast.success("Social media link added");
+      }
+      setIsSocialDialogOpen(false);
+      await loadData();
+    } catch (error) {
+      console.error("Error saving social media:", error);
+      toast.error("Failed to save social media link");
+    } finally {
+      setIsSavingSocial(false);
+    }
+  };
+
+  const handleDeleteSocial = async (social) => {
+    if (!confirm(`Are you sure you want to delete "${social.platform}"?`)) return;
+    
+    try {
+      await api.delete(`/social-media/${social.id}`);
+      toast.success("Social media link deleted");
+      await loadData();
+    } catch (error) {
+      console.error("Error deleting social media:", error);
+      toast.error("Failed to delete social media link");
+    }
+  };
+
+  const getIconComponent = (iconName) => {
+    const icons = { Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink };
+    return icons[iconName] || ExternalLink;
   };
 
   const handleSaveSyrianAppsCount = async () => {
@@ -250,6 +350,10 @@ export default function AdminSettings() {
                   {contactMessages.filter(m => !m.is_read).length}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="social" className="gap-2">
+              <Share2 className="w-4 h-4" />
+              Social Media
             </TabsTrigger>
           </TabsList>
 
@@ -470,7 +574,184 @@ export default function AdminSettings() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="social">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Share2 className="w-5 h-5" />
+                    Social Media Links
+                  </CardTitle>
+                  <CardDescription>
+                    Manage social media links displayed in the footer
+                  </CardDescription>
+                </div>
+                <Button onClick={() => openSocialDialog()} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Link
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Platform</TableHead>
+                      <TableHead>Icon</TableHead>
+                      <TableHead>URL</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {socialMediaLinks.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                          No social media links found. Add your first link.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      socialMediaLinks.sort((a, b) => a.display_order - b.display_order).map((social) => {
+                        const IconComp = getIconComponent(social.icon);
+                        return (
+                          <TableRow key={social.id}>
+                            <TableCell>{social.display_order}</TableCell>
+                            <TableCell className="font-medium">{social.platform}</TableCell>
+                            <TableCell>
+                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                <IconComp className="w-4 h-4" />
+                              </div>
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate text-sm text-gray-500">
+                              <a href={social.url} target="_blank" rel="noopener noreferrer" className="hover:text-purple-600">
+                                {social.url}
+                              </a>
+                            </TableCell>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                social.is_active 
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                              }`}>
+                                {social.is_active ? "Active" : "Inactive"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openSocialDialog(social)}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                  onClick={() => handleDeleteSocial(social)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
+
+        <Dialog open={isSocialDialogOpen} onOpenChange={setIsSocialDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {editingSocial ? "Edit Social Media Link" : "Add Social Media Link"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="platform">Platform Name *</Label>
+                <Input
+                  id="platform"
+                  value={socialForm.platform}
+                  onChange={(e) => setSocialForm({ ...socialForm, platform: e.target.value })}
+                  placeholder="Facebook, Twitter, etc."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="url">URL *</Label>
+                <Input
+                  id="url"
+                  value={socialForm.url}
+                  onChange={(e) => setSocialForm({ ...socialForm, url: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Icon</Label>
+                <Select
+                  value={socialForm.icon}
+                  onValueChange={(value) => {
+                    const option = iconOptions.find(o => o.value === value);
+                    setSocialForm({ 
+                      ...socialForm, 
+                      icon: value,
+                      hover_color: option?.color || socialForm.hover_color
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select icon" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {iconOptions.map((option) => {
+                      const IconComp = getIconComponent(option.value);
+                      return (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div className="flex items-center gap-2">
+                            <IconComp className="w-4 h-4" />
+                            {option.label}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="display_order">Display Order</Label>
+                <Input
+                  id="display_order"
+                  type="number"
+                  value={socialForm.display_order}
+                  onChange={(e) => setSocialForm({ ...socialForm, display_order: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="is_active">Active</Label>
+                <Switch
+                  id="is_active"
+                  checked={socialForm.is_active}
+                  onCheckedChange={(checked) => setSocialForm({ ...socialForm, is_active: checked })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleSaveSocial} disabled={isSavingSocial}>
+                {isSavingSocial ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
           <DialogContent className="sm:max-w-lg">
