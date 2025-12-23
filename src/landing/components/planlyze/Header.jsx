@@ -9,11 +9,11 @@ import { useAppTranslation } from '@/config';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d7be088a309080879f3d/1d57ae70b_Main_logo-01.png";
 
-export default function Header({ lang: propLang, onLanguageChange, theme, onThemeChange }) {
+export default function Header({ lang: propLang, onLanguageChange, theme, onThemeChange, hasPartners = true }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, lang, changeLanguage } = useAppTranslation('landing');
 
-  const navSections = [
+  const allNavSections = [
     { id: 'about', key: 'navAbout', isAnchor: true },
     { id: 'features', key: 'navFeatures', isAnchor: true },
     { id: 'partners', key: 'navPartners', isAnchor: true },
@@ -21,6 +21,10 @@ export default function Header({ lang: propLang, onLanguageChange, theme, onThem
     { id: 'faq', key: 'navFAQ', isAnchor: true },
     { id: 'contact', key: 'navContact', isAnchor: true }
   ];
+
+  const navSections = hasPartners 
+    ? allNavSections 
+    : allNavSections.filter(section => section.id !== 'partners');
 
   return (
     <motion.header

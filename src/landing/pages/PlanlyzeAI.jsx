@@ -86,16 +86,6 @@ const CountUp = ({ end }) => {
   return <span>{count.toLocaleString()}+</span>;
 };
 
-const defaultPartners = [
-  { name: "Tech Startup", name_ar: "شركة ناشئة تقنية", color: "6B46C1" },
-  { name: "Tech Accelerator", name_ar: "مسرّع تقني", color: "F59E0B" },
-  { name: "Innovation Center", name_ar: "مركز الابتكار", color: "6B46C1" },
-  { name: "Venture Partners", name_ar: "شركاء الاستثمار", color: "F59E0B" },
-  { name: "Digital Solutions", name_ar: "حلول رقمية", color: "6B46C1" },
-  { name: "Tech Institute", name_ar: "معهد التقنية", color: "F59E0B" },
-  { name: "Business Network", name_ar: "شبكة الأعمال", color: "6B46C1" },
-  { name: "Growth Lab", name_ar: "مختبر النمو", color: "F59E0B" },
-];
 
 export default function PlanlyzeAIPage() {
   const { t: ti, i18n } = useTranslation("landing");
@@ -105,7 +95,7 @@ export default function PlanlyzeAIPage() {
   const [packages, setPackages] = useState([]);
   const [packagesLoading, setPackagesLoading] = useState(true);
   const [stats, setStats] = useState({ users_count: 500, reports_count: 2000, syrian_apps_count: 150 });
-  const [partners, setPartners] = useState(defaultPartners);
+  const [partners, setPartners] = useState([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -296,6 +286,7 @@ export default function PlanlyzeAIPage() {
         onLanguageChange={handleLanguageChange}
         theme={theme}
         onThemeChange={handleThemeChange}
+        hasPartners={partners.length > 0}
       />
 
       <main>
@@ -572,68 +563,70 @@ export default function PlanlyzeAIPage() {
           </div>
         </motion.section>
 
-        {/* Partners Section */}
-        <motion.section
-          id="partners"
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="py-24 px-6 bg-purple-50 dark:bg-gray-800"
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div variants={itemVariants} className="text-center mb-16">
-              <h2 className="text-5xl font-bold text-[#070707] dark:text-white mb-6">
-                {t.partnersTitle}
-              </h2>
-            </motion.div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {partners.map((partner, index) => {
-                const partnerName = lang === 'ar' && partner.name_ar ? partner.name_ar : partner.name;
-                const displayName = partner.logo_url ? '' : partnerName;
-                const CardWrapper = partner.website_url ? 'a' : 'div';
-                const cardProps = partner.website_url ? {
-                  href: partner.website_url,
-                  target: '_blank',
-                  rel: 'noopener noreferrer'
-                } : {};
-                return (
-                  <motion.div
-                    key={partner.id || index}
-                    variants={itemVariants}
-                    whileHover={{ y: -5, scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <CardWrapper
-                      {...cardProps}
-                      className={`flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
+        {/* Partners Section - Only shown when partners exist */}
+        {partners.length > 0 && (
+          <motion.section
+            id="partners"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="py-24 px-6 bg-purple-50 dark:bg-gray-800"
+          >
+            <div className="max-w-7xl mx-auto">
+              <motion.div variants={itemVariants} className="text-center mb-16">
+                <h2 className="text-5xl font-bold text-[#070707] dark:text-white mb-6">
+                  {t.partnersTitle}
+                </h2>
+              </motion.div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {partners.map((partner, index) => {
+                  const partnerName = lang === 'ar' && partner.name_ar ? partner.name_ar : partner.name;
+                  const displayName = partner.logo_url ? '' : partnerName;
+                  const CardWrapper = partner.website_url ? 'a' : 'div';
+                  const cardProps = partner.website_url ? {
+                    href: partner.website_url,
+                    target: '_blank',
+                    rel: 'noopener noreferrer'
+                  } : {};
+                  return (
+                    <motion.div
+                      key={partner.id || index}
+                      variants={itemVariants}
+                      whileHover={{ y: -5, scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <div className="w-full h-24 mb-4 flex items-center justify-center">
-                        {partner.logo_url ? (
-                          <img
-                            src={partner.logo_url}
-                            alt={partnerName}
-                            className="max-w-full max-h-full object-contain rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                            style={{ backgroundColor: `#${partner.color || '6B46C1'}` }}
-                          >
-                            {partnerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
-                        {partnerName}
-                      </h4>
-                    </CardWrapper>
-                  </motion.div>
-                );
-              })}
+                      <CardWrapper
+                        {...cardProps}
+                        className={`flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
+                      >
+                        <div className="w-full h-24 mb-4 flex items-center justify-center">
+                          {partner.logo_url ? (
+                            <img
+                              src={partner.logo_url}
+                              alt={partnerName}
+                              className="max-w-full max-h-full object-contain rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
+                            />
+                          ) : (
+                            <div 
+                              className="w-full h-full rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                              style={{ backgroundColor: `#${partner.color || '6B46C1'}` }}
+                            >
+                              {partnerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
+                          {partnerName}
+                        </h4>
+                      </CardWrapper>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </motion.section>
+          </motion.section>
+        )}
 
         {/* Pricing Section */}
         <motion.section
