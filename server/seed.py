@@ -229,6 +229,7 @@ def seed_payment_methods():
     methods_data = [
         {
             'name': 'Bank Transfer',
+            'name_ar': 'تحويل بنكي',
             'type': 'bank_transfer',
             'details': {
                 'bank_name': 'Example Bank',
@@ -238,36 +239,7 @@ def seed_payment_methods():
                 'swift': 'EXAMPLEXXX'
             },
             'instructions': 'Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',
-            'is_active': True
-        },
-        {
-            'name': 'PayPal',
-            'type': 'paypal',
-            'details': {
-                'email': 'payments@planlyze.com'
-            },
-            'instructions': 'Send payment to our PayPal email address and include your registered email in the notes.',
-            'is_active': True
-        },
-        {
-            'name': 'Cryptocurrency',
-            'type': 'crypto',
-            'details': {
-                'bitcoin': 'bc1qexample...',
-                'ethereum': '0xexample...',
-                'usdt_trc20': 'TExample...'
-            },
-            'instructions': 'Send the equivalent amount in cryptocurrency and provide the transaction hash as proof.',
-            'is_active': True
-        },
-        {
-            'name': 'Mobile Money',
-            'type': 'mobile_money',
-            'details': {
-                'provider': 'Various',
-                'number': '+1234567890'
-            },
-            'instructions': 'Send payment via mobile money and upload the confirmation screenshot.',
+            'instructions_ar': 'AR Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',
             'is_active': True
         }
     ]
