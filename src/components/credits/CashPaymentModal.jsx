@@ -56,37 +56,7 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
     setIsValidating(true);
     try {
-      const discounts = await DiscountCode.filter({ 
-        code: discountCode.toUpperCase(),
-        is_active: true 
-      });
-
-      if (discounts.length === 0) {
-        toast.error(isArabic ? "كود الخصم غير صالح" : "Invalid discount code");
-        setAppliedDiscount(null);
-        return;
-      }
-
-      const discount = discounts[0];
-      const now = new Date();
-
-      if (discount.valid_from && new Date(discount.valid_from) > now) {
-        toast.error(isArabic ? "الكود غير نشط بعد" : "Code is not active yet");
-        setAppliedDiscount(null);
-        return;
-      }
-
-      if (discount.valid_until && new Date(discount.valid_until) < now) {
-        toast.error(isArabic ? "الكود منتهي الصلاحية" : "Code has expired");
-        setAppliedDiscount(null);
-        return;
-      }
-
-      if (discount.max_uses && discount.used_count >= discount.max_uses) {
-        toast.error(isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used");
-        setAppliedDiscount(null);
-        return;
-      }
+      const discount = await DiscountCode.validate(discountCode.toUpperCase());
 
       const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
       if (discount.min_purchase_amount && discount.min_purchase_amount > packagePrice) {
@@ -99,7 +69,19 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
       toast.success(isArabic ? "تم تطبيق الخصم!" : "Discount applied!");
     } catch (error) {
       console.error("Error validating discount:", error);
-      toast.error(isArabic ? "فشل التحقق من الكود" : "Failed to validate code");
+      const errorMsg = error?.response?.data?.error || error?.message || "";
+      if (errorMsg.includes("not yet valid")) {
+        toast.error(isArabic ? "الكود غير نشط بعد" : "Code is not active yet");
+      } else if (errorMsg.includes("expired")) {
+        toast.error(isArabic ? "الكود منتهي الصلاحية" : "Code has expired");
+      } else if (errorMsg.includes("maximum uses")) {
+        toast.error(isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used");
+      } else if (errorMsg.includes("Invalid")) {
+        toast.error(isArabic ? "كود الخصم غير صالح" : "Invalid discount code");
+      } else {
+        toast.error(isArabic ? "فشل التحقق من الكود" : "Failed to validate code");
+      }
+      setAppliedDiscount(null);
     } finally {
       setIsValidating(false);
     }
