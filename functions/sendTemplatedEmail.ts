@@ -44,9 +44,9 @@ Deno.serve(async (req) => {
     }
 
     const emailPayload = {
-      bounce_address: "noreply@planlyze.ai",
+      bounce_address: "no.reply@planlyze.com",
       from: {
-        address: "noreply@planlyze.ai",
+        address: "no.reply@planlyze.com",
         name: "Planlyze"
       },
       to: [

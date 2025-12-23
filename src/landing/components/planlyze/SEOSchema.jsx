@@ -16,7 +16,7 @@ export default function SEOSchema({ faqs, lang }) {
       ],
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "support@planlyze.ai",
+        "email": "info@planlyze.com",
         "contactType": "customer service"
       }
     };

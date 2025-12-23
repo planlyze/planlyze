@@ -129,13 +129,13 @@
   "privacyPolicy.section4Title": "Information Sharing",
   "privacyPolicy.section4Content": "We do not sell, trade, or rent your personal information to third parties. We may share your information only with service providers who assist us in operating our platform, conducting our business, or serving our users, and only to the extent necessary.",
   "privacyPolicy.section5Title": "Your Rights",
-  "privacyPolicy.section5Content": "You have the right to access, update, or delete your personal information at any time. You can also opt-out of marketing communications and request a copy of your data. Contact us at privacy@planlyze.ai to exercise these rights.",
+  "privacyPolicy.section5Content": "You have the right to access, update, or delete your personal information at any time. You can also opt-out of marketing communications and request a copy of your data. Contact us at info@planlyze.com to exercise these rights.",
   "privacyPolicy.section6Title": "Cookies and Tracking",
   "privacyPolicy.section6Content": "We use cookies and similar tracking technologies to track activity on our platform and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.",
   "privacyPolicy.section7Title": "Changes to This Policy",
   "privacyPolicy.section7Content": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the 'Last Updated' date.",
   "privacyPolicy.section8Title": "Contact Us",
-  "privacyPolicy.section8Content": "If you have any questions about this Privacy Policy, please contact us at privacy@planlyze.ai or through our support channels.",
+  "privacyPolicy.section8Content": "If you have any questions about this Privacy Policy, please contact us at info@planlyze.com or through our support channels.",
 
   "ideaSecurity.title": "Idea Security",
   "ideaSecurity.subtitle": "Your Ideas Are Safe With Us",
@@ -165,5 +165,5 @@
   "ideaSecurity.confidentialityTitle": "Confidentiality Commitment",
   "ideaSecurity.confidentialityContent": "We treat every idea submitted to our platform with the highest level of confidentiality. All our employees and contractors sign strict non-disclosure agreements. We understand the competitive nature of business and take every measure to protect your intellectual property.",
   "ideaSecurity.contactTitle": "Security Questions?",
-  "ideaSecurity.contactContent": "If you have any questions about our security measures or need to report a security concern, please contact our security team at security@planlyze.ai"
+  "ideaSecurity.contactContent": "If you have any questions about our security measures or need to report a security concern, please contact our security team at info@planlyze.com"
 }
