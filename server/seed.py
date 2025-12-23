@@ -238,8 +238,8 @@ def seed_payment_methods():
                 'iban': 'XX00XXXX0000000000000000',
                 'swift': 'EXAMPLEXXX'
             },
-            'instructions': 'Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',
-            'instructions_ar': 'AR Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',
+            'instructions': 'Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',           
+            'instructions_ar': 'AR Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',           
             'is_active': True
         }
     ]

@@ -275,9 +275,11 @@ class PaymentMethod(db.Model):
     
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     name = db.Column(db.String(255), nullable=False)
+    name_ar = db.Column(db.String(255))
     type = db.Column(db.String(100))
     details = db.Column(db.JSON)
     instructions = db.Column(db.Text)
+    instructions_ar = db.Column(db.String(255))
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -293,7 +295,8 @@ class PaymentMethod(db.Model):
             'sort_order': details.get('sort_order', 0),
             'type': self.type,
             'details': self.details,
-            'instructions': self.instructions,
+            'instructions':  details.get('instructions') or self.instructions,
+            'instructions_ar': details.get('instructions_ar'),
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
