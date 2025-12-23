@@ -416,6 +416,13 @@ export default function OwnerDashboard() {
               All Reports
             </Button>
             <Button
+              onClick={() => navigate(createPageUrl("AdminReferrals"))}
+              variant="outline"
+              className="gap-2">
+              <Users className="w-4 h-4" />
+              Referrals
+            </Button>
+            <Button
               onClick={handleExportUsers}
               disabled={isExporting}
               variant="outline"
