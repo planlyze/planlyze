@@ -529,3 +529,29 @@ class SystemSettings(db.Model):
             'description': self.description,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+
+class Partner(db.Model):
+    __tablename__ = 'partners'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    name = db.Column(db.String(255), nullable=False)
+    name_ar = db.Column(db.String(255))
+    logo_url = db.Column(db.Text)
+    website_url = db.Column(db.Text)
+    color = db.Column(db.String(10), default='6B46C1')
+    display_order = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'name_ar': self.name_ar,
+            'logo_url': self.logo_url,
+            'website_url': self.website_url,
+            'color': self.color,
+            'display_order': self.display_order,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }

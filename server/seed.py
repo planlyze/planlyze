@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from server.app import create_app
-from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings
+from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner
 import bcrypt
 
 PERMISSIONS = {
@@ -481,6 +481,71 @@ def seed_system_settings():
     db.session.commit()
     print("System settings seeded successfully!")
 
+def seed_partners():
+    """Seed default partners for landing page"""
+    partners_data = [
+        {
+            'name': 'Tech Startup',
+            'name_ar': 'شركة ناشئة تقنية',
+            'color': '6B46C1',
+            'display_order': 1
+        },
+        {
+            'name': 'Tech Accelerator',
+            'name_ar': 'مسرّع تقني',
+            'color': 'F59E0B',
+            'display_order': 2
+        },
+        {
+            'name': 'Innovation Center',
+            'name_ar': 'مركز الابتكار',
+            'color': '6B46C1',
+            'display_order': 3
+        },
+        {
+            'name': 'Venture Partners',
+            'name_ar': 'شركاء الاستثمار',
+            'color': 'F59E0B',
+            'display_order': 4
+        },
+        {
+            'name': 'Digital Solutions',
+            'name_ar': 'حلول رقمية',
+            'color': '6B46C1',
+            'display_order': 5
+        },
+        {
+            'name': 'Tech Institute',
+            'name_ar': 'معهد التقنية',
+            'color': 'F59E0B',
+            'display_order': 6
+        },
+        {
+            'name': 'Business Network',
+            'name_ar': 'شبكة الأعمال',
+            'color': '6B46C1',
+            'display_order': 7
+        },
+        {
+            'name': 'Growth Lab',
+            'name_ar': 'مختبر النمو',
+            'color': 'F59E0B',
+            'display_order': 8
+        }
+    ]
+    
+    for partner_data in partners_data:
+        existing = Partner.query.filter_by(name=partner_data['name']).first()
+        if not existing:
+            partner = Partner(**partner_data)
+            db.session.add(partner)
+            print(f"Created partner: {partner_data['name']}")
+        else:
+            print(f"Partner already exists: {partner_data['name']}")
+    
+    db.session.commit()
+    print("Partners seeded successfully!")
+
 def run_seed():
     """Run all seed operations"""
     app = create_app()
@@ -491,6 +556,7 @@ def run_seed():
         seed_payment_methods()
         seed_email_templates()
         seed_system_settings()
+        seed_partners()
         
         super_admin_email = os.environ.get('SUPER_ADMIN_EMAIL', 'admin@planlyze.com')
         super_admin_password = os.environ.get('SUPER_ADMIN_PASSWORD', 'Admin@123')

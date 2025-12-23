@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import (
     db, Analysis, Transaction, CreditPackage, Payment, EmailTemplate,
     PaymentMethod, DiscountCode, Role, AuditLog, ActivityFeed, 
-    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings
+    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner
 )
 from server.routes.auth import get_current_user
 from datetime import datetime
@@ -806,6 +806,84 @@ def get_landing_stats():
             'reports_count': 2000,
             'syrian_apps_count': 150
         })
+
+# Partners endpoint (public)
+@entities_bp.route('/partners', methods=['GET'])
+def get_partners():
+    """
+    Get all active partners for landing page
+    ---
+    tags:
+      - Public
+    responses:
+      200:
+        description: List of partners
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              name_ar:
+                type: string
+              logo_url:
+                type: string
+              website_url:
+                type: string
+              color:
+                type: string
+    """
+    try:
+        partners = Partner.query.filter_by(is_active=True).order_by(Partner.display_order).all()
+        return jsonify([p.to_dict() for p in partners])
+    except Exception as e:
+        return jsonify([])
+
+@entities_bp.route('/partners', methods=['POST'])
+@require_admin
+def create_partner(user):
+    data = request.get_json()
+    partner = Partner(
+        name=data.get('name'),
+        name_ar=data.get('name_ar'),
+        logo_url=data.get('logo_url'),
+        website_url=data.get('website_url'),
+        color=data.get('color', '6B46C1'),
+        display_order=data.get('display_order', 0),
+        is_active=data.get('is_active', True)
+    )
+    db.session.add(partner)
+    db.session.commit()
+    return jsonify(partner.to_dict()), 201
+
+@entities_bp.route('/partners/<id>', methods=['PUT'])
+@require_admin
+def update_partner(user, id):
+    partner = Partner.query.get(id)
+    if not partner:
+        return jsonify({'error': 'Partner not found'}), 404
+    
+    data = request.get_json()
+    for key, value in data.items():
+        if hasattr(partner, key) and key not in ['id', 'created_at']:
+            setattr(partner, key, value)
+    
+    db.session.commit()
+    return jsonify(partner.to_dict())
+
+@entities_bp.route('/partners/<id>', methods=['DELETE'])
+@require_admin
+def delete_partner(user, id):
+    partner = Partner.query.get(id)
+    if not partner:
+        return jsonify({'error': 'Partner not found'}), 404
+    
+    db.session.delete(partner)
+    db.session.commit()
+    return jsonify({'message': 'Partner deleted'})
 
 # Payment endpoints
 @entities_bp.route('/payments', methods=['GET'])

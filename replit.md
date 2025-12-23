@@ -83,13 +83,25 @@ Swagger UI available at `/api/apidocs` when backend is running.
 - `ZEPTOMAIL_API_KEY` - ZeptoMail API token for email verification
 - `ZEPTOMAIL_SENDER_EMAIL` - Verified sender email for ZeptoMail
 
-## Landing Page Statistics
-The landing page displays dynamic statistics fetched from the database:
+## Landing Page Dynamic Content
+The landing page displays dynamic content fetched from the database:
+
+### Statistics
 - **Users count**: Active users from database
 - **Reports count**: Completed analyses from database
 - **Syrian apps count**: Configurable via `system_settings` table (key: `syrian_apps_count`)
 
 API Endpoint: `GET /api/landing-stats` (public, no auth required)
+
+### Partners
+Partners are stored in the `partners` table with bilingual support (name/name_ar), logo_url, website_url, color, and display_order.
+
+API Endpoint: `GET /api/partners` (public, no auth required)
+
+Admin endpoints for managing partners:
+- `POST /api/partners` - Create partner (admin only)
+- `PUT /api/partners/<id>` - Update partner (admin only)
+- `DELETE /api/partners/<id>` - Delete partner (admin only)
 
 ## Roles and Permissions
 - **super_admin**: Full system access with all permissions
@@ -114,6 +126,7 @@ Each tab generates content via separate Claude API calls on first access and cac
 - Transaction handling with pending/completed/refunded states
 
 ## Recent Changes
+- Partners section now loads from database with bilingual support
 - Dynamic landing page statistics from database
 - Consolidated utility functions (safeFormatDate, createPageUrl)
 - Removed dead code (ReportFooter, Home placeholder)

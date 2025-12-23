@@ -86,15 +86,15 @@ const CountUp = ({ end }) => {
   return <span>{count.toLocaleString()}+</span>;
 };
 
-const partners = [
-  { name: "Tech Startup", color: "6B46C1" },
-  { name: "Tech Accelerator", color: "F59E0B" },
-  { name: "Innovation Center", color: "6B46C1" },
-  { name: "Venture Partners", color: "F59E0B" },
-  { name: "Digital Solutions", color: "6B46C1" },
-  { name: "Tech Institute", color: "F59E0B" },
-  { name: "Business Network", color: "6B46C1" },
-  { name: "Growth Lab", color: "F59E0B" },
+const defaultPartners = [
+  { name: "Tech Startup", name_ar: "شركة ناشئة تقنية", color: "6B46C1" },
+  { name: "Tech Accelerator", name_ar: "مسرّع تقني", color: "F59E0B" },
+  { name: "Innovation Center", name_ar: "مركز الابتكار", color: "6B46C1" },
+  { name: "Venture Partners", name_ar: "شركاء الاستثمار", color: "F59E0B" },
+  { name: "Digital Solutions", name_ar: "حلول رقمية", color: "6B46C1" },
+  { name: "Tech Institute", name_ar: "معهد التقنية", color: "F59E0B" },
+  { name: "Business Network", name_ar: "شبكة الأعمال", color: "6B46C1" },
+  { name: "Growth Lab", name_ar: "مختبر النمو", color: "F59E0B" },
 ];
 
 export default function PlanlyzeAIPage() {
@@ -105,6 +105,7 @@ export default function PlanlyzeAIPage() {
   const [packages, setPackages] = useState([]);
   const [packagesLoading, setPackagesLoading] = useState(true);
   const [stats, setStats] = useState({ users_count: 500, reports_count: 2000, syrian_apps_count: 150 });
+  const [partners, setPartners] = useState(defaultPartners);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -137,6 +138,23 @@ export default function PlanlyzeAIPage() {
       }
     };
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const response = await fetch('/api/partners');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            setPartners(data);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch partners:', error);
+      }
+    };
+    fetchPartners();
   }, []);
 
   useEffect(() => {
@@ -570,26 +588,30 @@ export default function PlanlyzeAIPage() {
               </h2>
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {partners.map((partner, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  whileHover={{ y: -5, scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg"
-                >
-                  <img
-                    src={`https://via.placeholder.com/150x60/${
-                      partner.color
-                    }/FFFFFF?text=${partner.name.replace(" ", "+")}`}
-                    alt={partner.name}
-                    className="w-full h-auto mb-4 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
-                  />
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
-                    {partner.name}
-                  </h4>
-                </motion.div>
-              ))}
+              {partners.map((partner, index) => {
+                const partnerName = lang === 'ar' && partner.name_ar ? partner.name_ar : partner.name;
+                const displayName = partner.logo_url ? '' : partnerName;
+                return (
+                  <motion.div
+                    key={partner.id || index}
+                    variants={itemVariants}
+                    whileHover={{ y: -5, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg"
+                  >
+                    <img
+                      src={partner.logo_url || `https://via.placeholder.com/150x60/${
+                        partner.color || '6B46C1'
+                      }/FFFFFF?text=${partnerName.replace(/ /g, "+")}`}
+                      alt={partnerName}
+                      className="w-full h-auto mb-4 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
+                    />
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
+                      {partnerName}
+                    </h4>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </motion.section>
