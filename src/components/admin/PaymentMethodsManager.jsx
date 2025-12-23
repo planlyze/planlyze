@@ -21,6 +21,8 @@ export default function PaymentMethodsManager({ isArabic }) {
     name_en: "",
     name_ar: "",
     logo_url: "",
+    instructions_ar : "",
+    instructions : "",
     details: {},
     is_active: true,
     sort_order: 0
@@ -46,8 +48,10 @@ export default function PaymentMethodsManager({ isArabic }) {
   const handleEdit = (method) => {
     setCurrentMethod(method);
     setFormData({
-      name_en: method.name_en || "",
+      name_en: method.name_en || "",      
       name_ar: method.name_ar || "",
+      instructions: method.instructions || "",
+      instructions_ar: method.instructions_ar || "",
       logo_url: method.logo_url || "",
       details: method.details || {},
       is_active: method.is_active !== false,
@@ -62,6 +66,8 @@ export default function PaymentMethodsManager({ isArabic }) {
       name_en: "",
       name_ar: "",
       logo_url: "",
+      instructions: "",
+      instructions_ar: "",
       details: {},
       is_active: true,
       sort_order: 0
@@ -219,6 +225,25 @@ export default function PaymentMethodsManager({ isArabic }) {
                 <Input 
                   value={formData.name_ar} 
                   onChange={(e) => setFormData({...formData, name_ar: e.target.value})}
+                  placeholder="تحويل بنكي"
+                />
+              </div>
+            </div>
+
+              <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Instructions (English)</Label>
+                <Input 
+                  value={formData.instructions} 
+                  onChange={(e) => setFormData({...formData, instructions: e.target.value})}
+                  placeholder="Bank Transfer"
+                />
+              </div>
+              <div>
+                <Label>Instructions (Arabic)</Label>
+                <Input 
+                  value={formData.instructions_ar} 
+                  onChange={(e) => setFormData({...formData, instructions_ar: e.target.value})}
                   placeholder="تحويل بنكي"
                 />
               </div>

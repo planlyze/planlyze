@@ -1,15 +1,45 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, CheckCircle2, Info, Wallet, Image as ImageIcon, Clock, X } from "lucide-react";
-import { auth, api, Analysis, Payment, PaymentMethod, User, AI, DiscountCode } from "@/api/client";
+import {
+  Upload,
+  CheckCircle2,
+  Info,
+  Wallet,
+  Image as ImageIcon,
+  Clock,
+  X,
+} from "lucide-react";
+import {
+  auth,
+  api,
+  Analysis,
+  Payment,
+  PaymentMethod,
+  User,
+  AI,
+  DiscountCode,
+} from "@/api/client";
 import { toast } from "sonner";
 import { logPaymentSubmitted } from "@/components/utils/activityHelper";
 
-export default function CashPaymentModal({ isOpen, onClose, selectedPackage, userEmail, isArabic }) {
+export default function CashPaymentModal({
+  isOpen,
+  onClose,
+  selectedPackage,
+  userEmail,
+  isArabic,
+}) {
   const [invoiceFile, setInvoiceFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState(null);
@@ -30,8 +60,11 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
   const loadPaymentMethods = async () => {
     try {
-      const methods = await PaymentMethod.filter({ is_active: true }, "sort_order");
-      console.log('Loaded payment methods:', methods);
+      const methods = await PaymentMethod.filter(
+        { is_active: true },
+        "sort_order"
+      );
+      console.log("Loaded payment methods:", methods);
       setPaymentMethods(methods);
       if (methods.length > 0) {
         setSelectedMethod(methods[0]);
@@ -45,7 +78,11 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(isArabic ? "الملف كبير جداً (الحد الأقصى 5 ميجابايت)" : "File too large (max 5MB)");
+        toast.error(
+          isArabic
+            ? "الملف كبير جداً (الحد الأقصى 5 ميجابايت)"
+            : "File too large (max 5MB)"
+        );
         return;
       }
       setInvoiceFile(file);
@@ -59,9 +96,17 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
     try {
       const discount = await DiscountCode.validate(discountCode.toUpperCase());
 
-      const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
-      if (discount.min_purchase_amount && discount.min_purchase_amount > packagePrice) {
-        toast.error(isArabic ? `الحد الأدنى للشراء $${discount.min_purchase_amount}` : `Minimum purchase $${discount.min_purchase_amount} required`);
+      const packagePrice =
+        selectedPackage?.price_usd || selectedPackage?.price || 0;
+      if (
+        discount.min_purchase_amount &&
+        discount.min_purchase_amount > packagePrice
+      ) {
+        toast.error(
+          isArabic
+            ? `الحد الأدنى للشراء $${discount.min_purchase_amount}`
+            : `Minimum purchase $${discount.min_purchase_amount} required`
+        );
         setAppliedDiscount(null);
         return;
       }
@@ -76,11 +121,15 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
       } else if (errorMsg.includes("expired")) {
         toast.error(isArabic ? "الكود منتهي الصلاحية" : "Code has expired");
       } else if (errorMsg.includes("maximum uses")) {
-        toast.error(isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used");
+        toast.error(
+          isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used"
+        );
       } else if (errorMsg.includes("Invalid")) {
         toast.error(isArabic ? "كود الخصم غير صالح" : "Invalid discount code");
       } else {
-        toast.error(isArabic ? "فشل التحقق من الكود" : "Failed to validate code");
+        toast.error(
+          isArabic ? "فشل التحقق من الكود" : "Failed to validate code"
+        );
       }
       setAppliedDiscount(null);
     } finally {
@@ -89,9 +138,10 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
   };
 
   const calculateFinalAmount = () => {
-    const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
+    const packagePrice =
+      selectedPackage?.price_usd || selectedPackage?.price || 0;
     if (!appliedDiscount) return packagePrice;
-    
+
     if (appliedDiscount.discount_percent) {
       return packagePrice * (1 - appliedDiscount.discount_percent / 100);
     } else if (appliedDiscount.discount_amount) {
@@ -105,13 +155,15 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
     });
   };
 
   const handleSubmit = async () => {
     if (!invoiceFile) {
-      toast.error(isArabic ? "يرجى رفع صورة الفاتورة" : "Please upload invoice image");
+      toast.error(
+        isArabic ? "يرجى رفع صورة الفاتورة" : "Please upload invoice image"
+      );
       return;
     }
 
@@ -120,22 +172,30 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
       const base64Image = await fileToBase64(invoiceFile);
 
       const finalAmount = calculateFinalAmount();
-      
-      const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
-      const discountAmt = appliedDiscount ? Math.max(0, Math.round((packagePrice - finalAmount) * 100) / 100) : null;
-      
+
+      const packagePrice =
+        selectedPackage?.price_usd || selectedPackage?.price || 0;
+      const discountAmt = appliedDiscount
+        ? Math.max(0, Math.round((packagePrice - finalAmount) * 100) / 100)
+        : null;
+
       await Payment.create({
         user_email: userEmail,
         amount_usd: finalAmount,
         original_amount: packagePrice,
         credits: selectedPackage.credits,
-        payment_method: selectedMethod?.name_en || selectedMethod?.name_ar || "cash",
+        payment_method:
+          selectedMethod?.name_en || selectedMethod?.name_ar || "cash",
         payment_proof: base64Image,
         discount_code: appliedDiscount?.code || null,
-        discount_amount: discountAmt
+        discount_amount: discountAmt,
       });
 
-      toast.success(isArabic ? "تم إرسال الطلب بنجاح! سيتم مراجعته قريباً" : "Payment submitted! It will be reviewed shortly");
+      toast.success(
+        isArabic
+          ? "تم إرسال الطلب بنجاح! سيتم مراجعته قريباً"
+          : "Payment submitted! It will be reviewed shortly"
+      );
       onClose();
     } catch (error) {
       console.error("Error submitting payment:", error);
@@ -149,7 +209,10 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir={isArabic ? 'rtl' : 'ltr'}>
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+        dir={isArabic ? "rtl" : "ltr"}
+      >
         <DialogHeader className="space-y-3 pb-4 border-b">
           <DialogTitle className="flex items-center gap-3 text-2xl">
             <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg">
@@ -158,10 +221,9 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
             {isArabic ? "إتمام عملية الدفع" : "Complete Payment"}
           </DialogTitle>
           <DialogDescription className="text-base text-slate-600">
-            {isArabic 
+            {isArabic
               ? "قم بتحويل المبلغ ثم ارفع صورة الإيصال للمراجعة"
-              : "Transfer the amount and upload the receipt for review"
-            }
+              : "Transfer the amount and upload the receipt for review"}
           </DialogDescription>
         </DialogHeader>
 
@@ -177,26 +239,37 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                   {isArabic ? "الباقة المختارة" : "Selected Package"}
                 </p>
                 <p className="text-lg font-bold text-slate-800">
-                  {isArabic ? (selectedPackage.name_ar || selectedPackage.name) : selectedPackage.name}
+                  {isArabic
+                    ? selectedPackage.name_ar || selectedPackage.name
+                    : selectedPackage.name}
                 </p>
               </div>
             </div>
             <div className="space-y-2 pt-3 border-t border-purple-200">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">{isArabic ? "الأرصدة:" : "Credits:"}</span>
-                <span className="font-bold text-purple-700">{selectedPackage.credits}</span>
+                <span className="text-slate-600">
+                  {isArabic ? "الأرصدة:" : "Credits:"}
+                </span>
+                <span className="font-bold text-purple-700">
+                  {selectedPackage.credits}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">{isArabic ? "السعر:" : "Price:"}</span>
-                <span className="font-bold text-purple-700">${selectedPackage.price}</span>
+                <span className="text-slate-600">
+                  {isArabic ? "السعر:" : "Price:"}
+                </span>
+                <span className="font-bold text-purple-700">
+                  ${selectedPackage.price}
+                </span>
               </div>
               {appliedDiscount && (
                 <>
                   <div className="flex justify-between text-sm text-green-600">
                     <span>{isArabic ? "الخصم:" : "Discount:"}</span>
                     <span className="font-bold">
-                      -{appliedDiscount.discount_percent 
-                        ? `${appliedDiscount.discount_percent}%` 
+                      -
+                      {appliedDiscount.discount_percent
+                        ? `${appliedDiscount.discount_percent}%`
                         : `$${appliedDiscount.discount_amount || 0}`}
                     </span>
                   </div>
@@ -223,17 +296,26 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                 className="flex-1 h-12"
               />
               {!appliedDiscount ? (
-                <Button 
-                  onClick={validateDiscount} 
+                <Button
+                  onClick={validateDiscount}
                   disabled={isValidating || !discountCode.trim() || isUploading}
                   variant="outline"
                   className="h-12 px-6"
                 >
-                  {isValidating ? (isArabic ? "جارٍ..." : "Checking...") : (isArabic ? "تطبيق" : "Apply")}
+                  {isValidating
+                    ? isArabic
+                      ? "جارٍ..."
+                      : "Checking..."
+                    : isArabic
+                    ? "تطبيق"
+                    : "Apply"}
                 </Button>
               ) : (
-                <Button 
-                  onClick={() => { setDiscountCode(""); setAppliedDiscount(null); }} 
+                <Button
+                  onClick={() => {
+                    setDiscountCode("");
+                    setAppliedDiscount(null);
+                  }}
                   variant="outline"
                   className="h-12 px-6"
                   disabled={isUploading}
@@ -244,7 +326,10 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
             </div>
             {appliedDiscount && (
               <p className="text-sm text-green-600 font-medium">
-                ✓ {isArabic ? appliedDiscount.description_ar : appliedDiscount.description_en}
+                ✓{" "}
+                {isArabic
+                  ? appliedDiscount.description_ar
+                  : appliedDiscount.description_en}
               </p>
             )}
           </div>
@@ -260,16 +345,22 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method)}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${isArabic ? 'text-right' : 'text-left'} hover:shadow-md ${
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      isArabic ? "text-right" : "text-left"
+                    } hover:shadow-md ${
                       selectedMethod?.id === method.id
-                        ? 'border-purple-600 bg-purple-50 shadow-md'
-                        : 'border-slate-200 hover:border-purple-300 bg-white'
+                        ? "border-purple-600 bg-purple-50 shadow-md"
+                        : "border-slate-200 hover:border-purple-300 bg-white"
                     }`}
                   >
                     <div className="flex items-center gap-4">
                       {method.logo_url && (
                         <div className="w-14 h-14 rounded-lg bg-white border-2 border-slate-100 flex items-center justify-center p-2 flex-shrink-0">
-                          <img src={method.logo_url} alt={method.name_en} className="w-full h-full object-contain" />
+                          <img
+                            src={method.logo_url}
+                            alt={method.name_en}
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                       )}
                       <div className="flex-1">
@@ -295,26 +386,56 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                 {isArabic ? "تفاصيل التحويل" : "Transfer Details"}
               </h3>
               <div className="space-y-2">
-                {Object.entries(selectedMethod.details || {}).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0">
-                    <span className="font-semibold text-slate-700">{key}:</span>
-                    <span className="text-slate-900 font-medium text-right">{value}</span>
-                  </div>
-                ))}
+                {Object.entries(selectedMethod.details || {}).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0"
+                    >
+                      <span className="font-semibold text-slate-700">
+                        {key}:
+                      </span>
+                      <span className="text-slate-900 font-medium text-right">
+                        {value}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+          {selectedMethod && (selectedMethod.instructions || selectedMethod.instructions_ar) && (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-200 shadow-sm">
+              <h3 className="font-bold text-slate-800 mb-3 text-lg flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-600" />
+                {isArabic ? "تعليمات التحويل" : "Transfer Instructions"}
+              </h3>
+              <div className="space-y-2">
+                <div
+                  key={"instruction"}
+                  className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0"
+                >
+                  <span className="text-slate-900 font-medium ">
+                      {isArabic ? selectedMethod.instructions_ar : selectedMethod.instructions}
+                  </span>
+                </div>
               </div>
             </div>
           )}
 
           {/* Upload Invoice Section */}
           <div className="space-y-3">
-            <Label htmlFor="invoice" className="text-base font-semibold text-slate-800">
+            <Label
+              htmlFor="invoice"
+              className="text-base font-semibold text-slate-800"
+            >
               {isArabic ? "رفع صورة الإيصال" : "Upload Receipt"}
               <span className="text-red-500 ml-1">*</span>
             </Label>
-            
+
             {!invoiceFile ? (
-              <label 
-                htmlFor="invoice" 
+              <label
+                htmlFor="invoice"
                 className="flex flex-col items-center justify-center w-full h-40 border-3 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-purple-400 transition-all"
               >
                 <div className="flex flex-col items-center justify-center py-4">
@@ -325,7 +446,9 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                     {isArabic ? "انقر لرفع الصورة" : "Click to upload image"}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {isArabic ? "PNG، JPG حتى 5 ميجابايت" : "PNG, JPG up to 5MB"}
+                    {isArabic
+                      ? "PNG، JPG حتى 5 ميجابايت"
+                      : "PNG, JPG up to 5MB"}
                   </p>
                 </div>
                 <Input
@@ -344,8 +467,12 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                     <CheckCircle2 className="w-6 h-6 text-green-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-green-900 truncate">{invoiceFile.name}</p>
-                    <p className="text-sm text-green-700">{(invoiceFile.size / 1024).toFixed(2)} KB</p>
+                    <p className="font-semibold text-green-900 truncate">
+                      {invoiceFile.name}
+                    </p>
+                    <p className="text-sm text-green-700">
+                      {(invoiceFile.size / 1024).toFixed(2)} KB
+                    </p>
                   </div>
                   <button
                     onClick={() => setInvoiceFile(null)}
@@ -362,27 +489,28 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
           {/* Info Alert */}
           <Alert className="bg-amber-50 border-2 border-amber-200">
             <Clock className="h-5 w-5 text-amber-600" />
-            <AlertDescription className={`text-sm text-amber-900 ${isArabic ? 'mr-2' : 'ml-2'}`}>
-              {isArabic 
+            <AlertDescription
+              className={`text-sm text-amber-900 ${isArabic ? "mr-2" : "ml-2"}`}
+            >
+              {isArabic
                 ? "سيتم مراجعة طلبك من قبل الإدارة خلال 24 ساعة. سيتم إضافة الأرصدة بعد التأكد من صحة التحويل."
-                : "Your request will be reviewed within 24 hours. Credits will be added after verifying the transfer."
-              }
+                : "Your request will be reviewed within 24 hours. Credits will be added after verifying the transfer."}
             </AlertDescription>
           </Alert>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0 border-t pt-4">
-          <Button 
-            variant="outline" 
-            onClick={onClose} 
+          <Button
+            variant="outline"
+            onClick={onClose}
             disabled={isUploading}
             className="h-11 px-6"
           >
             {isArabic ? "إلغاء" : "Cancel"}
           </Button>
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isUploading || !invoiceFile} 
+          <Button
+            onClick={handleSubmit}
+            disabled={isUploading || !invoiceFile}
             className="bg-purple-600 hover:bg-purple-700 text-white h-11 px-6 gap-2 shadow-lg hover:shadow-xl transition-all"
           >
             {isUploading ? (
