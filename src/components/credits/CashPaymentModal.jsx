@@ -206,9 +206,9 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
                   <div className="flex justify-between text-sm text-green-600">
                     <span>{isArabic ? "الخصم:" : "Discount:"}</span>
                     <span className="font-bold">
-                      -{appliedDiscount.discount_type === "percentage" 
-                        ? `${appliedDiscount.discount_value}%` 
-                        : `$${appliedDiscount.discount_value}`}
+                      -{appliedDiscount.discount_percent 
+                        ? `${appliedDiscount.discount_percent}%` 
+                        : `$${appliedDiscount.discount_amount || 0}`}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-green-600 pt-2 border-t border-purple-200">
