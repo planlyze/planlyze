@@ -72,6 +72,7 @@ export const auth = {
 
 export const Analysis = {
   list: () => api.get("/analyses"),
+  listAll: () => api.get("/analyses/all"),
   get: (id) => api.get(`/analyses/${id}`),
   create: (data) => api.post("/analyses", data),
   update: (id, data) => api.put(`/analyses/${id}`, data),

@@ -358,12 +358,18 @@ Analysis Report: {json.dumps(analysis.report) if analysis.report else 'Not avail
     messages = []
     if conversation and conversation.messages:
         for msg in conversation.messages[-10:]:
+            content = msg.get('content', '')
+            if isinstance(content, list):
+                content = content[0].get('text', '') if content and isinstance(content[0], dict) else str(content)
+            elif not isinstance(content, str):
+                content = str(content) if content else ''
             messages.append({
                 "role": msg.get('role', 'user'),
-                "content": msg.get('content', '')
+                "content": content
             })
     
-    messages.append({"role": "user", "content": message})
+    user_message = message if isinstance(message, str) else str(message) if message else ''
+    messages.append({"role": "user", "content": user_message})
     
     try:
         system_prompt = f"""You are a helpful business advisor AI assistant. You help users understand their business analysis reports, answer questions about business strategies, and provide guidance.

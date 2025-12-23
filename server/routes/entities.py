@@ -27,7 +27,7 @@ def require_admin(f):
         if not user:
             return jsonify({'error': 'Not authenticated'}), 401
         role_name = user.role.name if user.role else 'user'
-        if role_name not in ['admin', 'super_admin']:
+        if role_name not in ['admin', 'super_admin', 'owner']:
             return jsonify({'error': 'Admin access required'}), 403
         return f(user, *args, **kwargs)
     wrapper.__name__ = f.__name__
@@ -38,7 +38,7 @@ def get_user_role_name(user):
 
 def is_admin(user):
     role_name = get_user_role_name(user)
-    return role_name in ['admin', 'super_admin']
+    return role_name in ['admin', 'super_admin', 'owner']
 
 # Analysis endpoints
 @entities_bp.route('/analyses', methods=['GET'])
@@ -62,6 +62,27 @@ def get_analyses(user):
         description: Not authenticated
     """
     analyses = Analysis.query.filter_by(user_email=user.email).order_by(Analysis.created_at.desc()).all()
+    return jsonify([a.to_dict() for a in analyses])
+
+@entities_bp.route('/analyses/all', methods=['GET'])
+@require_admin
+def get_all_analyses(user):
+    """
+    Get all analyses (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of all analyses
+      401:
+        description: Not authenticated
+      403:
+        description: Admin access required
+    """
+    analyses = Analysis.query.filter(Analysis.is_deleted != True).order_by(Analysis.created_at.desc()).all()
     return jsonify([a.to_dict() for a in analyses])
 
 @entities_bp.route('/analyses/<id>', methods=['GET'])

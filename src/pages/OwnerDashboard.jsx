@@ -409,6 +409,13 @@ export default function OwnerDashboard() {
           </div>
           <div className="flex gap-2">
             <Button
+              onClick={() => navigate(createPageUrl("AdminReports"))}
+              variant="outline"
+              className="gap-2">
+              <FileText className="w-4 h-4" />
+              All Reports
+            </Button>
+            <Button
               onClick={handleExportUsers}
               disabled={isExporting}
               variant="outline"

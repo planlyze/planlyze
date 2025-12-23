@@ -21,6 +21,7 @@ import EmailTemplates from './pages/EmailTemplates';
 import AdminNotifications from './pages/AdminNotifications';
 import AdminDiscounts from './pages/AdminDiscounts';
 import AdminSettings from './pages/AdminSettings';
+import AdminReports from './pages/AdminReports';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "AdminNotifications": AdminNotifications,
     "AdminDiscounts": AdminDiscounts,
     "AdminSettings": AdminSettings,
+    "AdminReports": AdminReports,
 }
 
 export const pagesConfig = {
