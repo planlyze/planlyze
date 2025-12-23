@@ -276,15 +276,17 @@ export default function AdminPayments() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setViewImageUrl(payment.invoice_image_url)}
-                        className="gap-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Invoice
-                      </Button>
+                      {payment.invoice_image_url && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setViewImageUrl(payment.invoice_image_url)}
+                          className="gap-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Invoice
+                        </Button>
+                      )}
                       <Button
                         variant="default"
                         size="sm"
