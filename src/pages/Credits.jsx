@@ -74,7 +74,7 @@ export default function Credits() {
   };
 
   const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
-  const credits = currentUser?.premium_credits || 0;
+  const credits = currentUser?.credits || 0;
  
 
   if (isLoading) {
