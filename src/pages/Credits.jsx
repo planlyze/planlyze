@@ -236,6 +236,112 @@ export default function Credits() {
                 const quantity = packageQuantities[pkg.id] || 1;
                 const totalCredits = pkg.credits * quantity;
                 const totalPrice = pkg.price_usd * quantity;
+                const originalPrice = pkg.original_price_usd ? pkg.original_price_usd * quantity : null;
+                const savingsPercent = originalPrice ? Math.round(((originalPrice - totalPrice) / originalPrice) * 100) : null;
+                
+                if (isPopular) {
+                  return (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.15 }}
+                      onMouseEnter={() => setHoveredPackage(pkg.id)}
+                      onMouseLeave={() => setHoveredPackage(null)}
+                    >
+                      <Card className={`relative h-full transition-all duration-500 overflow-hidden rounded-3xl ${
+                        isHovered ? 'transform -translate-y-2' : ''
+                      } border-2 border-purple-400 dark:border-purple-600 shadow-2xl hover:shadow-purple-500/30`}>
+                        
+                        {/* Save Badge - Top Right */}
+                        {savingsPercent && savingsPercent > 0 && (
+                          <div className="absolute top-4 right-4 z-10">
+                            <Badge className="bg-red-500 hover:bg-red-500 text-white px-3 py-1.5 text-sm font-bold rounded-lg shadow-lg">
+                              {t('credits.save', { percent: savingsPercent })}
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        {/* Purple Gradient Header */}
+                        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 px-6 py-8 text-center relative">
+                          <Crown className="w-10 h-10 mx-auto mb-3 text-white/90" />
+                          <h3 className="text-2xl font-bold text-white mb-1">
+                            {isArabic ? (pkg.name_ar || pkg.name) : pkg.name}
+                          </h3>
+                          <span className="text-green-400 font-semibold text-sm">
+                            {isArabic ? pkg.badge_ar || t('credits.bestValue') : pkg.badge_en || t('credits.bestValue')}
+                          </span>
+                        </div>
+
+                        <CardContent className="p-6 bg-white dark:bg-gray-900">
+                          {/* Description with credits and discount */}
+                          <div className="flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 text-sm mb-6">
+                            <Sparkles className="w-4 h-4 text-purple-500" />
+                            <span>{isArabic ? (pkg.description_ar || pkg.description) : pkg.description}</span>
+                          </div>
+
+                          {/* Price Display - Large */}
+                          <div className="text-center mb-6 py-4">
+                            <div className="flex items-baseline justify-center gap-1">
+                              <span className="text-lg font-medium text-green-500">$</span>
+                              <span className="text-6xl font-bold text-green-500">
+                                {totalPrice}
+                              </span>
+                            </div>
+                            {originalPrice && (
+                              <p className="text-slate-400 text-lg line-through mt-1">
+                                ${originalPrice}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Features List */}
+                          <ul className="space-y-3 mb-6">
+                            {(isArabic ? (pkg.features_ar?.length ? pkg.features_ar : pkg.features) : pkg.features)?.map((feature, idx) => (
+                              <li key={idx} className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                            {(!pkg.features || pkg.features.length === 0) && (
+                              <>
+                                <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                  <span>{t('credits.detailedCompetitor')}</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                  <span>{t('credits.syrianMarketData')}</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                  <span>{t('credits.aiRecommendations')}</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                  <span>{t('credits.aiAssistant')}</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                  <span>{t('credits.exportFormats')}</span>
+                                </li>
+                              </>
+                            )}
+                          </ul>
+
+                          {/* CTA Button */}
+                          <Button
+                            onClick={() => handleCashPayment(pkg)}
+                            className="w-full h-14 text-lg font-semibold rounded-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                          >
+                            {t('credits.purchaseNow')}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                }
                 
                 return (
                   <motion.div
@@ -259,11 +365,6 @@ export default function Credits() {
                         <h3 className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                           {isArabic ? (pkg.name_ar || pkg.name) : pkg.name}
                         </h3>
-                        {isPopular && (
-                          <Badge className="mt-2 bg-green-500 hover:bg-green-500 text-white px-3 py-1">
-                            {isArabic ? pkg.badge_ar || t('credits.mostPopular') : pkg.badge_en || t('credits.mostPopular')}
-                          </Badge>
-                        )}
                       </div>
 
                       <CardContent className="p-6 bg-white dark:bg-gray-900">
