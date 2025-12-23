@@ -34,7 +34,7 @@ export default function UserProfile() {
         // Fetch the user by email using admin function
         const usersResp = await User.list();
         const usersData = usersResp?.data || usersResp;
-        const allUsers = usersData?.items || [];
+        const allUsers = Array.isArray(usersData) ? usersData : (usersData?.items || []);
         const u = allUsers.find(usr => usr.email === email);
         if (!u) {
           navigate(createPageUrl("OwnerDashboard"));
