@@ -60,6 +60,7 @@
     "verificationResent": "Verification code sent to your email",
     "userExists": "This email is already registered",
     "registrationSuccess": "Account created successfully! Please verify your email.",
+    "verificationRequired": "Please verify your email to continue",
     "referralBonus": "You'll get 1 bonus credit for signing up with a referral!",
     "resetPassword": "Reset Password",
     "resetPasswordDescription": "Enter your email to receive a password reset link",

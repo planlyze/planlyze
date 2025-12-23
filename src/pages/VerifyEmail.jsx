@@ -63,7 +63,7 @@ export default function VerifyEmail() {
 
   const verifyEmail = async (code) => {
     if (!email) {
-      toast.error(t('auth.emailRequired') || 'Email is required');
+      toast.error(t('auth.emailRequired'), { duration: 1000 });
       navigate("/Register");
       return;
     }
@@ -76,13 +76,13 @@ export default function VerifyEmail() {
         setUser(response.user);
         localStorage.removeItem("pending_verification_email");
       }
-      toast.success(response.message || t('auth.emailVerified') || 'Email verified successfully!');
+      toast.success(response.message || t('auth.emailVerified'), { duration: 1000 });
       navigate("/Dashboard");
     } catch (error) {
       setStatus("error");
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-      toast.error(error.message || t('auth.verificationFailed') || 'Verification failed');
+      toast.error(error.message || t('auth.verificationFailed'), { duration: 1000 });
     } finally {
       setIsVerifying(false);
     }
@@ -90,7 +90,7 @@ export default function VerifyEmail() {
 
   const handleResendVerification = async () => {
     if (!email) {
-      toast.error(t('auth.emailRequired') || 'Email is required');
+      toast.error(t('auth.emailRequired'), { duration: 1000 });
       navigate("/Register");
       return;
     }
@@ -101,9 +101,9 @@ export default function VerifyEmail() {
       setOtp(["", "", "", "", "", ""]);
       setStatus("pending");
       inputRefs.current[0]?.focus();
-      toast.success(response.message || t('auth.verificationResent') || 'Verification code sent');
+      toast.success(response.message || t('auth.verificationResent'), { duration: 1000 });
     } catch (error) {
-      toast.error(error.message || t('common.error') || 'An error occurred');
+      toast.error(error.message || t('common.error'), { duration: 1000 });
     } finally {
       setIsResending(false);
     }

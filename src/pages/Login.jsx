@@ -27,15 +27,15 @@ export default function Login() {
 
     try {
       await login(email, password);
-      toast.success(t('common.success'));
+      toast.success(t('common.success'), { duration: 1000 });
       navigate("/Dashboard");
     } catch (error) {
       if (error.data?.requires_verification) {
         localStorage.setItem("pending_verification_email", error.data.email || email);
-        toast.error(error.message);
+        toast.error(error.message || t('auth.verificationRequired'), { duration: 1000 });
         navigate("/verify-email");
       } else {
-        toast.error(error.message || t('auth.invalidCredentials'));
+        toast.error(error.message || t('auth.invalidCredentials'), { duration: 1000 });
       }
     } finally {
       setIsLoading(false);

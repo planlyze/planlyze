@@ -40,12 +40,12 @@ export default function Register() {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      toast.error(t('auth.passwordsDontMatch') || "Passwords do not match");
+      toast.error(t('auth.passwordsDontMatch'), { duration: 1000 });
       return;
     }
 
     if (password.length < 6) {
-      toast.error(t('auth.passwordTooShort'));
+      toast.error(t('auth.passwordTooShort'), { duration: 1000 });
       return;
     }
 
@@ -59,10 +59,10 @@ export default function Register() {
         referral_code: referralCode 
       });
       localStorage.setItem("pending_verification_email", email);
-      toast.success(response.message || t('auth.registrationSuccess'));
+      toast.success(response.message || t('auth.registrationSuccess'), { duration: 1000 });
       navigate("/verify-email");
     } catch (error) {
-      toast.error(error.message || t('common.error'));
+      toast.error(error.message || t('common.error'), { duration: 1000 });
     } finally {
       setIsLoading(false);
     }
