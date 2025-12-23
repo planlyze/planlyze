@@ -11,9 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe } from "lucide-react";
+import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check } from "lucide-react";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import api from "@/api/client";
 
 export default function AdminSettings() {
   const navigate = useNavigate();
@@ -23,6 +24,10 @@ export default function AdminSettings() {
   const [partners, setPartners] = useState([]);
   const [syrianAppsCount, setSyrianAppsCount] = useState("150");
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  
+  const [contactMessages, setContactMessages] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   
   const [isPartnerDialogOpen, setIsPartnerDialogOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState(null);
@@ -72,9 +77,45 @@ export default function AdminSettings() {
       } catch (e) {
         console.log("Syrian apps setting not found, using default");
       }
+      
+      try {
+        const messagesData = await api.get('/contact-messages');
+        setContactMessages(Array.isArray(messagesData) ? messagesData : []);
+      } catch (e) {
+        console.log("Error loading contact messages:", e);
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load settings data");
+    }
+  };
+
+  const handleViewMessage = async (message) => {
+    setSelectedMessage(message);
+    setIsMessageDialogOpen(true);
+    
+    if (!message.is_read) {
+      try {
+        await api.put(`/contact-messages/${message.id}/read`);
+        setContactMessages(prev => 
+          prev.map(m => m.id === message.id ? { ...m, is_read: true } : m)
+        );
+      } catch (e) {
+        console.error("Error marking message as read:", e);
+      }
+    }
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    
+    try {
+      await api.delete(`/contact-messages/${messageId}`);
+      setContactMessages(prev => prev.filter(m => m.id !== messageId));
+      toast.success("Message deleted");
+    } catch (e) {
+      console.error("Error deleting message:", e);
+      toast.error("Failed to delete message");
     }
   };
 
@@ -200,6 +241,15 @@ export default function AdminSettings() {
             <TabsTrigger value="statistics" className="gap-2">
               <Globe className="w-4 h-4" />
               Statistics
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Messages
+              {contactMessages.filter(m => !m.is_read).length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                  {contactMessages.filter(m => !m.is_read).length}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -336,7 +386,140 @@ export default function AdminSettings() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="messages">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  Contact Messages
+                </CardTitle>
+                <CardDescription>
+                  Messages received from the contact form on the landing page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Email Sent</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contactMessages.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                          No contact messages yet.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      contactMessages.map((msg) => (
+                        <TableRow key={msg.id} className={!msg.is_read ? "bg-blue-50 dark:bg-blue-900/20" : ""}>
+                          <TableCell>
+                            {msg.is_read ? (
+                              <span className="flex items-center gap-1 text-green-600 text-xs">
+                                <Check className="w-4 h-4" /> Read
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-blue-600 text-xs font-medium">
+                                <MessageSquare className="w-4 h-4" /> New
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">{msg.name}</TableCell>
+                          <TableCell>{msg.email}</TableCell>
+                          <TableCell className="text-sm text-gray-500">
+                            {new Date(msg.created_at).toLocaleDateString()} {new Date(msg.created_at).toLocaleTimeString()}
+                          </TableCell>
+                          <TableCell>
+                            {msg.email_sent ? (
+                              <span className="text-green-600 text-xs">Sent</span>
+                            ) : (
+                              <span className="text-gray-400 text-xs">Not sent</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewMessage(msg)}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => handleDeleteMessage(msg.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
+
+        <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Contact Message</DialogTitle>
+            </DialogHeader>
+            {selectedMessage && (
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-gray-500 text-sm">Name</Label>
+                    <p className="font-medium">{selectedMessage.name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-gray-500 text-sm">Email</Label>
+                    <p className="font-medium">{selectedMessage.email}</p>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Date</Label>
+                  <p className="font-medium">
+                    {new Date(selectedMessage.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-gray-500 text-sm">Message</Label>
+                  <div className="mt-1 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg whitespace-pre-wrap">
+                    {selectedMessage.message}
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => window.open(`mailto:${selectedMessage.email}`, '_blank')}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Reply via Email
+                  </Button>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={isPartnerDialogOpen} onOpenChange={setIsPartnerDialogOpen}>
           <DialogContent className="sm:max-w-md">

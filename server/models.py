@@ -571,3 +571,25 @@ class SeedVersion(db.Model):
             'version': self.version,
             'applied_at': self.applied_at.isoformat() if self.applied_at else None
         }
+
+class ContactMessage(db.Model):
+    __tablename__ = 'contact_messages'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    email_sent = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'message': self.message,
+            'is_read': self.is_read,
+            'email_sent': self.email_sent,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }

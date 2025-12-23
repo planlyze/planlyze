@@ -511,44 +511,96 @@ def contact_public():
         if not name or not email or not message:
             return jsonify({'error': 'Missing required fields'}), 400
 
+        from server.models import ContactMessage
+        contact_msg = ContactMessage(
+            name=name,
+            email=email,
+            message=message,
+            is_read=False,
+            email_sent=False
+        )
+        db.session.add(contact_msg)
+        db.session.commit()
+
+        email_sent = False
         zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
-        if not zepto_api_key:
-            return jsonify({'error': 'Email provider not configured'}), 500
-
-        payload = {
-            'from': {
-                'address': os.environ.get('SMTP_FROM_EMAIL', 'info@planlyze.com'),
-                'name': os.environ.get('SMTP_FROM_NAME', 'Planlyze Contact Form')
-            },
-            'to': [
-                {
-                    'email_address': {
-                        'address': os.environ.get('CONTACT_RECEIVER_EMAIL', 'info@planlyze.com'),
-                        'name': os.environ.get('CONTACT_RECEIVER_NAME', 'Planlyze Team')
+        if zepto_api_key:
+            payload = {
+                'from': {
+                    'address': os.environ.get('SMTP_FROM_EMAIL', 'info@planlyze.com'),
+                    'name': os.environ.get('SMTP_FROM_NAME', 'Planlyze Contact Form')
+                },
+                'to': [
+                    {
+                        'email_address': {
+                            'address': os.environ.get('CONTACT_RECEIVER_EMAIL', 'info@planlyze.com'),
+                            'name': os.environ.get('CONTACT_RECEIVER_NAME', 'Planlyze Team')
+                        }
                     }
-                }
-            ],
-            'subject': f'Contact from {name}',
-            'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace(chr(10),'<br/>')}</p>",
-            'textbody': f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-        }
+                ],
+                'subject': f'Contact from {name}',
+                'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace(chr(10),'<br/>')}</p>",
+                'textbody': f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+            }
 
-        headers = {
-            'Authorization': zepto_api_key,
-            'Content-Type': 'application/json'
-        }
+            headers = {
+                'Authorization': zepto_api_key,
+                'Content-Type': 'application/json'
+            }
 
-        resp = requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
-        if not resp.ok:
             try:
-                err_text = resp.text
-            except Exception:
-                err_text = 'unknown error'
-            return jsonify({'error': 'Failed to send email', 'details': err_text}), 500
+                resp = requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
+                if resp.ok:
+                    email_sent = True
+                    contact_msg.email_sent = True
+                    db.session.commit()
+            except Exception as email_error:
+                print(f"Email send error: {email_error}")
 
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'email_sent': email_sent})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# Admin endpoints for contact messages
+@entities_bp.route('/contact-messages', methods=['GET'])
+@require_auth
+def get_contact_messages(user):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import ContactMessage
+    messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
+    return jsonify([m.to_dict() for m in messages])
+
+@entities_bp.route('/contact-messages/<id>/read', methods=['PUT'])
+@require_auth
+def mark_contact_message_read(user, id):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import ContactMessage
+    message = ContactMessage.query.get(id)
+    if not message:
+        return jsonify({'error': 'Message not found'}), 404
+    
+    message.is_read = True
+    db.session.commit()
+    return jsonify(message.to_dict())
+
+@entities_bp.route('/contact-messages/<id>', methods=['DELETE'])
+@require_auth
+def delete_contact_message(user, id):
+    if not user.role or user.role.name not in ['admin', 'super_admin']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    from server.models import ContactMessage
+    message = ContactMessage.query.get(id)
+    if not message:
+        return jsonify({'error': 'Message not found'}), 404
+    
+    db.session.delete(message)
+    db.session.commit()
+    return jsonify({'success': True})
 
 @entities_bp.route('/analyses', methods=['POST'])
 @require_auth

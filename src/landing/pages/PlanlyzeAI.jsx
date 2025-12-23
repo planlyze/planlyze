@@ -839,7 +839,7 @@ export default function PlanlyzeAIPage() {
                             lang === "ar"
                               ? "شكراً لتواصلك معنا. سنرد عليك قريباً."
                               : "Thank you for contacting us. We will get back to you soon.",
-                          duration: 5000,
+                          duration: 1000,
                         });
                         e.target.reset();
                       } catch (error) {
@@ -850,7 +850,7 @@ export default function PlanlyzeAIPage() {
                               ? "فشل إرسال الرسالة. حاول مرة أخرى."
                               : "Failed to send message. Please try again.",
                           variant: "destructive",
-                          duration: 5000,
+                          duration: 1000,
                         });
                       } finally {
                         setIsSending(false);
