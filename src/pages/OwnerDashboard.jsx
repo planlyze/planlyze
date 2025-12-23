@@ -175,7 +175,7 @@ export default function OwnerDashboard() {
         try {
           const allUsersResp = await User.list();
           const allUsersData = allUsersResp?.data || allUsersResp;
-          allUsersForStats = allUsersData?.items || [];
+          allUsersForStats = Array.isArray(allUsersData) ? allUsersData : (allUsersData?.items || []);
           
           if (!Array.isArray(allUsersForStats)) {
             console.error("All users data for stats is not an array");

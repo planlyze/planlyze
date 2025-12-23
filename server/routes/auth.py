@@ -403,6 +403,9 @@ def login():
             'email': email
         }), 403
     
+    user.last_login = datetime.utcnow()
+    db.session.commit()
+    
     token = create_token(user.id, user.email)
     
     return jsonify({

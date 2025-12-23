@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { ArrowLeft, User as UserIcon, Mail, Shield, Phone, MapPin, Calendar, FileText } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Mail, Shield, Phone, MapPin, Calendar, FileText, Star } from "lucide-react";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
 export default function UserProfile() {
@@ -15,6 +15,7 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [targetUser, setTargetUser] = useState(null);
   const [analysisCount, setAnalysisCount] = useState(0);
+  const [avgRating, setAvgRating] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -42,9 +43,17 @@ export default function UserProfile() {
         }
         setTargetUser(u);
 
-        // Count analyses for this user
+        // Count analyses for this user and calculate average rating
         const analyses = await Analysis.filter({ created_by: email });
-        setAnalysisCount(analyses.length);
+        const activeAnalyses = analyses.filter(a => a && a.is_deleted !== true);
+        setAnalysisCount(activeAnalyses.length);
+        
+        // Calculate average rating
+        const ratedAnalyses = activeAnalyses.filter(a => typeof a.user_rating === 'number');
+        if (ratedAnalyses.length > 0) {
+          const totalRating = ratedAnalyses.reduce((sum, a) => sum + a.user_rating, 0);
+          setAvgRating(totalRating / ratedAnalyses.length);
+        }
       } catch (e) {
         console.error("Error loading user profile:", e);
         await User.loginWithRedirect(window.location.href);
@@ -162,7 +171,7 @@ export default function UserProfile() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               <Card className="border-slate-200">
                 <CardContent className="p-4">
                   <div className="text-sm text-slate-600 flex items-center gap-2 mb-1">
@@ -170,6 +179,18 @@ export default function UserProfile() {
                     Total Analyses
                   </div>
                   <div className="text-3xl font-bold text-slate-800">{analysisCount}</div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200">
+                <CardContent className="p-4">
+                  <div className="text-sm text-slate-600 flex items-center gap-2 mb-1">
+                    <Star className="w-4 h-4 text-amber-500" />
+                    Avg Rating
+                  </div>
+                  <div className="text-3xl font-bold text-slate-800">
+                    {avgRating ? `${avgRating.toFixed(1)}/5` : '—'}
+                  </div>
                 </CardContent>
               </Card>
 

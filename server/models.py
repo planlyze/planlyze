@@ -41,6 +41,7 @@ class User(db.Model):
     verification_token = db.Column(db.String(100))
     verification_token_expires = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
+    last_login = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -66,6 +67,7 @@ class User(db.Model):
             'notification_preferences': self.notification_preferences or {},
             'email_verified': self.email_verified,
             'is_active': self.is_active,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
