@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Facebook, Linkedin, Instagram, MessageCircle, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SocialLink from './SocialLink';
-import { createPageUrl, HEADER_CTA_CLASS, useAppTranslation } from '@/config';
+import { HEADER_CTA_CLASS, useAppTranslation } from '@/config';
+import { createPageUrl } from '@/utils';
 
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6919d7be088a309080879f3d/1d57ae70b_Main_logo-01.png";
 

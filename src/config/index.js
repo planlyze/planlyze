@@ -5,10 +5,6 @@ export const CTA_BUTTON_CLASS = "bg-purple-600 hover:bg-purple-700 text-white px
 export const CTA_SMALL_BUTTON_CLASS = "bg-white hover:bg-gray-100 text-purple-600 my-5 px-4 py-2 text-lg font-semibold rounded-full shadow-2xl transition-all duration-300 hover:scale-105";
 export const HEADER_CTA_CLASS = "bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-semibold shadow-lg shadow-orange-500/40 hover:shadow-orange-500/60 transition-all duration-300 hover:scale-105";
 
-export function createPageUrl(pageName) {
-  return '/' + pageName;
-}
-
 // Shared hook for translations across app
 export function useAppTranslation(namespace = 'translation') {
   const { t: ti, i18n } = useTranslation(namespace);
@@ -25,6 +21,5 @@ export default {
   CTA_BUTTON_CLASS,
   CTA_SMALL_BUTTON_CLASS,
   HEADER_CTA_CLASS,
-  createPageUrl,
   useAppTranslation,
 };

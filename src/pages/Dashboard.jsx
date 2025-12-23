@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { auth, Analysis, Transaction } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, safeFormatDate } from "@/utils";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { format, isValid, parseISO } from "date-fns";
-
-const safeFormatDate = (dateValue, formatStr = "MMM d, yyyy") => {
-  if (!dateValue) return null;
-  try {
-    const date = typeof dateValue === 'string' ? parseISO(dateValue) : new Date(dateValue);
-    return isValid(date) ? format(date, formatStr) : null;
-  } catch {
-    return null;
-  }
-};
 import {
   Wallet,
   FileText,

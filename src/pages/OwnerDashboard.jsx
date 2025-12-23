@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { auth, api, Analysis, Payment, User, AI, Transaction, Role } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, safeFormatDate } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, FileText, BarChart, ArrowLeft, Eye, User as UserIcon, Star, Download, ChevronLeft, ChevronRight, DollarSign, Activity, Sparkles } from "lucide-react";
-import { format, subDays, startOfDay, isValid, parseISO } from "date-fns";
-
-const safeFormatDate = (dateValue, formatStr = "MMM d, yyyy") => {
-  if (!dateValue) return null;
-  try {
-    const date = typeof dateValue === 'string' ? parseISO(dateValue) : new Date(dateValue);
-    return isValid(date) ? format(date, formatStr) : null;
-  } catch {
-    return null;
-  }
-};
+import { format, subDays, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
