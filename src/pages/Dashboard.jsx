@@ -57,6 +57,7 @@ const statusLabels = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState([]);
+  const [premiumAnalyses, setPremiumAnalyses] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
@@ -79,6 +80,9 @@ export default function Dashboard() {
     try {
       const data = await Analysis.filter({ user_email: userEmail });
       setAnalyses(data.filter(a => a.is_deleted !== true));
+
+
+      setPremiumAnalyses(data.filter(a => a.is_deleted !== true && a.is_premium === true));
       
       const txs = await Transaction.filter({ user_email: userEmail });
       setTransactions(txs.slice(0, 5));
@@ -124,7 +128,7 @@ export default function Dashboard() {
     },
     {
       title: isArabic ? "الأرصدة المستخدمة" : "Credits Used",
-      value: analyses.length,
+      value: premiumAnalyses.length,
       icon: TrendingUp,
       color: "gray",
       bgGradient: "from-gray-600 to-gray-700"
