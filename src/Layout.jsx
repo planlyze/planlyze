@@ -324,7 +324,7 @@ export default function Layout({ children, currentPageName }) {
     setCurrentUser(null);
     setIsLoggedIn(false);
     setIsLogoutConfirmOpen(false);
-    navigate('/');
+    window.location.href = '/';
   };
 
   if (isLoggedIn === null) {
