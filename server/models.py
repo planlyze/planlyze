@@ -555,3 +555,19 @@ class Partner(db.Model):
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+class SeedVersion(db.Model):
+    __tablename__ = 'seed_versions'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    seed_name = db.Column(db.String(100), unique=True, nullable=False)
+    version = db.Column(db.Integer, default=1)
+    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'seed_name': self.seed_name,
+            'version': self.version,
+            'applied_at': self.applied_at.isoformat() if self.applied_at else None
+        }

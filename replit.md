@@ -75,6 +75,25 @@ Swagger UI available at `/api/apidocs` when backend is running.
 - Flask serves the static frontend from `dist/` folder
 - **Auto-seeding**: On each deployment, the system automatically runs `server/seed.py`
 
+## Seed Versioning
+The seeding system uses versioning to prevent overwriting user modifications:
+- **seed_versions table**: Tracks which seeds have been applied and at what version
+- Seeds only run if: `applied_version < current_version`
+- User-modified data (partners, payment methods, etc.) is preserved across deployments
+- To force a seed to re-run: increment its version in `SEED_VERSIONS` dict in `server/seed.py`
+
+Current seed versions are defined in `server/seed.py`:
+```python
+SEED_VERSIONS = {
+    'roles': 1,
+    'credit_packages': 1,
+    'payment_methods': 1,
+    'email_templates': 1,
+    'system_settings': 1,
+    'partners': 1,
+}
+```
+
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string (auto-provided)
 - `SECRET_KEY` - Flask secret key

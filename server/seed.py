@@ -2,8 +2,9 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from datetime import datetime
 from server.app import create_app
-from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner
+from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner, SeedVersion
 import bcrypt
 
 PERMISSIONS = {
@@ -28,8 +29,42 @@ PERMISSIONS = {
     'MANAGE_DISCOUNTS': 'manage_discounts',
 }
 
+SEED_VERSIONS = {
+    'roles': 1,
+    'credit_packages': 1,
+    'payment_methods': 1,
+    'email_templates': 1,
+    'system_settings': 1,
+    'partners': 1,
+}
+
+def get_applied_version(seed_name):
+    try:
+        record = SeedVersion.query.filter_by(seed_name=seed_name).first()
+        return record.version if record else 0
+    except Exception:
+        return 0
+
+def set_applied_version(seed_name, version):
+    record = SeedVersion.query.filter_by(seed_name=seed_name).first()
+    if record:
+        record.version = version
+        record.applied_at = datetime.utcnow()
+    else:
+        record = SeedVersion(seed_name=seed_name, version=version)
+        db.session.add(record)
+    db.session.commit()
+
+def should_run_seed(seed_name):
+    current_version = SEED_VERSIONS.get(seed_name, 1)
+    applied_version = get_applied_version(seed_name)
+    return applied_version < current_version
+
 def seed_roles():
-    """Seed the roles table with default roles using flat permission keys"""
+    if not should_run_seed('roles'):
+        print("Roles seed already applied (version up to date), skipping...")
+        return
+    
     roles_data = [
         {
             'name': 'super_admin',
@@ -64,11 +99,7 @@ def seed_roles():
     
     for role_data in roles_data:
         existing_role = Role.query.filter_by(name=role_data['name']).first()
-        if existing_role:
-            existing_role.description = role_data['description']
-            existing_role.permissions = role_data['permissions']
-            print(f"Updated role: {role_data['name']}")
-        else:
+        if not existing_role:
             role = Role(
                 name=role_data['name'],
                 description=role_data['description'],
@@ -76,12 +107,14 @@ def seed_roles():
             )
             db.session.add(role)
             print(f"Created role: {role_data['name']}")
+        else:
+            print(f"Role already exists: {role_data['name']}")
     
     db.session.commit()
+    set_applied_version('roles', SEED_VERSIONS['roles'])
     print("Roles seeded successfully!")
 
 def create_super_admin(email, password=None, full_name="Super Admin"):
-    """Create or update a user to be super admin"""
     super_admin_role = Role.query.filter_by(name='super_admin').first()
     if not super_admin_role:
         print("Error: super_admin role not found. Please run seed_roles() first.")
@@ -116,7 +149,10 @@ def create_super_admin(email, password=None, full_name="Super Admin"):
     return user
 
 def seed_credit_packages():
-    """Seed the credit packages table with default packages"""
+    if not should_run_seed('credit_packages'):
+        print("Credit packages seed already applied (version up to date), skipping...")
+        return
+    
     packages_data = [
         {
             'name': 'Starter',
@@ -172,36 +208,24 @@ def seed_credit_packages():
         }
     ]
     
-    valid_names = [pkg['name'] for pkg in packages_data]
-    
-    CreditPackage.query.filter(~CreditPackage.name.in_(valid_names)).update(
-        {'is_active': False}, synchronize_session=False
-    )
-    print(f"Deactivated packages not in: {valid_names}")
-    
     for pkg_data in packages_data:
         existing = CreditPackage.query.filter_by(name=pkg_data['name']).first()
-        if existing:
-            existing.credits = pkg_data['credits']
-            existing.price_usd = pkg_data['price_usd']
-            existing.description = pkg_data['description']
-            existing.description_ar = pkg_data.get('description_ar')
-            existing.name_ar = pkg_data.get('name_ar')
-            existing.features = pkg_data.get('features', [])
-            existing.features_ar = pkg_data.get('features_ar', [])
-            existing.is_active = pkg_data['is_active']
-            existing.is_popular = pkg_data['is_popular']
-            print(f"Updated credit package: {pkg_data['name']}")
-        else:
+        if not existing:
             package = CreditPackage(**pkg_data)
             db.session.add(package)
             print(f"Created credit package: {pkg_data['name']}")
+        else:
+            print(f"Credit package already exists: {pkg_data['name']}")
     
     db.session.commit()
+    set_applied_version('credit_packages', SEED_VERSIONS['credit_packages'])
     print("Credit packages seeded successfully!")
 
 def seed_payment_methods():
-    """Seed the payment methods table with default methods"""
+    if not should_run_seed('payment_methods'):
+        print("Payment methods seed already applied (version up to date), skipping...")
+        return
+    
     methods_data = [
         {
             'name': 'Bank Transfer',
@@ -250,22 +274,22 @@ def seed_payment_methods():
     
     for method_data in methods_data:
         existing = PaymentMethod.query.filter_by(name=method_data['name']).first()
-        if existing:
-            existing.type = method_data['type']
-            existing.details = method_data['details']
-            existing.instructions = method_data['instructions']
-            existing.is_active = method_data['is_active']
-            print(f"Updated payment method: {method_data['name']}")
-        else:
+        if not existing:
             method = PaymentMethod(**method_data)
             db.session.add(method)
             print(f"Created payment method: {method_data['name']}")
+        else:
+            print(f"Payment method already exists: {method_data['name']}")
     
     db.session.commit()
+    set_applied_version('payment_methods', SEED_VERSIONS['payment_methods'])
     print("Payment methods seeded successfully!")
 
 def seed_email_templates():
-    """Seed the email templates table with default templates"""
+    if not should_run_seed('email_templates'):
+        print("Email templates seed already applied (version up to date), skipping...")
+        return
+    
     templates_data = [
         {
             'template_key': 'shared_report_accessed',
@@ -297,8 +321,8 @@ def seed_email_templates():
         {
             'template_key': 'low_credits',
             'name': 'Low Credits Warning',
-            'subject_en': 'Running Low on Credits ⚠️',
-            'subject_ar': 'رصيدك ينفد ⚠️',
+            'subject_en': 'Running Low on Credits',
+            'subject_ar': 'رصيدك ينفد',
             'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
   <h2 style="color: #f59e0b;">Low Credits Alert</h2>
   <p>Hi {{user_name}},</p>
@@ -349,8 +373,8 @@ def seed_email_templates():
         {
             'template_key': 'analysis_completed',
             'name': 'Analysis Completed',
-            'subject_en': 'Your Analysis Report is Ready! 🎉',
-            'subject_ar': 'تقرير التحليل الخاص بك جاهز! ',
+            'subject_en': 'Your Analysis Report is Ready!',
+            'subject_ar': 'تقرير التحليل الخاص بك جاهز!',
             'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
   <h2 style="color: #7c3aed;">Analysis Complete!</h2>
   <p>Hi {{user_name}},</p>
@@ -374,8 +398,8 @@ def seed_email_templates():
         {
             'template_key': 'referral_bonus_referrer',
             'name': 'Referral Bonus - Referrer',
-            'subject_en': 'You Earned a Referral Bonus! 🎉',
-            'subject_ar': 'لقد حصلت على مكافأة إحالة! 🎉',
+            'subject_en': 'You Earned a Referral Bonus!',
+            'subject_ar': 'لقد حصلت على مكافأة إحالة!',
             'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
   <h2 style="color: #22c55e;">Congratulations! You Earned a Bonus!</h2>
   <p>Hi {{referrer_name}},</p>
@@ -409,8 +433,8 @@ def seed_email_templates():
         {
             'template_key': 'referral_bonus_referred',
             'name': 'Referral Bonus - New User',
-            'subject_en': 'Welcome! You Got a Bonus Credit! 🎁',
-            'subject_ar': 'مرحباً! حصلت على رصيد إضافي! 🎁',
+            'subject_en': 'Welcome! You Got a Bonus Credit!',
+            'subject_ar': 'مرحباً! حصلت على رصيد إضافي!',
             'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
   <h2 style="color: #7c3aed;">Welcome to Planlyze!</h2>
   <p>Hi {{referred_name}},</p>
@@ -438,34 +462,119 @@ def seed_email_templates():
   <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
 </div>''',
             'is_active': True
+        },
+        {
+            'template_key': 'payment_approved',
+            'name': 'Payment Approved',
+            'subject_en': 'Payment Approved - Credits Added!',
+            'subject_ar': 'تم الموافقة على الدفع - تمت إضافة الأرصدة!',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #22c55e;">Payment Approved!</h2>
+  <p>Hi {{user_name}},</p>
+  <p>Your payment has been approved and credits have been added to your account.</p>
+  <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">Credits Added</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+{{credits}} Credits</p>
+  </div>
+  <p><strong>New Balance:</strong> {{total_credits}} credits</p>
+  <a href="{{dashboard_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Go to Dashboard</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #22c55e;">تم الموافقة على الدفع!</h2>
+  <p>مرحباً {{user_name}}،</p>
+  <p>تم الموافقة على دفعتك وتمت إضافة الأرصدة إلى حسابك.</p>
+  <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0;">
+    <p style="color: white; margin: 0; font-size: 14px;">الأرصدة المضافة</p>
+    <p style="color: white; margin: 10px 0; font-size: 36px; font-weight: bold;">+{{credits}} رصيد</p>
+  </div>
+  <p><strong>الرصيد الجديد:</strong> {{total_credits}} رصيد</p>
+  <a href="{{dashboard_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">الذهاب إلى لوحة التحكم</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'payment_rejected',
+            'name': 'Payment Rejected',
+            'subject_en': 'Payment Request Update',
+            'subject_ar': 'تحديث طلب الدفع',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #ef4444;">Payment Not Approved</h2>
+  <p>Hi {{user_name}},</p>
+  <p>Unfortunately, your payment request could not be approved.</p>
+  <p><strong>Reason:</strong> {{rejection_reason}}</p>
+  <p>Please submit a new payment request with the correct information.</p>
+  <a href="{{credits_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Try Again</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #ef4444;">لم تتم الموافقة على الدفع</h2>
+  <p>مرحباً {{user_name}}،</p>
+  <p>للأسف، لم نتمكن من الموافقة على طلب الدفع الخاص بك.</p>
+  <p><strong>السبب:</strong> {{rejection_reason}}</p>
+  <p>يرجى تقديم طلب دفع جديد بالمعلومات الصحيحة.</p>
+  <a href="{{credits_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">حاول مرة أخرى</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'email_verification',
+            'name': 'Email Verification',
+            'subject_en': 'Verify Your Planlyze Account',
+            'subject_ar': 'تأكيد حساب Planlyze الخاص بك',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">Welcome to Planlyze!</h2>
+  <p>Hi {{user_name}},</p>
+  <p>Thank you for signing up! Please verify your email address to activate your account.</p>
+  <a href="{{verification_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Verify Email</a>
+  <p style="color: #64748b; font-size: 14px;">This link will expire in 24 hours.</p>
+  <p style="color: #64748b; font-size: 14px;">If you didn't create an account, please ignore this email.</p>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">مرحباً بك في Planlyze!</h2>
+  <p>مرحباً {{user_name}}،</p>
+  <p>شكراً لتسجيلك! يرجى تأكيد عنوان بريدك الإلكتروني لتفعيل حسابك.</p>
+  <a href="{{verification_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">تأكيد البريد الإلكتروني</a>
+  <p style="color: #64748b; font-size: 14px;">سينتهي هذا الرابط خلال 24 ساعة.</p>
+  <p style="color: #64748b; font-size: 14px;">إذا لم تقم بإنشاء حساب، يرجى تجاهل هذا البريد الإلكتروني.</p>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
         }
     ]
     
     for template_data in templates_data:
         existing = EmailTemplate.query.filter_by(template_key=template_data['template_key']).first()
-        if existing:
-            existing.name = template_data['name']
-            existing.subject_en = template_data['subject_en']
-            existing.subject_ar = template_data['subject_ar']
-            existing.body_en = template_data['body_en']
-            existing.body_ar = template_data['body_ar']
-            existing.is_active = template_data['is_active']
-            print(f"Updated email template: {template_data['template_key']}")
-        else:
+        if not existing:
             template = EmailTemplate(**template_data)
             db.session.add(template)
             print(f"Created email template: {template_data['template_key']}")
+        else:
+            print(f"Email template already exists: {template_data['template_key']}")
     
     db.session.commit()
+    set_applied_version('email_templates', SEED_VERSIONS['email_templates'])
     print("Email templates seeded successfully!")
 
 def seed_system_settings():
-    """Seed system settings with default values"""
+    if not should_run_seed('system_settings'):
+        print("System settings seed already applied (version up to date), skipping...")
+        return
+    
     settings_data = [
         {
             'key': 'syrian_apps_count',
             'value': '150',
-            'description': 'Number of Syrian apps to display on landing page'
+            'description': 'Number of Syrian apps to display on landing page statistics'
         }
     ]
     
@@ -479,59 +588,23 @@ def seed_system_settings():
             print(f"System setting already exists: {setting_data['key']}")
     
     db.session.commit()
+    set_applied_version('system_settings', SEED_VERSIONS['system_settings'])
     print("System settings seeded successfully!")
 
 def seed_partners():
-    """Seed default partners for landing page"""
+    if not should_run_seed('partners'):
+        print("Partners seed already applied (version up to date), skipping...")
+        return
+    
     partners_data = [
-        {
-            'name': 'Tech Startup',
-            'name_ar': 'شركة ناشئة تقنية',
-            'color': '6B46C1',
-            'display_order': 1
-        },
-        {
-            'name': 'Tech Accelerator',
-            'name_ar': 'مسرّع تقني',
-            'color': 'F59E0B',
-            'display_order': 2
-        },
-        {
-            'name': 'Innovation Center',
-            'name_ar': 'مركز الابتكار',
-            'color': '6B46C1',
-            'display_order': 3
-        },
-        {
-            'name': 'Venture Partners',
-            'name_ar': 'شركاء الاستثمار',
-            'color': 'F59E0B',
-            'display_order': 4
-        },
-        {
-            'name': 'Digital Solutions',
-            'name_ar': 'حلول رقمية',
-            'color': '6B46C1',
-            'display_order': 5
-        },
-        {
-            'name': 'Tech Institute',
-            'name_ar': 'معهد التقنية',
-            'color': 'F59E0B',
-            'display_order': 6
-        },
-        {
-            'name': 'Business Network',
-            'name_ar': 'شبكة الأعمال',
-            'color': '6B46C1',
-            'display_order': 7
-        },
-        {
-            'name': 'Growth Lab',
-            'name_ar': 'مختبر النمو',
-            'color': 'F59E0B',
-            'display_order': 8
-        }
+        { 'name': 'Tech Startup', 'name_ar': 'شركة ناشئة تقنية', 'color': '6B46C1', 'display_order': 1 },
+        { 'name': 'Tech Accelerator', 'name_ar': 'مسرّع تقني', 'color': 'F59E0B', 'display_order': 2 },
+        { 'name': 'Innovation Center', 'name_ar': 'مركز الابتكار', 'color': '6B46C1', 'display_order': 3 },
+        { 'name': 'Venture Partners', 'name_ar': 'شركاء الاستثمار', 'color': 'F59E0B', 'display_order': 4 },
+        { 'name': 'Digital Solutions', 'name_ar': 'حلول رقمية', 'color': '6B46C1', 'display_order': 5 },
+        { 'name': 'Tech Institute', 'name_ar': 'معهد التقنية', 'color': 'F59E0B', 'display_order': 6 },
+        { 'name': 'Business Network', 'name_ar': 'شبكة الأعمال', 'color': '6B46C1', 'display_order': 7 },
+        { 'name': 'Growth Lab', 'name_ar': 'مختبر النمو', 'color': 'F59E0B', 'display_order': 8 },
     ]
     
     for partner_data in partners_data:
@@ -544,13 +617,18 @@ def seed_partners():
             print(f"Partner already exists: {partner_data['name']}")
     
     db.session.commit()
+    set_applied_version('partners', SEED_VERSIONS['partners'])
     print("Partners seeded successfully!")
 
 def run_seed():
-    """Run all seed operations"""
+    """Run all seed operations with versioning"""
     app = create_app()
     with app.app_context():
-        print("Starting seed process...")
+        print("Starting seed process with versioning...")
+        print("=" * 50)
+        
+        db.create_all()
+        
         seed_roles()
         seed_credit_packages()
         seed_payment_methods()
@@ -558,18 +636,21 @@ def run_seed():
         seed_system_settings()
         seed_partners()
         
-        super_admin_email = os.environ.get('SUPER_ADMIN_EMAIL', 'admin@planlyze.com')
-        super_admin_password = os.environ.get('SUPER_ADMIN_PASSWORD', 'Admin@123')
+        admin_email = os.environ.get('ADMIN_EMAIL', 'admin@planlyze.com')
+        admin_password = os.environ.get('ADMIN_PASSWORD', 'Admin@123')
+        existing_admin = User.query.filter_by(email=admin_email).first()
+        if not existing_admin:
+            create_super_admin(admin_email, admin_password, "Super Admin")
+        else:
+            print(f"Admin user already exists: {admin_email}")
         
-        create_super_admin(
-            email=super_admin_email,
-            password=super_admin_password,
-            full_name="Super Admin"
-        )
+        print("=" * 50)
+        print("Seed process completed!")
         
-        print("\nSeed completed successfully!")
-        print(f"Super Admin Email: {super_admin_email}")
-        print(f"Super Admin Password: {super_admin_password}")
+        versions = SeedVersion.query.all()
+        print("\nApplied seed versions:")
+        for v in versions:
+            print(f"  - {v.seed_name}: v{v.version} (applied: {v.applied_at})")
 
 if __name__ == '__main__':
     run_seed()
