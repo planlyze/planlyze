@@ -431,6 +431,24 @@ export default function Subscriptions() {
                   <span className="text-slate-600">{isArabic ? "طريقة الدفع:" : "Payment Method:"}</span>
                   <span className="font-semibold text-slate-800">{selectedPayment.payment_method || '-'}</span>
                 </div>
+                {selectedPayment.discount_code && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">{isArabic ? "كود الخصم:" : "Discount Code:"}</span>
+                      <span className="font-semibold text-orange-600">{selectedPayment.discount_code}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">{isArabic ? "مبلغ الخصم:" : "Discount Amount:"}</span>
+                      <span className="font-semibold text-orange-600">-${selectedPayment.discount_amount || 0}</span>
+                    </div>
+                    {selectedPayment.original_amount && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">{isArabic ? "المبلغ الأصلي:" : "Original Amount:"}</span>
+                        <span className="font-medium text-slate-500 line-through">${selectedPayment.original_amount}</span>
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="flex justify-between">
                   <span className="text-slate-600">{isArabic ? "تاريخ الإرسال:" : "Submitted:"}</span>
                   <span className="font-medium text-slate-700">

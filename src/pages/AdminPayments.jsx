@@ -410,6 +410,12 @@ export default function AdminPayments() {
                         <span className="text-sm font-medium text-slate-600">Discount Amount:</span>
                         <span className="text-sm font-semibold text-orange-600">-${selectedPayment.discount_amount || 0}</span>
                       </div>
+                      {selectedPayment.original_amount && (
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-600">Original Amount:</span>
+                          <span className="text-sm text-slate-500 line-through">${selectedPayment.original_amount}</span>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -572,6 +578,12 @@ export default function AdminPayments() {
                       <span className="text-sm font-medium text-slate-600">Discount Amount:</span>
                       <span className="text-sm font-semibold text-orange-600">-${viewPaymentDetails.discount_amount || 0}</span>
                     </div>
+                    {viewPaymentDetails.original_amount && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-600">Original Amount:</span>
+                        <span className="text-sm text-slate-500 line-through">${viewPaymentDetails.original_amount}</span>
+                      </div>
+                    )}
                   </>
                 )}
                 <div className="flex justify-between items-center">

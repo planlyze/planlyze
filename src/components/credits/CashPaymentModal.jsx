@@ -120,12 +120,18 @@ export default function CashPaymentModal({ isOpen, onClose, selectedPackage, use
 
       const finalAmount = calculateFinalAmount();
       
+      const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
+      const discountAmt = appliedDiscount ? Math.max(0, Math.round((packagePrice - finalAmount) * 100) / 100) : null;
+      
       await Payment.create({
         user_email: userEmail,
         amount_usd: finalAmount,
+        original_amount: packagePrice,
         credits: selectedPackage.credits,
         payment_method: selectedMethod?.name_en || "cash",
-        payment_proof: base64Image
+        payment_proof: base64Image,
+        discount_code: appliedDiscount?.code || null,
+        discount_amount: discountAmt
       });
 
       toast.success(isArabic ? "تم إرسال الطلب بنجاح! سيتم مراجعته قريباً" : "Payment submitted! It will be reviewed shortly");

@@ -1082,9 +1082,12 @@ def create_payment(user):
     payment = Payment(
         user_email=user.email,
         amount_usd=data.get('amount_usd'),
+        original_amount=data.get('original_amount'),
         credits=data.get('credits'),
         payment_method=data.get('payment_method'),
         payment_proof=data.get('payment_proof'),
+        discount_code=data.get('discount_code'),
+        discount_amount=data.get('discount_amount'),
         notes=data.get('notes')
     )
     db.session.add(payment)

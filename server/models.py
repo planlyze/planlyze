@@ -208,9 +208,12 @@ class Payment(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     user_email = db.Column(db.String(255), db.ForeignKey('users.email'), nullable=False)
     amount_usd = db.Column(db.Float, nullable=False)
+    original_amount = db.Column(db.Float)
     credits = db.Column(db.Integer, nullable=False)
     payment_method = db.Column(db.String(100))
     payment_proof = db.Column(db.Text)
+    discount_code = db.Column(db.String(100))
+    discount_amount = db.Column(db.Float)
     status = db.Column(db.String(50), default='pending')
     notes = db.Column(db.Text)
     approved_by = db.Column(db.String(255))
@@ -222,9 +225,12 @@ class Payment(db.Model):
             'id': self.id,
             'user_email': self.user_email,
             'amount_usd': self.amount_usd,
+            'original_amount': self.original_amount,
             'credits': self.credits,
             'payment_method': self.payment_method,
             'payment_proof': self.payment_proof,
+            'discount_code': self.discount_code,
+            'discount_amount': self.discount_amount,
             'status': self.status,
             'notes': self.notes,
             'approved_by': self.approved_by,
