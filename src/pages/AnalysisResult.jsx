@@ -49,7 +49,6 @@ import SuccessMetricsValidation from "../components/results/SuccessMetricsValida
 import FundingRecommendations from "../components/results/FundingRecommendations";
 import Partnerships from "../components/results/Partnerships";
 import RecommendationsNext from "../components/results/RecommendationsNext";
-import ReportFooter from "../components/results/ReportFooter";
 import TechStackSuggestions from "../components/results/TechStackSuggestions";
 import AIToolsSuggestions from "../components/results/AIToolsSuggestions";
 import CompetitorMatrix from "../components/results/CompetitorMatrix";
@@ -1213,13 +1212,6 @@ export default function AnalysisResult() {
           </TabsContent>
         </Tabs>
 
-        {/* Report Footer */}
-        <section>
-          <ReportFooter
-            analysis={analysis}
-            isArabic={isArabic}
-          />
-        </section>
 
         {/* Moved rating widget to the end */}
         <Card className="glass-effect border-0 shadow-lg no-print">
