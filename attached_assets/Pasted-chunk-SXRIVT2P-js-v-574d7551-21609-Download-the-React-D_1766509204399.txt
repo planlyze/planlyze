@@ -1,0 +1,119 @@
+chunk-SXRIVT2P.js?v=574d7551:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+requests.js:1 Fetch finished loading: GET "https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/api/social-media".
+s.fetch @ requests.js:1
+request @ client.js:33
+get @ client.js:48
+fetchSocialLinks @ Footer.jsx:48
+(anonymous) @ Footer.jsx:63
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=574d7551:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=574d7551:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=574d7551:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=574d7551:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=574d7551:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=574d7551:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=574d7551:19500
+(anonymous) @ chunk-SXRIVT2P.js?v=574d7551:19381
+workLoop @ chunk-SXRIVT2P.js?v=574d7551:197
+flushWork @ chunk-SXRIVT2P.js?v=574d7551:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=574d7551:384
+requests.js:1 Fetch finished loading: GET "https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/api/partners".
+s.fetch @ requests.js:1
+fetchPartners @ PlanlyzeAI.jsx:146
+(anonymous) @ PlanlyzeAI.jsx:157
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=574d7551:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=574d7551:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=574d7551:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=574d7551:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=574d7551:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=574d7551:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=574d7551:19500
+(anonymous) @ chunk-SXRIVT2P.js?v=574d7551:19381
+workLoop @ chunk-SXRIVT2P.js?v=574d7551:197
+flushWork @ chunk-SXRIVT2P.js?v=574d7551:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=574d7551:384
+requests.js:1 Fetch finished loading: GET "https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/api/credit-packages".
+s.fetch @ requests.js:1
+fetchPackages @ PlanlyzeAI.jsx:114
+(anonymous) @ PlanlyzeAI.jsx:125
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=574d7551:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=574d7551:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=574d7551:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=574d7551:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=574d7551:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=574d7551:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=574d7551:19500
+(anonymous) @ chunk-SXRIVT2P.js?v=574d7551:19381
+workLoop @ chunk-SXRIVT2P.js?v=574d7551:197
+flushWork @ chunk-SXRIVT2P.js?v=574d7551:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=574d7551:384
+requests.js:1 Fetch finished loading: GET "https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/api/landing-stats".
+s.fetch @ requests.js:1
+fetchStats @ PlanlyzeAI.jsx:131
+(anonymous) @ PlanlyzeAI.jsx:140
+commitHookEffectListMount @ chunk-SXRIVT2P.js?v=574d7551:16963
+commitPassiveMountOnFiber @ chunk-SXRIVT2P.js?v=574d7551:18206
+commitPassiveMountEffects_complete @ chunk-SXRIVT2P.js?v=574d7551:18179
+commitPassiveMountEffects_begin @ chunk-SXRIVT2P.js?v=574d7551:18169
+commitPassiveMountEffects @ chunk-SXRIVT2P.js?v=574d7551:18159
+flushPassiveEffectsImpl @ chunk-SXRIVT2P.js?v=574d7551:19543
+flushPassiveEffects @ chunk-SXRIVT2P.js?v=574d7551:19500
+(anonymous) @ chunk-SXRIVT2P.js?v=574d7551:19381
+workLoop @ chunk-SXRIVT2P.js?v=574d7551:197
+flushWork @ chunk-SXRIVT2P.js?v=574d7551:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=574d7551:384
+requests.js:1 Fetch finished loading: POST "https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/api/contact".
+s.fetch @ requests.js:1
+request @ client.js:33
+post @ client.js:49
+onSubmit @ PlanlyzeAI.jsx:832
+callCallback2 @ chunk-SXRIVT2P.js?v=574d7551:3680
+invokeGuardedCallbackDev @ chunk-SXRIVT2P.js?v=574d7551:3705
+invokeGuardedCallback @ chunk-SXRIVT2P.js?v=574d7551:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-SXRIVT2P.js?v=574d7551:3742
+executeDispatch @ chunk-SXRIVT2P.js?v=574d7551:7046
+processDispatchQueueItemsInOrder @ chunk-SXRIVT2P.js?v=574d7551:7066
+processDispatchQueue @ chunk-SXRIVT2P.js?v=574d7551:7075
+dispatchEventsForPlugins @ chunk-SXRIVT2P.js?v=574d7551:7083
+(anonymous) @ chunk-SXRIVT2P.js?v=574d7551:7206
+batchedUpdates$1 @ chunk-SXRIVT2P.js?v=574d7551:18966
+batchedUpdates @ chunk-SXRIVT2P.js?v=574d7551:3585
+dispatchEventForPluginEventSystem @ chunk-SXRIVT2P.js?v=574d7551:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-SXRIVT2P.js?v=574d7551:5484
+dispatchEvent @ chunk-SXRIVT2P.js?v=574d7551:5478
+dispatchDiscreteEvent @ chunk-SXRIVT2P.js?v=574d7551:5455
+chunk-SXRIVT2P.js?v=574d7551:521 Warning: Unknown event handler property `onOpenChange`. It will be ignored.
+    at div
+    at _c5 (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/components/ui/toast.jsx:75:41)
+    at div
+    at _c (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/components/ui/toast.jsx:22:14)
+    at Toaster (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/components/ui/toaster.jsx:29:22)
+    at div
+    at PlanlyzeAIPage (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/landing/pages/PlanlyzeAI.jsx:117:27)
+    at HomeRoute (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/App.jsx:188:68)
+    at RenderedRoute (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=574d7551:5595:26)
+    at Routes (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=574d7551:6358:3)
+    at AuthenticatedApp (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/App.jsx:109:29)
+    at Router (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=574d7551:6301:13)
+    at BrowserRouter (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=574d7551:9396:3)
+    at QueryClientProvider (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=574d7551:3081:3)
+    at AuthProvider (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/lib/AuthContext.jsx:21:32)
+    at V (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/next-themes.js?v=574d7551:44:25)
+    at J (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/node_modules/.vite/deps/next-themes.js?v=574d7551:42:18)
+    at App (https://e2b22c63-db1f-42a4-af4e-b6c664ad8fdc-00-27inqb46ayfsr.sisko.replit.dev/src/App.jsx:286:3)
+printWarning @ chunk-SXRIVT2P.js?v=574d7551:521
+error @ chunk-SXRIVT2P.js?v=574d7551:505
+validateProperty$1 @ chunk-SXRIVT2P.js?v=574d7551:3389
+warnUnknownProperties @ chunk-SXRIVT2P.js?v=574d7551:3465
+validateProperties$2 @ chunk-SXRIVT2P.js?v=574d7551:3484
+validatePropertiesInDevelopment @ chunk-SXRIVT2P.js?v=574d7551:7378
+setInitialProperties @ chunk-SXRIVT2P.js?v=574d7551:7567
+finalizeInitialChildren @ chunk-SXRIVT2P.js?v=574d7551:8392
+completeWork @ chunk-SXRIVT2P.js?v=574d7551:16341
+completeUnitOfWork @ chunk-SXRIVT2P.js?v=574d7551:19277
+performUnitOfWork @ chunk-SXRIVT2P.js?v=574d7551:19259
+workLoopSync @ chunk-SXRIVT2P.js?v=574d7551:19190
+renderRootSync @ chunk-SXRIVT2P.js?v=574d7551:19169
+performConcurrentWorkOnRoot @ chunk-SXRIVT2P.js?v=574d7551:18728
+workLoop @ chunk-SXRIVT2P.js?v=574d7551:197
+flushWork @ chunk-SXRIVT2P.js?v=574d7551:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=574d7551:384
