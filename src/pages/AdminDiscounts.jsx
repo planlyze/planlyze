@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Edit, Trash2, Percent, DollarSign, Tag } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
@@ -23,6 +24,10 @@ export default function AdminDiscounts() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingDiscount, setEditingDiscount] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [usersDialogOpen, setUsersDialogOpen] = useState(false);
+  const [selectedDiscountUsers, setSelectedDiscountUsers] = useState([]);
+  const [selectedDiscountCode, setSelectedDiscountCode] = useState("");
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -130,6 +135,22 @@ export default function AdminDiscounts() {
     }
   };
 
+  const handleViewUsers = async (discount) => {
+    setSelectedDiscountCode(discount.code);
+    setIsLoadingUsers(true);
+    setUsersDialogOpen(true);
+    try {
+      const users = await DiscountCode.getUsers(discount.id);
+      setSelectedDiscountUsers(users || []);
+    } catch (error) {
+      console.error("Error loading users:", error);
+      toast.error("Failed to load users");
+      setSelectedDiscountUsers([]);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   const isArabic = currentUser?.preferred_language === 'arabic';
 
   return (
@@ -200,6 +221,15 @@ export default function AdminDiscounts() {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewUsers(discount)}
+                      className="gap-1"
+                    >
+                      <Users className="w-4 h-4" />
+                      {discount.used_count || 0}
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(discount)}>
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -328,6 +358,73 @@ export default function AdminDiscounts() {
               {isArabic ? "حفظ" : "Save"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={usersDialogOpen} onOpenChange={setUsersDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-purple-600" />
+              {isArabic ? "المستخدمون الذين استخدموا" : "Users who used"} <code className="bg-purple-100 text-purple-700 px-2 py-1 rounded">{selectedDiscountCode}</code>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {isLoadingUsers ? (
+            <div className="py-8 text-center text-slate-500">
+              {isArabic ? "جار التحميل..." : "Loading..."}
+            </div>
+          ) : selectedDiscountUsers.length === 0 ? (
+            <div className="py-8 text-center text-slate-500">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
+              <p>{isArabic ? "لم يستخدم أحد هذا الكود بعد" : "No one has used this code yet"}</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{isArabic ? "المستخدم" : "User"}</TableHead>
+                  <TableHead>{isArabic ? "المبلغ" : "Amount"}</TableHead>
+                  <TableHead>{isArabic ? "الخصم" : "Discount"}</TableHead>
+                  <TableHead>{isArabic ? "الرصيد" : "Credits"}</TableHead>
+                  <TableHead>{isArabic ? "الحالة" : "Status"}</TableHead>
+                  <TableHead>{isArabic ? "التاريخ" : "Date"}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedDiscountUsers.map((usage) => (
+                  <TableRow key={usage.payment_id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-sm">
+                          {usage.user_email?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-800 text-sm">{usage.user_name || usage.user_email}</p>
+                          <p className="text-xs text-slate-500">{usage.user_email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">${usage.amount?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="text-green-600 font-medium">-${usage.discount_amount?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell>{usage.credits || 0}</TableCell>
+                    <TableCell>
+                      <Badge className={
+                        usage.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        usage.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                        'bg-slate-100 text-slate-800'
+                      }>
+                        {usage.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-500">
+                      {usage.created_at ? format(new Date(usage.created_at), 'MMM d, yyyy') : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </DialogContent>
       </Dialog>
     </div>

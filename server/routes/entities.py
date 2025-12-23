@@ -1413,6 +1413,31 @@ def validate_discount_code(user):
     
     return jsonify(code.to_dict())
 
+@entities_bp.route('/discount-codes/<id>/users', methods=['GET'])
+@require_admin
+def get_discount_code_users(user, id):
+    code = DiscountCode.query.get(id)
+    if not code:
+        return jsonify({'error': 'Discount code not found'}), 404
+    
+    payments = Payment.query.filter_by(discount_code=code.code).order_by(Payment.created_at.desc()).all()
+    
+    users_data = []
+    for payment in payments:
+        payment_user = User.query.filter_by(email=payment.user_email).first()
+        users_data.append({
+            'payment_id': payment.id,
+            'user_email': payment.user_email,
+            'user_name': payment_user.full_name if payment_user else None,
+            'amount': payment.amount,
+            'discount_amount': payment.discount_amount,
+            'credits': payment.credits,
+            'status': payment.status,
+            'created_at': payment.created_at.isoformat() if payment.created_at else None
+        })
+    
+    return jsonify(users_data)
+
 # Role endpoints
 @entities_bp.route('/roles', methods=['GET'])
 @require_admin

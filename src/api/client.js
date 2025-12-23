@@ -188,6 +188,7 @@ export const DiscountCode = {
   update: (id, data) => api.put(`/discount-codes/${id}`, data),
   delete: (id) => api.delete(`/discount-codes/${id}`),
   validate: (code) => api.post("/discount-codes/validate", { code }),
+  getUsers: (id) => api.get(`/discount-codes/${id}/users`),
   filter: async (filters) => {
     const codes = await api.get("/discount-codes");
     if (!filters || Object.keys(filters).length === 0) return codes;
