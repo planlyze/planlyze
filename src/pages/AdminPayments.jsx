@@ -276,11 +276,11 @@ export default function AdminPayments() {
                     </div>
 
                     <div className="flex gap-2">
-                      {payment.invoice_image_url && (
+                      {payment.payment_proof && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setViewImageUrl(payment.invoice_image_url)}
+                          onClick={() => setViewImageUrl(payment.payment_proof)}
                           className="gap-2"
                         >
                           <Eye className="w-4 h-4" />
@@ -414,11 +414,11 @@ export default function AdminPayments() {
                   )}
                 </div>
 
-                {selectedPayment.invoice_image_url && (
+                {selectedPayment.payment_proof && (
                   <div>
                     <p className="text-sm font-medium text-slate-700 mb-2">Invoice Image:</p>
                     <img
-                      src={selectedPayment.invoice_image_url}
+                      src={selectedPayment.payment_proof}
                       alt="Invoice"
                       className="w-full rounded-lg border border-slate-200"
                     />
@@ -603,11 +603,11 @@ export default function AdminPayments() {
                 </div>
               )}
 
-              {viewPaymentDetails.invoice_image_url && (
+              {viewPaymentDetails.payment_proof && (
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-2">Invoice Image:</p>
                   <img
-                    src={viewPaymentDetails.invoice_image_url}
+                    src={viewPaymentDetails.payment_proof}
                     alt="Invoice"
                     className="w-full rounded-lg border border-slate-200"
                   />
