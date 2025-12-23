@@ -15,7 +15,7 @@ import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageS
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
-import api from "@/api/client";
+import { api } from "@/api/client";
 
 export default function AdminSettings() {
   const navigate = useNavigate();
