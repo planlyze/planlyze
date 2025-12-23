@@ -31,6 +31,7 @@ export default function AdminPayments() {
   const [packageFilter, setPackageFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
   const [confirmAction, setConfirmAction] = useState(null); // 'approve' or 'reject'
+  const [viewPaymentDetails, setViewPaymentDetails] = useState(null);
 
   useEffect(() => {
     loadPayments();
@@ -336,9 +337,20 @@ export default function AdminPayments() {
                       <p className="text-xs text-slate-500 italic mt-1">Note: {payment.admin_notes}</p>
                     )}
                   </div>
-                  <Badge className={getStatusColor(payment.status)}>
-                    {payment.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewPaymentDetails(payment)}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      View Details
+                    </Button>
+                    <Badge className={getStatusColor(payment.status)}>
+                      {payment.status}
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>
@@ -502,6 +514,111 @@ export default function AdminPayments() {
               className="w-full rounded-lg border border-slate-200"
             />
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Details Dialog */}
+      <Dialog open={!!viewPaymentDetails} onOpenChange={() => setViewPaymentDetails(null)}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              Payment Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewPaymentDetails && (
+            <div className="space-y-4 py-4">
+              <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                {viewPaymentDetails.unique_id && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Payment ID:</span>
+                    <span className="text-sm font-mono font-semibold text-purple-600">{viewPaymentDetails.unique_id}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Status:</span>
+                  <Badge className={getStatusColor(viewPaymentDetails.status)}>
+                    {viewPaymentDetails.status}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">User:</span>
+                  <span className="text-sm text-slate-800">{viewPaymentDetails.user_email}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Amount:</span>
+                  <span className="text-sm font-semibold text-slate-800">${viewPaymentDetails.amount_usd}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Credits:</span>
+                  <span className="text-sm font-semibold text-slate-800">{viewPaymentDetails.credits} credits</span>
+                </div>
+                {viewPaymentDetails.payment_method && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Payment Method:</span>
+                    <span className="text-sm text-slate-800">{viewPaymentDetails.payment_method}</span>
+                  </div>
+                )}
+                {viewPaymentDetails.discount_code && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Discount Code:</span>
+                      <span className="text-sm font-semibold text-orange-600">{viewPaymentDetails.discount_code}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Discount Amount:</span>
+                      <span className="text-sm font-semibold text-orange-600">-${viewPaymentDetails.discount_amount || 0}</span>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Submitted:</span>
+                  <span className="text-sm text-slate-800">
+                    {format(new Date(viewPaymentDetails.created_at), "MMM d, yyyy 'at' h:mm a")}
+                  </span>
+                </div>
+                {viewPaymentDetails.approved_at && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Processed:</span>
+                    <span className="text-sm text-slate-800">
+                      {format(new Date(viewPaymentDetails.approved_at), "MMM d, yyyy 'at' h:mm a")}
+                    </span>
+                  </div>
+                )}
+                {viewPaymentDetails.approved_by && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Processed By:</span>
+                    <span className="text-sm text-slate-800">{viewPaymentDetails.approved_by}</span>
+                  </div>
+                )}
+              </div>
+
+              {viewPaymentDetails.admin_notes && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <p className="text-sm font-medium text-amber-800 mb-1">Admin Notes:</p>
+                  <p className="text-sm text-amber-700">{viewPaymentDetails.admin_notes}</p>
+                </div>
+              )}
+
+              {viewPaymentDetails.invoice_image_url && (
+                <div>
+                  <p className="text-sm font-medium text-slate-700 mb-2">Invoice Image:</p>
+                  <img
+                    src={viewPaymentDetails.invoice_image_url}
+                    alt="Invoice"
+                    className="w-full rounded-lg border border-slate-200"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewPaymentDetails(null)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
