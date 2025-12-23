@@ -591,24 +591,34 @@ export default function PlanlyzeAIPage() {
               {partners.map((partner, index) => {
                 const partnerName = lang === 'ar' && partner.name_ar ? partner.name_ar : partner.name;
                 const displayName = partner.logo_url ? '' : partnerName;
+                const CardWrapper = partner.website_url ? 'a' : 'div';
+                const cardProps = partner.website_url ? {
+                  href: partner.website_url,
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                } : {};
                 return (
                   <motion.div
                     key={partner.id || index}
                     variants={itemVariants}
                     whileHover={{ y: -5, scale: 1.05 }}
                     transition={{ duration: 0.3 }}
-                    className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg"
                   >
-                    <img
-                      src={partner.logo_url || `https://via.placeholder.com/150x60/${
-                        partner.color || '6B46C1'
-                      }/FFFFFF?text=${partnerName.replace(/ /g, "+")}`}
-                      alt={partnerName}
-                      className="w-full h-auto mb-4 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
-                    />
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
-                      {partnerName}
-                    </h4>
+                    <CardWrapper
+                      {...cardProps}
+                      className={`flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
+                    >
+                      <img
+                        src={partner.logo_url || `https://via.placeholder.com/150x60/${
+                          partner.color || '6B46C1'
+                        }/FFFFFF?text=${partnerName.replace(/ /g, "+")}`}
+                        alt={partnerName}
+                        className="w-full h-auto mb-4 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
+                      />
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 text-center">
+                        {partnerName}
+                      </h4>
+                    </CardWrapper>
                   </motion.div>
                 );
               })}
