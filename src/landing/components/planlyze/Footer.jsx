@@ -30,14 +30,6 @@ const iconMap = {
   ExternalLink
 };
 
-const fallbackSocialLinks = [
-  { href: "https://facebook.com/planlyze", icon: Facebook },
-  { href: "https://www.linkedin.com/company/planlyzeco", icon: Linkedin },
-  { href: "https://www.instagram.com/planlyze/", icon: Instagram },
-  { href: "https://chat.whatsapp.com/IP3RfknGF262dWfB9u1Cjt", icon: MessageCircle, hoverColor: "hover:bg-green-500 hover:border-green-500" },
-  { href: "https://t.me/planlyze", icon: Send, hoverColor: "hover:bg-blue-500 hover:border-blue-500" }
-];
-
 export default function Footer() {
   const { t } = useAppTranslation('landing');
   const [socialLinks, setSocialLinks] = useState([]);
@@ -53,11 +45,11 @@ export default function Footer() {
             hoverColor: link.hover_color
           })));
         } else {
-          setSocialLinks(fallbackSocialLinks);
+          setSocialLinks([]);
         }
       } catch (e) {
         console.log("Using fallback social links");
-        setSocialLinks(fallbackSocialLinks);
+        setSocialLinks([]);
       }
     };
     fetchSocialLinks();

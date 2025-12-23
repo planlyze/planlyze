@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import datetime
 from server.app import create_app
-from server.models import db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner, SeedVersion
+from server.models import SocialMedia, db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner, SeedVersion
 import bcrypt
 
 PERMISSIONS = {
@@ -36,6 +36,7 @@ SEED_VERSIONS = {
     'email_templates': 1,
     'system_settings': 1,
     'partners': 1,
+    'social_media' : 1,
 }
 
 def get_applied_version(seed_name):
@@ -583,6 +584,64 @@ def seed_partners():
     set_applied_version('partners', SEED_VERSIONS['partners'])
     print("Partners seeded successfully!")
 
+def seed_social_media():
+    if not should_run_seed('social_media'):
+        print("Social media seed already applied (version up to date), skipping...")
+        return
+
+    social_media_data = [
+        { 
+            'platform': "Facebook",
+            'url': "https://facebook.com/planlyze",
+            'icon': "Facebook",            
+            'display_order': 1,
+            'is_active': True
+        },
+        { 
+            'platform': "Linkedin",
+            'url': "https://www.linkedin.com/company/planlyzeco",
+            'icon': "Linkedin",            
+            'display_order': 2,
+            'is_active': True
+        },
+        { 
+            'platform': "Instagram",
+            'url': "https://instagram.com/planlyze",
+            'icon': "Instagram",            
+            'display_order': 3,
+            'is_active': True
+        },
+        {
+            'platform': "Whatsapp",
+            'url': "https://chat.whatsapp.com/IP3RfknGF262dWfB9u1Cjt",
+            'icon': "MessageCircle",            
+            'display_order': 4,
+            'hover_color' :"hover:bg-blue-500 hover:border-blue-500",
+            'is_active': True
+        },
+        { 
+            'platform': "Telegram",
+            'url': "https://t.me/planlyze",
+            'icon': "Send",            
+            'display_order': 1,
+            'hover_color': "hover:bg-blue-500 hover:border-blue-500",
+            'is_active': True
+        }
+    ]
+
+    for social_media_data in social_media_data:
+        existing = SocialMedia.query.filter_by(platform=social_media_data['platform']).first()
+        if not existing:
+            social_media = SocialMedia(**social_media_data)
+            db.session.add(social_media)
+            print(f"Created social media: {social_media_data['platform']}")
+        else:
+            print(f"Social media already exists: {social_media_data['platform']}")
+
+    db.session.commit()
+    set_applied_version('social_media', SEED_VERSIONS['social_media'])
+    print("Social media seeded successfully!")    
+
 def run_seed():
     """Run all seed operations with versioning"""
     app = create_app()
@@ -598,6 +657,7 @@ def run_seed():
         seed_email_templates()
         seed_system_settings()
         seed_partners()
+        seed_social_media()
         
         admin_email = os.environ.get('ADMIN_EMAIL', 'admin@planlyze.com')
         admin_password = os.environ.get('ADMIN_PASSWORD', 'Admin@123')
