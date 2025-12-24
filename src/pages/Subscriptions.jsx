@@ -72,17 +72,31 @@ export default function Subscriptions() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 via-white to-orange-50" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-md hover:shadow-lg transition-all duration-300 border-slate-300 hover:border-purple-400"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
+        {/* Tabs at the top */}
+        <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate(createPageUrl("Dashboard"))}
+              className="shadow-md hover:shadow-lg transition-all duration-300 border-slate-300 hover:border-purple-400"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <TabsList>
+              <TabsTrigger value="payments">
+                <Banknote className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
+                {t('subscriptions.paymentRequests')}
+              </TabsTrigger>
+              <TabsTrigger value="transactions">
+                <Clock className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
+                {t('subscriptions.transactions')}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* Header */}
+          <div className="animate-in fade-in slide-in-from-top-4 duration-500">
             <h1 className="text-4xl font-bold text-orange-600">
               {t('subscriptions.title')}
             </h1>
@@ -90,26 +104,6 @@ export default function Subscriptions() {
               {t('subscriptions.subtitle')}
             </p>
           </div>
-        </div>
-
-        {/* History Tabs */}
-        <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <TabsList className="grid w-full grid-cols-2 h-14 p-1 bg-slate-100 rounded-xl">
-            <TabsTrigger 
-              value="payments" 
-              className="data-[state=inactive]:text-slate-600 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg font-semibold text-base transition-all duration-300"
-            >
-              <Banknote className="w-5 h-5 mr-2" />
-              {t('subscriptions.paymentRequests')}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="transactions" 
-              className="data-[state=inactive]:text-slate-600 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg font-semibold text-base transition-all duration-300"
-            >
-              <Clock className="w-5 h-5 mr-2" />
-              {t('subscriptions.transactions')}
-            </TabsTrigger>
-          </TabsList>
 
           {/* Payment Requests Tab */}
           <TabsContent value="payments" className="mt-6">
