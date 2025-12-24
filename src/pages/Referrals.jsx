@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { 
-  ArrowLeft, Users, Gift, Copy, Check, Share2, 
+  Users, Gift, Copy, Check, Share2, 
   Sparkles, TrendingUp, Award, UserPlus
 } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -130,29 +131,13 @@ export default function Referrals() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 space-y-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4"
-        >
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-md hover:shadow-lg transition-all border-slate-300 dark:border-gray-600 hover:border-purple-400 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-orange-600 dark:text-orange-500">
-              {t('referrals.title')}
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
-              {t('referrals.subtitle')}
-            </p>
-          </div>
-        </motion.div>
+        <PageHeader
+          title={t('referrals.title')}
+          description={t('referrals.subtitle')}
+          backUrl={createPageUrl("Dashboard")}
+          icon={Gift}
+          isArabic={isArabic}
+        />
 
         {/* How It Works Card */}
         <motion.div

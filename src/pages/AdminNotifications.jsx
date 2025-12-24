@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Send, Users, User as UserIcon, Shield } from "lucide-react";
+import { Send, Users, User as UserIcon, Shield, Bell } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 
@@ -137,22 +138,13 @@ export default function AdminNotifications() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "إرسال إشعارات" : "Send Notifications"}
-            </h1>
-            <p className="text-slate-600 mt-1">{isArabic ? "إرسال إشعارات مخصصة للمستخدمين" : "Send custom notifications to users"}</p>
-          </div>
-        </div>
+        <PageHeader
+          title={isArabic ? "إرسال إشعارات" : "Send Notifications"}
+          description={isArabic ? "إرسال إشعارات مخصصة للمستخدمين" : "Send custom notifications to users"}
+          backUrl={createPageUrl("Dashboard")}
+          icon={Bell}
+          isArabic={isArabic}
+        />
 
         <Card className="border-2 border-slate-200 shadow-lg bg-white">
           <CardHeader>

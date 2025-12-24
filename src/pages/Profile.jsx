@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowLeft, User as UserIcon, Mail, Phone, MapPin, Lock, Save } from "lucide-react";
+import { User as UserIcon, Mail, Phone, MapPin, Lock, Save } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { logProfileUpdated } from "@/components/utils/activityHelper";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -96,17 +97,13 @@ export default function Profile() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("Dashboard"))} className="shadow-sm dark:border-gray-600 dark:bg-gray-800">
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-orange-600 dark:text-orange-500">
-              {t('profile.title')}
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">{t('profile.subtitle')}</p>
-          </div>
-        </div>
+        <PageHeader
+          title={t('profile.title')}
+          description={t('profile.subtitle')}
+          backUrl={createPageUrl("Dashboard")}
+          icon={UserIcon}
+          isArabic={isArabic}
+        />
 
         <Card className="glass-effect border-0 shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
           <CardHeader>

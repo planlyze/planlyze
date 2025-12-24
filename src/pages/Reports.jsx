@@ -29,7 +29,6 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  ArrowLeft,
   Trash2,
   Loader2,
   MapPin,
@@ -38,6 +37,7 @@ import {
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { canAccessAdmin } from "@/components/utils/permissions";
+import PageHeader from "@/components/common/PageHeader";
 
 const STATUS_CONFIG = {
   draft: { 
@@ -276,37 +276,21 @@ export default function Reports() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-background" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center gap-4 mb-8"
-        >
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-primary">
-              {viewingEmail && !isOwnReports ? (
-                `${t('reports.titleOther')} - ${viewingEmail}`
-              ) : t('reports.title')}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {t('reports.subtitle')}
-            </p>
-          </div>
-          <Link to={createPageUrl("NewAnalysis")}>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              {t('reports.newAnalysis')}
-            </Button>
-          </Link>
-        </motion.div>
+        <PageHeader
+          title={viewingEmail && !isOwnReports ? `${t('reports.titleOther')} - ${viewingEmail}` : t('reports.title')}
+          description={t('reports.subtitle')}
+          backUrl={createPageUrl("Dashboard")}
+          icon={FileText}
+          isArabic={isArabic}
+          actions={
+            <Link to={createPageUrl("NewAnalysis")}>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                {t('reports.newAnalysis')}
+              </Button>
+            </Link>
+          }
+        />
 
         <Card className="border shadow-sm">
           <CardContent className="p-4">

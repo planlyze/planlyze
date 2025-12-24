@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote } from "lucide-react";
+import { Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import PaymentMethodsManager from "../components/admin/PaymentMethodsManager";
@@ -278,23 +279,12 @@ export default function AdminCredits() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("OwnerDashboard"))}
-            className="shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-orange-600">
-              Credits & Revenue Management
-            </h1>
-            <p className="text-slate-600 mt-1">Manage user credits, transactions, and pricing</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Credits & Revenue Management"
+          description="Manage user credits, transactions, and pricing"
+          backUrl={createPageUrl("OwnerDashboard")}
+          icon={Wallet}
+        />
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">

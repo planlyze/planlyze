@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CheckCircle2, XCircle, Eye, Clock, Banknote, Search, Filter } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, Banknote, Search, Filter } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -149,23 +150,12 @@ export default function AdminPayments() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-orange-600">
-              Payment Management
-            </h1>
-            <p className="text-slate-600 mt-1">Review and approve cash payment requests</p>
-          </div>
-          </div>
+        <PageHeader
+          title="Payment Management"
+          description="Review and approve cash payment requests"
+          backUrl={createPageUrl("Dashboard")}
+          icon={Banknote}
+        />
 
           {/* Search and Filters */}
           <Card className="glass-effect border-2 border-slate-200 shadow-lg">

@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail } from "lucide-react";
+import { Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -156,21 +157,19 @@ export default function AdminDiscounts() {
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("Dashboard"))}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "إدارة أكواد الخصم" : "Discount Code Management"}
-            </h1>
-            <p className="text-slate-600 mt-1">{isArabic ? "إنشاء وإدارة أكواد الخصم" : "Create and manage discount codes"}</p>
-          </div>
-          <Button onClick={handleCreate} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2">
-            <Plus className="w-4 h-4" />
-            {isArabic ? "كود جديد" : "New Code"}
-          </Button>
-        </div>
+        <PageHeader
+          title={isArabic ? "إدارة أكواد الخصم" : "Discount Code Management"}
+          description={isArabic ? "إنشاء وإدارة أكواد الخصم" : "Create and manage discount codes"}
+          backUrl={createPageUrl("Dashboard")}
+          icon={Tag}
+          isArabic={isArabic}
+          actions={
+            <Button onClick={handleCreate} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2">
+              <Plus className="w-4 h-4" />
+              {isArabic ? "كود جديد" : "New Code"}
+            </Button>
+          }
+        />
 
         <div className="grid gap-6">
           {discounts.map((discount) => (
