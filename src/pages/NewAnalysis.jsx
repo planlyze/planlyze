@@ -6,11 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/AuthContext";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
 
 export default function NewAnalysis() {
   const navigate = useNavigate();
+  const { user: currentUser, refreshUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -37,6 +39,8 @@ export default function NewAnalysis() {
         throw new Error("Failed to create analysis.");
       }
 
+      await refreshUser();
+
       toast.success(formDataFromWizard.report_language === 'arabic' 
         ? "تم إنشاء التحليل بنجاح!" 
         : "Analysis created successfully!");
@@ -50,16 +54,6 @@ export default function NewAnalysis() {
       setIsSubmitting(false);
     }
   };
-
-  const [currentUser, setCurrentUser] = React.useState(null);
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const user = await auth.me();
-        setCurrentUser(user);
-      } catch {}
-    })();
-  }, []);
 
   if (!authChecked) {
     return (

@@ -35,6 +35,7 @@ import FloatingAIAssistant from "../components/results/FloatingAIAssistant";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { jsPDF } from "jspdf";
+import { useAuth } from "@/lib/AuthContext";
 
 import ExecutiveSummary from "../components/results/ExecutiveSummary";
 import ProblemSolutionFramework from "../components/results/ProblemSolutionFramework";
@@ -98,6 +99,7 @@ const LazyTabContent = ({ isLoaded, isLoading, isArabic, hasError, onRetry, chil
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -692,12 +694,12 @@ export default function AnalysisResult() {
 
     setIsUpgrading(true);
     try {
-      // Call backend API to handle premium upgrade (deducts credit and creates transaction)
       await api.post(`/analyses/${analysis.id}/upgrade-premium`);
+      
+      await refreshUser();
       
       toast.success(analysis.report_language === 'arabic' ? 'تمت الترقية بنجاح!' : 'Successfully upgraded!');
       
-      // Reload to show premium features
       setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error('Upgrade failed:', error);
