@@ -55,7 +55,11 @@ export default function AdminPayments() {
       setPaymentMethods(methods);
     } catch (error) {
       console.error("Error loading payments:", error);
-      window.location.href = '/login';
+      if (error?.status === 401 || error?.data?.error === 'Not authenticated') {
+        window.location.href = '/login';
+      } else {
+        toast.error("Failed to load payments. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
