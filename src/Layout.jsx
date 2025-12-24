@@ -100,6 +100,13 @@ const adminNavigationItems = [
     requiredPermissions: [PERMISSIONS.VIEW_ANALYSES]
   },
   {
+    id: "admin_referrals",
+    title: "All Referrals",
+    url: createPageUrl("AdminReferrals"),
+    icon: UserIcon,
+    requiredPermissions: [PERMISSIONS.VIEW_USERS]
+  },
+  {
     id: "admin_credits",
     title: "Credits Management",
     url: createPageUrl("AdminCredits"),
