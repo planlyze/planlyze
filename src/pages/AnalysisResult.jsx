@@ -376,111 +376,171 @@ export default function AnalysisResult() {
       addPage();
       addTitle(isArabic ? 'نظرة عامة' : 'Overview');
       const overview = allTabData.overview || analysis.report || {};
+      if (overview.value_proposition) {
+        addSubtitle(isArabic ? 'القيمة المقترحة' : 'Value Proposition');
+        addText(overview.value_proposition);
+      }
+      if (overview.market_fit_score !== undefined) {
+        addSubtitle(isArabic ? 'المقاييس الرئيسية' : 'Key Metrics');
+        addText(`${isArabic ? 'نسبة ملاءمة السوق:' : 'Market Fit Score:'} ${overview.market_fit_score}%`);
+        if (overview.time_to_build_months) addText(`${isArabic ? 'وقت البناء:' : 'Time to Build:'} ${overview.time_to_build_months} ${isArabic ? 'شهر' : 'months'}`);
+        if (overview.competitors_count) addText(`${isArabic ? 'عدد المنافسين:' : 'Competitors:'} ${overview.competitors_count}`);
+        if (overview.starting_cost_usd) addText(`${isArabic ? 'تكلفة البداية:' : 'Starting Cost:'} $${overview.starting_cost_usd?.toLocaleString()}`);
+      }
       if (overview.executive_summary) {
         addSubtitle(isArabic ? 'الملخص التنفيذي' : 'Executive Summary');
         addText(overview.executive_summary);
-      }
-      if (overview.problem_solution) {
-        addSubtitle(isArabic ? 'المشكلة والحل' : 'Problem & Solution');
-        addText(overview.problem_solution?.problem || overview.problem_solution);
       }
 
       // Market Section
       addPage();
       addTitle(isArabic ? 'تحليل السوق' : 'Market Analysis');
       const market = allTabData.market || {};
-      if (market.market_opportunity) addText(market.market_opportunity);
-      if (market.target_audience) {
-        addSubtitle(isArabic ? 'الجمهور المستهدف' : 'Target Audience');
-        addText(typeof market.target_audience === 'string' ? market.target_audience : JSON.stringify(market.target_audience));
+      if (market.target_audiences && Array.isArray(market.target_audiences)) {
+        addSubtitle(isArabic ? 'الجمهور المستهدف' : 'Target Audiences');
+        market.target_audiences.forEach((audience) => {
+          addText(`• ${audience.segment || audience.name}: ${audience.description || ''}`);
+        });
       }
-      if (market.competitors && Array.isArray(market.competitors)) {
+      if (market.key_problems && Array.isArray(market.key_problems)) {
+        addSubtitle(isArabic ? 'المشاكل الرئيسية' : 'Key Problems');
+        market.key_problems.forEach((problem) => {
+          addText(`• ${problem.problem || problem.title || (typeof problem === 'string' ? problem : '')}`);
+        });
+      }
+      if (market.syrian_competitors && Array.isArray(market.syrian_competitors)) {
         addSubtitle(isArabic ? 'المنافسون' : 'Competitors');
-        addBulletList(market.competitors.map(c => typeof c === 'string' ? c : c.name || JSON.stringify(c)));
+        addBulletList(market.syrian_competitors.map(c => typeof c === 'string' ? c : c.name || JSON.stringify(c)));
+      }
+      if (market.swot) {
+        addSubtitle('SWOT');
+        if (market.swot.strengths && Array.isArray(market.swot.strengths)) {
+          addText(isArabic ? 'نقاط القوة:' : 'Strengths:');
+          addBulletList(market.swot.strengths);
+        }
+        if (market.swot.weaknesses && Array.isArray(market.swot.weaknesses)) {
+          addText(isArabic ? 'نقاط الضعف:' : 'Weaknesses:');
+          addBulletList(market.swot.weaknesses);
+        }
+        if (market.swot.opportunities && Array.isArray(market.swot.opportunities)) {
+          addText(isArabic ? 'الفرص:' : 'Opportunities:');
+          addBulletList(market.swot.opportunities);
+        }
+        if (market.swot.threats && Array.isArray(market.swot.threats)) {
+          addText(isArabic ? 'التهديدات:' : 'Threats:');
+          addBulletList(market.swot.threats);
+        }
       }
 
-      // Business Section
+      // Business Section (Go-to-Market Strategy)
       addPage();
-      addTitle(isArabic ? 'نموذج العمل' : 'Business Model');
+      addTitle(isArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
       const business = allTabData.business || {};
-      if (business.business_model) addText(business.business_model);
-      if (business.revenue_streams && Array.isArray(business.revenue_streams)) {
-        addSubtitle(isArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
-        addBulletList(business.revenue_streams);
+      if (business.go_to_market_strategy) {
+        if (business.go_to_market_strategy.marketing_strategy?.overview) {
+          addSubtitle(isArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
+          addText(business.go_to_market_strategy.marketing_strategy.overview);
+        }
+        if (business.go_to_market_strategy.validation_steps && Array.isArray(business.go_to_market_strategy.validation_steps)) {
+          addSubtitle(isArabic ? 'خطوات التحقق' : 'Validation Steps');
+          business.go_to_market_strategy.validation_steps.forEach((step) => {
+            addText(`• ${step.step || step}: ${step.description || ''}`);
+          });
+        }
       }
-      if (business.go_to_market) {
-        addSubtitle(isArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
-        addText(business.go_to_market);
+      if (business.distribution_channels && Array.isArray(business.distribution_channels)) {
+        addSubtitle(isArabic ? 'قنوات التوزيع' : 'Distribution Channels');
+        business.distribution_channels.forEach((channel) => {
+          addText(`• ${channel.channel_name || channel}: ${channel.details || ''}`);
+        });
+      }
+      if (business.kpis && Array.isArray(business.kpis)) {
+        addSubtitle(isArabic ? 'مؤشرات الأداء الرئيسية' : 'Key Performance Indicators');
+        business.kpis.forEach((kpi) => {
+          addText(`• ${kpi.metric || kpi}: ${kpi.target || ''}`);
+        });
       }
 
       // Technical Section
       addPage();
       addTitle(isArabic ? 'التنفيذ التقني' : 'Technical Implementation');
       const technical = allTabData.technical || {};
-      if (technical.tech_stack) {
-        addSubtitle(isArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
-        if (typeof technical.tech_stack === 'object') {
-          Object.entries(technical.tech_stack).forEach(([key, value]) => {
-            addText(`${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
+      if (technical.technical_stack) {
+        if (technical.technical_stack.recommended_stack && Array.isArray(technical.technical_stack.recommended_stack)) {
+          addSubtitle(isArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
+          technical.technical_stack.recommended_stack.forEach((tech) => {
+            addText(`• ${tech.category}: ${tech.technology}`);
           });
-        } else {
-          addText(technical.tech_stack);
+        }
+        if (technical.technical_stack.estimated_time) {
+          addText(`${isArabic ? 'الوقت المقدر:' : 'Estimated Time:'} ${technical.technical_stack.estimated_time}`);
+        }
+        if (technical.technical_stack.languages && Array.isArray(technical.technical_stack.languages)) {
+          addText(`${isArabic ? 'لغات البرمجة:' : 'Languages:'} ${technical.technical_stack.languages.join(', ')}`);
         }
       }
-      if (technical.development_phases && Array.isArray(technical.development_phases)) {
-        addSubtitle(isArabic ? 'مراحل التطوير' : 'Development Phases');
-        technical.development_phases.forEach((phase, i) => {
-          addText(`${i + 1}. ${phase.name || phase}`);
+      if (technical.development_plan && Array.isArray(technical.development_plan)) {
+        addSubtitle(isArabic ? 'خطة التطوير' : 'Development Plan');
+        technical.development_plan.forEach((phase) => {
+          addText(`${phase.version || phase.name || ''}`);
+          if (phase.features && Array.isArray(phase.features)) {
+            phase.features.forEach((f) => {
+              addText(`  • ${f.feature || f}`);
+            });
+          }
         });
+      }
+      if (technical.mvp) {
+        addSubtitle('MVP');
+        if (technical.mvp.core_features && Array.isArray(technical.mvp.core_features)) {
+          addBulletList(technical.mvp.core_features);
+        }
       }
 
       // Financial Section
       addPage();
-      addTitle(isArabic ? 'التوقعات المالية' : 'Financial Projections');
+      addTitle(isArabic ? 'التحليل المالي' : 'Financial Analysis');
       const financial = allTabData.financial || {};
-      if (financial.startup_costs) {
-        addSubtitle(isArabic ? 'تكاليف البداية' : 'Startup Costs');
-        addText(financial.startup_costs);
+      if (financial.revenue_streams && Array.isArray(financial.revenue_streams)) {
+        addSubtitle(isArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
+        financial.revenue_streams.forEach((stream) => {
+          addText(`• ${stream.name || stream}: ${stream.description || ''}`);
+        });
       }
-      if (financial.revenue_projections) {
-        addSubtitle(isArabic ? 'توقعات الإيرادات' : 'Revenue Projections');
-        addText(typeof financial.revenue_projections === 'string' ? financial.revenue_projections : JSON.stringify(financial.revenue_projections));
+      if (financial.pricing_strategy) {
+        addSubtitle(isArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
+        if (financial.pricing_strategy.model) addText(`${isArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
+        if (financial.pricing_strategy.tiers && Array.isArray(financial.pricing_strategy.tiers)) {
+          financial.pricing_strategy.tiers.forEach((tier) => {
+            addText(`• ${tier.name}: ${tier.price}`);
+          });
+        }
       }
-      if (financial.funding_recommendations) {
-        addSubtitle(isArabic ? 'توصيات التمويل' : 'Funding Recommendations');
-        addText(financial.funding_recommendations);
+      if (financial.funding_opportunities && Array.isArray(financial.funding_opportunities)) {
+        addSubtitle(isArabic ? 'فرص التمويل' : 'Funding Opportunities');
+        financial.funding_opportunities.forEach((fund) => {
+          addText(`• ${fund.type || fund}: ${fund.source || ''} - ${fund.amount_range || ''}`);
+        });
       }
 
       // Strategy Section
       addPage();
-      addTitle(isArabic ? 'الاستراتيجية' : 'Strategy');
+      addTitle(isArabic ? 'الاستراتيجية وخطة العمل' : 'Strategy & Action Plan');
       const strategy = allTabData.strategy || {};
-      if (strategy.swot) {
-        addSubtitle('SWOT');
-        if (strategy.swot.strengths) {
-          addText(isArabic ? 'نقاط القوة:' : 'Strengths:');
-          addBulletList(strategy.swot.strengths);
-        }
-        if (strategy.swot.weaknesses) {
-          addText(isArabic ? 'نقاط الضعف:' : 'Weaknesses:');
-          addBulletList(strategy.swot.weaknesses);
-        }
-        if (strategy.swot.opportunities) {
-          addText(isArabic ? 'الفرص:' : 'Opportunities:');
-          addBulletList(strategy.swot.opportunities);
-        }
-        if (strategy.swot.threats) {
-          addText(isArabic ? 'التهديدات:' : 'Threats:');
-          addBulletList(strategy.swot.threats);
-        }
+      if (strategy.risk_assessment && Array.isArray(strategy.risk_assessment)) {
+        addSubtitle(isArabic ? 'تقييم المخاطر' : 'Risk Assessment');
+        strategy.risk_assessment.forEach((risk) => {
+          addText(`• ${risk.risk || risk} (${risk.severity || ''})`);
+          if (risk.mitigation) addText(`  ${isArabic ? 'التخفيف:' : 'Mitigation:'} ${risk.mitigation}`);
+        });
       }
-      if (strategy.risks && Array.isArray(strategy.risks)) {
-        addSubtitle(isArabic ? 'المخاطر' : 'Risks');
-        addBulletList(strategy.risks.map(r => typeof r === 'string' ? r : r.description || JSON.stringify(r)));
-      }
-      if (strategy.next_steps && Array.isArray(strategy.next_steps)) {
-        addSubtitle(isArabic ? 'الخطوات التالية' : 'Next Steps');
-        addBulletList(strategy.next_steps);
+      if (strategy.action_plan && Array.isArray(strategy.action_plan)) {
+        addSubtitle(isArabic ? 'خطة العمل' : 'Action Plan');
+        strategy.action_plan.forEach((step) => {
+          addText(`${step.step_number || ''}. ${step.title || step}`);
+          if (step.description) addText(`   ${step.description}`);
+          if (step.timeline) addText(`   ${isArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
+        });
       }
 
       setExportProgress({ show: true, step: isArabic ? 'جارٍ الحفظ...' : 'Saving...', progress: 95 });
