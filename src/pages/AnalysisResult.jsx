@@ -140,8 +140,8 @@ export default function AnalysisResult() {
         language: lang
       });
       
-      if (response.data) {
-        setTabData(prev => ({ ...prev, [tabName]: response.data }));
+      if (response.data?.data) {
+        setTabData(prev => ({ ...prev, [tabName]: response.data.data }));
         setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       }
     } catch (error) {
@@ -268,8 +268,8 @@ export default function AnalysisResult() {
                 tab_name: tabName,
                 language: lang
               });
-              if (response.data) {
-                allTabData[tabName] = response.data;
+              if (response.data?.data) {
+                allTabData[tabName] = response.data.data;
               }
             } catch (err) {
               console.error(`Error loading ${tabName}:`, err);
