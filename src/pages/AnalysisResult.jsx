@@ -10,7 +10,6 @@ import { format } from "date-fns";
 import {
   ArrowLeft,
   Globe,
-  Printer,
   FileText,
   MapPin,
   Download,
@@ -98,7 +97,6 @@ export default function AnalysisResult() {
   const navigate = useNavigate();
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingCsv, setIsDownloadingCsv] = useState(false);
   const [canRate, setCanRate] = useState(false);
@@ -227,15 +225,6 @@ export default function AnalysisResult() {
   useEffect(() => {
     loadAnalysis();
   }, [loadAnalysis]);
-
-  // Replace export with browser print
-  const handleExport = async () => {
-    setIsExporting(true);
-    setTimeout(() => {
-      window.print();
-      setIsExporting(false);
-    }, 50);
-  };
 
   const handleDownloadPdf = async () => {
     if (!analysis) return;
@@ -762,15 +751,6 @@ export default function AnalysisResult() {
             
             {isPremium ? (
               <>
-                <Button
-                  onClick={handleExport}
-                  disabled={isExporting}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Printer className="w-4 h-4" />
-                  {isExporting ? (isArabic ? 'جارٍ...' : 'Printing...') : (isArabic ? 'طباعة' : 'Print')}
-                </Button>
                 <Button
                   onClick={handleDownloadPdf}
                   disabled={isDownloadingPdf}
