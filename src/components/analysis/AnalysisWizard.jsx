@@ -6,10 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Sparkles, Lightbulb, AlertCircle } from "lucide-react";
+import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
+import { api } from "@/api/client";
+import { toast } from "sonner";
 
 const REPORT_LANGUAGES = [
   { value: "english", label: "English", flag: "🇺🇸" },
@@ -36,7 +38,9 @@ export default function AnalysisWizard({ onSubmit }) {
     }
   }, [user]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [aiValidationError, setAiValidationError] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -49,6 +53,10 @@ export default function AnalysisWizard({ onSubmit }) {
         ...prev,
         [field]: null
       }));
+    }
+    
+    if (field === 'business_idea' && aiValidationError) {
+      setAiValidationError(null);
     }
   };
 
@@ -86,9 +94,34 @@ export default function AnalysisWizard({ onSubmit }) {
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
-    setIsSubmitting(true);
-    await onSubmit(formData);
-    setIsSubmitting(false);
+    setAiValidationError(null);
+    setIsValidating(true);
+    
+    try {
+      const validationResp = await api.post('/analyses/validate-idea', {
+        business_idea: formData.business_idea,
+        report_language: formData.report_language
+      });
+      
+      const validation = validationResp?.data || validationResp;
+      
+      if (!validation.valid) {
+        setAiValidationError(validation.reason);
+        setIsValidating(false);
+        return;
+      }
+      
+      setIsValidating(false);
+      setIsSubmitting(true);
+      await onSubmit(formData);
+      setIsSubmitting(false);
+      
+    } catch (error) {
+      console.error("Validation failed:", error);
+      const errorMsg = error?.response?.data?.error || error.message || "Validation failed";
+      toast.error(errorMsg);
+      setIsValidating(false);
+    }
   };
 
   return (
@@ -137,6 +170,24 @@ export default function AnalysisWizard({ onSubmit }) {
                     <AlertCircle className="w-4 h-4" />
                     {validationErrors.business_idea}
                   </p>
+                )}
+                
+                {aiValidationError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 p-4 bg-red-50 border-2 border-red-200 rounded-xl"
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-red-700">
+                          {formData.report_language === 'arabic' ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
+                        </p>
+                        <p className="text-sm text-red-600 mt-1">{aiValidationError}</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
               </div>
 
@@ -263,12 +314,17 @@ export default function AnalysisWizard({ onSubmit }) {
       <div className="flex justify-center mt-8">
         <Button
           onClick={handleSubmit}
-          disabled={!canSubmit() || isSubmitting}
+          disabled={!canSubmit() || isSubmitting || isValidating}
           className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-3 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:bg-slate-400">
-          {isSubmitting ? (
+          {isValidating ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-              {formData.report_language === 'arabic' ? 'جاري الإنشاء...' : 'Creating...'}
+              {formData.report_language === 'arabic' ? 'جاري التحقق من الفكرة...' : 'Validating idea...'}
+            </>
+          ) : isSubmitting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              {formData.report_language === 'arabic' ? 'جاري الإنشاء...' : 'Creating analysis...'}
             </>
           ) : (
             <>
