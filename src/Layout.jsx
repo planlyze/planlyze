@@ -93,6 +93,13 @@ const adminNavigationItems = [
     requiredPermissions: [PERMISSIONS.VIEW_OWNER_DASHBOARD]
   },
   {
+    id: "admin_reports",
+    title: "All Reports",
+    url: createPageUrl("AdminReports"),
+    icon: FileText,
+    requiredPermissions: [PERMISSIONS.VIEW_ANALYSES]
+  },
+  {
     id: "admin_credits",
     title: "Credits Management",
     url: createPageUrl("AdminCredits"),
