@@ -80,15 +80,16 @@ def generate_analysis(user):
     
     analysis.status = 'processing'
     
-    pending_transaction = Transaction(
+    user.credits -= 1
+    transaction = Transaction(
         user_email=user.email,
         type='usage',
         credits=-1,
-        description=f'Analysis: {analysis.business_idea[:50]}...',
+        description=f'Premium Analysis: {analysis.business_idea[:50]}...',
         reference_id=analysis.id,
-        status='pending'
+        status='completed'
     )
-    db.session.add(pending_transaction)
+    db.session.add(transaction)
     db.session.commit()
     
     try:
@@ -218,8 +219,6 @@ Be specific, actionable, and realistic. Tailor all recommendations to a tech ent
         analysis.recommendations = report.get('recommendations')
         analysis.score = report.get('score', 0)
         
-        user.credits -= 1
-        pending_transaction.status = 'completed'
         db.session.commit()
         
         return jsonify(analysis.to_dict())
@@ -227,7 +226,6 @@ Be specific, actionable, and realistic. Tailor all recommendations to a tech ent
     except Exception as e:
         analysis.status = 'failed'
         analysis.last_error = str(e)
-        db.session.delete(pending_transaction)
         db.session.commit()
         return jsonify({'error': str(e)}), 500
 
@@ -235,7 +233,7 @@ Be specific, actionable, and realistic. Tailor all recommendations to a tech ent
 @require_auth
 def fail_analysis(user):
     """
-    Mark analysis as failed and cleanup pending transactions
+    Mark analysis as failed
     ---
     tags:
       - AI Analysis
@@ -254,9 +252,6 @@ def fail_analysis(user):
             error:
               type: string
               description: Error message to store
-            transaction_id:
-              type: string
-              description: ID of the pending transaction to remove
     responses:
       200:
         description: Cleanup completed
@@ -268,7 +263,6 @@ def fail_analysis(user):
     data = request.get_json()
     analysis_id = data.get('analysis_id')
     error_msg = data.get('error', 'Analysis failed')
-    transaction_id = data.get('transaction_id')
     
     if analysis_id:
         analysis = Analysis.query.get(analysis_id)
@@ -277,11 +271,6 @@ def fail_analysis(user):
                 return jsonify({'error': 'Access denied'}), 403
             analysis.status = 'failed'
             analysis.last_error = error_msg
-    
-    if transaction_id:
-        transaction = Transaction.query.get(transaction_id)
-        if transaction and transaction.user_email == user.email and transaction.status == 'pending':
-            db.session.delete(transaction)
     
     db.session.commit()
     
