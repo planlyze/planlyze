@@ -1424,7 +1424,7 @@ def get_discount_code_users(user, id):
             'payment_id': payment.id,
             'user_email': payment.user_email,
             'user_name': payment_user.full_name if payment_user else None,
-            'amount': payment.amount,
+            'amount': payment.amount_usd,
             'discount_amount': payment.discount_amount,
             'credits': payment.credits,
             'status': payment.status,
