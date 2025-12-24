@@ -149,6 +149,22 @@ def _register_error_handlers(app):
     def handle_internal_error(error):
         """Handle 500 Internal Server Error"""
         logger.error(f"Internal server error: {str(error)}")
+        
+        from flask import request as flask_request
+        try:
+            from server.services.admin_notification_service import notify_server_error
+            user_email = None
+            if hasattr(flask_request, 'current_user') and flask_request.current_user:
+                user_email = getattr(flask_request.current_user, 'email', None)
+            notify_server_error(
+                flask_request.path,
+                flask_request.method,
+                str(error),
+                user_email
+            )
+        except Exception as notify_error:
+            logger.error(f"Admin notification error: {notify_error}")
+        
         return APIResponse.error("Internal server error", status_code=500)
     
     logger.info("Error handlers registered")

@@ -144,7 +144,26 @@ Each tab generates content via separate Claude API calls on first access and cac
 - **Free reports**: Limited analysis when user has no credits
 - Transaction handling with pending/completed/refunded states
 
+## Admin Notification System
+The platform sends automated notifications to admins for important events:
+
+### Events Triggering Notifications
+1. **Contact Messages**: When users submit the contact form
+2. **Failed Analyses**: When AI analysis fails for any reason
+3. **New Payment Requests**: When users submit payment for credits
+4. **Server Errors (500)**: When internal server errors occur
+5. **New Ratings**: When users rate their analysis reports
+
+### Notification Channels
+- **Email**: All notifications sent to `info@planlyze.com`
+- **In-App**: Notifications saved to database for all admin/super_admin users
+
+### Implementation
+- Service: `server/services/admin_notification_service.py`
+- Functions: `notify_contact_message()`, `notify_failed_analysis()`, `notify_new_payment()`, `notify_server_error()`, `notify_new_rating()`
+
 ## Recent Changes
+- Added admin notification system for contact messages, failed analyses, payments, server errors, and ratings
 - Partners section now loads from database with bilingual support
 - Dynamic landing page statistics from database
 - Consolidated utility functions (safeFormatDate, createPageUrl)

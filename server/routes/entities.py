@@ -507,6 +507,17 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                         logger.info(f"[Claude LLM] Credit refunded for analysis: {analysis_id}")
                         print(f"[Claude LLM] Credit refunded for analysis: {analysis_id}")
                     
+                    from server.services.admin_notification_service import notify_failed_analysis
+                    try:
+                        notify_failed_analysis(
+                            analysis_record.user_email if analysis_record else 'Unknown',
+                            analysis_id,
+                            analysis_record.business_idea if analysis_record else 'Unknown',
+                            f"{error_type}: {error_details}"
+                        )
+                    except Exception as notify_err:
+                        print(f"Admin notification error: {notify_err}")
+                    
                     logger.info(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
                     print(f"[Claude LLM] Cleanup completed for failed analysis: {analysis_id}")
                 except Exception as cleanup_error:
@@ -542,6 +553,12 @@ def contact_public():
         )
         db.session.add(contact_msg)
         db.session.commit()
+
+        from server.services.admin_notification_service import notify_contact_message
+        try:
+            notify_contact_message(name, email, 'Contact Form Message', message)
+        except Exception as notify_error:
+            print(f"Admin notification error: {notify_error}")
 
         email_sent = False
         zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
@@ -763,11 +780,27 @@ def update_analysis(user, id):
         return jsonify({'error': 'Access denied'}), 403
     
     data = request.get_json()
+    old_rating = analysis.user_rating
+    
     for key, value in data.items():
         if hasattr(analysis, key) and key not in ['id', 'user_email', 'created_at']:
             setattr(analysis, key, value)
     
     db.session.commit()
+    
+    if 'user_rating' in data and data['user_rating'] and old_rating != data['user_rating']:
+        from server.services.admin_notification_service import notify_new_rating
+        try:
+            notify_new_rating(
+                user.email,
+                analysis.id,
+                analysis.business_idea or 'Unknown',
+                data['user_rating'],
+                data.get('user_feedback')
+            )
+        except Exception as notify_error:
+            print(f"Admin notification error: {notify_error}")
+    
     return jsonify(analysis.to_dict())
 
 @entities_bp.route('/analyses/<id>', methods=['DELETE'])
@@ -1122,6 +1155,18 @@ def create_payment(user):
             discount.used_count = (discount.used_count or 0) + 1
     
     db.session.commit()
+
+    from server.services.admin_notification_service import notify_new_payment
+    try:
+        notify_new_payment(
+            user.email,
+            data.get('amount_usd'),
+            f"{data.get('credits')} credits",
+            data.get('payment_method')
+        )
+    except Exception as notify_error:
+        print(f"Admin notification error: {notify_error}")
+
     return jsonify(payment.to_dict()), 201
 
 @entities_bp.route('/payments/<id>/approve', methods=['POST'])

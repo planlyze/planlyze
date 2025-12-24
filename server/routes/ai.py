@@ -227,6 +227,18 @@ Be specific, actionable, and realistic. Tailor all recommendations to a tech ent
         analysis.status = 'failed'
         analysis.last_error = str(e)
         db.session.commit()
+        
+        from server.services.admin_notification_service import notify_failed_analysis
+        try:
+            notify_failed_analysis(
+                analysis.user_email,
+                analysis.id,
+                analysis.business_idea or 'Unknown',
+                str(e)
+            )
+        except Exception as notify_error:
+            print(f"Admin notification error: {notify_error}")
+        
         return jsonify({'error': str(e)}), 500
 
 @ai_bp.route('/fail-analysis', methods=['POST'])
@@ -271,6 +283,17 @@ def fail_analysis(user):
                 return jsonify({'error': 'Access denied'}), 403
             analysis.status = 'failed'
             analysis.last_error = error_msg
+            
+            from server.services.admin_notification_service import notify_failed_analysis
+            try:
+                notify_failed_analysis(
+                    analysis.user_email,
+                    analysis.id,
+                    analysis.business_idea or 'Unknown',
+                    error_msg
+                )
+            except Exception as notify_error:
+                print(f"Admin notification error: {notify_error}")
     
     db.session.commit()
     
