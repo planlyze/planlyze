@@ -414,187 +414,93 @@ export default function Reports() {
                     }}
                   >
                     <Card 
-                      className="glass-effect border-2 border-slate-200 dark:border-gray-700 shadow-xl hover:shadow-2xl hover:border-purple-400 transition-all duration-300 overflow-hidden group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
+                      className="border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 rounded-xl"
                     >
-                      <CardContent className="p-8 relative">
-                      <div className="flex justify-between items-start mb-6 gap-6">
-                        <div className="flex-1 min-w-0">
-                          <motion.h3 
-                            className="text-2xl font-bold text-slate-800 dark:text-white mb-3 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors line-clamp-2 cursor-pointer"
-                            whileHover={{ x: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            {analysis.business_idea}
-                          </motion.h3>
-                        </div>
-                        <div className="flex flex-col items-end gap-3 flex-shrink-0">
-                          <div className="flex items-center gap-2 flex-wrap justify-end">
-                            <motion.div
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Badge className={`${statusColors[analysis.status]} px-3 py-1.5 text-sm font-semibold shadow-sm hover:shadow-md transition-shadow`}>
-                                <StatusIcon className="w-4 h-4 mr-1.5" />
+                      <CardContent className="p-6 relative">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white line-clamp-2">
+                              {analysis.business_idea}
+                            </h3>
+                            
+                            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                              <Clock className="w-4 h-4" />
+                              <span>
+                                {analysis.created_at ? format(new Date(analysis.created_at), "MMM d, yyyy 'at' h:mm a") : ''}
+                              </span>
+                            </div>
+                            
+                            {analysis.country && (
+                              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                                <MapPin className="w-4 h-4" />
+                                <span>{analysis.country}</span>
+                              </div>
+                            )}
+                            
+                            <div className="flex items-center gap-2 pt-1">
+                              {analysis.is_premium ? (
+                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+                                  <Sparkles className="w-4 h-4" />
+                                  Premium
+                                </span>
+                              ) : (
+                                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                  Free
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div className="pt-1">
+                              <Badge className={`${statusColors[analysis.status]} px-3 py-1 text-xs font-medium`}>
+                                <StatusIcon className="w-3 h-3 mr-1" />
                                 {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
                               </Badge>
-                            </motion.div>
-                            <motion.div
-                              whileHover={{ scale: 1.05, rotate: analysis.is_premium ? 5 : 0 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              {analysis.is_premium ? (
-                                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all">
-                                  <motion.div
-                                    animate={{ 
-                                      rotate: [0, 10, -10, 0],
-                                      scale: [1, 1.1, 1]
-                                    }}
-                                    transition={{ 
-                                      duration: 2,
-                                      repeat: Infinity,
-                                      ease: "easeInOut"
-                                    }}
-                                  >
-                                    <Sparkles className="w-3 h-3 mr-1" />
-                                  </motion.div>
-                                  Premium
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm font-semibold hover:border-slate-400 transition-colors">
-                                  Free
-                                </Badge>
-                              )}
-                            </motion.div>
+                            </div>
                           </div>
-                          {typeof analysis.user_rating === 'number' && (
-                            <motion.div 
-                              className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg hover:shadow-md transition-shadow"
-                              whileHover={{ scale: 1.05 }}
-                            >
-                              <StarRating value={analysis.user_rating} disabled size={18} />
-                              <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">{analysis.user_rating}/5</span>
-                            </motion.div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-4 mb-6">
-                        <motion.div 
-                          className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-gray-700 rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
-                          whileHover={{ scale: 1.05, x: 5 }}
-                          transition={{ type: "spring", stiffness: 400 }}
-                        >
-                          <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {analysis.created_at ? format(new Date(analysis.created_at), "MMM d, yyyy 'at' h:mm a") : ''}
-                          </span>
-                        </motion.div>
-                        {analysis.country && (
-                          <motion.div 
-                            className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                            whileHover={{ scale: 1.05, x: 5 }}
-                            transition={{ type: "spring", stiffness: 400 }}
-                          >
-                            <MapPin className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                            <span className="text-sm font-semibold text-purple-700 dark:text-purple-400">{analysis.country}</span>
-                          </motion.div>
-                        )}
-                        {analysis.report_language && (
-                          <motion.div 
-                            className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
-                            whileHover={{ scale: 1.05, x: 5 }}
-                            transition={{ type: "spring", stiffness: 400 }}
-                          >
-                            <Globe className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                            <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
-                              {analysis.report_language === 'arabic' ? (isArabic ? 'عربي' : 'Arabic') : (isArabic ? 'إنجليزي' : 'English')}
-                            </span>
-                          </motion.div>
-                        )}
-                      </div>
-
-                      <div className="flex justify-end gap-3 flex-wrap">
-                        {isOwnReports && (
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDelete(analysis)}
-                              disabled={isDeleting}
-                              className="gap-2 h-11 px-5 shadow-md hover:shadow-lg transition-all"
-                            >
-                              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                              {isDeleting ? (isArabic ? "جارٍ الحذف..." : "Deleting...") : (isArabic ? "حذف" : "Delete")}
-                            </Button>
-                          </motion.div>
-                        )}
-                        {analysis.status === 'completed' && analysis.is_premium && (
-                          <>
-                            <motion.div
-                              whileHover={{ scale: 1.05, y: -2 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button 
-                                variant="outline"
-                                onClick={() => handleExport(analysis)}
-                                disabled={exportingId === analysis.id}
-                                className="gap-2 h-11 px-5 border-2 border-orange-300 hover:bg-orange-50 hover:border-orange-400 shadow-md hover:shadow-lg transition-all"
+                          
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {isOwnReports && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(analysis)}
+                                disabled={isDeleting}
+                                className="h-10 w-10 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 rounded-lg"
                               >
-                                {exportingId === analysis.id ? (
-                                  <Loader2 className="w-4 h-4 text-orange-600 animate-spin" />
+                                {isDeleting ? (
+                                  <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
                                 ) : (
-                                  <Download className="w-4 h-4 text-orange-600" />
+                                  <Trash2 className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                                 )}
-                                {isArabic ? "تصدير" : "Export"}
                               </Button>
-                            </motion.div>
-                            <motion.div
-                              whileHover={{ scale: 1.05, y: -2 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button 
-                                variant="outline"
-                                onClick={() => handleShare(analysis)}
-                                className="gap-2 h-11 px-5 border-2 border-purple-300 hover:bg-purple-50 hover:border-purple-400 shadow-md hover:shadow-lg transition-all"
+                            )}
+                            
+                            {analysis.status === 'completed' ? (
+                              <Link 
+                                to={createPageUrl(
+                                  `AnalysisResult?id=${analysis.id}${!isOwnReports && viewingEmail ? `&user=${encodeURIComponent(viewingEmail)}` : ''}`
+                                )}
                               >
-                                <Share2 className="w-4 h-4 text-purple-600" />
-                                {isArabic ? "مشاركة" : "Share"}
+                                <Button className="gap-2 h-10 px-5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+                                  <Eye className="w-4 h-4" />
+                                  {isArabic ? "عرض التقرير" : "View Report"}
+                                </Button>
+                              </Link>
+                            ) : analysis.status === 'analyzing' ? (
+                              <Button variant="outline" disabled className="gap-2 h-10 px-5 rounded-lg">
+                                <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                                {isArabic ? "قيد المعالجة..." : "Processing..."}
                               </Button>
-                            </motion.div>
-                          </>
-                        )}
-                        {analysis.status === 'completed' ? (
-                          <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Link 
-                              to={createPageUrl(
-                                `AnalysisResult?id=${analysis.id}${!isOwnReports && viewingEmail ? `&user=${encodeURIComponent(viewingEmail)}` : ''}`
-                              )}
-                            >
-                              <Button className="gap-2 h-11 px-6 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white shadow-md hover:shadow-xl transition-all">
-                                <Eye className="w-5 h-5" />
-                                {isArabic ? "عرض التقرير" : "View Report"}
+                            ) : (
+                              <Button variant="outline" disabled className="gap-2 h-10 px-5 rounded-lg text-slate-500">
+                                <AlertCircle className="w-4 h-4" />
+                                {analysis.status === 'failed' ? (isArabic ? 'فشل' : 'Failed') : (isArabic ? 'مسودة' : 'Draft')}
                               </Button>
-                            </Link>
-                          </motion.div>
-                        ) : analysis.status === 'analyzing' ? (
-                          <Button variant="outline" disabled className="gap-2 h-11 px-6 border-2">
-                            <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
-                            {isArabic ? "قيد المعالجة..." : "Processing..."}
-                          </Button>
-                        ) : (
-                          <Button variant="outline" disabled className="gap-2 h-11 px-6 border-2 text-slate-500">
-                            <AlertCircle className="w-5 h-5" />
-                            {analysis.status === 'failed' ? (isArabic ? 'فشل' : 'Failed') : (isArabic ? 'مسودة' : 'Draft')}
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                 </motion.div>
                 );
               })}
