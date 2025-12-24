@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Bot, X, Sparkles, Send, Trash2, RefreshCw } from "lucide-react";
+import { Bot, X, Sparkles, Send, Trash2, RefreshCw, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 const MAX_REGENERATIONS = 3;
 
-export default function FloatingAIAssistant({ analysis, isArabic = false, onRegenerate }) {
+export default function FloatingAIAssistant({ analysis, isArabic = false, onRegenerate, isLocked = false, onUnlock }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -227,9 +227,9 @@ When answering:
           >
             <Button
               onClick={() => setIsOpen(true)}
-              className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110"
+              className={`w-16 h-16 rounded-full ${isLocked ? 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700' : 'bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700'} text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 relative`}
             >
-              <Bot className="w-7 h-7" />
+              {isLocked ? <Lock className="w-7 h-7" /> : <Bot className="w-7 h-7" />}
             </Button>
           </motion.div>
         )}
@@ -237,7 +237,66 @@ When answering:
 
       {/* Chat Window */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && isLocked && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-3rem)]"
+          >
+            <Card className="glass-effect border-2 border-slate-300 shadow-2xl">
+              <CardHeader className="bg-gradient-to-r from-slate-500 to-slate-600 text-white p-4 rounded-t-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-5 h-5" />
+                    <CardTitle className="text-lg">
+                      {isArabic ? 'المساعد الذكي' : 'AI Assistant'}
+                    </CardTitle>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                    className="hover:bg-white/20 text-white h-8 w-8"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6 text-center">
+                <div className="py-8">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-100 to-orange-100 rounded-full flex items-center justify-center">
+                    <Lock className="w-10 h-10 text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">
+                    {isArabic ? 'ميزة متميزة' : 'Premium Feature'}
+                  </h3>
+                  <p className="text-slate-600 mb-6">
+                    {isArabic 
+                      ? 'قم بالترقية إلى التقرير المتميز للوصول إلى المساعد الذكي الذي يمكنه الإجابة على أسئلتك وتقديم رؤى إضافية.'
+                      : 'Upgrade to Premium to access the AI Assistant that can answer your questions and provide additional insights.'}
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setIsOpen(false);
+                      if (onUnlock) onUnlock();
+                    }}
+                    className="gap-2 bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {isArabic ? 'ترقية الآن' : 'Upgrade Now'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Chat Window - Unlocked */}
+      <AnimatePresence>
+        {isOpen && !isLocked && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

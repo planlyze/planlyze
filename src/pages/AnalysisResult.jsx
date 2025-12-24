@@ -1375,21 +1375,20 @@ export default function AnalysisResult() {
 
 
 
-        {/* Floating AI Assistant - Only for Premium Reports */}
-        {isPremium && (
-          <FloatingAIAssistant 
-            analysis={analysis} 
-            isArabic={isArabic}
-            onRegenerate={async (chatContext) => {
-              // Navigate to regeneration with chat context
-              const params = new URLSearchParams({
-                regenerate: analysis.id,
-                context: encodeURIComponent(chatContext.substring(0, 2000))
-              });
-              navigate(createPageUrl(`NewAnalysis?${params.toString()}`));
-            }}
-          />
-        )}
+        {/* Floating AI Assistant - Locked for Free Reports */}
+        <FloatingAIAssistant 
+          analysis={analysis} 
+          isArabic={isArabic}
+          isLocked={!isPremium}
+          onUnlock={handleUpgradeToPremium}
+          onRegenerate={async (chatContext) => {
+            const params = new URLSearchParams({
+              regenerate: analysis.id,
+              context: encodeURIComponent(chatContext.substring(0, 2000))
+            });
+            navigate(createPageUrl(`NewAnalysis?${params.toString()}`));
+          }}
+        />
       </div>
     </div>
   );
