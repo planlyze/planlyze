@@ -32,6 +32,9 @@ import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/common/StarRating";
 import { toast } from "sonner";
 import FloatingAIAssistant from "../components/results/FloatingAIAssistant";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { jsPDF } from "jspdf";
 
 import ExecutiveSummary from "../components/results/ExecutiveSummary";
 import ProblemSolutionFramework from "../components/results/ProblemSolutionFramework";
@@ -99,6 +102,7 @@ export default function AnalysisResult() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingCsv, setIsDownloadingCsv] = useState(false);
+  const [exportProgress, setExportProgress] = useState({ show: false, step: '', progress: 0 });
   const [canRate, setCanRate] = useState(false);
   const [rating, setRating] = useState(null);
   const [feedback, setFeedback] = useState("");
@@ -229,27 +233,268 @@ export default function AnalysisResult() {
   const handleDownloadPdf = async () => {
     if (!analysis) return;
     setIsDownloadingPdf(true);
+    setExportProgress({ show: true, step: isArabic ? 'جارٍ تحضير التقرير...' : 'Preparing report...', progress: 5 });
 
     const sanitize = (s) => {
       const base = String(s || "Report").trim().replace(/[/\\?%*:|"<>]/g, "_").replace(/\s+/g, "_");
       return base.substring(0, 80);
     };
     const filename = `${sanitize(analysis.business_idea)}_Planlyze.pdf`;
+    const tabs = ['overview', 'market', 'business', 'technical', 'financial', 'strategy'];
+    const allTabData = { ...tabData };
 
     try {
-      const reportData = await api.get("/analyses/export");
-      const blob = new Blob([reportData], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success(isArabic ? "تم تنزيل PDF" : "PDF downloaded");
+      // Load all tab content if not already loaded
+      for (let i = 0; i < tabs.length; i++) {
+        const tabName = tabs[i];
+        const progressPercent = 10 + Math.round((i / tabs.length) * 50);
+        setExportProgress({ 
+          show: true, 
+          step: isArabic ? `جارٍ تحميل ${tabName}...` : `Loading ${tabName} section...`, 
+          progress: progressPercent 
+        });
+
+        if (!allTabData[tabName]) {
+          const cachedData = analysis[`tab_${tabName}`];
+          if (cachedData) {
+            allTabData[tabName] = cachedData;
+          } else {
+            try {
+              const lang = analysis?.report_language === 'arabic' ? 'ar' : 'en';
+              const response = await api.post('/ai/generate-tab-content', {
+                analysis_id: analysis.id,
+                tab_name: tabName,
+                language: lang
+              });
+              if (response.data) {
+                allTabData[tabName] = response.data;
+              }
+            } catch (err) {
+              console.error(`Error loading ${tabName}:`, err);
+            }
+          }
+        }
+      }
+
+      setExportProgress({ show: true, step: isArabic ? 'جارٍ إنشاء PDF...' : 'Generating PDF...', progress: 70 });
+
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
+      let yPos = margin;
+
+      const addPage = () => {
+        pdf.addPage();
+        yPos = margin;
+      };
+
+      const checkPageBreak = (neededHeight) => {
+        if (yPos + neededHeight > pageHeight - margin) {
+          addPage();
+        }
+      };
+
+      const addTitle = (text, fontSize = 18) => {
+        checkPageBreak(15);
+        pdf.setFontSize(fontSize);
+        pdf.setTextColor(79, 70, 229);
+        pdf.text(text, margin, yPos);
+        yPos += fontSize * 0.5 + 5;
+      };
+
+      const addSubtitle = (text, fontSize = 14) => {
+        checkPageBreak(12);
+        pdf.setFontSize(fontSize);
+        pdf.setTextColor(51, 65, 85);
+        pdf.text(text, margin, yPos);
+        yPos += fontSize * 0.4 + 4;
+      };
+
+      const addText = (text, fontSize = 10) => {
+        if (!text) return;
+        pdf.setFontSize(fontSize);
+        pdf.setTextColor(71, 85, 105);
+        const lines = pdf.splitTextToSize(String(text), contentWidth);
+        lines.forEach(line => {
+          checkPageBreak(6);
+          pdf.text(line, margin, yPos);
+          yPos += 5;
+        });
+        yPos += 3;
+      };
+
+      const addBulletList = (items, indent = 5) => {
+        if (!items || !Array.isArray(items)) return;
+        items.forEach(item => {
+          checkPageBreak(6);
+          pdf.setFontSize(10);
+          pdf.setTextColor(71, 85, 105);
+          const lines = pdf.splitTextToSize(`• ${item}`, contentWidth - indent);
+          lines.forEach((line, idx) => {
+            pdf.text(line, margin + (idx === 0 ? 0 : indent), yPos);
+            yPos += 5;
+          });
+        });
+        yPos += 3;
+      };
+
+      // Cover Page
+      pdf.setFillColor(79, 70, 229);
+      pdf.rect(0, 0, pageWidth, 60, 'F');
+      pdf.setFontSize(28);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('PLANLYZE', margin, 35);
+      pdf.setFontSize(12);
+      pdf.text(isArabic ? 'تقرير تحليل الأعمال' : 'Business Analysis Report', margin, 48);
+      
+      yPos = 80;
+      pdf.setFontSize(20);
+      pdf.setTextColor(30, 41, 59);
+      const titleLines = pdf.splitTextToSize(analysis.business_idea || 'Business Report', contentWidth);
+      titleLines.forEach(line => {
+        pdf.text(line, margin, yPos);
+        yPos += 10;
+      });
+
+      yPos += 10;
+      pdf.setFontSize(11);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text(`${isArabic ? 'التاريخ:' : 'Date:'} ${format(new Date(analysis.created_at), 'MMMM d, yyyy')}`, margin, yPos);
+      yPos += 7;
+      if (analysis.industry) pdf.text(`${isArabic ? 'المجال:' : 'Industry:'} ${analysis.industry}`, margin, yPos);
+      yPos += 7;
+      if (analysis.country) pdf.text(`${isArabic ? 'الموقع:' : 'Location:'} ${analysis.country}`, margin, yPos);
+
+      setExportProgress({ show: true, step: isArabic ? 'جارٍ إضافة الأقسام...' : 'Adding sections...', progress: 80 });
+
+      // Overview Section
+      addPage();
+      addTitle(isArabic ? 'نظرة عامة' : 'Overview');
+      const overview = allTabData.overview || analysis.report || {};
+      if (overview.executive_summary) {
+        addSubtitle(isArabic ? 'الملخص التنفيذي' : 'Executive Summary');
+        addText(overview.executive_summary);
+      }
+      if (overview.problem_solution) {
+        addSubtitle(isArabic ? 'المشكلة والحل' : 'Problem & Solution');
+        addText(overview.problem_solution?.problem || overview.problem_solution);
+      }
+
+      // Market Section
+      addPage();
+      addTitle(isArabic ? 'تحليل السوق' : 'Market Analysis');
+      const market = allTabData.market || {};
+      if (market.market_opportunity) addText(market.market_opportunity);
+      if (market.target_audience) {
+        addSubtitle(isArabic ? 'الجمهور المستهدف' : 'Target Audience');
+        addText(typeof market.target_audience === 'string' ? market.target_audience : JSON.stringify(market.target_audience));
+      }
+      if (market.competitors && Array.isArray(market.competitors)) {
+        addSubtitle(isArabic ? 'المنافسون' : 'Competitors');
+        addBulletList(market.competitors.map(c => typeof c === 'string' ? c : c.name || JSON.stringify(c)));
+      }
+
+      // Business Section
+      addPage();
+      addTitle(isArabic ? 'نموذج العمل' : 'Business Model');
+      const business = allTabData.business || {};
+      if (business.business_model) addText(business.business_model);
+      if (business.revenue_streams && Array.isArray(business.revenue_streams)) {
+        addSubtitle(isArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
+        addBulletList(business.revenue_streams);
+      }
+      if (business.go_to_market) {
+        addSubtitle(isArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
+        addText(business.go_to_market);
+      }
+
+      // Technical Section
+      addPage();
+      addTitle(isArabic ? 'التنفيذ التقني' : 'Technical Implementation');
+      const technical = allTabData.technical || {};
+      if (technical.tech_stack) {
+        addSubtitle(isArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
+        if (typeof technical.tech_stack === 'object') {
+          Object.entries(technical.tech_stack).forEach(([key, value]) => {
+            addText(`${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
+          });
+        } else {
+          addText(technical.tech_stack);
+        }
+      }
+      if (technical.development_phases && Array.isArray(technical.development_phases)) {
+        addSubtitle(isArabic ? 'مراحل التطوير' : 'Development Phases');
+        technical.development_phases.forEach((phase, i) => {
+          addText(`${i + 1}. ${phase.name || phase}`);
+        });
+      }
+
+      // Financial Section
+      addPage();
+      addTitle(isArabic ? 'التوقعات المالية' : 'Financial Projections');
+      const financial = allTabData.financial || {};
+      if (financial.startup_costs) {
+        addSubtitle(isArabic ? 'تكاليف البداية' : 'Startup Costs');
+        addText(financial.startup_costs);
+      }
+      if (financial.revenue_projections) {
+        addSubtitle(isArabic ? 'توقعات الإيرادات' : 'Revenue Projections');
+        addText(typeof financial.revenue_projections === 'string' ? financial.revenue_projections : JSON.stringify(financial.revenue_projections));
+      }
+      if (financial.funding_recommendations) {
+        addSubtitle(isArabic ? 'توصيات التمويل' : 'Funding Recommendations');
+        addText(financial.funding_recommendations);
+      }
+
+      // Strategy Section
+      addPage();
+      addTitle(isArabic ? 'الاستراتيجية' : 'Strategy');
+      const strategy = allTabData.strategy || {};
+      if (strategy.swot) {
+        addSubtitle('SWOT');
+        if (strategy.swot.strengths) {
+          addText(isArabic ? 'نقاط القوة:' : 'Strengths:');
+          addBulletList(strategy.swot.strengths);
+        }
+        if (strategy.swot.weaknesses) {
+          addText(isArabic ? 'نقاط الضعف:' : 'Weaknesses:');
+          addBulletList(strategy.swot.weaknesses);
+        }
+        if (strategy.swot.opportunities) {
+          addText(isArabic ? 'الفرص:' : 'Opportunities:');
+          addBulletList(strategy.swot.opportunities);
+        }
+        if (strategy.swot.threats) {
+          addText(isArabic ? 'التهديدات:' : 'Threats:');
+          addBulletList(strategy.swot.threats);
+        }
+      }
+      if (strategy.risks && Array.isArray(strategy.risks)) {
+        addSubtitle(isArabic ? 'المخاطر' : 'Risks');
+        addBulletList(strategy.risks.map(r => typeof r === 'string' ? r : r.description || JSON.stringify(r)));
+      }
+      if (strategy.next_steps && Array.isArray(strategy.next_steps)) {
+        addSubtitle(isArabic ? 'الخطوات التالية' : 'Next Steps');
+        addBulletList(strategy.next_steps);
+      }
+
+      setExportProgress({ show: true, step: isArabic ? 'جارٍ الحفظ...' : 'Saving...', progress: 95 });
+
+      // Save PDF
+      pdf.save(filename);
+      
+      setExportProgress({ show: true, step: isArabic ? 'تم!' : 'Done!', progress: 100 });
+      setTimeout(() => {
+        setExportProgress({ show: false, step: '', progress: 0 });
+        toast.success(isArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully");
+      }, 500);
+
     } catch (error) {
       console.error("Error downloading PDF:", error);
+      setExportProgress({ show: false, step: '', progress: 0 });
       toast.error(isArabic ? "فشل تنزيل ملف PDF" : "Failed to download PDF");
     } finally {
       setIsDownloadingPdf(false);
@@ -791,6 +1036,32 @@ export default function AnalysisResult() {
           ownerEmail={currentUser?.email}
           isArabic={isArabic}
         />
+
+        {/* Export Progress Modal */}
+        <Dialog open={exportProgress.show} onOpenChange={() => {}}>
+          <DialogContent className="sm:max-w-md" aria-describedby="export-progress-description">
+            <div className="flex flex-col items-center py-6 space-y-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                <Download className="w-8 h-8 text-purple-600 animate-pulse" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  {isArabic ? 'جارٍ إنشاء التقرير' : 'Generating Report'}
+                </h3>
+                <p id="export-progress-description" className="text-sm text-slate-500">{exportProgress.step}</p>
+              </div>
+              <div className="w-full space-y-2">
+                <Progress value={exportProgress.progress} className="h-2" />
+                <p className="text-xs text-center text-slate-400">{exportProgress.progress}%</p>
+              </div>
+              {exportProgress.progress < 100 && (
+                <p className="text-xs text-slate-400 text-center">
+                  {isArabic ? 'يرجى الانتظار، هذا قد يستغرق بضع ثوانٍ...' : 'Please wait, this may take a few seconds...'}
+                </p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Tabbed Analysis Results */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
