@@ -95,6 +95,7 @@ class Analysis(db.Model):
     recommendations = db.Column(db.JSON)
     score = db.Column(db.Integer)
     user_rating = db.Column(db.Integer, nullable=True)
+    user_feedback = db.Column(db.Text, nullable=True)
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -133,6 +134,7 @@ class Analysis(db.Model):
             'recommendations': self.recommendations,
             'score': self.score,
             'user_rating': self.user_rating,
+            'user_feedback': self.user_feedback,
             'is_deleted': self.is_deleted,
             'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
