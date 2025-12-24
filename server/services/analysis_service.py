@@ -74,11 +74,27 @@ Respond with a JSON object containing:
 - "reason": a brief explanation (in {'Arabic' if language == 'ar' else 'English'})
 - "confidence": a number between 0 and 1 indicating your confidence
 
-IMPORTANT:
-- Be lenient - if someone mentions a product, service, or business concept, consider it valid
-- Accept ideas in any language (English, Arabic, etc.)
-- Reject: random characters, nonsensical text, spam, test messages, greetings without business content
-- Accept: even brief ideas like "coffee shop" or "delivery app" are valid
+IMPORTANT VALIDATION RULES:
+
+REJECT (valid=false) these types of input:
+- Random keyboard mashing: "asdfghjk", "qwerty", "zxcvbnm", "12345", etc.
+- Nonsensical text: "aaa bbb ccc", "test test", "hello hello", etc.
+- Random Arabic letters: "ااااا", "بببب", "ثثثث", "سيبسيب", etc.
+- Gibberish words: made-up words that don't exist in any language
+- Single letters or very short meaningless text
+- Test messages: "test", "testing", "hello", "hi", just greetings
+- Spam or promotional text without a business concept
+- Random sentences that don't describe any product, service, or business
+- Meaningless phrases: "I don't know", "nothing", "whatever", etc.
+
+ACCEPT (valid=true) these types of input:
+- Any product idea: "coffee shop", "mobile app", "restaurant"
+- Service ideas: "delivery service", "consulting", "tutoring"
+- Business concepts in any language (English, Arabic, French, etc.)
+- Even brief ideas are valid if they describe a real product/service
+- Technical startups, e-commerce, social platforms, etc.
+
+The key test: Can this text be meaningfully analyzed as a business? If someone typed random letters or nonsense, reject it.
 
 Respond ONLY with the JSON object, no other text."""
 
