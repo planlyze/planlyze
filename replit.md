@@ -162,7 +162,41 @@ The platform sends automated notifications to admins for important events:
 - Service: `server/services/admin_notification_service.py`
 - Functions: `notify_contact_message()`, `notify_failed_analysis()`, `notify_new_payment()`, `notify_server_error()`, `notify_new_rating()`
 
+## User Notification System
+The platform sends personalized notifications to users for important events. Notifications respect user preferences stored in `notification_preferences`.
+
+### Events Triggering User Notifications
+1. **Referral Joined**: When someone joins using the user's referral code
+2. **Credits Added/Deducted**: When admin adjusts user credits
+3. **Analysis Completed**: When AI analysis finishes successfully
+4. **Payment Status Changed**: When payment is approved or rejected
+5. **Low Credits**: When credits fall to 2 or below
+6. **Shared Report Opened**: When someone views a shared report
+
+### Notification Preferences
+Users can control their notification preferences in their profile. Default preferences:
+```python
+{
+    'email_notifications': True,
+    'analysis_complete': True,
+    'analysis_failed': True,
+    'credits_low': True,
+    'credits_added': True,
+    'credits_deducted': True,
+    'payment_approved': True,
+    'payment_rejected': True,
+    'referral_joined': True,
+    'report_shared_opened': True,
+    'system': True
+}
+```
+
+### Implementation
+- Service: `server/services/user_notification_service.py`
+- Functions: `notify_referral_joined()`, `notify_credits_changed()`, `notify_analysis_completed()`, `notify_payment_status_changed()`, `notify_low_credits()`, `notify_shared_report_opened()`
+
 ## Recent Changes
+- Added user notification system with preference controls
 - Added admin notification system for contact messages, failed analyses, payments, server errors, and ratings
 - Partners section now loads from database with bilingual support
 - Dynamic landing page statistics from database

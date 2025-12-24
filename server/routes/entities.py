@@ -481,6 +481,16 @@ Be specific, actionable, and realistic. Return ONLY the JSON object, no addition
                 print(f"[Claude LLM] Analysis ID: {analysis_id}")
                 print(f"[Claude LLM] Score: {report.get('score', 0)}")
                 
+                from server.services.user_notification_service import notify_analysis_completed, notify_low_credits
+                try:
+                    notify_analysis_completed(analysis_record.user_email, analysis_id, analysis_record.business_idea or 'Unknown')
+                    
+                    target_user = User.query.filter_by(email=analysis_record.user_email).first()
+                    if target_user and target_user.credits <= 2 and target_user.credits > 0:
+                        notify_low_credits(target_user.email, target_user.credits)
+                except Exception as notify_err:
+                    print(f"User notification error: {notify_err}")
+                
             except Exception as e:
                 error_details = str(e)
                 error_type = type(e).__name__
@@ -1195,6 +1205,12 @@ def approve_payment(user, id):
     db.session.add(transaction)
     db.session.commit()
     
+    from server.services.user_notification_service import notify_payment_status_changed
+    try:
+        notify_payment_status_changed(payment.user_email, payment.id, 'approved', payment.credits)
+    except Exception as notify_error:
+        print(f"User notification error: {notify_error}")
+    
     return jsonify(payment.to_dict())
 
 @entities_bp.route('/payments/<id>/reject', methods=['POST'])
@@ -1209,6 +1225,13 @@ def reject_payment(user, id):
     payment.notes = data.get('reason', 'Payment rejected')
     
     db.session.commit()
+    
+    from server.services.user_notification_service import notify_payment_status_changed
+    try:
+        notify_payment_status_changed(payment.user_email, payment.id, 'rejected', None, data.get('reason'))
+    except Exception as notify_error:
+        print(f"User notification error: {notify_error}")
+    
     return jsonify(payment.to_dict())
 
 # Email Template endpoints
@@ -1804,6 +1827,17 @@ def get_shared_report(token):
     share.access_count = (share.access_count or 0) + 1
     db.session.commit()
     
+    from server.services.user_notification_service import notify_shared_report_opened
+    try:
+        notify_shared_report_opened(
+            share.created_by,
+            share.id,
+            analysis.business_idea or 'Unknown',
+            share.access_count
+        )
+    except Exception as notify_error:
+        print(f"User notification error: {notify_error}")
+    
     return jsonify({
         'share': share.to_dict(),
         'analysis': analysis.to_dict()
@@ -1896,6 +1930,12 @@ def apply_referral(user):
     db.session.add(referral)
     db.session.commit()
     
+    from server.services.user_notification_service import notify_referral_joined
+    try:
+        notify_referral_joined(referrer.email, user.full_name or user.display_name, user.email)
+    except Exception as notify_error:
+        print(f"User notification error: {notify_error}")
+    
     return jsonify({'message': 'Referral applied successfully', 'referral': referral.to_dict()})
 
 # Admin user management
@@ -1984,6 +2024,17 @@ def adjust_user_credits(user, id):
     db.session.add(log)
     
     db.session.commit()
+    
+    from server.services.user_notification_service import notify_credits_changed, notify_low_credits
+    try:
+        change_type = 'add' if credits > 0 else 'deduct'
+        notify_credits_changed(target_user.email, abs(credits), change_type, reason, user.email)
+        
+        if target_user.credits <= 2 and target_user.credits > 0:
+            notify_low_credits(target_user.email, target_user.credits)
+    except Exception as notify_error:
+        print(f"User notification error: {notify_error}")
+    
     return jsonify(target_user.to_dict())
 
 # System Settings endpoints

@@ -13,9 +13,12 @@ def default_notification_preferences():
         'analysis_complete': True,
         'analysis_failed': True,
         'credits_low': True,
-        'credits_purchased': True,
+        'credits_added': True,
+        'credits_deducted': True,
         'payment_approved': True,
         'payment_rejected': True,
+        'referral_joined': True,
+        'report_shared_opened': True,
         'system': True
     }
 
