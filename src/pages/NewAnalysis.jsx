@@ -9,12 +9,15 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
+import GeneratingReportLoader from "../components/analysis/GeneratingReportLoader";
 
 export default function NewAnalysis() {
   const navigate = useNavigate();
   const { user: currentUser, refreshUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [pendingAnalysisId, setPendingAnalysisId] = useState(null);
+  const [reportLanguage, setReportLanguage] = useState('english');
 
   React.useEffect(() => {
     (async () => {
@@ -30,6 +33,7 @@ export default function NewAnalysis() {
 
   const handleFormSubmit = async (formDataFromWizard) => {
     setIsSubmitting(true);
+    setReportLanguage(formDataFromWizard.report_language);
 
     try {
       const resp = await api.post('/analyses/generate', formDataFromWizard);
@@ -40,18 +44,22 @@ export default function NewAnalysis() {
       }
 
       await refreshUser();
-
-      toast.success(formDataFromWizard.report_language === 'arabic' 
-        ? "تم إنشاء التحليل بنجاح!" 
-        : "Analysis created successfully!");
-      
-      navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
+      setPendingAnalysisId(createdAnalysis.id);
 
     } catch (error) {
       console.error("Analysis creation failed:", error);
       const errorMsg = error?.response?.data?.error || error.message || "An unexpected error occurred.";
       toast.error(errorMsg);
       setIsSubmitting(false);
+    }
+  };
+
+  const handleLoaderComplete = () => {
+    if (pendingAnalysisId) {
+      toast.success(reportLanguage === 'arabic' 
+        ? "تم إنشاء التحليل بنجاح!" 
+        : "Analysis created successfully!");
+      navigate(createPageUrl(`AnalysisResult?id=${pendingAnalysisId}`));
     }
   };
 
@@ -63,12 +71,26 @@ export default function NewAnalysis() {
     );
   }
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic = currentUser?.language === 'arabic' || reportLanguage === 'arabic';
+
+  if (isSubmitting) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-2 border-slate-200 shadow-lg bg-white">
+            <GeneratingReportLoader 
+              isArabic={reportLanguage === 'arabic'} 
+              onComplete={handleLoaderComplete}
+            />
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="outline"
@@ -85,7 +107,6 @@ export default function NewAnalysis() {
           </div>
         </div>
 
-        {/* Main Content */}
         <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
           <CardHeader className="text-center border-b border-slate-100 pb-6">
             <div className="flex justify-center mb-4">
