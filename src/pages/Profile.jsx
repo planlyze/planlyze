@@ -8,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, User as UserIcon, Mail, Phone, MapPin, Lock, Save, Globe } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Mail, Phone, MapPin, Lock, Save } from "lucide-react";
 import { logProfileUpdated } from "@/components/utils/activityHelper";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -220,32 +219,6 @@ export default function Profile() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="language" className="dark:text-slate-300">{t('profile.language')}</Label>
-                <div className="relative">
-                  <Globe className={`w-4 h-4 text-slate-400 absolute ${isArabic ? 'right-3' : 'left-3'} top-3 z-10`} />
-                  <Select
-                    value={user?.preferred_language || 'english'}
-                    onValueChange={async (value) => {
-                      await User.updateMyUserData({ preferred_language: value });
-                      setUser(prev => ({ ...prev, preferred_language: value }));
-                      i18n.changeLanguage(value === 'arabic' ? 'ar' : 'en');
-                      toast.success(t('profile.languageChanged'));
-                    }}
-                  >
-                    <SelectTrigger className={`${isArabic ? 'pr-9' : 'pl-9'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="arabic">العربية</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {t('profile.languagePlaceholder')}
-                </p>
-              </div>
             </div>
 
             <Separator />
