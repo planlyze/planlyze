@@ -123,6 +123,7 @@ class Analysis(db.Model):
             'budget': self.budget,
             'status': self.status,
             'report_type': self.report_type,
+            'is_premium': self.report_type == 'premium',
             'report_language': self.report_language,
             'pending_transaction_id': self.pending_transaction_id,
             'last_error': self.last_error,
