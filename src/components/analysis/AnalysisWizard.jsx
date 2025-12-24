@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Globe, Sparkles, Lightbulb, AlertCircle } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion } from "framer-motion";
+import { useAuth } from "@/lib/AuthContext";
 
 const REPORT_LANGUAGES = [
   { value: "english", label: "English", flag: "🇺🇸" },
@@ -16,6 +17,7 @@ const REPORT_LANGUAGES = [
 ];
 
 export default function AnalysisWizard({ onSubmit }) {
+  const { user } = useAuth();
   const [autoTarget, setAutoTarget] = useState(true);
   const [formData, setFormData] = useState({
     business_idea: "",
@@ -24,6 +26,15 @@ export default function AnalysisWizard({ onSubmit }) {
     report_language: "english",
     country: "Syria"
   });
+
+  useEffect(() => {
+    if (user?.language) {
+      setFormData(prev => ({
+        ...prev,
+        report_language: user.language === 'arabic' ? 'arabic' : 'english'
+      }));
+    }
+  }, [user]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
 

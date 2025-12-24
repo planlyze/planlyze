@@ -113,7 +113,7 @@ export default function AnalysisResult() {
   const [userCredits, setUserCredits] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("market");
   const [loadedTabs, setLoadedTabs] = useState({});
   const [tabData, setTabData] = useState({});
   const [tabLoading, setTabLoading] = useState({});
@@ -1069,13 +1069,6 @@ export default function AnalysisResult() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-1 bg-slate-100/80 p-1 rounded-xl mb-6">
             <TabsTrigger 
-              value="overview" 
-              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white rounded-lg"
-            >
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "نظرة عامة" : "Overview"}</span>
-            </TabsTrigger>
-            <TabsTrigger 
               value="market" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white rounded-lg"
             >
@@ -1110,155 +1103,16 @@ export default function AnalysisResult() {
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">{isArabic ? "الاستراتيجية" : "Strategy"}</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="rating" 
+              className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500 data-[state=active]:text-white rounded-lg"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? "التقييم" : "Rating"}</span>
+            </TabsTrigger>
           </TabsList>
 
-          {/* Tab 1: Overview - Key Metrics */}
-          <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
-            {/* Key Metrics Card */}
-            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <Target className="w-7 h-7" />
-                  {isArabic ? "المؤشرات الرئيسية" : "Key Metrics"}
-                </h2>
-              </div>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Market Fit - Locked for free */}
-                  {isPremium ? (
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 hover:shadow-lg transition-all">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                          <Target className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-600">{isArabic ? "ملاءمة السوق" : "Market Fit"}</p>
-                          <p className="text-2xl font-bold text-emerald-600">
-                            {tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%
-                          </p>
-                        </div>
-                      </div>
-                      <div className="w-full bg-emerald-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${tabData.overview?.market_fit_score || analysis.step3_market_opportunity?.market_fit_score || businessReport.overall_viability_score || report.score || 75}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ) : (
-                    <LockedContent
-                      title={isArabic ? "ملاءمة السوق" : "Market Fit"}
-                      description={isArabic ? "افتح لمعرفة نسبة ملاءمة السوق" : "Unlock to see market fit score"}
-                      isArabic={isArabic}
-                      onUnlock={handleUpgradeToPremium}
-                      isUnlocking={isUpgrading}
-                      variant="inline"
-                    />
-                  )}
-
-                  {/* Time to Build - Locked for free */}
-                  {isPremium ? (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 hover:shadow-lg transition-all">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-                          <Clock className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-600">{isArabic ? "وقت البناء" : "Time to Build"}</p>
-                          <p className="text-2xl font-bold text-blue-600">
-                            {tabData.overview?.time_to_build_months || analysis.step9_development_plan?.estimated_months || fp.timeline_pricing?.total_months || 3} {isArabic ? "أشهر" : "months"}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-500">{isArabic ? "للوصول إلى MVP" : "to reach MVP"}</p>
-                    </div>
-                  ) : (
-                    <LockedContent
-                      title={isArabic ? "وقت البناء" : "Time to Build"}
-                      description={isArabic ? "افتح لمعرفة الوقت المطلوب" : "Unlock to see build time"}
-                      isArabic={isArabic}
-                      onUnlock={handleUpgradeToPremium}
-                      isUnlocking={isUpgrading}
-                      variant="inline"
-                    />
-                  )}
-
-                  {/* Competitors - Locked for free */}
-                  {isPremium ? (
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-200 hover:shadow-lg transition-all">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
-                          <Users className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-600">{isArabic ? "المنافسون" : "Competitors"}</p>
-                          <p className="text-2xl font-bold text-amber-600">
-                            {tabData.overview?.competitors_count || analysis.step6_competition?.competitor_count || businessReport.competitor_matrix?.length || 5}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-500">{isArabic ? "منافسون في السوق" : "competitors in market"}</p>
-                    </div>
-                  ) : (
-                    <LockedContent
-                      title={isArabic ? "المنافسون" : "Competitors"}
-                      description={isArabic ? "افتح لمعرفة عدد المنافسين" : "Unlock to see competitor count"}
-                      isArabic={isArabic}
-                      onUnlock={handleUpgradeToPremium}
-                      isUnlocking={isUpgrading}
-                      variant="inline"
-                    />
-                  )}
-
-                  {/* Starting Cost - Locked for free */}
-                  {isPremium ? (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-lg transition-all">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                          <DollarSign className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-600">{isArabic ? "تكلفة البدء" : "Starting Cost"}</p>
-                          <p className="text-2xl font-bold text-green-600">
-                            ${tabData.overview?.starting_cost_usd || analysis.step10_financials_risks_swot?.cost_breakdown?.total_startup_cost || fp.cost_breakdown?.total || report.financial_projections?.startup_costs?.total || '5,000'}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-500">{isArabic ? "رأس المال المطلوب" : "required capital"}</p>
-                    </div>
-                  ) : (
-                    <LockedContent
-                      title={isArabic ? "تكلفة البدء" : "Starting Cost"}
-                      description={isArabic ? "افتح لمعرفة رأس المال المطلوب" : "Unlock to see starting cost"}
-                      isArabic={isArabic}
-                      onUnlock={handleUpgradeToPremium}
-                      isUnlocking={isUpgrading}
-                      variant="inline"
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Value Proposition - Separate Card */}
-            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-violet-500 p-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                  <Sparkles className="w-6 h-6" />
-                  {isArabic ? "القيمة المقترحة" : "Value Proposition"}
-                </h2>
-              </div>
-              <CardContent className="p-6">
-                <p className="text-lg text-slate-700 leading-relaxed">
-                  {tabData.overview?.value_proposition || analysis.step1_problem_solution?.value_proposition || report.business_strategy?.value_proposition || businessReport.problem_solution_framework?.value_proposition || (isArabic ? "حل مبتكر يلبي احتياجات السوق ويوفر قيمة فريدة للعملاء المستهدفين." : "An innovative solution that addresses market needs and provides unique value to target customers.")}
-                </p>
-              </CardContent>
-            </Card>
-            </LazyTabContent>
-          </TabsContent>
-
-          {/* Tab 2: Market & Competition */}
+          {/* Tab 1: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
             <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
             
@@ -1463,61 +1317,63 @@ export default function AnalysisResult() {
             )}
             </LazyTabContent>
           </TabsContent>
+
+          {/* Tab 6: Rating */}
+          <TabsContent value="rating" className="space-y-6">
+            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <Sparkles className="w-7 h-7" />
+                  {isArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
+                </h2>
+              </div>
+              <CardContent className="p-6">
+                <p className="text-slate-600 mb-6">
+                  {isArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
+                </p>
+
+                <div className="flex items-center gap-4 mb-6">
+                  <StarRating
+                    value={rating || 0}
+                    onChange={setRating}
+                    disabled={!canRate}
+                    size={32}
+                  />
+                  <span className="text-lg font-semibold text-slate-700">
+                    {rating ? `${rating}/5` : (isArabic ? "بدون تقييم" : "No rating")}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  <Textarea
+                    placeholder={isArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    disabled={!canRate}
+                    className="min-h-[120px]"
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleSaveRating}
+                      disabled={!canRate || savingRating}
+                      className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
+                    >
+                      {savingRating ? (isArabic ? "جارٍ الحفظ..." : "Saving...") : (isArabic ? "حفظ التقييم" : "Save Rating")}
+                    </Button>
+                  </div>
+                </div>
+
+                {!canRate && rating != null && (
+                  <p className="text-sm text-slate-500 mt-4 text-center">
+                    {isArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
 
-        {/* Moved rating widget to the end */}
-        <Card className="glass-effect border-0 shadow-lg no-print">
-          <CardContent className="p-5">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800">
-                  {isArabic ? "قيِّم هذا التقرير" : "Rate this report"}
-                </h3>
-                <p className="text-sm text-slate-600">
-                  {isArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <StarRating
-                  value={rating || 0}
-                  onChange={setRating}
-                  disabled={!canRate}
-                  size={24}
-                />
-                <span className="text-sm text-slate-600">
-                  {rating ? `${rating}/5` : (isArabic ? "بدون تقييم" : "No rating")}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <Textarea
-                placeholder={isArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                disabled={!canRate}
-              />
-              <div className="flex justify-end mt-3">
-                <Button
-                  onClick={handleSaveRating}
-                  disabled={!canRate || savingRating}
-                  className="gap-2"
-                  variant="outline"
-                >
-                  {savingRating ? (isArabic ? "جارٍ الحفظ..." : "Saving...") : (isArabic ? "حفظ التقييم" : "Save rating")}
-                </Button>
-              </div>
-            </div>
-
-            {!canRate && rating != null && (
-              <p className="text-xs text-slate-500 mt-2">
-                {isArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
-              </p>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Floating AI Assistant - Only for Premium Reports */}
         {isPremium && (
