@@ -92,30 +92,18 @@ export default function CashPaymentModal({
   const validateDiscount = async () => {
     if (!discountCode.trim()) return;
 
+    const packagePrice = selectedPackage?.price_usd || selectedPackage?.price || 0;
+    
     setIsValidating(true);
     try {
-      const discount = await DiscountCode.validate(discountCode.toUpperCase());
-
-      const packagePrice =
-        selectedPackage?.price_usd || selectedPackage?.price || 0;
-      if (
-        discount.min_purchase_amount &&
-        discount.min_purchase_amount > packagePrice
-      ) {
-        toast.error(
-          isArabic
-            ? `الحد الأدنى للشراء $${discount.min_purchase_amount}`
-            : `Minimum purchase $${discount.min_purchase_amount} required`
-        );
-        setAppliedDiscount(null);
-        return;
-      }
+      const discount = await DiscountCode.validate(discountCode.toUpperCase(), packagePrice);
 
       setAppliedDiscount(discount);
       toast.success(isArabic ? "تم تطبيق الخصم!" : "Discount applied!");
     } catch (error) {
       console.error("Error validating discount:", error);
       const errorMsg = error?.response?.data?.error || error?.message || "";
+      const errorMsgAr = error?.response?.data?.error_ar || "";
       if (errorMsg.includes("not yet valid")) {
         toast.error(isArabic ? "الكود غير نشط بعد" : "Code is not active yet");
       } else if (errorMsg.includes("expired")) {
@@ -124,6 +112,8 @@ export default function CashPaymentModal({
         toast.error(
           isArabic ? "تم استخدام الكود بالكامل" : "Code has been fully used"
         );
+      } else if (errorMsg.includes("Minimum purchase")) {
+        toast.error(isArabic ? errorMsgAr || errorMsg : errorMsg);
       } else if (errorMsg.includes("Invalid")) {
         toast.error(isArabic ? "كود الخصم غير صالح" : "Invalid discount code");
       } else {

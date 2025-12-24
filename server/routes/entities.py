@@ -1387,18 +1387,24 @@ def delete_discount_code(user, id):
 def validate_discount_code(user):
     data = request.get_json()
     code_str = data.get('code')
+    purchase_amount = data.get('purchase_amount', 0)
     
     code = DiscountCode.query.filter_by(code=code_str, is_active=True).first()
     if not code:
-        return jsonify({'error': 'Invalid discount code'}), 404
+        return jsonify({'error': 'Invalid discount code', 'error_ar': 'رمز الخصم غير صالح'}), 404
     
     now = datetime.utcnow()
     if code.valid_from and now < code.valid_from:
-        return jsonify({'error': 'Discount code not yet valid'}), 400
+        return jsonify({'error': 'Discount code not yet valid', 'error_ar': 'رمز الخصم غير صالح بعد'}), 400
     if code.valid_until and now > code.valid_until:
-        return jsonify({'error': 'Discount code has expired'}), 400
+        return jsonify({'error': 'Discount code has expired', 'error_ar': 'انتهت صلاحية رمز الخصم'}), 400
     if code.max_uses and code.used_count >= code.max_uses:
-        return jsonify({'error': 'Discount code has reached maximum uses'}), 400
+        return jsonify({'error': 'Discount code has reached maximum uses', 'error_ar': 'وصل رمز الخصم إلى الحد الأقصى للاستخدام'}), 400
+    if code.min_purchase_amount and purchase_amount < code.min_purchase_amount:
+        return jsonify({
+            'error': f'Minimum purchase amount is ${code.min_purchase_amount}',
+            'error_ar': f'الحد الأدنى للشراء هو ${code.min_purchase_amount}'
+        }), 400
     
     return jsonify(code.to_dict())
 
