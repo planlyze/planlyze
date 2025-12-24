@@ -287,63 +287,6 @@ export default function AdminCredits() {
           icon={Wallet}
         />
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-800">{users.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Reports</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-indigo-600">{totalReports}</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">${totalRevenue.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Credits Issued</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{totalCreditsIssued}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Credits Used</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{totalCreditsUsed}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect border border-purple-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Credits Available</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{totalCreditsRemaining}</div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full md:w-auto grid-cols-4">
