@@ -317,7 +317,7 @@ export default function AdminSettings() {
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => navigate(createPageUrl("OwnerDashboard"))}
+            onClick={() => navigate(createPageUrl("Dashboard"))}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>

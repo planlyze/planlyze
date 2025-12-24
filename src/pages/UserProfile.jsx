@@ -28,7 +28,7 @@ export default function UserProfile() {
         const urlParams = new URLSearchParams(window.location.search);
         const email = urlParams.get("user");
         if (!email) {
-          navigate(createPageUrl("OwnerDashboard"));
+          navigate(createPageUrl("Dashboard"));
           return;
         }
 
@@ -38,7 +38,7 @@ export default function UserProfile() {
         const allUsers = Array.isArray(usersData) ? usersData : (usersData?.items || []);
         const u = allUsers.find(usr => usr.email === email);
         if (!u) {
-          navigate(createPageUrl("OwnerDashboard"));
+          navigate(createPageUrl("Dashboard"));
           return;
         }
         setTargetUser(u);
@@ -91,7 +91,7 @@ export default function UserProfile() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate(createPageUrl("OwnerDashboard"))}
+            onClick={() => navigate(createPageUrl("Dashboard"))}
             className="shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -283,7 +283,7 @@ export default function AdminCredits() {
         <PageHeader
           title="Credits & Revenue Management"
           description="Manage user credits, transactions, and pricing"
-          backUrl={createPageUrl("OwnerDashboard")}
+          backUrl={createPageUrl("Dashboard")}
           icon={Wallet}
         />
 

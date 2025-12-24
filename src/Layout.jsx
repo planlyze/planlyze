@@ -86,13 +86,6 @@ const baseNavigationItems = [
 
 const adminNavigationItems = [
   {
-    id: "owner_dashboard",
-    title: "Owner Dashboard",
-    url: createPageUrl("OwnerDashboard"),
-    icon: Shield,
-    requiredPermissions: [PERMISSIONS.VIEW_OWNER_DASHBOARD]
-  },
-  {
     id: "admin_reports",
     title: "All Reports",
     url: createPageUrl("AdminReports"),

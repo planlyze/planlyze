@@ -121,7 +121,7 @@ export default function AdminReferrals() {
         <PageHeader
           title="Referral Management"
           description={`${filteredReferrals.length} referrals`}
-          backUrl={createPageUrl("OwnerDashboard")}
+          backUrl={createPageUrl("Dashboard")}
           icon={UserPlus}
         />
 

@@ -2,7 +2,6 @@ import Dashboard from './pages/Dashboard';
 import NewAnalysis from './pages/NewAnalysis';
 import Reports from './pages/Reports';
 import AnalysisResult from './pages/AnalysisResult';
-import OwnerDashboard from './pages/OwnerDashboard';
 import Profile from './pages/Profile';
 import UserProfile from './pages/UserProfile';
 import Credits from './pages/Credits';
@@ -31,7 +30,6 @@ export const PAGES = {
     "NewAnalysis": NewAnalysis,
     "Reports": Reports,
     "AnalysisResult": AnalysisResult,
-    "OwnerDashboard": OwnerDashboard,
     "Profile": Profile,
     "UserProfile": UserProfile,
     "Credits": Credits,

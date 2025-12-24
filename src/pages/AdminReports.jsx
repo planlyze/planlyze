@@ -150,7 +150,7 @@ export default function AdminReports() {
         <PageHeader
           title="All Reports"
           description={`${filteredReports.length} reports`}
-          backUrl={createPageUrl("OwnerDashboard")}
+          backUrl={createPageUrl("Dashboard")}
           icon={FileText}
         />
 
