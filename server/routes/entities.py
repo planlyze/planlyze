@@ -1100,6 +1100,8 @@ def get_payments(user):
 @require_auth
 def create_payment(user):
     data = request.get_json()
+    discount_code_str = data.get('discount_code')
+    
     payment = Payment(
         user_email=user.email,
         amount_usd=data.get('amount_usd'),
@@ -1107,11 +1109,18 @@ def create_payment(user):
         credits=data.get('credits'),
         payment_method=data.get('payment_method'),
         payment_proof=data.get('payment_proof'),
-        discount_code=data.get('discount_code'),
+        discount_code=discount_code_str,
         discount_amount=data.get('discount_amount'),
         notes=data.get('notes')
     )
     db.session.add(payment)
+    
+    # Increment discount code used_count if a discount code was used
+    if discount_code_str:
+        discount = DiscountCode.query.filter_by(code=discount_code_str).first()
+        if discount:
+            discount.used_count = (discount.used_count or 0) + 1
+    
     db.session.commit()
     return jsonify(payment.to_dict()), 201
 
