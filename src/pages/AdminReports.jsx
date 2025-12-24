@@ -35,7 +35,7 @@ export default function AdminReports() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      const roleName = user.role?.name || 'user';
+      const roleName = typeof user.role === 'object' ? user.role?.name : user.role || 'user';
       if (!['admin', 'super_admin', 'owner'].includes(roleName)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view reports");
