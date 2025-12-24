@@ -242,7 +242,7 @@ export default function AnalysisResult() {
       return base.substring(0, 80);
     };
     const filename = `${sanitize(analysis.business_idea)}_Planlyze.pdf`;
-    const tabs = ['overview', 'market', 'business', 'technical', 'financial', 'strategy'];
+    const tabs = ['market', 'business', 'technical', 'financial', 'strategy', 'overview'];
     const allTabData = { ...tabData };
 
     try {
@@ -1164,11 +1164,11 @@ export default function AnalysisResult() {
               <span className="hidden sm:inline">{isArabic ? "الاستراتيجية" : "Strategy"}</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="rating" 
+              value="overview" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500 data-[state=active]:text-white rounded-lg"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "التقييم" : "Rating"}</span>
+              <span className="hidden sm:inline">{isArabic ? "نظرة عامة" : "Overview"}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1378,21 +1378,127 @@ export default function AnalysisResult() {
             </LazyTabContent>
           </TabsContent>
 
-          {/* Tab 6: Rating */}
-          <TabsContent value="rating" className="space-y-6">
-            <Card className="glass-effect border-0 shadow-xl overflow-hidden">
+          {/* Tab 6: Overview */}
+          <TabsContent value="overview" className="space-y-6">
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
+              {tabData.overview && (
+                <>
+                  <Card className="border shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                        <Sparkles className="w-6 h-6" />
+                        {isArabic ? "نظرة عامة على التحليل" : "Analysis Overview"}
+                      </h2>
+                    </div>
+                    <CardContent className="p-6">
+                      {tabData.overview.value_proposition && (
+                        <div className="mb-6">
+                          <h3 className="text-lg font-semibold text-slate-800 mb-2">
+                            {isArabic ? "عرض القيمة" : "Value Proposition"}
+                          </h3>
+                          <p className="text-slate-600 bg-slate-50 p-4 rounded-lg border">
+                            {tabData.overview.value_proposition}
+                          </p>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {tabData.overview.market_fit_score !== undefined && (
+                          <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 text-center">
+                            <div className="text-3xl font-bold text-emerald-600">{tabData.overview.market_fit_score}%</div>
+                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "ملاءمة السوق" : "Market Fit"}</div>
+                          </div>
+                        )}
+                        {tabData.overview.time_to_build_months && (
+                          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
+                            <div className="text-3xl font-bold text-blue-600">{tabData.overview.time_to_build_months}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "أشهر للبناء" : "Months to Build"}</div>
+                          </div>
+                        )}
+                        {tabData.overview.competitors_count !== undefined && (
+                          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200 text-center">
+                            <div className="text-3xl font-bold text-purple-600">{tabData.overview.competitors_count}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "المنافسون" : "Competitors"}</div>
+                          </div>
+                        )}
+                        {tabData.overview.starting_cost_usd && (
+                          <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 text-center">
+                            <div className="text-2xl font-bold text-amber-600">${tabData.overview.starting_cost_usd?.toLocaleString()}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "تكلفة البداية" : "Starting Cost"}</div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-4">
+                      <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                        <Download className="w-6 h-6" />
+                        {isArabic ? "تصدير ومشاركة" : "Export & Share"}
+                      </h2>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex flex-wrap gap-4">
+                        <Button
+                          onClick={() => setShowShareModal(true)}
+                          variant="outline"
+                          className="gap-2 flex-1 min-w-[150px] h-12 border-amber-400 hover:bg-amber-50"
+                        >
+                          <Share2 className="w-5 h-5 text-amber-600" />
+                          {isArabic ? "مشاركة التقرير" : "Share Report"}
+                        </Button>
+                        
+                        {isPremium ? (
+                          <>
+                            <Button
+                              onClick={handleDownloadPdf}
+                              disabled={isDownloadingPdf}
+                              className="gap-2 flex-1 min-w-[150px] h-12 gradient-primary text-white"
+                            >
+                              <Download className="w-5 h-5" />
+                              {isDownloadingPdf ? (isArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isArabic ? 'تحميل PDF' : 'Download PDF')}
+                            </Button>
+                            <Button
+                              onClick={handleDownloadCsv}
+                              disabled={isDownloadingCsv}
+                              variant="outline"
+                              className="gap-2 flex-1 min-w-[150px] h-12"
+                            >
+                              <FileSpreadsheet className="w-5 h-5" />
+                              {isDownloadingCsv ? (isArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isArabic ? 'تحميل CSV' : 'Download CSV')}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            onClick={() => navigate(createPageUrl("Credits"))}
+                            variant="outline"
+                            className="gap-2 flex-1 min-w-[150px] h-12"
+                          >
+                            <Download className="w-5 h-5" />
+                            {isArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </LazyTabContent>
+
+            <Card className="border shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <Sparkles className="w-7 h-7" />
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <Sparkles className="w-6 h-6" />
                   {isArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
                 </h2>
               </div>
               <CardContent className="p-6">
-                <p className="text-slate-600 mb-6">
+                <p className="text-slate-600 mb-4">
                   {isArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
                 </p>
 
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 mb-4">
                   <StarRating
                     value={rating || 0}
                     onChange={setRating}
@@ -1410,7 +1516,7 @@ export default function AnalysisResult() {
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     disabled={!canRate}
-                    className="min-h-[120px]"
+                    className="min-h-[100px]"
                   />
                   <div className="flex justify-end">
                     <Button
