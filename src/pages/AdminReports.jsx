@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Star, Search, Filter, FileText, Calendar, Mail, SortDesc, SortAsc } from "lucide-react";
+import { ArrowLeft, Star, Search, Filter, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,8 +22,10 @@ export default function AdminReports() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   useEffect(() => {
     loadReports();
@@ -57,6 +59,20 @@ export default function AdminReports() {
     }
   };
 
+  const handleStatusChange = async (reportId, newStatus) => {
+    setUpdatingStatus(reportId);
+    try {
+      await Analysis.update(reportId, { status: newStatus });
+      setReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r));
+      toast.success(`Status updated to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
@@ -82,11 +98,13 @@ export default function AdminReports() {
       (typeFilter === "premium" && r.is_premium) ||
       (typeFilter === "free" && !r.is_premium);
 
+    const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+
     const matchesRating = ratingFilter === "all" ||
       (ratingFilter === "rated" && r.user_rating) ||
       (ratingFilter === "unrated" && !r.user_rating);
 
-    return matchesSearch && matchesType && matchesRating;
+    return matchesSearch && matchesType && matchesStatus && matchesRating;
   }).sort((a, b) => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
@@ -167,6 +185,19 @@ export default function AdminReports() {
                 </SelectContent>
               </Select>
 
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={ratingFilter} onValueChange={setRatingFilter}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Rating" />
@@ -226,9 +257,28 @@ export default function AdminReports() {
                         <Badge className={getTypeColor(report.is_premium)}>
                           {report.is_premium ? "Premium" : "Free"}
                         </Badge>
-                        <Badge className={getStatusColor(report.status)}>
-                          {report.status}
-                        </Badge>
+                        <Select 
+                          value={report.status} 
+                          onValueChange={(value) => handleStatusChange(report.id, value)}
+                          disabled={updatingStatus === report.id}
+                        >
+                          <SelectTrigger 
+                            className={`w-[130px] h-7 text-xs ${getStatusColor(report.status)}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {updatingStatus === report.id ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <SelectValue />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent onClick={(e) => e.stopPropagation()}>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="failed">Failed</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
