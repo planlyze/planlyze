@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { canAccessAdmin } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
 const STATUS_CONFIG = {
   draft: { 
@@ -292,34 +293,27 @@ export default function Reports() {
           }
         />
 
-        <Card className="border shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className={`w-4 h-4 text-muted-foreground absolute ${isArabic ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2`} />
-                <Input
-                  placeholder={t('reports.searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`${isArabic ? 'pr-10' : 'pl-10'}`}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <Select value={premiumFilter} onValueChange={setPremiumFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder={t('reports.filterByType')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t('reports.all')}</SelectItem>
-                    <SelectItem value="premium">{t('reports.premium')}</SelectItem>
-                    <SelectItem value="free">{t('reports.free')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <FilterBar>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('reports.searchPlaceholder')}
+            isArabic={isArabic}
+          />
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <Select value={premiumFilter} onValueChange={setPremiumFilter}>
+              <SelectTrigger className={`w-40 ${SELECT_TRIGGER_CLASS}`}>
+                <SelectValue placeholder={t('reports.filterByType')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('reports.all')}</SelectItem>
+                <SelectItem value="premium">{t('reports.premium')}</SelectItem>
+                <SelectItem value="free">{t('reports.free')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </FilterBar>
 
         {isLoading ? (
           <div className="space-y-4">

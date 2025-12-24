@@ -10,10 +10,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Shield, Search, ChevronLeft, ChevronRight, Download, Globe, Activity } from "lucide-react";
+import { Shield, ChevronLeft, ChevronRight, Download, Globe, Activity } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
 export default function AuditLogs() {
   const navigate = useNavigate();
@@ -248,21 +250,12 @@ export default function AuditLogs() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-              Audit Logs
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">Monitor all significant user actions and API requests</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Audit Logs"
+          description="Monitor all significant user actions and API requests"
+          backUrl={createPageUrl("Dashboard")}
+          icon={Activity}
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -318,55 +311,47 @@ export default function AuditLogs() {
               </Card>
             </div>
 
-            <Card className="border-2 border-slate-200 dark:border-slate-700">
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      placeholder="Search by email, description..."
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Select
-                    value={actionFilter}
-                    onValueChange={(val) => {
-                      setActionFilter(val);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full md:w-48">
-                      <SelectValue placeholder="All Actions" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Actions</SelectItem>
-                      <SelectItem value="credit_purchase">Credit Purchase</SelectItem>
-                      <SelectItem value="credit_usage">Credit Usage</SelectItem>
-                      <SelectItem value="credit_adjustment">Admin Adjustment</SelectItem>
-                      <SelectItem value="payment_approved">Payment Approved</SelectItem>
-                      <SelectItem value="payment_rejected">Payment Rejected</SelectItem>
-                      <SelectItem value="payment_submitted">Payment Submitted</SelectItem>
-                      <SelectItem value="role_assigned">Role Assigned</SelectItem>
-                      <SelectItem value="analysis_created">Analysis Created</SelectItem>
-                      <SelectItem value="user_registered">User Registered</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    onClick={exportToCSV}
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    Export
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <FilterBar>
+              <SearchInput
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search by email, description..."
+              />
+              <Select
+                value={actionFilter}
+                onValueChange={(val) => {
+                  setActionFilter(val);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className={`w-[180px] ${SELECT_TRIGGER_CLASS}`}>
+                  <SelectValue placeholder="All Actions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  <SelectItem value="credit_purchase">Credit Purchase</SelectItem>
+                  <SelectItem value="credit_usage">Credit Usage</SelectItem>
+                  <SelectItem value="credit_adjustment">Admin Adjustment</SelectItem>
+                  <SelectItem value="payment_approved">Payment Approved</SelectItem>
+                  <SelectItem value="payment_rejected">Payment Rejected</SelectItem>
+                  <SelectItem value="payment_submitted">Payment Submitted</SelectItem>
+                  <SelectItem value="role_assigned">Role Assigned</SelectItem>
+                  <SelectItem value="analysis_created">Analysis Created</SelectItem>
+                  <SelectItem value="user_registered">User Registered</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={exportToCSV}
+                variant="outline"
+                className="gap-2 h-11"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </FilterBar>
 
             <Card className="border-2 border-slate-200 dark:border-slate-700">
               <CardHeader>

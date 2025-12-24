@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Star, Search, Filter, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw } from "lucide-react";
+import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { useTranslation } from "react-i18next";
+import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
 export default function AdminReports() {
   const navigate = useNavigate();
@@ -145,91 +147,70 @@ export default function AdminReports() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+        <PageHeader
+          title="All Reports"
+          description={`${filteredReports.length} reports`}
+          backUrl={createPageUrl("OwnerDashboard")}
+          icon={FileText}
+        />
+
+        <FilterBar className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by business idea or user email..."
+          />
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="premium">Premium</SelectItem>
+              <SelectItem value="free">Free</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="processing">Processing</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={ratingFilter} onValueChange={setRatingFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="Rating" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Ratings</SelectItem>
+              <SelectItem value="rated">Has Rating</SelectItem>
+              <SelectItem value="unrated">No Rating</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => navigate(createPageUrl("OwnerDashboard"))}
-            className="gap-2"
+            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+            className="gap-2 h-11"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back
+            {sortOrder === "desc" ? (
+              <>
+                <SortDesc className="w-4 h-4" />
+                Newest First
+              </>
+            ) : (
+              <>
+                <SortAsc className="w-4 h-4" />
+                Oldest First
+              </>
+            )}
           </Button>
-          <h1 className="text-2xl font-bold text-slate-800">All Reports</h1>
-          <Badge variant="outline" className="ml-auto">
-            {filteredReports.length} reports
-          </Badge>
-        </div>
-
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by business idea or user email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
-                  <SelectItem value="free">Free</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={ratingFilter} onValueChange={setRatingFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Rating" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Ratings</SelectItem>
-                  <SelectItem value="rated">Has Rating</SelectItem>
-                  <SelectItem value="unrated">No Rating</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-                className="gap-2"
-              >
-                {sortOrder === "desc" ? (
-                  <>
-                    <SortDesc className="w-4 h-4" />
-                    Newest First
-                  </>
-                ) : (
-                  <>
-                    <SortAsc className="w-4 h-4" />
-                    Oldest First
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        </FilterBar>
 
         {filteredReports.length === 0 ? (
           <Card>

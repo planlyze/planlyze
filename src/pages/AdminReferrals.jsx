@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Users, Calendar, Gift, CheckCircle, Clock, SortDesc, SortAsc, Mail, UserPlus } from "lucide-react";
+import { Users, Calendar, Gift, CheckCircle, Clock, SortDesc, SortAsc, Mail, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
 export default function AdminReferrals() {
   const navigate = useNavigate();
@@ -116,21 +118,12 @@ export default function AdminReferrals() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(createPageUrl("OwnerDashboard"))}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold text-slate-800">Referral Management</h1>
-          <Badge variant="outline" className="ml-auto">
-            {filteredReferrals.length} referrals
-          </Badge>
-        </div>
+        <PageHeader
+          title="Referral Management"
+          description={`${filteredReferrals.length} referrals`}
+          backUrl={createPageUrl("OwnerDashboard")}
+          icon={UserPlus}
+        />
 
         <div className="grid md:grid-cols-4 gap-4 mb-6">
           <Card className="bg-white border-slate-200">
@@ -187,41 +180,33 @@ export default function AdminReferrals() {
           </Card>
         </div>
 
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by referrer, referred email or code..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="rewarded">Rewarded</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-                className="gap-2"
-              >
-                {sortOrder === "desc" ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
-                {sortOrder === "desc" ? "Newest" : "Oldest"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <FilterBar className="mb-6">
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by referrer, referred email or code..."
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="rewarded">Rewarded</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+            className="gap-2 h-11"
+          >
+            {sortOrder === "desc" ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
+            {sortOrder === "desc" ? "Newest" : "Oldest"}
+          </Button>
+        </FilterBar>
 
         <Card>
           <CardHeader>

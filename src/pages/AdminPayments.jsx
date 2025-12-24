@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle, Eye, Clock, Banknote, Search, Filter } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -157,74 +158,48 @@ export default function AdminPayments() {
           icon={Banknote}
         />
 
-          {/* Search and Filters */}
-          <Card className="glass-effect border-2 border-slate-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="grid md:grid-cols-4 gap-4">
-                {/* Search */}
-                <div className="relative md:col-span-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    placeholder="Search by Payment ID or Email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-11 border-2 border-slate-300 focus:border-purple-400"
-                  />
-                </div>
-
-                {/* Status Filter */}
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="h-11 border-2 border-slate-300 hover:border-purple-400">
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-slate-500" />
-                      <SelectValue placeholder="All Status" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {/* Package Filter */}
-                <Select value={packageFilter} onValueChange={setPackageFilter}>
-                  <SelectTrigger className="h-11 border-2 border-slate-300 hover:border-purple-400">
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-slate-500" />
-                      <SelectValue placeholder="All Packages" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Packages</SelectItem>
-                    <SelectItem value="single">Single Credit</SelectItem>
-                    <SelectItem value="bundle">Bundle Package</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Payment Method Filter */}
-              <div className="mt-4">
-                <Select value={methodFilter} onValueChange={setMethodFilter}>
-                  <SelectTrigger className="h-11 border-2 border-slate-300 hover:border-purple-400 max-w-xs">
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-slate-500" />
-                      <SelectValue placeholder="All Payment Methods" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Payment Methods</SelectItem>
-                    {paymentMethods.map((method) => (
-                      <SelectItem key={method.id} value={method.name_en}>
-                        {method.name_en}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+        <FilterBar>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Payment ID or Email..."
+            className="md:min-w-[300px]"
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={packageFilter} onValueChange={setPackageFilter}>
+            <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="All Packages" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Packages</SelectItem>
+              <SelectItem value="single">Single Credit</SelectItem>
+              <SelectItem value="bundle">Bundle Package</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={methodFilter} onValueChange={setMethodFilter}>
+            <SelectTrigger className={`w-[180px] ${SELECT_TRIGGER_CLASS}`}>
+              <SelectValue placeholder="All Methods" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Payment Methods</SelectItem>
+              {paymentMethods.map((method) => (
+                <SelectItem key={method.id} value={method.name_en}>
+                  {method.name_en}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterBar>
 
         {/* Pending Payments */}
         <Card className="glass-effect border-2 border-amber-300 shadow-lg">

@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import PaymentMethodsManager from "../components/admin/PaymentMethodsManager";
@@ -370,30 +371,24 @@ export default function AdminCredits() {
               <CardHeader>
                 <CardTitle>User Credit Balances</CardTitle>
                 <CardDescription>View and manage credits for all users</CardDescription>
-                <div className="flex flex-col md:flex-row gap-4 mt-4">
-                  <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      placeholder="Search by User ID, Email, or Name..."
-                      value={userSearchQuery}
-                      onChange={(e) => setUserSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-600">Role:</span>
-                    <Select value={roleFilter} onValueChange={setRoleFilter}>
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Roles</SelectItem>
-                        {roles.map(role => (
-                          <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="flex flex-wrap gap-4 mt-4 items-center">
+                  <SearchInput
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    placeholder="Search by User ID, Email, or Name..."
+                    className="max-w-md"
+                  />
+                  <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className={`w-[140px] ${SELECT_TRIGGER_CLASS}`}>
+                      <SelectValue placeholder="All Roles" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Roles</SelectItem>
+                      {roles.map(role => (
+                        <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
               <CardContent>

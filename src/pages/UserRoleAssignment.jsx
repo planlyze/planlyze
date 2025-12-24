@@ -11,10 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { ArrowLeft, Search, Shield, Users as UsersIcon, AlertTriangle } from "lucide-react";
+import { Shield, Users as UsersIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { PERMISSION_LABELS, hasPermission, PERMISSIONS, canAccessAdmin } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
+import PageHeader from "@/components/common/PageHeader";
+import FilterBar, { SearchInput } from "@/components/common/FilterBar";
 
 export default function UserRoleAssignment() {
   const navigate = useNavigate();
@@ -122,37 +124,20 @@ export default function UserRoleAssignment() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-800">
-              User Role Assignment
-            </h1>
-            <p className="text-slate-600 mt-1">Assign roles to users to control their permissions</p>
-          </div>
-        </div>
+        <PageHeader
+          title="User Role Assignment"
+          description="Assign roles to users to control their permissions"
+          backUrl={createPageUrl("Dashboard")}
+          icon={Shield}
+        />
 
-        {/* Search */}
-        <Card className="border-2 border-slate-200">
-          <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search users by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <FilterBar>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search users by name or email..."
+          />
+        </FilterBar>
 
         {/* Users Table */}
         <Card className="border-2 border-slate-200">
