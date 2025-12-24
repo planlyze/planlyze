@@ -151,9 +151,19 @@ When answering:
 
       const response = await AI.invoke(userMessage.content, systemPrompt);
 
+      if (response?.error) {
+        throw new Error(response.error);
+      }
+
+      const responseText = response?.response || response?.data?.response || response;
+      
+      if (!responseText || typeof responseText !== 'string') {
+        throw new Error('Invalid response from AI');
+      }
+
       const assistantMessage = {
         role: 'assistant',
-        content: response.response || response,
+        content: responseText,
         timestamp: new Date()
       };
 
@@ -162,16 +172,40 @@ When answering:
       await saveConversation(finalMessages);
     } catch (error) {
       console.error("Error sending message:", error);
+      
+      let errorContent = '';
+      const errorMsg = error?.response?.data?.error || error?.message || '';
+      
+      if (errorMsg.includes('AI service not configured') || errorMsg.includes('not configured')) {
+        errorContent = isArabic 
+          ? "⚠️ **خدمة الذكاء الاصطناعي غير متوفرة حالياً**\n\nيبدو أن خدمة الذكاء الاصطناعي غير مُعدة بشكل صحيح. يرجى التواصل مع الدعم الفني."
+          : "⚠️ **AI Service Unavailable**\n\nThe AI service is not properly configured. Please contact support for assistance.";
+      } else if (errorMsg.includes('rate limit') || errorMsg.includes('too many requests')) {
+        errorContent = isArabic 
+          ? "⏳ **تم تجاوز الحد المسموح**\n\nلقد أرسلت عدداً كبيراً من الرسائل في وقت قصير. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى."
+          : "⏳ **Rate Limit Exceeded**\n\nYou've sent too many messages in a short time. Please wait a moment and try again.";
+      } else if (errorMsg.includes('timeout') || errorMsg.includes('timed out')) {
+        errorContent = isArabic 
+          ? "⏰ **انتهت مهلة الطلب**\n\nاستغرق الطلب وقتاً طويلاً. يرجى المحاولة مرة أخرى برسالة أقصر."
+          : "⏰ **Request Timed Out**\n\nThe request took too long. Please try again with a shorter message.";
+      } else if (errorMsg.includes('network') || errorMsg.includes('Network')) {
+        errorContent = isArabic 
+          ? "🌐 **خطأ في الاتصال**\n\nتعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى."
+          : "🌐 **Connection Error**\n\nUnable to connect to the server. Please check your internet connection and try again.";
+      } else {
+        errorContent = isArabic 
+          ? `❌ **حدث خطأ**\n\nعذراً، تعذرت معالجة طلبك. يرجى المحاولة مرة أخرى.\n\n${errorMsg ? `التفاصيل: ${errorMsg}` : ''}`
+          : `❌ **Error Occurred**\n\nSorry, we couldn't process your request. Please try again.\n\n${errorMsg ? `Details: ${errorMsg}` : ''}`;
+      }
+      
       const errorMessage = {
         role: 'assistant',
-        content: isArabic 
-          ? "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى."
-          : "Sorry, there was an error processing your request. Please try again.",
-        timestamp: new Date()
+        content: errorContent,
+        timestamp: new Date(),
+        isError: true
       };
       const finalMessages = [...updatedMessages, errorMessage];
       setMessages(finalMessages);
-      await saveConversation(finalMessages);
     } finally {
       setIsSending(false);
     }
@@ -381,10 +415,12 @@ When answering:
                       <div className={`rounded-2xl p-4 shadow-md ${
                         message.role === 'user' 
                           ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white' 
-                          : 'bg-white border-2 border-slate-200'
+                          : message.isError 
+                            ? 'bg-red-50 border-2 border-red-200'
+                            : 'bg-white border-2 border-slate-200'
                       }`}>
                         {message.role === 'assistant' ? (
-                          <div className="prose prose-sm max-w-none">
+                          <div className={`prose prose-sm max-w-none ${message.isError ? 'text-red-800' : ''}`}>
                             <ReactMarkdown>{message.content}</ReactMarkdown>
                           </div>
                         ) : (
