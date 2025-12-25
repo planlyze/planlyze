@@ -66,7 +66,7 @@ const baseNavigationItems = [
   },
   {
     id: "subscriptions",
-    title: "Subscriptions",
+    title: "Payments",
     url: createPageUrl("Subscriptions"),
     icon: FileText
   },
@@ -216,7 +216,7 @@ export default function Layout({ children, currentPageName }) {
         case "reports": return "تقاريري";
         case "credits": return "الأرصدة";
         case "referrals": return "الإحالات";
-        case "subscriptions": return "الاشتراكات";
+        case "subscriptions": return "المدفوعات";
         case "profile": return "الملف الشخصي";
         case "notifications": return "الإشعارات";
         case "owner_dashboard": return "لوحة المالك";
