@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Globe,
@@ -66,33 +67,33 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 
-const TabLoadingSpinner = ({ isArabic, message }) => (
+const TabLoadingSpinner = ({ isUIArabic, message }) => (
   <div className="flex flex-col items-center justify-center py-16 space-y-4">
     <div className="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
-    <p className="text-slate-600 text-sm">{message || (isArabic ? "جارٍ تحميل البيانات..." : "Loading data...")}</p>
-    <p className="text-slate-400 text-xs">{isArabic ? "يتم توليد المحتوى بالذكاء الاصطناعي" : "AI is generating your content..."}</p>
+    <p className="text-slate-600 text-sm">{message || (isUIArabic ? "جارٍ تحميل البيانات..." : "Loading data...")}</p>
+    <p className="text-slate-400 text-xs">{isUIArabic ? "يتم توليد المحتوى بالذكاء الاصطناعي" : "AI is generating your content..."}</p>
   </div>
 );
 
-const LazyTabContent = ({ isLoaded, isLoading, isArabic, hasError, onRetry, children }) => {
+const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, children }) => {
   if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center py-16 space-y-4">
         <AlertCircle className="w-12 h-12 text-red-500" />
-        <p className="text-slate-700 font-medium">{isArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}</p>
-        <p className="text-slate-500 text-sm">{isArabic ? "انقر على الزر أدناه للمحاولة مرة أخرى" : "Click the button below to try again"}</p>
+        <p className="text-slate-700 font-medium">{isUIArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}</p>
+        <p className="text-slate-500 text-sm">{isUIArabic ? "انقر على الزر أدناه للمحاولة مرة أخرى" : "Click the button below to try again"}</p>
         <button
           onClick={onRetry}
           className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
         >
           <RefreshCw className="w-4 h-4" />
-          {isArabic ? "إعادة المحاولة" : "Retry"}
+          {isUIArabic ? "إعادة المحاولة" : "Retry"}
         </button>
       </div>
     );
   }
   if (isLoading || !isLoaded) {
-    return <TabLoadingSpinner isArabic={isArabic} />;
+    return <TabLoadingSpinner isUIArabic={isUIArabic} />;
   }
   return <>{children}</>;
 };
@@ -100,6 +101,8 @@ const LazyTabContent = ({ isLoaded, isLoading, isArabic, hasError, onRetry, chil
 export default function AnalysisResult() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isUIArabic = i18n.language === 'ar';
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -235,7 +238,7 @@ export default function AnalysisResult() {
   const handleDownloadPdf = async () => {
     if (!analysis) return;
     setIsDownloadingPdf(true);
-    setExportProgress({ show: true, step: isArabic ? 'جارٍ تحضير التقرير...' : 'Preparing report...', progress: 5 });
+    setExportProgress({ show: true, step: isUIArabic ? 'جارٍ تحضير التقرير...' : 'Preparing report...', progress: 5 });
 
     const sanitize = (s) => {
       const base = String(s || "Report").trim().replace(/[/\\?%*:|"<>]/g, "_").replace(/\s+/g, "_");
@@ -252,7 +255,7 @@ export default function AnalysisResult() {
         const progressPercent = 10 + Math.round((i / tabs.length) * 50);
         setExportProgress({ 
           show: true, 
-          step: isArabic ? `جارٍ تحميل ${tabName}...` : `Loading ${tabName} section...`, 
+          step: isUIArabic ? `جارٍ تحميل ${tabName}...` : `Loading ${tabName} section...`, 
           progress: progressPercent 
         });
 
@@ -278,7 +281,7 @@ export default function AnalysisResult() {
         }
       }
 
-      setExportProgress({ show: true, step: isArabic ? 'جارٍ إنشاء PDF...' : 'Generating PDF...', progress: 70 });
+      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ إنشاء PDF...' : 'Generating PDF...', progress: 70 });
 
       // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -350,7 +353,7 @@ export default function AnalysisResult() {
       pdf.setTextColor(255, 255, 255);
       pdf.text('PLANLYZE', margin, 35);
       pdf.setFontSize(12);
-      pdf.text(isArabic ? 'تقرير تحليل الأعمال' : 'Business Analysis Report', margin, 48);
+      pdf.text(isUIArabic ? 'تقرير تحليل الأعمال' : 'Business Analysis Report', margin, 48);
       
       yPos = 80;
       pdf.setFontSize(20);
@@ -364,98 +367,98 @@ export default function AnalysisResult() {
       yPos += 10;
       pdf.setFontSize(11);
       pdf.setTextColor(100, 116, 139);
-      pdf.text(`${isArabic ? 'التاريخ:' : 'Date:'} ${format(new Date(analysis.created_at), 'MMMM d, yyyy')}`, margin, yPos);
+      pdf.text(`${isUIArabic ? 'التاريخ:' : 'Date:'} ${format(new Date(analysis.created_at), 'MMMM d, yyyy')}`, margin, yPos);
       yPos += 7;
-      if (analysis.industry) pdf.text(`${isArabic ? 'المجال:' : 'Industry:'} ${analysis.industry}`, margin, yPos);
+      if (analysis.industry) pdf.text(`${isUIArabic ? 'المجال:' : 'Industry:'} ${analysis.industry}`, margin, yPos);
       yPos += 7;
-      if (analysis.country) pdf.text(`${isArabic ? 'الموقع:' : 'Location:'} ${analysis.country}`, margin, yPos);
+      if (analysis.country) pdf.text(`${isUIArabic ? 'الموقع:' : 'Location:'} ${analysis.country}`, margin, yPos);
 
-      setExportProgress({ show: true, step: isArabic ? 'جارٍ إضافة الأقسام...' : 'Adding sections...', progress: 80 });
+      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ إضافة الأقسام...' : 'Adding sections...', progress: 80 });
 
       // Overview Section
       addPage();
-      addTitle(isArabic ? 'نظرة عامة' : 'Overview');
+      addTitle(isUIArabic ? 'نظرة عامة' : 'Overview');
       const overview = allTabData.overview || analysis.report || {};
       if (overview.value_proposition) {
-        addSubtitle(isArabic ? 'القيمة المقترحة' : 'Value Proposition');
+        addSubtitle(isUIArabic ? 'القيمة المقترحة' : 'Value Proposition');
         addText(overview.value_proposition);
       }
       if (overview.market_fit_score !== undefined) {
-        addSubtitle(isArabic ? 'المقاييس الرئيسية' : 'Key Metrics');
-        addText(`${isArabic ? 'نسبة ملاءمة السوق:' : 'Market Fit Score:'} ${overview.market_fit_score}%`);
-        if (overview.time_to_build_months) addText(`${isArabic ? 'وقت البناء:' : 'Time to Build:'} ${overview.time_to_build_months} ${isArabic ? 'شهر' : 'months'}`);
-        if (overview.competitors_count) addText(`${isArabic ? 'عدد المنافسين:' : 'Competitors:'} ${overview.competitors_count}`);
-        if (overview.starting_cost_usd) addText(`${isArabic ? 'تكلفة البداية:' : 'Starting Cost:'} $${overview.starting_cost_usd?.toLocaleString()}`);
+        addSubtitle(isUIArabic ? 'المقاييس الرئيسية' : 'Key Metrics');
+        addText(`${isUIArabic ? 'نسبة ملاءمة السوق:' : 'Market Fit Score:'} ${overview.market_fit_score}%`);
+        if (overview.time_to_build_months) addText(`${isUIArabic ? 'وقت البناء:' : 'Time to Build:'} ${overview.time_to_build_months} ${isUIArabic ? 'شهر' : 'months'}`);
+        if (overview.competitors_count) addText(`${isUIArabic ? 'عدد المنافسين:' : 'Competitors:'} ${overview.competitors_count}`);
+        if (overview.starting_cost_usd) addText(`${isUIArabic ? 'تكلفة البداية:' : 'Starting Cost:'} $${overview.starting_cost_usd?.toLocaleString()}`);
       }
       if (overview.executive_summary) {
-        addSubtitle(isArabic ? 'الملخص التنفيذي' : 'Executive Summary');
+        addSubtitle(isUIArabic ? 'الملخص التنفيذي' : 'Executive Summary');
         addText(overview.executive_summary);
       }
 
       // Market Section
       addPage();
-      addTitle(isArabic ? 'تحليل السوق' : 'Market Analysis');
+      addTitle(isUIArabic ? 'تحليل السوق' : 'Market Analysis');
       const market = allTabData.market || {};
       if (market.target_audiences && Array.isArray(market.target_audiences)) {
-        addSubtitle(isArabic ? 'الجمهور المستهدف' : 'Target Audiences');
+        addSubtitle(isUIArabic ? 'الجمهور المستهدف' : 'Target Audiences');
         market.target_audiences.forEach((audience) => {
           addText(`• ${audience.segment || audience.name}: ${audience.description || ''}`);
         });
       }
       if (market.key_problems && Array.isArray(market.key_problems)) {
-        addSubtitle(isArabic ? 'المشاكل الرئيسية' : 'Key Problems');
+        addSubtitle(isUIArabic ? 'المشاكل الرئيسية' : 'Key Problems');
         market.key_problems.forEach((problem) => {
           addText(`• ${problem.problem || problem.title || (typeof problem === 'string' ? problem : '')}`);
         });
       }
       if (market.syrian_competitors && Array.isArray(market.syrian_competitors)) {
-        addSubtitle(isArabic ? 'المنافسون' : 'Competitors');
+        addSubtitle(isUIArabic ? 'المنافسون' : 'Competitors');
         addBulletList(market.syrian_competitors.map(c => typeof c === 'string' ? c : c.name || JSON.stringify(c)));
       }
       if (market.swot) {
         addSubtitle('SWOT');
         if (market.swot.strengths && Array.isArray(market.swot.strengths)) {
-          addText(isArabic ? 'نقاط القوة:' : 'Strengths:');
+          addText(isUIArabic ? 'نقاط القوة:' : 'Strengths:');
           addBulletList(market.swot.strengths);
         }
         if (market.swot.weaknesses && Array.isArray(market.swot.weaknesses)) {
-          addText(isArabic ? 'نقاط الضعف:' : 'Weaknesses:');
+          addText(isUIArabic ? 'نقاط الضعف:' : 'Weaknesses:');
           addBulletList(market.swot.weaknesses);
         }
         if (market.swot.opportunities && Array.isArray(market.swot.opportunities)) {
-          addText(isArabic ? 'الفرص:' : 'Opportunities:');
+          addText(isUIArabic ? 'الفرص:' : 'Opportunities:');
           addBulletList(market.swot.opportunities);
         }
         if (market.swot.threats && Array.isArray(market.swot.threats)) {
-          addText(isArabic ? 'التهديدات:' : 'Threats:');
+          addText(isUIArabic ? 'التهديدات:' : 'Threats:');
           addBulletList(market.swot.threats);
         }
       }
 
       // Business Section (Go-to-Market Strategy)
       addPage();
-      addTitle(isArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
+      addTitle(isUIArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
       const business = allTabData.business || {};
       if (business.go_to_market_strategy) {
         if (business.go_to_market_strategy.marketing_strategy?.overview) {
-          addSubtitle(isArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
+          addSubtitle(isUIArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
           addText(business.go_to_market_strategy.marketing_strategy.overview);
         }
         if (business.go_to_market_strategy.validation_steps && Array.isArray(business.go_to_market_strategy.validation_steps)) {
-          addSubtitle(isArabic ? 'خطوات التحقق' : 'Validation Steps');
+          addSubtitle(isUIArabic ? 'خطوات التحقق' : 'Validation Steps');
           business.go_to_market_strategy.validation_steps.forEach((step) => {
             addText(`• ${step.step || step}: ${step.description || ''}`);
           });
         }
       }
       if (business.distribution_channels && Array.isArray(business.distribution_channels)) {
-        addSubtitle(isArabic ? 'قنوات التوزيع' : 'Distribution Channels');
+        addSubtitle(isUIArabic ? 'قنوات التوزيع' : 'Distribution Channels');
         business.distribution_channels.forEach((channel) => {
           addText(`• ${channel.channel_name || channel}: ${channel.details || ''}`);
         });
       }
       if (business.kpis && Array.isArray(business.kpis)) {
-        addSubtitle(isArabic ? 'مؤشرات الأداء الرئيسية' : 'Key Performance Indicators');
+        addSubtitle(isUIArabic ? 'مؤشرات الأداء الرئيسية' : 'Key Performance Indicators');
         business.kpis.forEach((kpi) => {
           addText(`• ${kpi.metric || kpi}: ${kpi.target || ''}`);
         });
@@ -463,24 +466,24 @@ export default function AnalysisResult() {
 
       // Technical Section
       addPage();
-      addTitle(isArabic ? 'التنفيذ التقني' : 'Technical Implementation');
+      addTitle(isUIArabic ? 'التنفيذ التقني' : 'Technical Implementation');
       const technical = allTabData.technical || {};
       if (technical.technical_stack) {
         if (technical.technical_stack.recommended_stack && Array.isArray(technical.technical_stack.recommended_stack)) {
-          addSubtitle(isArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
+          addSubtitle(isUIArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
           technical.technical_stack.recommended_stack.forEach((tech) => {
             addText(`• ${tech.category}: ${tech.technology}`);
           });
         }
         if (technical.technical_stack.estimated_time) {
-          addText(`${isArabic ? 'الوقت المقدر:' : 'Estimated Time:'} ${technical.technical_stack.estimated_time}`);
+          addText(`${isUIArabic ? 'الوقت المقدر:' : 'Estimated Time:'} ${technical.technical_stack.estimated_time}`);
         }
         if (technical.technical_stack.languages && Array.isArray(technical.technical_stack.languages)) {
-          addText(`${isArabic ? 'لغات البرمجة:' : 'Languages:'} ${technical.technical_stack.languages.join(', ')}`);
+          addText(`${isUIArabic ? 'لغات البرمجة:' : 'Languages:'} ${technical.technical_stack.languages.join(', ')}`);
         }
       }
       if (technical.development_plan && Array.isArray(technical.development_plan)) {
-        addSubtitle(isArabic ? 'خطة التطوير' : 'Development Plan');
+        addSubtitle(isUIArabic ? 'خطة التطوير' : 'Development Plan');
         technical.development_plan.forEach((phase) => {
           addText(`${phase.version || phase.name || ''}`);
           if (phase.features && Array.isArray(phase.features)) {
@@ -499,17 +502,17 @@ export default function AnalysisResult() {
 
       // Financial Section
       addPage();
-      addTitle(isArabic ? 'التحليل المالي' : 'Financial Analysis');
+      addTitle(isUIArabic ? 'التحليل المالي' : 'Financial Analysis');
       const financial = allTabData.financial || {};
       if (financial.revenue_streams && Array.isArray(financial.revenue_streams)) {
-        addSubtitle(isArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
+        addSubtitle(isUIArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
         financial.revenue_streams.forEach((stream) => {
           addText(`• ${stream.name || stream}: ${stream.description || ''}`);
         });
       }
       if (financial.pricing_strategy) {
-        addSubtitle(isArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
-        if (financial.pricing_strategy.model) addText(`${isArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
+        addSubtitle(isUIArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
+        if (financial.pricing_strategy.model) addText(`${isUIArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
         if (financial.pricing_strategy.tiers && Array.isArray(financial.pricing_strategy.tiers)) {
           financial.pricing_strategy.tiers.forEach((tier) => {
             addText(`• ${tier.name}: ${tier.price}`);
@@ -517,7 +520,7 @@ export default function AnalysisResult() {
         }
       }
       if (financial.funding_opportunities && Array.isArray(financial.funding_opportunities)) {
-        addSubtitle(isArabic ? 'فرص التمويل' : 'Funding Opportunities');
+        addSubtitle(isUIArabic ? 'فرص التمويل' : 'Funding Opportunities');
         financial.funding_opportunities.forEach((fund) => {
           addText(`• ${fund.type || fund}: ${fund.source || ''} - ${fund.amount_range || ''}`);
         });
@@ -525,39 +528,39 @@ export default function AnalysisResult() {
 
       // Strategy Section
       addPage();
-      addTitle(isArabic ? 'الاستراتيجية وخطة العمل' : 'Strategy & Action Plan');
+      addTitle(isUIArabic ? 'الاستراتيجية وخطة العمل' : 'Strategy & Action Plan');
       const strategy = allTabData.strategy || {};
       if (strategy.risk_assessment && Array.isArray(strategy.risk_assessment)) {
-        addSubtitle(isArabic ? 'تقييم المخاطر' : 'Risk Assessment');
+        addSubtitle(isUIArabic ? 'تقييم المخاطر' : 'Risk Assessment');
         strategy.risk_assessment.forEach((risk) => {
           addText(`• ${risk.risk || risk} (${risk.severity || ''})`);
-          if (risk.mitigation) addText(`  ${isArabic ? 'التخفيف:' : 'Mitigation:'} ${risk.mitigation}`);
+          if (risk.mitigation) addText(`  ${isUIArabic ? 'التخفيف:' : 'Mitigation:'} ${risk.mitigation}`);
         });
       }
       if (strategy.action_plan && Array.isArray(strategy.action_plan)) {
-        addSubtitle(isArabic ? 'خطة العمل' : 'Action Plan');
+        addSubtitle(isUIArabic ? 'خطة العمل' : 'Action Plan');
         strategy.action_plan.forEach((step) => {
           addText(`${step.step_number || ''}. ${step.title || step}`);
           if (step.description) addText(`   ${step.description}`);
-          if (step.timeline) addText(`   ${isArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
+          if (step.timeline) addText(`   ${isUIArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
         });
       }
 
-      setExportProgress({ show: true, step: isArabic ? 'جارٍ الحفظ...' : 'Saving...', progress: 95 });
+      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ الحفظ...' : 'Saving...', progress: 95 });
 
       // Save PDF
       pdf.save(filename);
       
-      setExportProgress({ show: true, step: isArabic ? 'تم!' : 'Done!', progress: 100 });
+      setExportProgress({ show: true, step: isUIArabic ? 'تم!' : 'Done!', progress: 100 });
       setTimeout(() => {
         setExportProgress({ show: false, step: '', progress: 0 });
-        toast.success(isArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully");
+        toast.success(isUIArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully");
       }, 500);
 
     } catch (error) {
       console.error("Error downloading PDF:", error);
       setExportProgress({ show: false, step: '', progress: 0 });
-      toast.error(isArabic ? "فشل تنزيل ملف PDF" : "Failed to download PDF");
+      toast.error(isUIArabic ? "فشل تنزيل ملف PDF" : "Failed to download PDF");
     } finally {
       setIsDownloadingPdf(false);
     }
@@ -677,10 +680,10 @@ export default function AnalysisResult() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast.success(isArabic ? "تم تنزيل CSV" : "CSV downloaded");
+      toast.success(isUIArabic ? "تم تنزيل CSV" : "CSV downloaded");
     } catch (error) {
       console.error("Error downloading CSV:", error);
-      toast.error(isArabic ? "فشل تنزيل ملف CSV" : "Failed to download CSV");
+      toast.error(isUIArabic ? "فشل تنزيل ملف CSV" : "Failed to download CSV");
     } finally {
       setIsDownloadingCsv(false);
     }
@@ -808,7 +811,7 @@ export default function AnalysisResult() {
 
   }
 
-  const isArabic = analysis.report_language === 'arabic';
+  const isReportArabic = analysis.report_language === 'arabic';
   const isPremium = analysis.report_type === 'premium';
   
   // Map backend report structure to frontend expected structure
@@ -837,25 +840,25 @@ export default function AnalysisResult() {
 
   // Replace sectionsNav with the exact order requested - REMOVED as quick nav is removed
   // const sectionsNav = [
-  //   { id: "exec_summary", label: isArabic ? "الملخص التنفيذي" : "Executive Summary", icon: FileText },
-  //   { id: "problem_solution", label: isArabic ? "إطار المشكلة والحل" : "Problem & Solution Framework", icon: Lightbulb },
-  //   { id: "market_opportunity", label: isArabic ? "الفرصة السوقية" : "Market Opportunity", icon: TrendingUp },
-  //   { id: "target_audience", label: isArabic ? "الجمهور المستهدف" : "Target Audience", icon: Users },
-  //   { id: "business_model_revenue", label: isArabic ? "نموذج العمل والإيرادات" : "Business Model & Revenue", icon: DollarSign },
-  //   { id: "go_to_market", label: isArabic ? "استراتيجية دخول السوق" : "Go-to-Market Strategy", icon: Rocket },
-  //   { id: "technical_impl", label: isArabic ? "التنفيذ التقني" : "Technical Implementation", icon: Settings },
-  //   { id: "dev_plan", label: isArabic ? "خطة التطوير" : "Development Plan", icon: Layers },
-  //   { id: "financial_proj", label: isArabic ? "التوقعات المالية" : "Financial Projections", icon: Calculator },
-  //   { id: "risk_mitigation", label: isArabic ? "تقييم المخاطر والتخفيف" : "Risk Assessment & Mitigation", icon: Shield },
-  //   { id: "swot", label: isArabic ? "تحليل SWOT" : "SWOT Analysis", icon: BarChart3 },
-  //   { id: "success_validation", label: isArabic ? "مقاييس النجاح والتحقق" : "Success Metrics & Validation", icon: ListChecks },
-  //   { id: "funding", label: isArabic ? "توصيات التمويل" : "Funding Recommendations", icon: DollarSign },
-  //   { id: "partnerships", label: isArabic ? "فرص الشراكات" : "Partnership Opportunities", icon: Users },
-  //   { id: "recommendations_next", label: isArabic ? "التوصيات والخطوات التالية" : "Recommendations & Next Steps", icon: CheckCircle2 },
+  //   { id: "exec_summary", label: isUIArabic ? "الملخص التنفيذي" : "Executive Summary", icon: FileText },
+  //   { id: "problem_solution", label: isUIArabic ? "إطار المشكلة والحل" : "Problem & Solution Framework", icon: Lightbulb },
+  //   { id: "market_opportunity", label: isUIArabic ? "الفرصة السوقية" : "Market Opportunity", icon: TrendingUp },
+  //   { id: "target_audience", label: isUIArabic ? "الجمهور المستهدف" : "Target Audience", icon: Users },
+  //   { id: "business_model_revenue", label: isUIArabic ? "نموذج العمل والإيرادات" : "Business Model & Revenue", icon: DollarSign },
+  //   { id: "go_to_market", label: isUIArabic ? "استراتيجية دخول السوق" : "Go-to-Market Strategy", icon: Rocket },
+  //   { id: "technical_impl", label: isUIArabic ? "التنفيذ التقني" : "Technical Implementation", icon: Settings },
+  //   { id: "dev_plan", label: isUIArabic ? "خطة التطوير" : "Development Plan", icon: Layers },
+  //   { id: "financial_proj", label: isUIArabic ? "التوقعات المالية" : "Financial Projections", icon: Calculator },
+  //   { id: "risk_mitigation", label: isUIArabic ? "تقييم المخاطر والتخفيف" : "Risk Assessment & Mitigation", icon: Shield },
+  //   { id: "swot", label: isUIArabic ? "تحليل SWOT" : "SWOT Analysis", icon: BarChart3 },
+  //   { id: "success_validation", label: isUIArabic ? "مقاييس النجاح والتحقق" : "Success Metrics & Validation", icon: ListChecks },
+  //   { id: "funding", label: isUIArabic ? "توصيات التمويل" : "Funding Recommendations", icon: DollarSign },
+  //   { id: "partnerships", label: isUIArabic ? "فرص الشراكات" : "Partnership Opportunities", icon: Users },
+  //   { id: "recommendations_next", label: isUIArabic ? "التوصيات والخطوات التالية" : "Recommendations & Next Steps", icon: CheckCircle2 },
   // ];
 
   return (
-    <div className={`min-h-screen p-4 md:p-8 ${isArabic ? 'rtl' : 'ltr'}`} dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className={`min-h-screen p-4 md:p-8 ${isUIArabic ? 'rtl' : 'ltr'}`} dir={isUIArabic ? 'rtl' : 'ltr'}>
       <style>{`
         [dir="rtl"] .rtl .list-disc { margin-right: 1.5rem; margin-left: 0; }
         [dir="rtl"] .rtl .list-decimal { margin-right: 1.5rem; margin-left: 0; }
@@ -1024,11 +1027,11 @@ export default function AnalysisResult() {
               </h1>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 <p className="text-slate-600">
-                  {isArabic ? 'تم إكمال التحليل في' : 'Analysis completed on'} {analysis.created_at ? format(new Date(analysis.created_at), "MMMM d, yyyy") : ''}
+                  {isUIArabic ? 'تم إكمال التحليل في' : 'Analysis completed on'} {analysis.created_at ? format(new Date(analysis.created_at), "MMMM d, yyyy") : ''}
                 </p>
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Globe className="w-3 h-3" />
-                  {isArabic ? 'العربية' : 'English'}
+                  {isUIArabic ? 'العربية' : 'English'}
                 </Badge>
                 {analysis.country && (
                   <Badge variant="outline" className="flex items-center gap-1">
@@ -1038,7 +1041,7 @@ export default function AnalysisResult() {
                 )}
                 {isPremium && (
                   <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white flex items-center gap-1">
-                    ✨ {isArabic ? 'متميز' : 'Premium'}
+                    ✨ {isUIArabic ? 'متميز' : 'Premium'}
                   </Badge>
                 )}
               </div>
@@ -1053,7 +1056,7 @@ export default function AnalysisResult() {
                             className="gap-2 border-amber-400 hover:bg-amber-50 text-amber-600"
                           >
                             <Share2 className="w-4 h-4 text-amber-600" />
-                            {isArabic ? 'مشاركة' : 'Share'}
+                            {isUIArabic ? 'مشاركة' : 'Share'}
             </Button>
             
             {isPremium ? (
@@ -1064,7 +1067,7 @@ export default function AnalysisResult() {
                   className="gap-2 gradient-primary text-white"
                 >
                   <Download className="w-4 h-4" />
-                  {isDownloadingPdf ? (isArabic ? 'جارٍ...' : 'Downloading...') : 'PDF'}
+                  {isDownloadingPdf ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'PDF'}
                 </Button>
                 <Button
                   onClick={handleDownloadCsv}
@@ -1073,7 +1076,7 @@ export default function AnalysisResult() {
                   className="gap-2"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
-                  {isDownloadingCsv ? (isArabic ? 'جارٍ...' : 'Downloading...') : 'CSV'}
+                  {isDownloadingCsv ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'CSV'}
                 </Button>
               </>
             ) : (
@@ -1083,7 +1086,7 @@ export default function AnalysisResult() {
                 className="gap-2"
               >
                 <Download className="w-4 h-4" />
-                {isArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
+                {isUIArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
               </Button>
             )}
           </div>
@@ -1096,7 +1099,7 @@ export default function AnalysisResult() {
           analysisId={analysis?.id}
           analysisTitle={analysis?.business_idea}
           ownerEmail={currentUser?.email}
-          isArabic={isArabic}
+          isArabic={isUIArabic}
         />
 
         {/* Export Progress Modal */}
@@ -1108,7 +1111,7 @@ export default function AnalysisResult() {
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-lg font-semibold text-slate-800">
-                  {isArabic ? 'جارٍ إنشاء التقرير' : 'Generating Report'}
+                  {isUIArabic ? 'جارٍ إنشاء التقرير' : 'Generating Report'}
                 </h3>
                 <p id="export-progress-description" className="text-sm text-slate-500">{exportProgress.step}</p>
               </div>
@@ -1118,7 +1121,7 @@ export default function AnalysisResult() {
               </div>
               {exportProgress.progress < 100 && (
                 <p className="text-xs text-slate-400 text-center">
-                  {isArabic ? 'يرجى الانتظار، هذا قد يستغرق بضع ثوانٍ...' : 'Please wait, this may take a few seconds...'}
+                  {isUIArabic ? 'يرجى الانتظار، هذا قد يستغرق بضع ثوانٍ...' : 'Please wait, this may take a few seconds...'}
                 </p>
               )}
             </div>
@@ -1133,51 +1136,51 @@ export default function AnalysisResult() {
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white rounded-lg"
             >
               <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "السوق" : "Market"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "السوق" : "Market"}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="business" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg"
             >
               <Briefcase className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "الأعمال" : "Business"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "الأعمال" : "Business"}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="technical" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white rounded-lg"
             >
               <Code className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "التقني" : "Technical"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "التقني" : "Technical"}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="financial" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white rounded-lg"
             >
               <Calculator className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "المالي" : "Financial"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "المالي" : "Financial"}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="strategy" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-pink-500 data-[state=active]:text-white rounded-lg"
             >
               <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "الاستراتيجية" : "Strategy"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "الاستراتيجية" : "Strategy"}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="overview" 
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500 data-[state=active]:text-white rounded-lg"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">{isArabic ? "نظرة عامة" : "Overview"}</span>
+              <span className="hidden sm:inline">{isUIArabic ? "نظرة عامة" : "Overview"}</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isArabic={isArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
+            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
             
             {tabData.market ? (
-              <MarketSection data={tabData.market} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
+              <MarketSection data={tabData.market} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="market_opportunity">
@@ -1189,20 +1192,20 @@ export default function AnalysisResult() {
                       competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
                       infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
                     }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="competitors">
                   {isPremium ? (
-                    <CompetitorMatrix businessReport={businessReport} isArabic={isArabic} />
+                    <CompetitorMatrix businessReport={businessReport} isArabic={isReportArabic} />
                   ) : (
                     <Card className="glass-effect border-2 border-purple-300">
                       <CardContent className="p-6 text-center">
-                        <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
-                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
-                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                        <Badge className="bg-purple-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
+                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
+                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
                       </CardContent>
                     </Card>
                   )}
@@ -1210,14 +1213,14 @@ export default function AnalysisResult() {
 
                 <section id="competitors_syrian">
                   {isPremium ? (
-                    <SyrianCompetitors businessReport={businessReport} isArabic={isArabic} />
+                    <SyrianCompetitors businessReport={businessReport} isArabic={isReportArabic} />
                   ) : (
                     <Card className="glass-effect border-2 border-rose-300">
                       <CardContent className="p-6 text-center">
-                        <Badge className="bg-rose-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
-                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
-                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                        <Badge className="bg-rose-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
+                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
+                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
                       </CardContent>
                     </Card>
                   )}
@@ -1226,7 +1229,7 @@ export default function AnalysisResult() {
                 <section id="target_audience">
                   <TargetAudience
                     report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || { target_description: report.market_analysis?.target_segments?.join(', ') || '', demographics: report.market_analysis?.target_segments || [] } } }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
               </>
@@ -1236,29 +1239,29 @@ export default function AnalysisResult() {
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isArabic={isArabic} hasError={tabError.business} onRetry={() => retryTab('business')}>
+            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')}>
             {tabData.business ? (
-              <BusinessSection data={tabData.business} isArabic={isArabic} />
+              <BusinessSection data={tabData.business} isArabic={isReportArabic} />
             ) : (
               <>
                 <section id="business_model_revenue">
                   <BusinessModelRevenue
                     report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="go_to_market">
                   <GoToMarket
                     report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="partnerships">
                   <Partnerships
                     report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
               </>
@@ -1268,28 +1271,28 @@ export default function AnalysisResult() {
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isArabic={isArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
+            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
             {tabData.technical ? (
-              <TechnicalSection data={tabData.technical} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
+              <TechnicalSection data={tabData.technical} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="tech_stack_suggestions">
                   <TechStackSuggestions
                     suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="ai_tools">
                   {isPremium ? (
-                    <AIToolsSuggestions technicalReport={technicalReport} isArabic={isArabic} />
+                    <AIToolsSuggestions technicalReport={technicalReport} isArabic={isReportArabic} />
                   ) : (
                     <Card className="glass-effect border-2 border-purple-300">
                       <CardContent className="p-6 text-center">
-                        <Badge className="bg-purple-600 text-white mb-4">{isArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
-                        <p className="text-slate-600 mb-4">{isArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
-                        <UpgradePrompt isArabic={isArabic} variant="inline" feature={isArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
+                        <Badge className="bg-purple-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
+                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
+                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
                       </CardContent>
                     </Card>
                   )}
@@ -1298,14 +1301,14 @@ export default function AnalysisResult() {
                 <section id="technical_impl">
                   <TechnicalImplementation
                     report={analysis.step8_technical_implementation || { architecture_overview: report.technical_strategy?.architecture || '', mvp_features: technicalReport.mvp_core_features || [], technology_stack: technicalReport.technology_stack || {}, scalability: report.technical_strategy?.scalability || '', security_considerations: report.technical_strategy?.security || '' }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="dev_plan">
                   <DevelopmentPlan
                     report={analysis.step9_development_plan || report.development_roadmap || {}}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
               </>
@@ -1315,22 +1318,22 @@ export default function AnalysisResult() {
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isArabic={isArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')}>
+            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')}>
             {tabData.financial ? (
-              <FinancialSection data={tabData.financial} isArabic={isArabic} />
+              <FinancialSection data={tabData.financial} isArabic={isReportArabic} />
             ) : (
               <>
                 <section id="financial_proj">
                   <FinancialProjections
                     report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="funding">
                   <FundingRecommendations
                     report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
               </>
@@ -1340,15 +1343,15 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isArabic={isArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
+            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
             {tabData.strategy ? (
-              <StrategySection data={tabData.strategy} isArabic={isArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
+              <StrategySection data={tabData.strategy} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
               <>
                 <section id="swot">
                   <SwotSimple
                     report={{ swot_analysis: fp.swot_analysis || report.swot }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
@@ -1356,21 +1359,21 @@ export default function AnalysisResult() {
                   <RiskMitigation
                     businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
                     technicalReport={technicalReport}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="success_validation">
                   <SuccessMetricsValidation
                     report={{ success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [], validation_methodology: fp.validation_methodology }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
 
                 <section id="recommendations_next">
                   <RecommendationsNext
                     report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
-                    isArabic={isArabic}
+                    isArabic={isReportArabic}
                   />
                 </section>
               </>
@@ -1380,21 +1383,21 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Overview */}
           <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isArabic={isArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
               {tabData.overview && (
                 <>
                   <Card className="border shadow-lg overflow-hidden">
                     <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <Sparkles className="w-6 h-6" />
-                        {isArabic ? "نظرة عامة على التحليل" : "Analysis Overview"}
+                        {isUIArabic ? "نظرة عامة على التحليل" : "Analysis Overview"}
                       </h2>
                     </div>
                     <CardContent className="p-6">
                       {tabData.overview.value_proposition && (
                         <div className="mb-6">
                           <h3 className="text-lg font-semibold text-slate-800 mb-2">
-                            {isArabic ? "عرض القيمة" : "Value Proposition"}
+                            {isUIArabic ? "عرض القيمة" : "Value Proposition"}
                           </h3>
                           <p className="text-slate-600 bg-slate-50 p-4 rounded-lg border">
                             {tabData.overview.value_proposition}
@@ -1406,25 +1409,25 @@ export default function AnalysisResult() {
                         {tabData.overview.market_fit_score !== undefined && (
                           <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 text-center">
                             <div className="text-3xl font-bold text-emerald-600">{tabData.overview.market_fit_score}%</div>
-                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "ملاءمة السوق" : "Market Fit"}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "ملاءمة السوق" : "Market Fit"}</div>
                           </div>
                         )}
                         {tabData.overview.time_to_build_months && (
                           <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
                             <div className="text-3xl font-bold text-blue-600">{tabData.overview.time_to_build_months}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "أشهر للبناء" : "Months to Build"}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "أشهر للبناء" : "Months to Build"}</div>
                           </div>
                         )}
                         {tabData.overview.competitors_count !== undefined && (
                           <div className="bg-purple-50 rounded-xl p-4 border border-purple-200 text-center">
                             <div className="text-3xl font-bold text-purple-600">{tabData.overview.competitors_count}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "المنافسون" : "Competitors"}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "المنافسون" : "Competitors"}</div>
                           </div>
                         )}
                         {tabData.overview.starting_cost_usd && (
                           <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 text-center">
                             <div className="text-2xl font-bold text-amber-600">${tabData.overview.starting_cost_usd?.toLocaleString()}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isArabic ? "تكلفة البداية" : "Starting Cost"}</div>
+                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "تكلفة البداية" : "Starting Cost"}</div>
                           </div>
                         )}
                       </div>
@@ -1435,7 +1438,7 @@ export default function AnalysisResult() {
                     <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-4">
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <Download className="w-6 h-6" />
-                        {isArabic ? "تصدير ومشاركة" : "Export & Share"}
+                        {isUIArabic ? "تصدير ومشاركة" : "Export & Share"}
                       </h2>
                     </div>
                     <CardContent className="p-6">
@@ -1446,7 +1449,7 @@ export default function AnalysisResult() {
                           className="gap-2 flex-1 min-w-[150px] h-12 border-amber-400 hover:bg-amber-50"
                         >
                           <Share2 className="w-5 h-5 text-amber-600" />
-                          {isArabic ? "مشاركة التقرير" : "Share Report"}
+                          {isUIArabic ? "مشاركة التقرير" : "Share Report"}
                         </Button>
                         
                         {isPremium ? (
@@ -1457,7 +1460,7 @@ export default function AnalysisResult() {
                               className="gap-2 flex-1 min-w-[150px] h-12 gradient-primary text-white"
                             >
                               <Download className="w-5 h-5" />
-                              {isDownloadingPdf ? (isArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isArabic ? 'تحميل PDF' : 'Download PDF')}
+                              {isDownloadingPdf ? (isUIArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isUIArabic ? 'تحميل PDF' : 'Download PDF')}
                             </Button>
                             <Button
                               onClick={handleDownloadCsv}
@@ -1466,7 +1469,7 @@ export default function AnalysisResult() {
                               className="gap-2 flex-1 min-w-[150px] h-12"
                             >
                               <FileSpreadsheet className="w-5 h-5" />
-                              {isDownloadingCsv ? (isArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isArabic ? 'تحميل CSV' : 'Download CSV')}
+                              {isDownloadingCsv ? (isUIArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isUIArabic ? 'تحميل CSV' : 'Download CSV')}
                             </Button>
                           </>
                         ) : (
@@ -1476,7 +1479,7 @@ export default function AnalysisResult() {
                             className="gap-2 flex-1 min-w-[150px] h-12"
                           >
                             <Download className="w-5 h-5" />
-                            {isArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
+                            {isUIArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
                           </Button>
                         )}
                       </div>
@@ -1490,12 +1493,12 @@ export default function AnalysisResult() {
               <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
                   <Sparkles className="w-6 h-6" />
-                  {isArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
+                  {isUIArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
                 </h2>
               </div>
               <CardContent className="p-6">
                 <p className="text-slate-600 mb-4">
-                  {isArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
+                  {isUIArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
                 </p>
 
                 <div className="flex items-center gap-4 mb-4">
@@ -1506,13 +1509,13 @@ export default function AnalysisResult() {
                     size={32}
                   />
                   <span className="text-lg font-semibold text-slate-700">
-                    {rating ? `${rating}/5` : (isArabic ? "بدون تقييم" : "No rating")}
+                    {rating ? `${rating}/5` : (isUIArabic ? "بدون تقييم" : "No rating")}
                   </span>
                 </div>
 
                 <div className="space-y-4">
                   <Textarea
-                    placeholder={isArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
+                    placeholder={isUIArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     disabled={!canRate}
@@ -1524,14 +1527,14 @@ export default function AnalysisResult() {
                       disabled={!canRate || savingRating}
                       className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
                     >
-                      {savingRating ? (isArabic ? "جارٍ الحفظ..." : "Saving...") : (isArabic ? "حفظ التقييم" : "Save Rating")}
+                      {savingRating ? (isUIArabic ? "جارٍ الحفظ..." : "Saving...") : (isUIArabic ? "حفظ التقييم" : "Save Rating")}
                     </Button>
                   </div>
                 </div>
 
                 {!canRate && rating != null && (
                   <p className="text-sm text-slate-500 mt-4 text-center">
-                    {isArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
+                    {isUIArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
                   </p>
                 )}
               </CardContent>
@@ -1544,7 +1547,8 @@ export default function AnalysisResult() {
         {/* Floating AI Assistant - Locked for Free Reports */}
         <FloatingAIAssistant 
           analysis={analysis} 
-          isArabic={isArabic}
+          isArabic={isUIArabic}
+          isReportArabic={isReportArabic}
           isLocked={!isPremium}
           onUnlock={handleUpgradeToPremium}
           onRegenerate={async (chatContext) => {

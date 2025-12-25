@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 const MAX_REGENERATIONS = 3;
 
-export default function FloatingAIAssistant({ analysis, isArabic = false, onRegenerate, isLocked = false, onUnlock }) {
+export default function FloatingAIAssistant({ analysis, isArabic = false, isReportArabic = false, onRegenerate, isLocked = false, onUnlock }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
