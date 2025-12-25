@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Users, Mail, Calendar, FileText, SortDesc, SortAsc, 
-  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield
+  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield, HelpCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -142,6 +143,16 @@ export default function AdminUsers() {
     }
   };
 
+  const actionDescriptions = {
+    profile: "View detailed user profile including contact information and account settings",
+    reports: "View all business analysis reports created by this user",
+    transactions: "View credit transaction history including purchases and usage",
+    referrals: "View users referred by this person and referral rewards",
+    discounts: "View discount codes used or created for this user",
+    payment_requests: "View pending and completed payment requests from this user",
+    payment_history: "View complete payment and purchase history"
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 dark:from-slate-900 dark:to-slate-800 p-6">
@@ -169,43 +180,70 @@ export default function AdminUsers() {
         />
 
         <FilterBar className="mb-6">
-          <SearchInput
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name or email..."
-            isArabic={isArabic}
-          />
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className={`w-[160px] ${SELECT_TRIGGER_CLASS}`}>
-              <SelectValue placeholder="Filter by role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              {roles.map(role => (
-                <SelectItem key={role.id} value={role.name}>
-                  {role.name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-            className="gap-2 h-11"
-          >
-            {sortOrder === "desc" ? (
-              <>
-                <SortDesc className="w-4 h-4" />
-                Newest First
-              </>
-            ) : (
-              <>
-                <SortAsc className="w-4 h-4" />
-                Oldest First
-              </>
-            )}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex-1 min-w-[200px]">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name or email..."
+                  isArabic={isArabic}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Search users by their name, display name, or email address</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger className={`w-[160px] ${SELECT_TRIGGER_CLASS}`}>
+                    <SelectValue placeholder="Filter by role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    {roles.map(role => (
+                      <SelectItem key={role.id} value={role.name}>
+                        {role.name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Filter users by their assigned role (Admin, User, etc.)</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+                className="gap-2 h-11"
+              >
+                {sortOrder === "desc" ? (
+                  <>
+                    <SortDesc className="w-4 h-4" />
+                    Newest First
+                  </>
+                ) : (
+                  <>
+                    <SortAsc className="w-4 h-4" />
+                    Oldest First
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Sort users by registration date</p>
+            </TooltipContent>
+          </Tooltip>
         </FilterBar>
 
         {filteredUsers.length === 0 ? (
@@ -239,10 +277,17 @@ export default function AdminUsers() {
                               <h3 className="font-medium text-slate-800 dark:text-slate-200 truncate">
                                 {user.display_name || user.full_name || 'No Name'}
                               </h3>
-                              <Badge className={getRoleColor(roleName)}>
-                                <Shield className="w-3 h-3 mr-1" />
-                                {roleName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </Badge>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge className={`${getRoleColor(roleName)} cursor-help`}>
+                                    <Shield className="w-3 h-3 mr-1" />
+                                    {roleName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>User's assigned role determines their permissions</p>
+                                </TooltipContent>
+                              </Tooltip>
                             </div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
                               <Mail className="w-3 h-3" />
@@ -252,58 +297,150 @@ export default function AdminUsers() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400 mt-3">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4 text-slate-400" />
-                            Joined: {format(new Date(user.created_at), "MMM d, yyyy")}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <FileText className="w-4 h-4 text-slate-400" />
-                            {totalAnalysis} {totalAnalysis === 1 ? 'report' : 'reports'}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <CreditCard className="w-4 h-4 text-slate-400" />
-                            {user.credits || 0} credits
-                          </div>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 cursor-help">
+                                <Calendar className="w-4 h-4 text-slate-400" />
+                                Joined: {format(new Date(user.created_at), "MMM d, yyyy")}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Date when the user registered on the platform</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 cursor-help">
+                                <FileText className="w-4 h-4 text-slate-400" />
+                                {totalAnalysis} {totalAnalysis === 1 ? 'report' : 'reports'}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Total number of business analysis reports created</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 cursor-help">
+                                <CreditCard className="w-4 h-4 text-slate-400" />
+                                {user.credits || 0} credits
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Available credits for generating premium reports</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-2">
-                              <Eye className="w-4 h-4" />
-                              Actions
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => handleAction('profile', user)}>
-                              <UserCheck className="w-4 h-4 mr-2" />
-                              View Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('reports', user)}>
-                              <FileText className="w-4 h-4 mr-2" />
-                              View Reports
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('transactions', user)}>
-                              <History className="w-4 h-4 mr-2" />
-                              View Transactions
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('referrals', user)}>
-                              <Users className="w-4 h-4 mr-2" />
-                              View Referrals
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('discounts', user)}>
-                              <Tag className="w-4 h-4 mr-2" />
-                              View Discounts
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('payment_requests', user)}>
-                              <Receipt className="w-4 h-4 mr-2" />
-                              Payment Requests
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAction('payment_history', user)}>
-                              <CreditCard className="w-4 h-4 mr-2" />
-                              Payment History
-                            </DropdownMenuItem>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="gap-2">
+                                  <Eye className="w-4 h-4" />
+                                  Actions
+                                </Button>
+                              </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View and manage user details, reports, and transactions</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('profile', user)} className="cursor-pointer">
+                                  <UserCheck className="w-4 h-4 mr-2" />
+                                  View Profile
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.profile}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('reports', user)} className="cursor-pointer">
+                                  <FileText className="w-4 h-4 mr-2" />
+                                  View Reports
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.reports}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('transactions', user)} className="cursor-pointer">
+                                  <History className="w-4 h-4 mr-2" />
+                                  View Transactions
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.transactions}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('referrals', user)} className="cursor-pointer">
+                                  <Users className="w-4 h-4 mr-2" />
+                                  View Referrals
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.referrals}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('discounts', user)} className="cursor-pointer">
+                                  <Tag className="w-4 h-4 mr-2" />
+                                  View Discounts
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.discounts}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('payment_requests', user)} className="cursor-pointer">
+                                  <Receipt className="w-4 h-4 mr-2" />
+                                  Payment Requests
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.payment_requests}</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuItem onClick={() => handleAction('payment_history', user)} className="cursor-pointer">
+                                  <CreditCard className="w-4 h-4 mr-2" />
+                                  Payment History
+                                  <HelpCircle className="w-3 h-3 ml-auto text-slate-400" />
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>{actionDescriptions.payment_history}</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
