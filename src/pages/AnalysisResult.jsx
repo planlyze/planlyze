@@ -254,13 +254,33 @@ export default function AnalysisResult() {
   // Helper to parse raw_response if present
   const parseTabData = (data) => {
     if (!data) return data;
+    
+    // If data has raw_response as a string, parse it
     if (data.raw_response && typeof data.raw_response === 'string') {
       try {
-        return JSON.parse(data.raw_response);
+        const parsed = JSON.parse(data.raw_response);
+        return parsed;
       } catch (e) {
-        console.error('Failed to parse raw_response:', e);
+        console.error('Failed to parse raw_response:', e.message);
+        // If parsing fails, try removing leading/trailing whitespace and parse again
+        try {
+          const trimmed = data.raw_response.trim();
+          return JSON.parse(trimmed);
+        } catch (e2) {
+          // Data is corrupted/truncated - return null to trigger error state
+          console.error('Failed to parse trimmed raw_response:', e2.message);
+          return null;
+        }
       }
     }
+    
+    // If data already has expected structure (target_audiences, problems, etc.), use it directly
+    if (data.target_audiences || data.problems || data.solution || 
+        data.business_model || data.tech_stack || data.financial_projections ||
+        data.strategy || data.overview_summary) {
+      return data;
+    }
+    
     return data;
   };
   
@@ -355,7 +375,14 @@ export default function AnalysisResult() {
     
     const cachedData = analysis[`tab_${tabName}`];
     if (!forceRegenerate && cachedData) {
-      setTabData(prev => ({ ...prev, [tabName]: parseTabData(cachedData) }));
+      const parsedData = parseTabData(cachedData);
+      if (parsedData === null) {
+        // Cached data is corrupted, show error state to allow regeneration
+        setTabError(prev => ({ ...prev, [tabName]: true }));
+        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
+        return;
+      }
+      setTabData(prev => ({ ...prev, [tabName]: parsedData }));
       setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       return;
     }
