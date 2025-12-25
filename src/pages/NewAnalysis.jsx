@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, Coins, Lightbulb, Shield, Zap, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
+import { motion } from "framer-motion";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
 import GeneratingReportLoader from "../components/analysis/GeneratingReportLoader";
@@ -67,7 +68,7 @@ export default function NewAnalysis() {
 
   if (!authChecked) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-slate-50">
+      <div className="flex items-center justify-center h-screen w-full bg-gradient-to-br from-purple-50 via-white to-orange-50">
         <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -75,9 +76,9 @@ export default function NewAnalysis() {
 
   if (isSubmitting) {
     return (
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto">
-          <Card className="border-2 border-slate-200 shadow-lg bg-white">
+          <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
             <GeneratingReportLoader 
               isArabic={reportLanguage === 'arabic'} 
               onComplete={handleLoaderComplete}
@@ -88,40 +89,175 @@ export default function NewAnalysis() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm border-2 border-purple-200 hover:bg-purple-50 hover:border-purple-300 transition-all">
-            <ArrowLeft className={`w-4 h-4 text-purple-600 ${isUIArabic ? 'rotate-180' : ''}`} />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-orange-600">
-              {isUIArabic ? "تحليل أعمال تقني جديد" : "New Tech Business Analysis"}
-            </h1>
-            <p className="text-slate-600 mt-1">{isUIArabic ? "احصل على رؤى Planlyze المدعومة بالذكاء الاصطناعي لفكرة منتجك البرمجي" : "Get Planlyze AI-powered insights for your software product idea"}</p>
-          </div>
-        </div>
+  const features = [
+    { 
+      icon: TrendingUp, 
+      title: isUIArabic ? "تحليل السوق" : "Market Analysis",
+      desc: isUIArabic ? "رؤى عميقة للسوق" : "Deep market insights"
+    },
+    { 
+      icon: Shield, 
+      title: isUIArabic ? "تحليل المخاطر" : "Risk Analysis",
+      desc: isUIArabic ? "تحديد التحديات" : "Identify challenges"
+    },
+    { 
+      icon: Zap, 
+      title: isUIArabic ? "خطة العمل" : "Action Plan",
+      desc: isUIArabic ? "خطوات واضحة" : "Clear next steps"
+    }
+  ];
 
-        <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
-          <CardHeader className="text-center border-b border-slate-100 pb-6">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 bg-purple-100 rounded-2xl border-2 border-purple-200">
-                <Sparkles className="w-8 h-8 text-purple-600" />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50" dir={isUIArabic ? 'rtl' : 'ltr'}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200/30 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative p-4 md:p-8">
+        <div className="max-w-5xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-8"
+          >
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(createPageUrl("Dashboard"))}
+                className="shadow-md border-2 border-purple-200 hover:bg-purple-50 hover:border-purple-300 transition-all bg-white/80 backdrop-blur-sm">
+                <ArrowLeft className={`w-4 h-4 text-purple-600 ${isUIArabic ? 'rotate-180' : ''}`} />
+              </Button>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
+                  {isUIArabic ? "تحليل أعمال جديد" : "New Business Analysis"}
+                </h1>
+                <p className="text-slate-600 mt-1 text-sm md:text-base">
+                  {isUIArabic ? "احصل على رؤى مدعومة بالذكاء الاصطناعي" : "Get AI-powered insights for your idea"}
+                </p>
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-slate-800">
-              {isUIArabic ? "أخبرنا عن فكرتك" : "Tell Us About Your Idea"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <AnalysisWizard onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
-          </CardContent>
-        </Card>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-orange-100 rounded-full border border-purple-200"
+            >
+              <Coins className="w-5 h-5 text-orange-500" />
+              <span className="font-semibold text-slate-700">
+                {currentUser?.credits || 0} {isUIArabic ? "رصيد" : "credits"}
+              </span>
+            </motion.div>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="lg:col-span-2"
+            >
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white pb-8 pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <Sparkles className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-bold">
+                        {isUIArabic ? "أخبرنا عن فكرتك" : "Tell Us About Your Idea"}
+                      </CardTitle>
+                      <p className="text-purple-100 text-sm mt-1">
+                        {isUIArabic ? "سنقوم بتحليل شامل لفكرتك" : "We'll provide a comprehensive analysis"}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6 -mt-4 bg-white rounded-t-3xl relative">
+                  <AnalysisWizard onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Lightbulb className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-lg">
+                      {isUIArabic ? "نصيحة" : "Pro Tip"}
+                    </h3>
+                  </div>
+                  <p className="text-orange-100 text-sm leading-relaxed">
+                    {isUIArabic 
+                      ? "كلما كانت فكرتك أكثر تفصيلاً، كان التحليل أكثر دقة وفائدة. اذكر المشكلة، الحل، والجمهور المستهدف."
+                      : "The more detailed your idea, the more accurate and useful the analysis. Mention the problem, solution, and target audience."}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    {isUIArabic ? "ما ستحصل عليه" : "What You'll Get"}
+                  </h3>
+                  <div className="space-y-3">
+                    {features.map((feature, i) => (
+                      <motion.div 
+                        key={i}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + i * 0.1 }}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-slate-50 to-purple-50 border border-slate-100"
+                      >
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <feature.icon className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-800 text-sm">{feature.title}</p>
+                          <p className="text-xs text-slate-500">{feature.desc}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600">
+                        {isUIArabic ? "تكلفة التحليل" : "Analysis Cost"}
+                      </p>
+                      <p className="text-2xl font-bold text-purple-600">1 {isUIArabic ? "رصيد" : "Credit"}</p>
+                    </div>
+                    <div className="p-3 bg-purple-100 rounded-full">
+                      <Coins className="w-6 h-6 text-purple-600" />
+                    </div>
+                  </div>
+                  {currentUser?.credits < 1 && (
+                    <Button 
+                      onClick={() => navigate(createPageUrl("Credits"))}
+                      className="w-full mt-4 bg-purple-600 hover:bg-purple-700"
+                    >
+                      {isUIArabic ? "احصل على رصيد" : "Get Credits"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,11 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle } from "lucide-react";
+import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2, Target, Building2, MapPin } from "lucide-react";
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
 import { api } from "@/api/client";
 import { toast } from "sonner";
@@ -38,6 +37,7 @@ export default function AnalysisWizard({ onSubmit }) {
       }));
     }
   }, [user]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
@@ -125,216 +125,277 @@ export default function AnalysisWizard({ onSubmit }) {
     }
   };
 
+  const getCharacterStatus = () => {
+    const len = formData.business_idea.length;
+    if (len === 0) return { color: 'text-slate-400', status: isUIArabic ? 'ابدأ الكتابة...' : 'Start typing...' };
+    if (len < 10) return { color: 'text-orange-500', status: isUIArabic ? 'قصير جداً' : 'Too short' };
+    if (len < 50) return { color: 'text-yellow-500', status: isUIArabic ? 'جيد' : 'Good' };
+    if (len < 200) return { color: 'text-emerald-500', status: isUIArabic ? 'ممتاز' : 'Great' };
+    return { color: 'text-purple-500', status: isUIArabic ? 'مفصل جداً!' : 'Very detailed!' };
+  };
+
+  const charStatus = getCharacterStatus();
+
   return (
     <div className="max-w-2xl mx-auto" dir={isUIArabic ? 'rtl' : 'ltr'}>
-      <Card className="border-2 border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-        <CardContent className="p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 mb-3">
-                <div className="p-2 bg-purple-100 border-2 border-purple-200 rounded-lg">
-                  <Lightbulb className="w-5 h-5 text-purple-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-slate-800">
-                  {isUIArabic ? "فكرتك التقنية" : "Your Tech Idea"}
-                </h2>
-              </div>
-              <p className="text-slate-600">{isUIArabic ? "أخبرنا عن مفهوم منتجك وتفضيلاتك" : "Tell us about your product concept and preferences"}</p>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+              1
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="business_idea" className="text-base font-semibold flex items-center gap-2">
-                  {isUIArabic ? "ما هي فكرتك التقنية؟ *" : "What's your tech idea? *"}
-                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
-                </Label>
-                <Textarea
-                  id="business_idea"
-                  placeholder={isUIArabic ? "صف فكرة منتجك البرمجي بالتفصيل. ما المشكلة التي يحلها؟ من سيستخدمه؟ ما الذي يجعله فريداً؟ كن محدداً!" : "Describe your software product idea in detail. What problem does it solve? Who will use it? What makes it unique? Be specific!"}
-                  value={formData.business_idea}
-                  onChange={(e) => handleInputChange('business_idea', e.target.value)}
-                  className={`mt-2 min-h-[140px] resize-none border-2 ${validationErrors.business_idea ? 'border-red-400' : 'border-slate-300'} focus:border-purple-400`}
-                  maxLength={5000}
-                />
-                <div className="flex items-center justify-between mt-1">
-                  <p className={`text-sm ${formData.business_idea.length >= 10 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
-                    {formData.business_idea.length} {isUIArabic ? "حرف" : "characters"} {formData.business_idea.length < 10 && (isUIArabic ? '(10 أحرف على الأقل)' : '(min 10)')}
-                  </p>
-                </div>
-                
-                {validationErrors.business_idea && (
-                  <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {validationErrors.business_idea}
-                  </p>
-                )}
-                
-                {aiValidationError && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-3 p-4 bg-red-50 border-2 border-red-200 rounded-xl"
-                  >
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-red-700">
-                          {isUIArabic ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
-                        </p>
-                        <p className="text-sm text-red-600 mt-1">{aiValidationError}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className="space-y-3 p-4 bg-slate-50 rounded-xl border-2 border-slate-200 hover:border-purple-200 transition-colors">
-                <div className="flex items-center gap-2">
-                  <input
-                    id="auto_target"
-                    type="checkbox"
-                    checked={autoTarget}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setAutoTarget(checked);
-                      if (checked) {
-                        handleInputChange('target_market', '');
-                      }
-                    }}
-                    className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                  />
-                  <Label htmlFor="auto_target" className="font-medium text-sm text-slate-700 select-none flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    {isUIArabic ? "دع الذكاء الاصطناعي يحدد الجمهور المستهدف" : "Let AI decide the target audience"}
-                  </Label>
-                </div>
-
-                <div>
-                  <Label htmlFor="target_market" className="text-base font-semibold">
-                    {isUIArabic ? "الجمهور المستهدف" : "Target audience"} {autoTarget ? (isUIArabic ? "(اختياري)" : "(optional)") : "*"}
-                  </Label>
-                  <Input
-                    id="target_market"
-                    placeholder={autoTarget ? (isUIArabic ? "سيحدد الذكاء الاصطناعي أفضل جمهور" : "AI will determine the best audience") : (isUIArabic ? "مثال: الشركات الصغيرة في سوريا، طلاب الجامعات" : "e.g., Small businesses in Syria, university students")}
-                    value={formData.target_market}
-                    onChange={(e) => handleInputChange('target_market', e.target.value)}
-                    disabled={autoTarget}
-                    className={`mt-2 border-2 ${validationErrors.target_market ? 'border-red-400' : 'border-slate-300'} disabled:bg-slate-100 disabled:cursor-not-allowed`}
-                  />
-                  {validationErrors.target_market && (
-                    <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {validationErrors.target_market}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  {isUIArabic ? "فئة المجال *" : "Industry Category *"}
-                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
-                </Label>
-                
-                <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                  <SelectTrigger className={`mt-2 border-2 ${validationErrors.industry ? 'border-red-400' : 'border-slate-300'}`}>
-                    <SelectValue placeholder={isUIArabic ? "اختر المجال" : "Select industry"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {WIZARD_INDUSTRIES.map((industry) =>
-                      <SelectItem key={industry.value} value={industry.value}>
-                        {isUIArabic ? industry.label_ar || industry.label : industry.label}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                {validationErrors.industry && (
-                  <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {validationErrors.industry}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="country" className="text-base font-semibold">{isUIArabic ? "الدولة *" : "Country *"}</Label>
-                <Input
-                  id="country"
-                  disabled={true}
-                  placeholder={isUIArabic ? "مثال: المملكة العربية السعودية" : "e.g., Saudi Arabia"}
-                  value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)} />
-                <p className="text-sm text-slate-500">{isUIArabic ? "سنخصص التحليل لهذه الدولة." : "We'll tailor the analysis to this country."}</p>
-              </div>
-
-              <div>
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  {isUIArabic ? "لغة التقرير *" : "Report Language *"}
-                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
-                </Label>
-                <Select value={formData.report_language} onValueChange={(value) => handleInputChange('report_language', value)}>
-                  <SelectTrigger className={`mt-2 border-2 ${validationErrors.report_language ? 'border-red-400' : 'border-slate-300'}`}>
-                    <SelectValue placeholder={isUIArabic ? "اختر لغة التقرير المفضلة" : "Choose your preferred language for the report"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REPORT_LANGUAGES.map((lang) =>
-                      <SelectItem key={lang.value} value={lang.value}>
-                        <div className="flex items-center gap-2">
-                          <span>{lang.flag}</span>
-                          <span>{lang.label}</span>
-                        </div>
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                {validationErrors.report_language && (
-                  <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {validationErrors.report_language}
-                  </p>
-                )}
-                <div className={`mt-2 p-3 rounded-lg ${formData.report_language === 'arabic' ? 'bg-purple-50 border border-purple-200' : 'bg-blue-50 border border-blue-200'}`}>
-                  <p className="text-sm font-medium">
-                    {formData.report_language === 'arabic' ?
-                      '✨ سيتم إنشاء التقرير باللغة العربية' :
-                      '✨ Report will be generated in English'
-                    }
-                  </p>
-                </div>
-              </div>
+            <Label htmlFor="business_idea" className="text-base font-semibold text-slate-800">
+              {isUIArabic ? "ما هي فكرتك؟" : "What's your idea?"}
+            </Label>
+            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+              {isUIArabic ? "مطلوب" : "Required"}
+            </Badge>
+          </div>
+          
+          <div className="relative">
+            <Textarea
+              id="business_idea"
+              placeholder={isUIArabic 
+                ? "صف فكرة منتجك بالتفصيل...\n\n• ما المشكلة التي يحلها؟\n• من سيستخدمه؟\n• ما الذي يجعله فريداً؟" 
+                : "Describe your product idea in detail...\n\n• What problem does it solve?\n• Who will use it?\n• What makes it unique?"}
+              value={formData.business_idea}
+              onChange={(e) => handleInputChange('business_idea', e.target.value)}
+              className={`min-h-[160px] resize-none border-2 transition-all duration-200 bg-slate-50/50 focus:bg-white ${
+                validationErrors.business_idea 
+                  ? 'border-red-300 focus:border-red-400 focus:ring-red-100' 
+                  : 'border-slate-200 focus:border-purple-400 focus:ring-purple-100'
+              }`}
+              maxLength={5000}
+            />
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+              <span className={`text-xs font-medium ${charStatus.color}`}>
+                {charStatus.status}
+              </span>
+              <span className="text-xs text-slate-400">
+                {formData.business_idea.length}/5000
+              </span>
             </div>
-          </motion.div>
-        </CardContent>
-      </Card>
+          </div>
 
-      <div className="flex justify-center mt-8">
-        <Button
-          onClick={handleSubmit}
-          disabled={!canSubmit() || isSubmitting || isValidating}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-3 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:bg-slate-400">
-          {isValidating ? (
-            <>
-              <div className={`w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
-              {isUIArabic ? 'جاري التحقق من الفكرة...' : 'Validating idea...'}
-            </>
-          ) : isSubmitting ? (
-            <>
-              <div className={`w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
-              {isUIArabic ? 'جاري الإنشاء...' : 'Creating analysis...'}
-            </>
-          ) : (
-            <>
-              <Sparkles className={`w-4 h-4 ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
-              {isUIArabic ? 'بدء تحليل الذكاء الاصطناعي' : 'Start AI Analysis'}
-            </>
+          {validationErrors.business_idea && (
+            <motion.p 
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-red-600 flex items-center gap-1.5"
+            >
+              <AlertCircle className="w-4 h-4" />
+              {validationErrors.business_idea}
+            </motion.p>
           )}
-        </Button>
-      </div>
+          
+          <AnimatePresence>
+            {aiValidationError && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-4 bg-red-50 border border-red-200 rounded-xl overflow-hidden"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-1.5 bg-red-100 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-red-700">
+                      {isUIArabic ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
+                    </p>
+                    <p className="text-sm text-red-600 mt-1">{aiValidationError}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+              2
+            </div>
+            <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <Target className="w-4 h-4 text-purple-500" />
+              {isUIArabic ? "الجمهور المستهدف" : "Target Audience"}
+            </Label>
+          </div>
+
+          <div className="flex items-center gap-3 mb-4 p-3 bg-white rounded-lg border border-slate-200">
+            <input
+              id="auto_target"
+              type="checkbox"
+              checked={autoTarget}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setAutoTarget(checked);
+                if (checked) {
+                  handleInputChange('target_market', '');
+                }
+              }}
+              className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+            />
+            <Label htmlFor="auto_target" className="font-medium text-sm text-slate-700 select-none cursor-pointer flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-500" />
+              {isUIArabic ? "دع الذكاء الاصطناعي يحدد الجمهور المستهدف" : "Let AI determine the best target audience"}
+            </Label>
+          </div>
+
+          <AnimatePresence>
+            {!autoTarget && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <Input
+                  id="target_market"
+                  placeholder={isUIArabic ? "مثال: الشركات الصغيرة، طلاب الجامعات..." : "e.g., Small businesses, university students..."}
+                  value={formData.target_market}
+                  onChange={(e) => handleInputChange('target_market', e.target.value)}
+                  className={`border-2 ${validationErrors.target_market ? 'border-red-300' : 'border-slate-200'} bg-white`}
+                />
+                {validationErrors.target_market && (
+                  <p className="text-sm text-red-600 flex items-center gap-1 mt-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {validationErrors.target_market}
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+                3
+              </div>
+              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-purple-500" />
+                {isUIArabic ? "المجال" : "Industry"}
+              </Label>
+            </div>
+            
+            <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+              <SelectTrigger className={`border-2 bg-slate-50/50 ${validationErrors.industry ? 'border-red-300' : 'border-slate-200'}`}>
+                <SelectValue placeholder={isUIArabic ? "اختر المجال" : "Select industry"} />
+              </SelectTrigger>
+              <SelectContent>
+                {WIZARD_INDUSTRIES.map((industry) =>
+                  <SelectItem key={industry.value} value={industry.value}>
+                    {isUIArabic ? industry.label_ar || industry.label : industry.label}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            {validationErrors.industry && (
+              <p className="text-sm text-red-600 flex items-center gap-1 mt-2">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.industry}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+                4
+              </div>
+              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-purple-500" />
+                {isUIArabic ? "الدولة" : "Country"}
+              </Label>
+            </div>
+            
+            <Input
+              id="country"
+              disabled={true}
+              value={formData.country}
+              onChange={(e) => handleInputChange('country', e.target.value)}
+              className="border-2 border-slate-200 bg-slate-100 cursor-not-allowed"
+            />
+            <p className="text-xs text-slate-500 mt-1.5">
+              {isUIArabic ? "التحليل مخصص لسوريا حالياً" : "Analysis is tailored for Syria"}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+              5
+            </div>
+            <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-purple-500" />
+              {isUIArabic ? "لغة التقرير" : "Report Language"}
+            </Label>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {REPORT_LANGUAGES.map((lang) => (
+              <button
+                key={lang.value}
+                type="button"
+                onClick={() => handleInputChange('report_language', lang.value)}
+                className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 ${
+                  formData.report_language === lang.value
+                    ? 'border-purple-400 bg-purple-50 ring-2 ring-purple-100'
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <span className="text-2xl">{lang.flag}</span>
+                <div className="text-left">
+                  <p className={`font-semibold ${formData.report_language === lang.value ? 'text-purple-700' : 'text-slate-700'}`}>
+                    {lang.label}
+                  </p>
+                </div>
+                {formData.report_language === lang.value && (
+                  <CheckCircle2 className="w-5 h-5 text-purple-500 ml-auto" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit() || isSubmitting || isValidating}
+            className="w-full h-14 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-lg font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300 disabled:opacity-50 disabled:from-slate-400 disabled:to-slate-500 disabled:shadow-none rounded-xl"
+          >
+            {isValidating ? (
+              <span className="flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {isUIArabic ? 'جاري التحقق من الفكرة...' : 'Validating your idea...'}
+              </span>
+            ) : isSubmitting ? (
+              <span className="flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {isUIArabic ? 'جاري إنشاء التحليل...' : 'Creating your analysis...'}
+              </span>
+            ) : (
+              <span className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5" />
+                {isUIArabic ? 'بدء تحليل الذكاء الاصطناعي' : 'Start AI Analysis'}
+              </span>
+            )}
+          </Button>
+          
+          {!canSubmit() && formData.business_idea.length > 0 && (
+            <p className="text-center text-sm text-slate-500 mt-3">
+              {isUIArabic ? 'أكمل جميع الحقول المطلوبة للمتابعة' : 'Complete all required fields to continue'}
+            </p>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }
