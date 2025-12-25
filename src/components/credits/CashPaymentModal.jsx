@@ -245,17 +245,17 @@ export default function CashPaymentModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border dark:border-gray-700"
         dir={isArabic ? "rtl" : "ltr"}
       >
-        <DialogHeader className="space-y-3 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-3 text-2xl">
+        <DialogHeader className="space-y-3 pb-4 border-b dark:border-gray-700">
+          <DialogTitle className="flex items-center gap-3 text-2xl text-slate-800 dark:text-white">
             <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg">
               <Wallet className="w-6 h-6 text-white" />
             </div>
             {isArabic ? "إتمام عملية الدفع" : "Complete Payment"}
           </DialogTitle>
-          <DialogDescription className="text-base text-slate-600">
+          <DialogDescription className="text-base text-slate-600 dark:text-gray-400">
             {isArabic
               ? "قم بتحويل المبلغ ثم ارفع صورة الإيصال للمراجعة"
               : "Transfer the amount and upload the receipt for review"}
@@ -264,42 +264,42 @@ export default function CashPaymentModal({
 
         <div className="space-y-6 py-6">
           {/* Package Details Card */}
-          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border-2 border-purple-200 shadow-sm">
+          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-xl p-5 border-2 border-purple-200 dark:border-purple-700 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-sm text-slate-600 font-medium">
+                <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
                   {isArabic ? "الباقة المختارة" : "Selected Package"}
                 </p>
-                <p className="text-lg font-bold text-slate-800">
+                <p className="text-lg font-bold text-slate-800 dark:text-white">
                   {isArabic
                     ? selectedPackage.name_ar || selectedPackage.name
                     : selectedPackage.name}
                 </p>
               </div>
             </div>
-            <div className="space-y-2 pt-3 border-t border-purple-200">
+            <div className="space-y-2 pt-3 border-t border-purple-200 dark:border-purple-700">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">
+                <span className="text-slate-600 dark:text-gray-400">
                   {isArabic ? "الأرصدة:" : "Credits:"}
                 </span>
-                <span className="font-bold text-purple-700">
+                <span className="font-bold text-purple-700 dark:text-purple-400">
                   {selectedPackage.credits}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">
+                <span className="text-slate-600 dark:text-gray-400">
                   {isArabic ? "السعر:" : "Price:"}
                 </span>
-                <span className="font-bold text-purple-700">
+                <span className="font-bold text-purple-700 dark:text-purple-400">
                   ${selectedPackage.price}
                 </span>
               </div>
               {appliedDiscount && (
                 <>
-                  <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
                     <span>{isArabic ? "الخصم:" : "Discount:"}</span>
                     <span className="font-bold">
                       -
@@ -308,7 +308,7 @@ export default function CashPaymentModal({
                         : `$${appliedDiscount.discount_amount || 0}`}
                     </span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-green-600 pt-2 border-t border-purple-200">
+                  <div className="flex justify-between text-lg font-bold text-green-600 dark:text-green-400 pt-2 border-t border-purple-200 dark:border-purple-700">
                     <span>{isArabic ? "المجموع:" : "Total:"}</span>
                     <span>${calculateFinalAmount().toFixed(2)}</span>
                   </div>
@@ -320,7 +320,7 @@ export default function CashPaymentModal({
           {/* Currency Selection */}
           {currencies.length > 1 && (
             <div className="space-y-3">
-              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-purple-600" />
                 {isArabic ? "عملة الدفع" : "Payment Currency"}
               </Label>
@@ -331,32 +331,32 @@ export default function CashPaymentModal({
                   setSelectedCurrency(currency);
                 }}
               >
-                <SelectTrigger className="h-12 bg-white">
+                <SelectTrigger className="h-12 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <SelectValue placeholder={isArabic ? "اختر العملة" : "Select currency"} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
                   {currencies.map((currency) => (
-                    <SelectItem key={currency.code} value={currency.code}>
+                    <SelectItem key={currency.code} value={currency.code} className="dark:text-white dark:focus:bg-gray-700">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{currency.symbol}</span>
                         <span>{isArabic ? currency.name_ar || currency.name : currency.name}</span>
-                        <span className="text-slate-500">({currency.code})</span>
+                        <span className="text-slate-500 dark:text-gray-400">({currency.code})</span>
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {selectedCurrency && selectedCurrency.code !== 'USD' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-blue-700">
+                    <span className="text-sm text-blue-700 dark:text-blue-300">
                       {isArabic ? "المبلغ المطلوب:" : "Amount to pay:"}
                     </span>
-                    <span className="text-lg font-bold text-blue-800">
+                    <span className="text-lg font-bold text-blue-800 dark:text-blue-200">
                       {formatCurrencyAmount(calculateCurrencyAmount(), selectedCurrency)}
                     </span>
                   </div>
-                  <p className="text-xs text-blue-600 mt-1">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                     {isArabic 
                       ? `سعر الصرف: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
                       : `Exchange rate: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
@@ -369,7 +369,7 @@ export default function CashPaymentModal({
 
           {/* Discount Code */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold text-slate-800">
+            <Label className="text-base font-semibold text-slate-800 dark:text-white">
               {isArabic ? "كود الخصم (اختياري)" : "Discount Code (Optional)"}
             </Label>
             <div className="flex gap-2">
@@ -378,14 +378,14 @@ export default function CashPaymentModal({
                 onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
                 placeholder={isArabic ? "أدخل الكود" : "Enter code"}
                 disabled={appliedDiscount || isUploading}
-                className="flex-1 h-12"
+                className="flex-1 h-12 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
               />
               {!appliedDiscount ? (
                 <Button
                   onClick={validateDiscount}
                   disabled={isValidating || !discountCode.trim() || isUploading}
                   variant="outline"
-                  className="h-12 px-6"
+                  className="h-12 px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   {isValidating
                     ? isArabic
@@ -402,7 +402,7 @@ export default function CashPaymentModal({
                     setAppliedDiscount(null);
                   }}
                   variant="outline"
-                  className="h-12 px-6"
+                  className="h-12 px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                   disabled={isUploading}
                 >
                   {isArabic ? "إزالة" : "Remove"}
@@ -410,7 +410,7 @@ export default function CashPaymentModal({
               )}
             </div>
             {appliedDiscount && (
-              <p className="text-sm text-green-600 font-medium">
+              <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                 ✓{" "}
                 {isArabic
                   ? appliedDiscount.description_ar
@@ -422,7 +422,7 @@ export default function CashPaymentModal({
           {/* Payment Method Selection */}
           {paymentMethods.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-base font-semibold text-slate-800">
+              <Label className="text-base font-semibold text-slate-800 dark:text-white">
                 {isArabic ? "اختر طريقة الدفع" : "Select Payment Method"}
               </Label>
               <div className="grid gap-3">
@@ -434,13 +434,13 @@ export default function CashPaymentModal({
                       isArabic ? "text-right" : "text-left"
                     } hover:shadow-md ${
                       selectedMethod?.id === method.id
-                        ? "border-purple-600 bg-purple-50 shadow-md"
-                        : "border-slate-200 hover:border-purple-300 bg-white"
+                        ? "border-purple-600 bg-purple-50 dark:bg-purple-900/30 shadow-md"
+                        : "border-slate-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 bg-white dark:bg-gray-700"
                     }`}
                   >
                     <div className="flex items-center gap-4">
                       {method.logo_url && (
-                        <div className="w-14 h-14 rounded-lg bg-white border-2 border-slate-100 flex items-center justify-center p-2 flex-shrink-0">
+                        <div className="w-14 h-14 rounded-lg bg-white dark:bg-gray-600 border-2 border-slate-100 dark:border-gray-500 flex items-center justify-center p-2 flex-shrink-0">
                           <img
                             src={method.logo_url}
                             alt={method.name_en}
@@ -449,12 +449,12 @@ export default function CashPaymentModal({
                         </div>
                       )}
                       <div className="flex-1">
-                        <div className="font-semibold text-slate-800 text-lg">
+                        <div className="font-semibold text-slate-800 dark:text-white text-lg">
                           {isArabic ? method.name_ar : method.name_en}
                         </div>
                       </div>
                       {selectedMethod?.id === method.id && (
-                        <CheckCircle2 className="w-6 h-6 text-purple-600 flex-shrink-0" />
+                        <CheckCircle2 className="w-6 h-6 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                       )}
                     </div>
                   </button>
@@ -465,9 +465,9 @@ export default function CashPaymentModal({
 
           {/* Payment Method Details */}
           {selectedMethod && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-200 shadow-sm">
-              <h3 className="font-bold text-slate-800 mb-3 text-lg flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-600" />
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-5 border-2 border-blue-200 dark:border-blue-700 shadow-sm">
+              <h3 className="font-bold text-slate-800 dark:text-white mb-3 text-lg flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 {isArabic ? "تفاصيل التحويل" : "Transfer Details"}
               </h3>
               <div className="space-y-2">
@@ -475,12 +475,12 @@ export default function CashPaymentModal({
                   ([key, value]) => (
                     <div
                       key={key}
-                      className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0"
+                      className="flex items-center justify-between py-2 border-b border-blue-100 dark:border-blue-800 last:border-0"
                     >
-                      <span className="font-semibold text-slate-700">
+                      <span className="font-semibold text-slate-700 dark:text-gray-300">
                         {key}:
                       </span>
-                      <span className="text-slate-900 font-medium text-right">
+                      <span className="text-slate-900 dark:text-white font-medium text-right">
                         {value}
                       </span>
                     </div>
@@ -490,17 +490,17 @@ export default function CashPaymentModal({
             </div>
           )}
           {selectedMethod && (selectedMethod.instructions || selectedMethod.instructions_ar) && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-200 shadow-sm">
-              <h3 className="font-bold text-slate-800 mb-3 text-lg flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-600" />
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-5 border-2 border-blue-200 dark:border-blue-700 shadow-sm">
+              <h3 className="font-bold text-slate-800 dark:text-white mb-3 text-lg flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 {isArabic ? "تعليمات التحويل" : "Transfer Instructions"}
               </h3>
               <div className="space-y-2">
                 <div
                   key={"instruction"}
-                  className="flex items-center justify-between py-2 border-b border-blue-100 last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-blue-100 dark:border-blue-800 last:border-0"
                 >
-                  <span className="text-slate-900 font-medium ">
+                  <span className="text-slate-900 dark:text-white font-medium ">
                       {isArabic ? selectedMethod.instructions_ar : selectedMethod.instructions}
                   </span>
                 </div>
@@ -512,7 +512,7 @@ export default function CashPaymentModal({
           <div className="space-y-3">
             <Label
               htmlFor="invoice"
-              className="text-base font-semibold text-slate-800"
+              className="text-base font-semibold text-slate-800 dark:text-white"
             >
               {isArabic ? "رفع صورة الإيصال" : "Upload Receipt"}
               <span className="text-red-500 ml-1">*</span>
@@ -521,16 +521,16 @@ export default function CashPaymentModal({
             {!invoiceFile ? (
               <label
                 htmlFor="invoice"
-                className="flex flex-col items-center justify-center w-full h-40 border-3 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-purple-400 transition-all"
+                className="flex flex-col items-center justify-center w-full h-40 border-3 border-dashed border-slate-300 dark:border-gray-600 rounded-xl cursor-pointer bg-slate-50 dark:bg-gray-700 hover:bg-slate-100 dark:hover:bg-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-all"
               >
                 <div className="flex flex-col items-center justify-center py-4">
-                  <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                    <ImageIcon className="w-7 h-7 text-purple-600" />
+                  <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-3">
+                    <ImageIcon className="w-7 h-7 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <p className="mb-2 text-sm font-semibold text-slate-700">
+                  <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-gray-300">
                     {isArabic ? "انقر لرفع الصورة" : "Click to upload image"}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-gray-400">
                     {isArabic
                       ? "PNG، JPG حتى 5 ميجابايت"
                       : "PNG, JPG up to 5MB"}
@@ -547,24 +547,24 @@ export default function CashPaymentModal({
               </label>
             ) : (
               <div className="relative">
-                <div className="flex items-center gap-3 p-4 bg-green-50 border-2 border-green-300 rounded-xl">
-                  <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+                <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/30 border-2 border-green-300 dark:border-green-700 rounded-xl">
+                  <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-green-900 truncate">
+                    <p className="font-semibold text-green-900 dark:text-green-300 truncate">
                       {invoiceFile.name}
                     </p>
-                    <p className="text-sm text-green-700">
+                    <p className="text-sm text-green-700 dark:text-green-400">
                       {(invoiceFile.size / 1024).toFixed(2)} KB
                     </p>
                   </div>
                   <button
                     onClick={() => setInvoiceFile(null)}
-                    className="p-2 hover:bg-green-200 rounded-lg transition-colors"
+                    className="p-2 hover:bg-green-200 dark:hover:bg-green-800 rounded-lg transition-colors"
                     disabled={isUploading}
                   >
-                    <X className="w-5 h-5 text-green-700" />
+                    <X className="w-5 h-5 text-green-700 dark:text-green-400" />
                   </button>
                 </div>
               </div>
@@ -572,10 +572,10 @@ export default function CashPaymentModal({
           </div>
 
           {/* Info Alert */}
-          <Alert className="bg-amber-50 border-2 border-amber-200">
-            <Clock className="h-5 w-5 text-amber-600" />
+          <Alert className="bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700">
+            <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <AlertDescription
-              className={`text-sm text-amber-900 ${isArabic ? "mr-2" : "ml-2"}`}
+              className={`text-sm text-amber-900 dark:text-amber-300 ${isArabic ? "mr-2" : "ml-2"}`}
             >
               {isArabic
                 ? "سيتم مراجعة طلبك من قبل الإدارة خلال 24 ساعة. سيتم إضافة الأرصدة بعد التأكد من صحة التحويل."
@@ -584,12 +584,12 @@ export default function CashPaymentModal({
           </Alert>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 border-t pt-4">
+        <DialogFooter className="gap-2 sm:gap-0 border-t dark:border-gray-700 pt-4">
           <Button
             variant="outline"
             onClick={onClose}
             disabled={isUploading}
-            className="h-11 px-6"
+            className="h-11 px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             {isArabic ? "إلغاء" : "Cancel"}
           </Button>
