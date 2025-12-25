@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import {
   Wallet,
   FileText,
@@ -14,8 +13,6 @@ import {
   Plus,
   ArrowRight,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   Eye,
   Sparkles,
   Zap,
@@ -40,27 +37,6 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-};
-
-const statusIcons = {
-  draft: Clock,
-  analyzing: AlertCircle,
-  completed: CheckCircle2,
-  failed: AlertCircle
-};
-
-const statusColors = {
-  draft: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600",
-  analyzing: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-700",
-  completed: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700",
-  failed: "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700"
-};
-
-const statusLabels = {
-  draft: { en: "Draft", ar: "مسودة" },
-  analyzing: { en: "Analyzing", ar: "قيد التحليل" },
-  completed: { en: "Completed", ar: "مكتمل" },
-  failed: { en: "Failed", ar: "فشل" }
 };
 
 export default function Dashboard() {
@@ -296,9 +272,7 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {recentAnalyses.map((analysis, index) => {
-                      const StatusIcon = statusIcons[analysis.status] || AlertCircle;
-                      return (
+                    {recentAnalyses.map((analysis, index) => (
                         <motion.div
                           key={analysis.id}
                           initial={{ opacity: 0, x: -20 }}
@@ -320,23 +294,16 @@ export default function Dashboard() {
                                 {safeFormatDate(analysis.created_at)}
                               </p>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <Badge className={`${statusColors[analysis.status]} border text-xs`}>
-                                <StatusIcon className="w-3 h-3 mr-1" />
-                                {isArabic ? statusLabels[analysis.status]?.ar : statusLabels[analysis.status]?.en}
-                              </Badge>
-                              {analysis.status === 'completed' && (
-                                <Link to={createPageUrl(`AnalysisResult?id=${analysis.id}`)}>
-                                  <Button size="sm" variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                </Link>
-                              )}
-                            </div>
+                            {analysis.status === 'completed' && (
+                              <Link to={createPageUrl(`AnalysisResult?id=${analysis.id}`)}>
+                                <Button size="sm" variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </Link>
+                            )}
                           </div>
                         </motion.div>
-                      );
-                    })}
+                    ))}
                   </div>
                 )}
               </CardContent>
