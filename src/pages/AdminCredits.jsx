@@ -295,13 +295,13 @@ export default function AdminCredits() {
     .filter(t => t.type === 'purchase' && t.status === 'completed')
     .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
   const totalCreditsUsed = transactions
-    .filter(t => t.type === 'usage' && t.status === 'completed')
+    .filter(t => (t.type === 'usage' || t.type === 'analysis') && t.status === 'completed')
     .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
   const totalCreditsRemaining = users.reduce((sum, u) => sum + (u.credits || 0), 0);
   const totalRevenue = transactions
     .filter(t => t.type === 'purchase' && t.status === 'completed')
     .reduce((sum, t) => sum + (t.amount_usd || 0), 0);
-  const totalReports = transactions.filter(t => t.type === 'usage').length;
+  const totalReports = transactions.filter(t => t.type === 'usage' || t.type === 'analysis').length;
 
   if (isLoading) {
     return (
@@ -438,7 +438,7 @@ export default function AdminCredits() {
                               .filter(t => t.user_email === user.email && t.type === 'purchase')
                               .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
                             const userUsed = transactions
-                              .filter(t => t.user_email === user.email && t.type === 'usage')
+                              .filter(t => t.user_email === user.email && (t.type === 'usage' || t.type === 'analysis'))
                               .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
                             return (
                             <TableRow key={user.id}>
