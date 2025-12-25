@@ -757,6 +757,9 @@ export default function AnalysisResult() {
     return createPageUrl(p ? `Reports?user=${encodeURIComponent(p)}` : "Reports");
   })();
 
+  // Check if all tabs are loaded for export
+  const allTabsLoaded = loadedTabs.market && loadedTabs.business && loadedTabs.technical && loadedTabs.financial && loadedTabs.strategy && loadedTabs.overview;
+
   if (isLoading) {
     return (
       <div className="min-h-screen p-4 md:p-8">
@@ -1042,17 +1045,19 @@ export default function AnalysisResult() {
               <>
                 <Button
                   onClick={handleDownloadPdf}
-                  disabled={isDownloadingPdf}
+                  disabled={isDownloadingPdf || !allTabsLoaded}
                   className="gap-2 gradient-primary text-white"
+                  title={!allTabsLoaded ? (isUIArabic ? 'يرجى تحميل جميع التبويبات أولاً' : 'Please load all tabs first') : ''}
                 >
                   <Download className="w-4 h-4" />
                   {isDownloadingPdf ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'PDF'}
                 </Button>
                 <Button
                   onClick={handleDownloadCsv}
-                  disabled={isDownloadingCsv}
+                  disabled={isDownloadingCsv || !allTabsLoaded}
                   variant="outline"
                   className="gap-2"
+                  title={!allTabsLoaded ? (isUIArabic ? 'يرجى تحميل جميع التبويبات أولاً' : 'Please load all tabs first') : ''}
                 >
                   <FileSpreadsheet className="w-4 h-4" />
                   {isDownloadingCsv ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'CSV'}
@@ -1403,6 +1408,12 @@ export default function AnalysisResult() {
                       </h2>
                     </div>
                     <CardContent className="p-6">
+                      {isPremium && !allTabsLoaded && (
+                        <p className="text-amber-600 text-sm mb-4 flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          {isUIArabic ? "يرجى تحميل جميع التبويبات قبل تصدير التقرير" : "Please load all tabs before exporting the report"}
+                        </p>
+                      )}
                       <div className="flex flex-wrap gap-4">
                         <Button
                           onClick={() => setShowShareModal(true)}
@@ -1417,7 +1428,7 @@ export default function AnalysisResult() {
                           <>
                             <Button
                               onClick={handleDownloadPdf}
-                              disabled={isDownloadingPdf}
+                              disabled={isDownloadingPdf || !allTabsLoaded}
                               className="gap-2 flex-1 min-w-[150px] h-12 gradient-primary text-white"
                             >
                               <Download className="w-5 h-5" />
@@ -1425,7 +1436,7 @@ export default function AnalysisResult() {
                             </Button>
                             <Button
                               onClick={handleDownloadCsv}
-                              disabled={isDownloadingCsv}
+                              disabled={isDownloadingCsv || !allTabsLoaded}
                               variant="outline"
                               className="gap-2 flex-1 min-w-[150px] h-12"
                             >
