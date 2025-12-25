@@ -66,33 +66,112 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 
-const TabLoadingSpinner = ({ isUIArabic, message }) => (
-  <div className="flex flex-col items-center justify-center py-16 space-y-4">
-    <div className="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
-    <p className="text-slate-600 text-sm">{message || (isUIArabic ? "جارٍ تحميل البيانات..." : "Loading data...")}</p>
-    <p className="text-slate-400 text-xs">{isUIArabic ? "يتم توليد المحتوى بالذكاء الاصطناعي" : "AI is generating your content..."}</p>
-  </div>
-);
+const TabLoadingSpinner = ({ isUIArabic, tabName }) => {
+  const tabIcons = {
+    market: TrendingUp,
+    business: Briefcase,
+    technical: Code,
+    financial: Calculator,
+    strategy: Target,
+    risks: Shield,
+    overview: Sparkles
+  };
+  
+  const tabLabels = {
+    market: { en: 'Market Analysis', ar: 'تحليل السوق' },
+    business: { en: 'Business Model', ar: 'نموذج العمل' },
+    technical: { en: 'Technical Plan', ar: 'الخطة التقنية' },
+    financial: { en: 'Financial Projections', ar: 'التوقعات المالية' },
+    strategy: { en: 'Strategy & Growth', ar: 'الاستراتيجية والنمو' },
+    risks: { en: 'Risk Analysis', ar: 'تحليل المخاطر' },
+    overview: { en: 'Overview', ar: 'نظرة عامة' }
+  };
+  
+  const IconComponent = tabIcons[tabName] || Sparkles;
+  const label = tabLabels[tabName] || { en: 'Content', ar: 'المحتوى' };
+  
+  return (
+    <div className="relative min-h-[400px] flex items-center justify-center">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-orange-50/50 animate-pulse" />
+      
+      <div className="relative z-10 flex flex-col items-center justify-center space-y-6 p-8">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-orange-400 rounded-full blur-xl opacity-30 animate-pulse" />
+          <div className="relative w-20 h-20 bg-gradient-to-br from-purple-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-xl">
+            <IconComponent className="w-10 h-10 text-white animate-pulse" />
+          </div>
+          <div className="absolute -inset-2 rounded-2xl border-2 border-purple-200 animate-ping opacity-50" />
+        </div>
+        
+        <div className="text-center space-y-2">
+          <h3 className="text-lg font-semibold text-slate-800">
+            {isUIArabic ? `جارٍ إنشاء ${label.ar}` : `Generating ${label.en}`}
+          </h3>
+          <p className="text-slate-500 text-sm max-w-xs">
+            {isUIArabic 
+              ? "الذكاء الاصطناعي يحلل بياناتك ويعد محتوى مخصصاً..."
+              : "AI is analyzing your data and preparing customized content..."}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '450ms' }} />
+        </div>
+        
+        <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-purple-500 to-orange-500 rounded-full animate-loading-bar" />
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes loading-bar {
+          0% { width: 0%; transform: translateX(0); }
+          50% { width: 70%; transform: translateX(0); }
+          100% { width: 100%; transform: translateX(0); }
+        }
+        .animate-loading-bar {
+          animation: loading-bar 2s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
 
-const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, children }) => {
+const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, tabName, children }) => {
   if (hasError) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-4">
-        <AlertCircle className="w-12 h-12 text-red-500" />
-        <p className="text-slate-700 font-medium">{isUIArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}</p>
-        <p className="text-slate-500 text-sm">{isUIArabic ? "انقر على الزر أدناه للمحاولة مرة أخرى" : "Click the button below to try again"}</p>
-        <button
-          onClick={onRetry}
-          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
-        >
-          <RefreshCw className="w-4 h-4" />
-          {isUIArabic ? "إعادة المحاولة" : "Retry"}
-        </button>
+      <div className="relative min-h-[300px] flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 via-white to-orange-50/50" />
+        <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-5">
+          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="text-slate-800 font-semibold text-lg">
+              {isUIArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}
+            </p>
+            <p className="text-slate-500 text-sm max-w-sm">
+              {isUIArabic 
+                ? "لم نتمكن من تحميل هذا القسم. يرجى المحاولة مرة أخرى."
+                : "We couldn't load this section. Please try again."}
+            </p>
+          </div>
+          <button
+            onClick={onRetry}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl flex items-center gap-2 font-medium"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {isUIArabic ? "إعادة المحاولة" : "Try Again"}
+          </button>
+        </div>
       </div>
     );
   }
   if (isLoading || !isLoaded) {
-    return <TabLoadingSpinner isUIArabic={isUIArabic} />;
+    return <TabLoadingSpinner isUIArabic={isUIArabic} tabName={tabName} />;
   }
   return <>{children}</>;
 };
@@ -1044,7 +1123,7 @@ export default function AnalysisResult() {
 
           {/* Tab 1: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')}>
+            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')} tabName="market">
             
             {tabData.market ? (
               <MarketSection data={tabData.market} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
@@ -1106,7 +1185,7 @@ export default function AnalysisResult() {
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')}>
+            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')} tabName="business">
             {tabData.business ? (
               <BusinessSection data={tabData.business} isArabic={isReportArabic} />
             ) : (
@@ -1138,7 +1217,7 @@ export default function AnalysisResult() {
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')}>
+            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')} tabName="technical">
             {tabData.technical ? (
               <TechnicalSection data={tabData.technical} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
@@ -1185,7 +1264,7 @@ export default function AnalysisResult() {
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')}>
+            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')} tabName="financial">
             {tabData.financial ? (
               <FinancialSection data={tabData.financial} isArabic={isReportArabic} />
             ) : (
@@ -1210,7 +1289,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')}>
+            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')} tabName="strategy">
             {tabData.strategy ? (
               <StrategySection data={tabData.strategy} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
@@ -1250,7 +1329,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Overview */}
           <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')}>
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')} tabName="overview">
               {tabData.overview && (
                 <>
                   <Card className="border shadow-lg overflow-hidden">

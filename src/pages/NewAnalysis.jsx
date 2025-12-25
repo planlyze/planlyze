@@ -10,15 +10,12 @@ import { useAuth } from "@/lib/AuthContext";
 import { motion } from "framer-motion";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
-import GeneratingReportLoader from "../components/analysis/GeneratingReportLoader";
 
 export default function NewAnalysis() {
   const navigate = useNavigate();
   const { user: currentUser, refreshUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [pendingAnalysisId, setPendingAnalysisId] = useState(null);
-  const [reportLanguage, setReportLanguage] = useState('english');
   
   const isUIArabic = currentUser?.language === 'arabic';
 
@@ -36,7 +33,6 @@ export default function NewAnalysis() {
 
   const handleFormSubmit = async (formDataFromWizard) => {
     setIsSubmitting(true);
-    setReportLanguage(formDataFromWizard.report_language);
 
     try {
       const resp = await api.post('/analyses/generate', formDataFromWizard);
@@ -47,7 +43,11 @@ export default function NewAnalysis() {
       }
 
       await refreshUser();
-      setPendingAnalysisId(createdAnalysis.id);
+      
+      toast.success(formDataFromWizard.report_language === 'arabic' 
+        ? "تم إنشاء التحليل بنجاح!" 
+        : "Analysis created successfully!");
+      navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
 
     } catch (error) {
       console.error("Analysis creation failed:", error);
@@ -57,34 +57,10 @@ export default function NewAnalysis() {
     }
   };
 
-  const handleLoaderComplete = () => {
-    if (pendingAnalysisId) {
-      toast.success(reportLanguage === 'arabic' 
-        ? "تم إنشاء التحليل بنجاح!" 
-        : "Analysis created successfully!");
-      navigate(createPageUrl(`AnalysisResult?id=${pendingAnalysisId}`));
-    }
-  };
-
   if (!authChecked) {
     return (
       <div className="flex items-center justify-center h-screen w-full bg-gradient-to-br from-purple-50 via-white to-orange-50">
         <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (isSubmitting) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
-            <GeneratingReportLoader 
-              isArabic={reportLanguage === 'arabic'} 
-              onComplete={handleLoaderComplete}
-            />
-          </Card>
-        </div>
       </div>
     );
   }
