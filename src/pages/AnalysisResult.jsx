@@ -33,10 +33,9 @@ import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/common/StarRating";
 import { toast } from "sonner";
 import FloatingAIAssistant from "../components/results/FloatingAIAssistant";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { jsPDF } from "jspdf";
 import { useAuth } from "@/lib/AuthContext";
+import { PDFExporter } from "@/utils/pdfExport";
+import PDFExportModal from "../components/results/PDFExportModal";
 
 import ExecutiveSummary from "../components/results/ExecutiveSummary";
 import ProblemSolutionFramework from "../components/results/ProblemSolutionFramework";
@@ -107,7 +106,7 @@ export default function AnalysisResult() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingCsv, setIsDownloadingCsv] = useState(false);
-  const [exportProgress, setExportProgress] = useState({ show: false, step: '', progress: 0 });
+  const [exportProgress, setExportProgress] = useState({ show: false, step: 'prepare', progress: 0 });
   const [canRate, setCanRate] = useState(false);
   const [rating, setRating] = useState(null);
   const [feedback, setFeedback] = useState("");
@@ -238,7 +237,7 @@ export default function AnalysisResult() {
   const handleDownloadPdf = async () => {
     if (!analysis) return;
     setIsDownloadingPdf(true);
-    setExportProgress({ show: true, step: isUIArabic ? 'جارٍ تحضير التقرير...' : 'Preparing report...', progress: 5 });
+    setExportProgress({ show: true, step: 'prepare', progress: 5 });
 
     const sanitize = (s) => {
       const base = String(s || "Report").trim().replace(/[/\\?%*:|"<>]/g, "_").replace(/\s+/g, "_");
@@ -249,15 +248,12 @@ export default function AnalysisResult() {
     const allTabData = { ...tabData };
 
     try {
-      // Load all tab content if not already loaded
+      setExportProgress({ show: true, step: 'sections', progress: 10 });
+
       for (let i = 0; i < tabs.length; i++) {
         const tabName = tabs[i];
-        const progressPercent = 10 + Math.round((i / tabs.length) * 50);
-        setExportProgress({ 
-          show: true, 
-          step: isUIArabic ? `جارٍ تحميل ${tabName}...` : `Loading ${tabName} section...`, 
-          progress: progressPercent 
-        });
+        const progressPercent = 10 + Math.round((i / tabs.length) * 40);
+        setExportProgress({ show: true, step: 'sections', progress: progressPercent });
 
         if (!allTabData[tabName]) {
           const cachedData = analysis[`tab_${tabName}`];
@@ -281,285 +277,174 @@ export default function AnalysisResult() {
         }
       }
 
-      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ إنشاء PDF...' : 'Generating PDF...', progress: 70 });
+      setExportProgress({ show: true, step: 'charts', progress: 55 });
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Create PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 20;
-      const contentWidth = pageWidth - (margin * 2);
-      let yPos = margin;
+      setExportProgress({ show: true, step: 'generate', progress: 65 });
 
-      const addPage = () => {
-        pdf.addPage();
-        yPos = margin;
-      };
+      const isReportArabic = analysis?.report_language === 'arabic';
+      const pdfExporter = new PDFExporter({ isArabic: isReportArabic });
+      const br = analysis.business_report || {};
+      const tr = analysis.technical_report || {};
 
-      const checkPageBreak = (neededHeight) => {
-        if (yPos + neededHeight > pageHeight - margin) {
-          addPage();
+      pdfExporter.addCoverPage(
+        analysis.business_idea || 'Business Report',
+        br.problem_solution_framework?.value_proposition || '',
+        {
+          date: format(new Date(analysis.created_at), 'MMMM d, yyyy'),
+          industry: analysis.industry,
+          country: analysis.country,
+          scores: {
+            viability: br.overall_viability_score || br.overall_business_viability_assessment,
+            complexity: tr.complexity_score,
+            aiMvp: tr.mvp_by_ai_tool_score,
+            overall: br.overall_business_viability_assessment || br.overall_viability_score
+          }
         }
-      };
+      );
 
-      const addTitle = (text, fontSize = 18) => {
-        checkPageBreak(15);
-        pdf.setFontSize(fontSize);
-        pdf.setTextColor(79, 70, 229);
-        pdf.text(text, margin, yPos);
-        yPos += fontSize * 0.5 + 5;
-      };
+      setExportProgress({ show: true, step: 'generate', progress: 72 });
 
-      const addSubtitle = (text, fontSize = 14) => {
-        checkPageBreak(12);
-        pdf.setFontSize(fontSize);
-        pdf.setTextColor(51, 65, 85);
-        pdf.text(text, margin, yPos);
-        yPos += fontSize * 0.4 + 4;
-      };
-
-      const addText = (text, fontSize = 10) => {
-        if (!text) return;
-        pdf.setFontSize(fontSize);
-        pdf.setTextColor(71, 85, 105);
-        const lines = pdf.splitTextToSize(String(text), contentWidth);
-        lines.forEach(line => {
-          checkPageBreak(6);
-          pdf.text(line, margin, yPos);
-          yPos += 5;
-        });
-        yPos += 3;
-      };
-
-      const addBulletList = (items, indent = 5) => {
-        if (!items || !Array.isArray(items)) return;
-        items.forEach(item => {
-          checkPageBreak(6);
-          pdf.setFontSize(10);
-          pdf.setTextColor(71, 85, 105);
-          const lines = pdf.splitTextToSize(`• ${item}`, contentWidth - indent);
-          lines.forEach((line, idx) => {
-            pdf.text(line, margin + (idx === 0 ? 0 : indent), yPos);
-            yPos += 5;
-          });
-        });
-        yPos += 3;
-      };
-
-      // Cover Page
-      pdf.setFillColor(79, 70, 229);
-      pdf.rect(0, 0, pageWidth, 60, 'F');
-      pdf.setFontSize(28);
-      pdf.setTextColor(255, 255, 255);
-      pdf.text('PLANLYZE', margin, 35);
-      pdf.setFontSize(12);
-      pdf.text(isUIArabic ? 'تقرير تحليل الأعمال' : 'Business Analysis Report', margin, 48);
-      
-      yPos = 80;
-      pdf.setFontSize(20);
-      pdf.setTextColor(30, 41, 59);
-      const titleLines = pdf.splitTextToSize(analysis.business_idea || 'Business Report', contentWidth);
-      titleLines.forEach(line => {
-        pdf.text(line, margin, yPos);
-        yPos += 10;
-      });
-
-      yPos += 10;
-      pdf.setFontSize(11);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text(`${isUIArabic ? 'التاريخ:' : 'Date:'} ${format(new Date(analysis.created_at), 'MMMM d, yyyy')}`, margin, yPos);
-      yPos += 7;
-      if (analysis.industry) pdf.text(`${isUIArabic ? 'المجال:' : 'Industry:'} ${analysis.industry}`, margin, yPos);
-      yPos += 7;
-      if (analysis.country) pdf.text(`${isUIArabic ? 'الموقع:' : 'Location:'} ${analysis.country}`, margin, yPos);
-
-      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ إضافة الأقسام...' : 'Adding sections...', progress: 80 });
-
-      // Overview Section
-      addPage();
-      addTitle(isUIArabic ? 'نظرة عامة' : 'Overview');
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'نظرة عامة' : 'Executive Overview');
       const overview = allTabData.overview || analysis.report || {};
       if (overview.value_proposition) {
-        addSubtitle(isUIArabic ? 'القيمة المقترحة' : 'Value Proposition');
-        addText(overview.value_proposition);
-      }
-      if (overview.market_fit_score !== undefined) {
-        addSubtitle(isUIArabic ? 'المقاييس الرئيسية' : 'Key Metrics');
-        addText(`${isUIArabic ? 'نسبة ملاءمة السوق:' : 'Market Fit Score:'} ${overview.market_fit_score}%`);
-        if (overview.time_to_build_months) addText(`${isUIArabic ? 'وقت البناء:' : 'Time to Build:'} ${overview.time_to_build_months} ${isUIArabic ? 'شهر' : 'months'}`);
-        if (overview.competitors_count) addText(`${isUIArabic ? 'عدد المنافسين:' : 'Competitors:'} ${overview.competitors_count}`);
-        if (overview.starting_cost_usd) addText(`${isUIArabic ? 'تكلفة البداية:' : 'Starting Cost:'} $${overview.starting_cost_usd?.toLocaleString()}`);
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'القيمة المقترحة' : 'Value Proposition');
+        pdfExporter.addText(overview.value_proposition);
       }
       if (overview.executive_summary) {
-        addSubtitle(isUIArabic ? 'الملخص التنفيذي' : 'Executive Summary');
-        addText(overview.executive_summary);
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'الملخص التنفيذي' : 'Executive Summary');
+        pdfExporter.addText(overview.executive_summary);
+      }
+      if (overview.market_fit_score !== undefined) {
+        pdfExporter.addInfoCard(
+          isReportArabic ? 'ملاءمة السوق' : 'Market Fit Score',
+          `${overview.market_fit_score}%`,
+          [16, 185, 129]
+        );
       }
 
-      // Market Section
-      addPage();
-      addTitle(isUIArabic ? 'تحليل السوق' : 'Market Analysis');
+      setExportProgress({ show: true, step: 'generate', progress: 78 });
+
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'تحليل السوق' : 'Market Analysis');
       const market = allTabData.market || {};
-      if (market.target_audiences && Array.isArray(market.target_audiences)) {
-        addSubtitle(isUIArabic ? 'الجمهور المستهدف' : 'Target Audiences');
-        market.target_audiences.forEach((audience) => {
-          addText(`• ${audience.segment || audience.name}: ${audience.description || ''}`);
-        });
-      }
-      if (market.key_problems && Array.isArray(market.key_problems)) {
-        addSubtitle(isUIArabic ? 'المشاكل الرئيسية' : 'Key Problems');
-        market.key_problems.forEach((problem) => {
-          addText(`• ${problem.problem || problem.title || (typeof problem === 'string' ? problem : '')}`);
-        });
-      }
-      if (market.syrian_competitors && Array.isArray(market.syrian_competitors)) {
-        addSubtitle(isUIArabic ? 'المنافسون' : 'Competitors');
-        addBulletList(market.syrian_competitors.map(c => typeof c === 'string' ? c : c.name || JSON.stringify(c)));
+      if (market.target_audiences?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'الجمهور المستهدف' : 'Target Audiences');
+        pdfExporter.addBulletList(market.target_audiences.map(a => `${a.segment || a.name}: ${a.description || ''}`));
       }
       if (market.swot) {
-        addSubtitle('SWOT');
-        if (market.swot.strengths && Array.isArray(market.swot.strengths)) {
-          addText(isUIArabic ? 'نقاط القوة:' : 'Strengths:');
-          addBulletList(market.swot.strengths);
-        }
-        if (market.swot.weaknesses && Array.isArray(market.swot.weaknesses)) {
-          addText(isUIArabic ? 'نقاط الضعف:' : 'Weaknesses:');
-          addBulletList(market.swot.weaknesses);
-        }
-        if (market.swot.opportunities && Array.isArray(market.swot.opportunities)) {
-          addText(isUIArabic ? 'الفرص:' : 'Opportunities:');
-          addBulletList(market.swot.opportunities);
-        }
-        if (market.swot.threats && Array.isArray(market.swot.threats)) {
-          addText(isUIArabic ? 'التهديدات:' : 'Threats:');
-          addBulletList(market.swot.threats);
-        }
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'تحليل SWOT' : 'SWOT Analysis');
+        pdfExporter.addSWOTGrid(market.swot);
+      }
+      if (market.syrian_competitors?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'المنافسون' : 'Competitors');
+        const compHeaders = [isReportArabic ? 'الاسم' : 'Name', isReportArabic ? 'الوصف' : 'Description'];
+        const compRows = market.syrian_competitors.slice(0, 5).map(c => 
+          typeof c === 'string' ? [c, ''] : [c.name || '', c.description || '']
+        );
+        pdfExporter.addDataTable(compHeaders, compRows);
       }
 
-      // Business Section (Go-to-Market Strategy)
-      addPage();
-      addTitle(isUIArabic ? 'استراتيجية الدخول للسوق' : 'Go-to-Market Strategy');
+      setExportProgress({ show: true, step: 'generate', progress: 82 });
+
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'استراتيجية الأعمال' : 'Business Strategy');
       const business = allTabData.business || {};
-      if (business.go_to_market_strategy) {
-        if (business.go_to_market_strategy.marketing_strategy?.overview) {
-          addSubtitle(isUIArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
-          addText(business.go_to_market_strategy.marketing_strategy.overview);
-        }
-        if (business.go_to_market_strategy.validation_steps && Array.isArray(business.go_to_market_strategy.validation_steps)) {
-          addSubtitle(isUIArabic ? 'خطوات التحقق' : 'Validation Steps');
-          business.go_to_market_strategy.validation_steps.forEach((step) => {
-            addText(`• ${step.step || step}: ${step.description || ''}`);
-          });
-        }
+      if (business.go_to_market_strategy?.marketing_strategy?.overview) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
+        pdfExporter.addText(business.go_to_market_strategy.marketing_strategy.overview);
       }
-      if (business.distribution_channels && Array.isArray(business.distribution_channels)) {
-        addSubtitle(isUIArabic ? 'قنوات التوزيع' : 'Distribution Channels');
-        business.distribution_channels.forEach((channel) => {
-          addText(`• ${channel.channel_name || channel}: ${channel.details || ''}`);
-        });
+      if (business.kpis?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'مؤشرات الأداء' : 'KPIs');
+        const kpiHeaders = [isReportArabic ? 'المؤشر' : 'Metric', isReportArabic ? 'الهدف' : 'Target'];
+        const kpiRows = business.kpis.slice(0, 6).map(k => [k.metric || '', k.target || '']);
+        pdfExporter.addDataTable(kpiHeaders, kpiRows);
       }
-      if (business.kpis && Array.isArray(business.kpis)) {
-        addSubtitle(isUIArabic ? 'مؤشرات الأداء الرئيسية' : 'Key Performance Indicators');
-        business.kpis.forEach((kpi) => {
-          addText(`• ${kpi.metric || kpi}: ${kpi.target || ''}`);
-        });
+      if (business.distribution_channels?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'قنوات التوزيع' : 'Distribution Channels');
+        pdfExporter.addBulletList(business.distribution_channels.map(c => c.channel_name || c));
       }
 
-      // Technical Section
-      addPage();
-      addTitle(isUIArabic ? 'التنفيذ التقني' : 'Technical Implementation');
+      setExportProgress({ show: true, step: 'generate', progress: 86 });
+
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'التنفيذ التقني' : 'Technical Implementation');
       const technical = allTabData.technical || {};
-      if (technical.technical_stack) {
-        if (technical.technical_stack.recommended_stack && Array.isArray(technical.technical_stack.recommended_stack)) {
-          addSubtitle(isUIArabic ? 'التقنيات المقترحة' : 'Recommended Tech Stack');
-          technical.technical_stack.recommended_stack.forEach((tech) => {
-            addText(`• ${tech.category}: ${tech.technology}`);
-          });
-        }
-        if (technical.technical_stack.estimated_time) {
-          addText(`${isUIArabic ? 'الوقت المقدر:' : 'Estimated Time:'} ${technical.technical_stack.estimated_time}`);
-        }
-        if (technical.technical_stack.languages && Array.isArray(technical.technical_stack.languages)) {
-          addText(`${isUIArabic ? 'لغات البرمجة:' : 'Languages:'} ${technical.technical_stack.languages.join(', ')}`);
-        }
+      if (technical.technical_stack?.recommended_stack?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'المكدس التقني' : 'Tech Stack');
+        const techHeaders = [isReportArabic ? 'الفئة' : 'Category', isReportArabic ? 'التقنية' : 'Technology'];
+        const techRows = technical.technical_stack.recommended_stack.slice(0, 8).map(t => [t.category || '', t.technology || '']);
+        pdfExporter.addDataTable(techHeaders, techRows);
       }
-      if (technical.development_plan && Array.isArray(technical.development_plan)) {
-        addSubtitle(isUIArabic ? 'خطة التطوير' : 'Development Plan');
-        technical.development_plan.forEach((phase) => {
-          addText(`${phase.version || phase.name || ''}`);
-          if (phase.features && Array.isArray(phase.features)) {
-            phase.features.forEach((f) => {
-              addText(`  • ${f.feature || f}`);
-            });
-          }
-        });
+      if (technical.technical_stack?.team_requirements?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'متطلبات الفريق' : 'Team Requirements');
+        const teamHeaders = [isReportArabic ? 'الدور' : 'Role', isReportArabic ? 'العدد' : 'Count', isReportArabic ? 'التكلفة الشهرية' : 'Monthly Cost'];
+        const teamRows = technical.technical_stack.team_requirements.map(t => 
+          [t.role || '', String(t.count || 1), `$${(t.monthly_cost_usd || 0).toLocaleString()}`]
+        );
+        pdfExporter.addDataTable(teamHeaders, teamRows);
       }
-      if (technical.mvp) {
-        addSubtitle('MVP');
-        if (technical.mvp.core_features && Array.isArray(technical.mvp.core_features)) {
-          addBulletList(technical.mvp.core_features);
-        }
+      if (technical.mvp?.core_features?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'ميزات MVP' : 'MVP Features');
+        pdfExporter.addBulletList(technical.mvp.core_features.slice(0, 8));
       }
 
-      // Financial Section
-      addPage();
-      addTitle(isUIArabic ? 'التحليل المالي' : 'Financial Analysis');
+      setExportProgress({ show: true, step: 'generate', progress: 90 });
+
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'التحليل المالي' : 'Financial Analysis');
       const financial = allTabData.financial || {};
-      if (financial.revenue_streams && Array.isArray(financial.revenue_streams)) {
-        addSubtitle(isUIArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
-        financial.revenue_streams.forEach((stream) => {
-          addText(`• ${stream.name || stream}: ${stream.description || ''}`);
-        });
+      if (financial.revenue_streams?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
+        const revHeaders = [isReportArabic ? 'المصدر' : 'Stream', isReportArabic ? 'الإمكانية' : 'Potential'];
+        const revRows = financial.revenue_streams.slice(0, 6).map(s => [s.name || '', s.potential || '']);
+        pdfExporter.addDataTable(revHeaders, revRows);
       }
       if (financial.pricing_strategy) {
-        addSubtitle(isUIArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
-        if (financial.pricing_strategy.model) addText(`${isUIArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
-        if (financial.pricing_strategy.tiers && Array.isArray(financial.pricing_strategy.tiers)) {
-          financial.pricing_strategy.tiers.forEach((tier) => {
-            addText(`• ${tier.name}: ${tier.price}`);
-          });
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
+        if (financial.pricing_strategy.model) {
+          pdfExporter.addText(`${isReportArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
+        }
+        if (financial.pricing_strategy.tiers?.length) {
+          const priceHeaders = [isReportArabic ? 'الفئة' : 'Tier', isReportArabic ? 'السعر' : 'Price'];
+          const priceRows = financial.pricing_strategy.tiers.map(t => [t.name || '', t.price || '']);
+          pdfExporter.addDataTable(priceHeaders, priceRows);
         }
       }
-      if (financial.funding_opportunities && Array.isArray(financial.funding_opportunities)) {
-        addSubtitle(isUIArabic ? 'فرص التمويل' : 'Funding Opportunities');
-        financial.funding_opportunities.forEach((fund) => {
-          addText(`• ${fund.type || fund}: ${fund.source || ''} - ${fund.amount_range || ''}`);
-        });
-      }
 
-      // Strategy Section
-      addPage();
-      addTitle(isUIArabic ? 'الاستراتيجية وخطة العمل' : 'Strategy & Action Plan');
+      pdfExporter.addPage();
+      pdfExporter.addSectionHeader(isReportArabic ? 'الاستراتيجية والمخاطر' : 'Strategy & Risk Assessment');
       const strategy = allTabData.strategy || {};
-      if (strategy.risk_assessment && Array.isArray(strategy.risk_assessment)) {
-        addSubtitle(isUIArabic ? 'تقييم المخاطر' : 'Risk Assessment');
-        strategy.risk_assessment.forEach((risk) => {
-          addText(`• ${risk.risk || risk} (${risk.severity || ''})`);
-          if (risk.mitigation) addText(`  ${isUIArabic ? 'التخفيف:' : 'Mitigation:'} ${risk.mitigation}`);
-        });
+      if (strategy.risk_assessment?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'تقييم المخاطر' : 'Risk Assessment');
+        const riskHeaders = [isReportArabic ? 'المخاطرة' : 'Risk', isReportArabic ? 'الشدة' : 'Severity', isReportArabic ? 'التخفيف' : 'Mitigation'];
+        const riskRows = strategy.risk_assessment.slice(0, 6).map(r => 
+          [r.risk || '', r.severity || '', (r.mitigation || '').substring(0, 40)]
+        );
+        pdfExporter.addDataTable(riskHeaders, riskRows);
       }
-      if (strategy.action_plan && Array.isArray(strategy.action_plan)) {
-        addSubtitle(isUIArabic ? 'خطة العمل' : 'Action Plan');
-        strategy.action_plan.forEach((step) => {
-          addText(`${step.step_number || ''}. ${step.title || step}`);
-          if (step.description) addText(`   ${step.description}`);
-          if (step.timeline) addText(`   ${isUIArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
+      if (strategy.action_plan?.length) {
+        pdfExporter.addSubsectionHeader(isReportArabic ? 'خطة العمل' : 'Action Plan');
+        strategy.action_plan.slice(0, 8).forEach((step, idx) => {
+          pdfExporter.addText(`${idx + 1}. ${step.title || step}`);
+          if (step.timeline) pdfExporter.addText(`   ${isReportArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
         });
       }
 
-      setExportProgress({ show: true, step: isUIArabic ? 'جارٍ الحفظ...' : 'Saving...', progress: 95 });
+      setExportProgress({ show: true, step: 'save', progress: 95 });
 
-      // Save PDF
-      pdf.save(filename);
+      pdfExporter.save(filename);
       
-      setExportProgress({ show: true, step: isUIArabic ? 'تم!' : 'Done!', progress: 100 });
+      setExportProgress({ show: true, step: 'done', progress: 100 });
       setTimeout(() => {
-        setExportProgress({ show: false, step: '', progress: 0 });
+        setExportProgress({ show: false, step: 'prepare', progress: 0 });
         toast.success(isUIArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully");
-      }, 500);
+      }, 1500);
 
     } catch (error) {
       console.error("Error downloading PDF:", error);
-      setExportProgress({ show: false, step: '', progress: 0 });
+      setExportProgress({ show: false, step: 'prepare', progress: 0 });
       toast.error(isUIArabic ? "فشل تنزيل ملف PDF" : "Failed to download PDF");
     } finally {
       setIsDownloadingPdf(false);
@@ -1103,30 +988,12 @@ export default function AnalysisResult() {
         />
 
         {/* Export Progress Modal */}
-        <Dialog open={exportProgress.show} onOpenChange={() => {}}>
-          <DialogContent className="sm:max-w-md" aria-describedby="export-progress-description">
-            <div className="flex flex-col items-center py-6 space-y-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
-                <Download className="w-8 h-8 text-purple-600 animate-pulse" />
-              </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-lg font-semibold text-slate-800">
-                  {isUIArabic ? 'جارٍ إنشاء التقرير' : 'Generating Report'}
-                </h3>
-                <p id="export-progress-description" className="text-sm text-slate-500">{exportProgress.step}</p>
-              </div>
-              <div className="w-full space-y-2">
-                <Progress value={exportProgress.progress} className="h-2" />
-                <p className="text-xs text-center text-slate-400">{exportProgress.progress}%</p>
-              </div>
-              {exportProgress.progress < 100 && (
-                <p className="text-xs text-slate-400 text-center">
-                  {isUIArabic ? 'يرجى الانتظار، هذا قد يستغرق بضع ثوانٍ...' : 'Please wait, this may take a few seconds...'}
-                </p>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <PDFExportModal
+          isOpen={exportProgress.show}
+          progress={exportProgress.progress}
+          currentStep={exportProgress.step}
+          isArabic={isUIArabic}
+        />
 
         {/* Tabbed Analysis Results */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
