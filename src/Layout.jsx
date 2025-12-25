@@ -435,7 +435,7 @@ export default function Layout({ children, currentPageName }) {
                           asChild
                           className={`transition-all duration-200 rounded-lg px-3 py-2.5 ${
                             location.pathname === item.url
-                              ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-semibold border-l-4 border-orange-500'
+                              ? `bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-semibold ${isArabic ? 'border-r-4' : 'border-l-4'} border-orange-500`
                               : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                           }`}
                         >
@@ -502,8 +502,8 @@ export default function Layout({ children, currentPageName }) {
         <main className={`flex-1 flex flex-col ${isLoggedIn ? (isArabic ? 'order-1' : 'order-2') : ''}`}>
           {isLoggedIn &&
           <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 md:hidden shadow-sm no-print">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className={`flex items-center justify-between ${isArabic ? 'flex-row-reverse' : ''}`}>
+                <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
                   <SidebarTrigger className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors duration-200 text-gray-600 dark:text-gray-300" />
                   <img
                     src={planLyzeLogo}
@@ -511,7 +511,7 @@ export default function Layout({ children, currentPageName }) {
                     className="h-8 object-contain"
                   />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${isArabic ? 'flex-row-reverse' : ''}`}>
                   <Button 
                     variant="ghost" 
                     size="icon" 
