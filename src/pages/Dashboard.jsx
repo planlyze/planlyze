@@ -21,8 +21,14 @@ import {
   Zap,
   Target,
   BarChart3,
-  HelpCircle
+  Info
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import OnboardingGuide, { OnboardingTrigger } from "@/components/onboarding/OnboardingGuide";
 
 const containerVariants = {
@@ -119,21 +125,30 @@ export default function Dashboard() {
       value: currentUser?.credits || 0,
       icon: Wallet,
       color: "orange",
-      bgGradient: "from-orange-500 to-orange-600"
+      bgGradient: "from-orange-500 to-orange-600",
+      tooltip: isArabic 
+        ? "عدد الأرصدة المتاحة لديك. كل تحليل متميز يستهلك رصيداً واحداً." 
+        : "The number of credits you have available. Each premium analysis uses 1 credit."
     },
     {
       title: isArabic ? "إجمالي التقارير" : "Total Reports",
       value: analyses.length,
       icon: FileText,
       color: "purple",
-      bgGradient: "from-purple-500 to-purple-600"
+      bgGradient: "from-purple-500 to-purple-600",
+      tooltip: isArabic 
+        ? "إجمالي عدد التقارير التي أنشأتها، بما في ذلك التقارير المجانية والمتميزة." 
+        : "Total number of reports you've created, including both free and premium analyses."
     },
     {
       title: isArabic ? "الأرصدة المستخدمة" : "Credits Used",
       value: premiumAnalyses.length,
       icon: TrendingUp,
       color: "gray",
-      bgGradient: "from-gray-600 to-gray-700"
+      bgGradient: "from-gray-600 to-gray-700",
+      tooltip: isArabic 
+        ? "عدد الأرصدة التي استخدمتها للتحليلات المتميزة." 
+        : "Number of credits you've used for premium analyses."
     }
   ];
 
@@ -171,30 +186,44 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.title}
-              whileHover={{ scale: 1.02, y: -5 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800">
-                <div className={`h-1 bg-gradient-to-r ${stat.bgGradient}`}></div>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+        <TooltipProvider>
+          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.title}
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800">
+                  <div className={`h-1 bg-gradient-to-r ${stat.bgGradient}`}></div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                <Info className="w-3.5 h-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-center">
+                              <p className="text-sm">{stat.tooltip}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                      </div>
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.bgGradient} flex items-center justify-center shadow-lg`}>
+                        <stat.icon className="w-7 h-7 text-white" />
+                      </div>
                     </div>
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.bgGradient} flex items-center justify-center shadow-lg`}>
-                      <stat.icon className="w-7 h-7 text-white" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </TooltipProvider>
 
         <motion.div variants={itemVariants}>
           <Card className="border-0 shadow-lg bg-gradient-to-r from-purple-600 to-orange-500 text-white overflow-hidden">
