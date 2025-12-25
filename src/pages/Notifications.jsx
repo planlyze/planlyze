@@ -169,6 +169,7 @@ export default function NotificationsPage() {
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
+            
             <NotificationsList 
               notifications={filteredNotifications}
               onMarkAsRead={markAsRead}
@@ -201,7 +202,7 @@ export default function NotificationsPage() {
 function NotificationsList({ notifications, onMarkAsRead, onDelete, t }) {
   if (notifications.length === 0) {
     return (
-      <Card className="border-2 border-slate-200">
+      <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-xl dark:bg-gray-800">
         <CardContent className="py-16 text-center">
           <Bell className="w-16 h-16 mx-auto mb-4 text-slate-300" />
           <h3 className="text-lg font-semibold text-slate-700 mb-2">

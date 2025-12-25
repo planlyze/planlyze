@@ -230,15 +230,16 @@ export default function Referrals() {
           className="grid md:grid-cols-2 gap-4"
         >
           {stats.map((stat, index) => (
-            <Card key={index} className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={index} className="border-2 border-slate-200 dark:border-gray-700 shadow-xl dark:bg-gray-800">
+            
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
-                    <p className="text-sm text-slate-600">{stat.label}</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
                   </div>
                 </div>
               </CardContent>
@@ -252,7 +253,7 @@ export default function Referrals() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="border-2 border-slate-200 shadow-xl">
+          <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-xl dark:bg-gray-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-purple-600" />
@@ -265,7 +266,7 @@ export default function Referrals() {
                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                     <UserPlus className="w-8 h-8 text-slate-400" />
                   </div>
-                  <p className="text-slate-600 mb-2">
+                  <p className="text-slate-600 mb-2  dark:text-slate-400">
                     {t('referrals.noReferralsYet')}
                   </p>
                   <p className="text-sm text-slate-500">
