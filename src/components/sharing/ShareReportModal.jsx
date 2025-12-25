@@ -47,7 +47,7 @@ export default function ShareReportModal({
   const loadShares = async () => {
     setIsLoading(true);
     try {
-      const data = await ReportShare.filter({ analysis_id: analysisId, owner_email: ownerEmail });
+      const data = await ReportShare.filter({ analysis_id: analysisId });
       setShares(data.filter(s => s.is_active));
     } catch (error) {
       console.error("Error loading shares:", error);
@@ -62,7 +62,6 @@ export default function ShareReportModal({
 
   const createShareLink = async () => {
     try {
-      const token = generateToken();
       let expiresAt = null;
       
       if (expiresIn !== "never") {
@@ -76,14 +75,7 @@ export default function ShareReportModal({
 
       await ReportShare.create({
         analysis_id: analysisId,
-        owner_email: ownerEmail,
-        share_token: token,
-        permission,
-        is_public: isPublic,
-        is_active: true,
-        expires_at: expiresAt?.toISOString(),
-        allowed_emails: isPublic ? [] : allowedEmails,
-        access_count: 0
+        expires_at: expiresAt?.toISOString() || null
       });
 
       toast.success(t("Share link created!", "تم إنشاء رابط المشاركة!"));

@@ -1879,6 +1879,37 @@ def create_report_share(user):
     db.session.commit()
     return jsonify(share.to_dict()), 201
 
+@entities_bp.route('/report-shares/<share_id>', methods=['PUT'])
+@require_auth
+def update_report_share(user, share_id):
+    share = ReportShare.query.get(share_id)
+    if not share:
+        return jsonify({'error': 'Share not found'}), 404
+    if share.created_by != user.email:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.get_json() or {}
+    if 'is_active' in data:
+        share.is_active = data['is_active']
+    if 'expires_at' in data:
+        share.expires_at = datetime.fromisoformat(data['expires_at']) if data['expires_at'] else None
+    
+    db.session.commit()
+    return jsonify(share.to_dict())
+
+@entities_bp.route('/report-shares/<share_id>', methods=['DELETE'])
+@require_auth
+def delete_report_share(user, share_id):
+    share = ReportShare.query.get(share_id)
+    if not share:
+        return jsonify({'error': 'Share not found'}), 404
+    if share.created_by != user.email:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    share.is_active = False
+    db.session.commit()
+    return jsonify({'success': True})
+
 @entities_bp.route('/report-shares/public/<token>', methods=['GET'])
 def get_shared_report(token):
     share = ReportShare.query.filter_by(share_token=token, is_active=True).first()
