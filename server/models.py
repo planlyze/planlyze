@@ -115,6 +115,9 @@ class Analysis(db.Model):
     tab_financial = db.Column(db.JSON)
     tab_strategy = db.Column(db.JSON)
     
+    # Track when each tab started processing (for timeout detection)
+    tab_processing_started = db.Column(db.JSON, default=dict)
+    
     # Relationship to pending transaction
     pending_transaction = db.relationship('Transaction', foreign_keys=[pending_transaction_id])
     
@@ -151,7 +154,8 @@ class Analysis(db.Model):
             'tab_business': self.tab_business,
             'tab_technical': self.tab_technical,
             'tab_financial': self.tab_financial,
-            'tab_strategy': self.tab_strategy
+            'tab_strategy': self.tab_strategy,
+            'tab_processing_started': self.tab_processing_started or {}
         }
 
 class Transaction(db.Model):
