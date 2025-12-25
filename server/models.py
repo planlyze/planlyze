@@ -177,6 +177,36 @@ class Transaction(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+class Currency(db.Model):
+    __tablename__ = 'currencies'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    code = db.Column(db.String(10), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    name_ar = db.Column(db.String(100))
+    symbol = db.Column(db.String(10), nullable=False)
+    exchange_rate = db.Column(db.Float, nullable=False, default=1.0)
+    is_default = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'code': self.code,
+            'name': self.name,
+            'name_ar': self.name_ar,
+            'symbol': self.symbol,
+            'exchange_rate': self.exchange_rate,
+            'is_default': self.is_default,
+            'is_active': self.is_active,
+            'sort_order': self.sort_order,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
 class CreditPackage(db.Model):
     __tablename__ = 'credit_packages'
     
@@ -219,6 +249,9 @@ class Payment(db.Model):
     user_email = db.Column(db.String(255), db.ForeignKey('users.email'), nullable=False)
     amount_usd = db.Column(db.Float, nullable=False)
     original_amount = db.Column(db.Float)
+    currency_code = db.Column(db.String(10), default='USD')
+    currency_amount = db.Column(db.Float)
+    exchange_rate = db.Column(db.Float, default=1.0)
     credits = db.Column(db.Integer, nullable=False)
     payment_method = db.Column(db.String(100))
     payment_proof = db.Column(db.Text)
@@ -236,6 +269,9 @@ class Payment(db.Model):
             'user_email': self.user_email,
             'amount_usd': self.amount_usd,
             'original_amount': self.original_amount,
+            'currency_code': self.currency_code or 'USD',
+            'currency_amount': self.currency_amount,
+            'exchange_rate': self.exchange_rate or 1.0,
             'credits': self.credits,
             'payment_method': self.payment_method,
             'payment_proof': self.payment_proof,
