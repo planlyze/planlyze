@@ -171,6 +171,7 @@ export const PaymentMethod = {
   },
   create: (data) => api.post("/payment-methods", data),
   update: (id, data) => api.put(`/payment-methods/${id}`, data),
+  delete: (id) => api.delete(`/payment-methods/${id}`),
   filter: async (filters, sortBy) => {
     const methods = await api.get("/payment-methods");
     let result = methods;

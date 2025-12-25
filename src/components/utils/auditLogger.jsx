@@ -1,4 +1,4 @@
-import { auth, api, Analysis, Payment, User, AI } from "@/api/client";
+import { auth, api, Analysis, Payment, User, AI, AuditLog } from "@/api/client";
 
 /**
  * Audit Logger Utility
@@ -9,7 +9,7 @@ export const auditLogger = {
   // Log credit purchase
   logCreditPurchase: async (userEmail, credits, amount, paymentId) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "credit_purchase",
         user_email: userEmail,
         performed_by: userEmail,
@@ -30,7 +30,7 @@ export const auditLogger = {
   // Log credit usage
   logCreditUsage: async (userEmail, credits, analysisId, businessIdea) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "credit_usage",
         user_email: userEmail,
         performed_by: userEmail,
@@ -52,7 +52,7 @@ export const auditLogger = {
   logCreditAdjustment: async (adminEmail, userEmail, credits, isAddition, notes) => {
     try {
       const action = isAddition ? "added" : "deducted";
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "credit_adjustment",
         user_email: userEmail,
         performed_by: adminEmail,
@@ -71,7 +71,7 @@ export const auditLogger = {
   // Log payment approval
   logPaymentApproval: async (adminEmail, userEmail, paymentId, credits, amount) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "payment_approved",
         user_email: userEmail,
         performed_by: adminEmail,
@@ -92,7 +92,7 @@ export const auditLogger = {
   // Log payment rejection
   logPaymentRejection: async (adminEmail, userEmail, paymentId, reason) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "payment_rejected",
         user_email: userEmail,
         performed_by: adminEmail,
@@ -112,7 +112,7 @@ export const auditLogger = {
   // Log payment submission
   logPaymentSubmission: async (userEmail, paymentId, credits, amount) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "payment_submitted",
         user_email: userEmail,
         performed_by: userEmail,
@@ -133,7 +133,7 @@ export const auditLogger = {
   // Log role assignment
   logRoleAssignment: async (adminEmail, userEmail, roleName, permissions) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "role_assigned",
         user_email: userEmail,
         performed_by: adminEmail,
@@ -151,7 +151,7 @@ export const auditLogger = {
   // Log analysis creation
   logAnalysisCreation: async (userEmail, analysisId, businessIdea, isPremium) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "analysis_created",
         user_email: userEmail,
         performed_by: userEmail,
@@ -172,7 +172,7 @@ export const auditLogger = {
   // Log user registration
   logUserRegistration: async (userEmail, fullName) => {
     try {
-      await api.AuditLog.create({
+      await AuditLog.create({
         action_type: "user_registered",
         user_email: userEmail,
         performed_by: userEmail,
