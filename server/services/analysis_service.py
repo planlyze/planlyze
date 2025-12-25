@@ -61,6 +61,68 @@ def validate_business_idea(business_idea: str, language: str = 'en') -> dict:
             'confidence': 0.95
         }
     
+    def is_gibberish_text(text):
+        """Detect gibberish using multiple heuristics."""
+        text_lower = text.lower()
+        
+        letters_only = re.sub(r'[^a-zA-Z]', '', text_lower)
+        if len(letters_only) >= 5:
+            vowels = sum(1 for c in letters_only if c in 'aeiou')
+            vowel_ratio = vowels / len(letters_only)
+            if vowel_ratio < 0.1 or vowel_ratio > 0.8:
+                return True
+        
+        keyboard_patterns = [
+            r'([a-z])\1{3,}',
+            r'qwerty|asdf|zxcv|qazwsx|poiuy|lkjh|mnbv',
+            r'^[bcdfghjklmnpqrstvwxyz]{6,}$',
+            r'^[aeiou]{5,}$',
+        ]
+        for pattern in keyboard_patterns:
+            if re.search(pattern, letters_only):
+                return True
+        
+        words_to_check = text_lower.split()
+        common_words = {
+            'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+            'should', 'may', 'might', 'must', 'can', 'and', 'or', 'but', 'if',
+            'then', 'else', 'when', 'where', 'why', 'how', 'what', 'which', 'who',
+            'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we',
+            'they', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'for', 'to',
+            'of', 'in', 'on', 'at', 'by', 'with', 'about', 'from', 'as', 'into',
+            'app', 'application', 'service', 'platform', 'business', 'company',
+            'product', 'online', 'mobile', 'web', 'software', 'shop', 'store',
+            'delivery', 'food', 'restaurant', 'market', 'marketplace', 'ecommerce',
+            'startup', 'tech', 'technology', 'ai', 'machine', 'learning', 'data',
+            'cloud', 'saas', 'rental', 'booking', 'hotel', 'travel', 'health',
+            'fitness', 'education', 'finance', 'payment', 'social', 'media',
+            'coffee', 'cafe', 'consulting', 'agency', 'freelance', 'tutoring'
+        }
+        
+        if len(words_to_check) >= 1:
+            recognized_words = sum(1 for w in words_to_check if w in common_words or len(w) <= 2)
+            if recognized_words == 0 and len(words_to_check) <= 3:
+                long_words = [w for w in words_to_check if len(w) > 4]
+                if long_words:
+                    for word in long_words:
+                        word_letters = re.sub(r'[^a-z]', '', word)
+                        if len(word_letters) >= 5:
+                            word_vowels = sum(1 for c in word_letters if c in 'aeiou')
+                            word_vowel_ratio = word_vowels / len(word_letters)
+                            if word_vowel_ratio < 0.15 or word_vowel_ratio > 0.75:
+                                return True
+        
+        return False
+    
+    if is_gibberish_text(cleaned):
+        return {
+            'valid': False,
+            'reason': 'This doesn\'t appear to be a valid business idea. Please describe a product or service.' if language == 'en'
+                      else 'هذا لا يبدو أنه فكرة عمل صالحة. يرجى وصف منتج أو خدمة.',
+            'confidence': 0.9
+        }
+    
     try:
         client = get_anthropic_client()
         
@@ -117,19 +179,29 @@ Respond ONLY with the JSON object, no other text."""
         current_app.logger.info(f"[Idea Validation] Result: valid={result.get('valid')}, confidence={result.get('confidence')}")
         
         return {
-            'valid': result.get('valid', True),
+            'valid': result.get('valid', False),
             'reason': result.get('reason', ''),
             'confidence': result.get('confidence', 0.5)
         }
         
     except json.JSONDecodeError as e:
         current_app.logger.warning(f"[Idea Validation] Failed to parse AI response: {e}")
-        return {'valid': True, 'reason': '', 'confidence': 0.5}
+        return {
+            'valid': False, 
+            'reason': 'Unable to validate. Please try again with a clearer business description.' if language == 'en'
+                      else 'غير قادر على التحقق. يرجى المحاولة مرة أخرى مع وصف أعمال أوضح.',
+            'confidence': 0.5
+        }
         
     except Exception as e:
         current_app.logger.error(f"[Idea Validation] Error during validation: {e}")
         current_app.logger.error(traceback.format_exc())
-        return {'valid': True, 'reason': '', 'confidence': 0.5}
+        return {
+            'valid': False, 
+            'reason': 'Unable to validate. Please try again with a clearer business description.' if language == 'en'
+                      else 'غير قادر على التحقق. يرجى المحاولة مرة أخرى مع وصف أعمال أوضح.',
+            'confidence': 0.5
+        }
 
 
 def reserve_premium_credit(user_email: str, analysis_id: str) -> dict:
