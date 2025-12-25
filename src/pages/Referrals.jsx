@@ -13,6 +13,7 @@ import {
   Sparkles, TrendingUp, Award, UserPlus
 } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
+import PageLoader from "@/components/common/PageLoader";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -107,17 +108,7 @@ export default function Referrals() {
   ];
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-12 w-80 rounded-xl dark:bg-gray-700" />
-          <Skeleton className="h-48 w-full rounded-2xl dark:bg-gray-700" />
-          <div className="grid md:grid-cols-3 gap-4">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl dark:bg-gray-700" />)}
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (

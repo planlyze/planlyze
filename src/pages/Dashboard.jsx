@@ -30,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import OnboardingGuide, { OnboardingTrigger } from "@/components/onboarding/OnboardingGuide";
+import PageLoader from "@/components/common/PageLoader";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -104,19 +105,7 @@ export default function Dashboard() {
   const isArabic = currentUser?.preferred_language === 'arabic' || currentUser?.language === 'ar';
 
   if (isLoading || !currentUser) {
-    return (
-      <div className="p-6 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <Skeleton className="h-10 w-64 mb-2 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-        <Skeleton className="h-6 w-96 mb-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl" />)}
-        </div>
-        <div className="grid lg:grid-cols-2 gap-8">
-          <Skeleton className="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
-          <Skeleton className="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const stats = [

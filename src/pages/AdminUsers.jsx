@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/components/common/PageHeader";
+import PageLoader from "@/components/common/PageLoader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 import {
   DropdownMenu,
@@ -155,18 +156,7 @@ export default function AdminUsers() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 dark:from-slate-900 dark:to-slate-800 p-6">
-        <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <div className="grid gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (

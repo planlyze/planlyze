@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
+import PageLoader from "@/components/common/PageLoader";
 import { format } from "date-fns";
 
 export default function Credits() {
@@ -78,18 +79,7 @@ export default function Credits() {
  
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <Skeleton className="h-12 w-80 rounded-xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
-          <div className="grid md:grid-cols-2 gap-6">
-            <Skeleton className="h-[480px] rounded-2xl" />
-            <Skeleton className="h-[480px] rounded-2xl" />
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (

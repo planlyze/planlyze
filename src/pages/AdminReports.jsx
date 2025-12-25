@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/components/common/PageHeader";
+import PageLoader from "@/components/common/PageLoader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
 export default function AdminReports() {
@@ -145,18 +146,7 @@ export default function AdminReports() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <div className="grid gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
