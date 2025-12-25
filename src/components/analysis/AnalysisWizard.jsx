@@ -101,7 +101,8 @@ export default function AnalysisWizard({ onSubmit }) {
     try {
       const validationResp = await api.post('/analyses/validate-idea', {
         business_idea: formData.business_idea,
-        report_language: formData.report_language
+        report_language: formData.report_language,
+        industry: formData.industry
       });
       
       const validation = validationResp?.data || validationResp;

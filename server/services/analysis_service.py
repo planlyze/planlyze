@@ -12,10 +12,10 @@ def get_anthropic_client():
     return Anthropic()
 
 
-def validate_business_idea(business_idea: str, language: str = 'en') -> dict:
+def validate_business_idea(business_idea: str, language: str = 'en', industry: str = None) -> dict:
     """
-    Validate if the submitted text is a legitimate business idea.
-    Returns: {'valid': bool, 'reason': str, 'confidence': float}
+    Validate if the submitted text is a legitimate business idea and matches the selected industry.
+    Returns: {'valid': bool, 'reason': str, 'confidence': float, 'industry_match': bool}
     """
     if not business_idea or not isinstance(business_idea, str):
         return {
@@ -126,15 +126,44 @@ def validate_business_idea(business_idea: str, language: str = 'en') -> dict:
     try:
         client = get_anthropic_client()
         
+        industry_context = ""
+        if industry:
+            industry_context = f"""
+Selected Industry: {industry}
+
+INDUSTRY MATCHING VALIDATION:
+Also determine if the business idea could reasonably fit within the "{industry}" industry category.
+- "industry_match": true if the business idea is relevant to or could operate in this industry
+- "industry_match": false if the business idea clearly belongs to a completely different industry
+- If industry_match is false, provide a brief explanation in the reason field
+
+Industry Categories Reference:
+- Delivery: Courier services, package delivery, logistics
+- BeautyEcommerce: Cosmetics, skincare, beauty products online sales
+- ClothesEcommerce: Fashion, apparel, clothing online sales
+- ElectronicsEcommerce: Gadgets, electronics, tech products online sales
+- FoodEcommerce: Groceries, specialty foods, online food retail
+- MedicineEcommerce: Pharmaceuticals, health products online
+- StuffEcommerce: General merchandise, variety products
+- SupermarketEcommerce: Online supermarket, grocery delivery
+- GeneralHealth: Healthcare services, wellness, medical
+- SellRentCars: Automotive sales, car rentals
+- SellRentRealestate: Property sales, real estate rentals
+- ServicesTaxi: Ride-hailing, taxi services, transportation
+- JobOppurtunity: Job boards, recruitment, HR services
+"""
+        
         validation_prompt = f"""Analyze the following text and determine if it represents a legitimate business idea or concept that can be analyzed for a business report.
 
 Text to analyze:
 "{cleaned}"
+{industry_context}
 
 Respond with a JSON object containing:
 - "valid": true if this is a legitimate business idea/concept, false if it's gibberish, random text, or not a business idea
 - "reason": a brief explanation (in {'Arabic' if language == 'ar' else 'English'})
 - "confidence": a number between 0 and 1 indicating your confidence
+- "industry_match": true if the idea fits the selected industry, false otherwise (only include if an industry was provided)
 
 IMPORTANT VALIDATION RULES:
 
@@ -176,20 +205,32 @@ Respond ONLY with the JSON object, no other text."""
         
         result = json.loads(response_text)
         
-        current_app.logger.info(f"[Idea Validation] Result: valid={result.get('valid')}, confidence={result.get('confidence')}")
+        industry_match = result.get('industry_match', True)
+        current_app.logger.info(f"[Idea Validation] Result: valid={result.get('valid')}, confidence={result.get('confidence')}, industry_match={industry_match}")
         
-        return {
+        response = {
             'valid': result.get('valid', False),
             'reason': result.get('reason', ''),
-            'confidence': result.get('confidence', 0.5)
+            'confidence': result.get('confidence', 0.5),
+            'industry_match': industry_match
         }
+        
+        if industry and not industry_match and result.get('valid', False):
+            response['valid'] = False
+            if language == 'ar':
+                response['reason'] = f"فكرة العمل لا تتناسب مع المجال المحدد ({industry}). {result.get('reason', '')}"
+            else:
+                response['reason'] = f"The business idea doesn't match the selected industry ({industry}). {result.get('reason', '')}"
+        
+        return response
         
     except json.JSONDecodeError as e:
         current_app.logger.warning(f"[Idea Validation] Failed to parse AI response: {e}")
         return {
             'valid': True, 
             'reason': '',
-            'confidence': 0.5
+            'confidence': 0.5,
+            'industry_match': True
         }
         
     except Exception as e:
@@ -198,7 +239,8 @@ Respond ONLY with the JSON object, no other text."""
         return {
             'valid': True, 
             'reason': '',
-            'confidence': 0.5
+            'confidence': 0.5,
+            'industry_match': True
         }
 
 

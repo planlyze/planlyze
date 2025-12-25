@@ -202,6 +202,9 @@ def validate_idea_inline(user):
               type: string
             report_language:
               type: string
+            industry:
+              type: string
+              description: Selected industry to validate against
     responses:
       200:
         description: Validation result
@@ -214,22 +217,26 @@ def validate_idea_inline(user):
               type: string
             confidence:
               type: number
+            industry_match:
+              type: boolean
     """
     from server.services.analysis_service import validate_business_idea
     
     data = request.get_json() or {}
     business_idea = data.get('business_idea', '').strip()
     report_language = data.get('report_language', 'english').lower()
+    industry = data.get('industry', '').strip() or None
     
     if not business_idea:
         return jsonify({
             'valid': False,
             'reason': 'Please provide a business idea' if report_language != 'arabic' else 'يرجى تقديم فكرة عمل',
-            'confidence': 1.0
+            'confidence': 1.0,
+            'industry_match': True
         }), 200
     
     lang = 'ar' if report_language == 'arabic' else 'en'
-    validation = validate_business_idea(business_idea, lang)
+    validation = validate_business_idea(business_idea, lang, industry)
     
     return jsonify(validation), 200
 
