@@ -540,9 +540,33 @@ export default function AdminPayments() {
                   <span className="text-sm text-slate-800">{viewPaymentDetails.user_email}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-slate-600">Amount:</span>
+                  <span className="text-sm font-medium text-slate-600">Amount (USD):</span>
                   <span className="text-sm font-semibold text-slate-800">${viewPaymentDetails.amount_usd}</span>
                 </div>
+                {viewPaymentDetails.currency_code && viewPaymentDetails.currency_code !== 'USD' && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-600">Payment Currency:</span>
+                      <span className="text-sm font-semibold text-blue-600">{viewPaymentDetails.currency_code}</span>
+                    </div>
+                    {viewPaymentDetails.currency_amount && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-600">Amount ({viewPaymentDetails.currency_code}):</span>
+                        <span className="text-sm font-semibold text-blue-600">
+                          {viewPaymentDetails.currency_amount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    {viewPaymentDetails.exchange_rate && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-600">Exchange Rate:</span>
+                        <span className="text-sm text-slate-500">
+                          1 USD = {viewPaymentDetails.exchange_rate.toLocaleString()} {viewPaymentDetails.currency_code}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-slate-600">Credits:</span>
                   <span className="text-sm font-semibold text-slate-800">{viewPaymentDetails.credits} credits</span>

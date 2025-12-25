@@ -12,6 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Upload,
   CheckCircle2,
   Info,
@@ -19,6 +26,7 @@ import {
   Image as ImageIcon,
   Clock,
   X,
+  DollarSign,
 } from "lucide-react";
 import {
   auth,
@@ -48,10 +56,13 @@ export default function CashPaymentModal({
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
 
   React.useEffect(() => {
     if (isOpen) {
       loadPaymentMethods();
+      loadCurrencies();
       setDiscountCode("");
       setAppliedDiscount(null);
       setInvoiceFile(null);
@@ -72,6 +83,37 @@ export default function CashPaymentModal({
     } catch (error) {
       console.error("Error loading payment methods:", error);
     }
+  };
+
+  const loadCurrencies = async () => {
+    try {
+      const response = await api.get('/currencies');
+      const currencyList = response.data || [];
+      setCurrencies(currencyList);
+      const defaultCurrency = currencyList.find(c => c.is_default) || currencyList.find(c => c.code === 'USD') || currencyList[0];
+      if (defaultCurrency) {
+        setSelectedCurrency(defaultCurrency);
+      }
+    } catch (error) {
+      console.error("Error loading currencies:", error);
+    }
+  };
+
+  const calculateCurrencyAmount = () => {
+    const finalAmount = calculateFinalAmount();
+    if (!selectedCurrency || selectedCurrency.code === 'USD') {
+      return finalAmount;
+    }
+    return finalAmount * selectedCurrency.exchange_rate;
+  };
+
+  const formatCurrencyAmount = (amount, currency) => {
+    if (!currency) return `$${amount.toFixed(2)}`;
+    if (currency.code === 'USD') return `$${amount.toFixed(2)}`;
+    const formattedAmount = amount >= 1000 
+      ? amount.toLocaleString('en-US', { maximumFractionDigits: 2 })
+      : amount.toFixed(2);
+    return `${currency.symbol} ${formattedAmount}`;
   };
 
   const handleFileChange = (e) => {
@@ -173,6 +215,9 @@ export default function CashPaymentModal({
         user_email: userEmail,
         amount_usd: finalAmount,
         original_amount: packagePrice,
+        currency_code: selectedCurrency?.code || 'USD',
+        currency_amount: calculateCurrencyAmount(),
+        exchange_rate: selectedCurrency?.exchange_rate || 1.0,
         credits: selectedPackage.credits,
         payment_method:
           selectedMethod?.name_en || selectedMethod?.name_ar || "cash",
@@ -271,6 +316,56 @@ export default function CashPaymentModal({
               )}
             </div>
           </div>
+
+          {/* Currency Selection */}
+          {currencies.length > 1 && (
+            <div className="space-y-3">
+              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-purple-600" />
+                {isArabic ? "عملة الدفع" : "Payment Currency"}
+              </Label>
+              <Select
+                value={selectedCurrency?.code || 'USD'}
+                onValueChange={(code) => {
+                  const currency = currencies.find(c => c.code === code);
+                  setSelectedCurrency(currency);
+                }}
+              >
+                <SelectTrigger className="h-12 bg-white">
+                  <SelectValue placeholder={isArabic ? "اختر العملة" : "Select currency"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{currency.symbol}</span>
+                        <span>{isArabic ? currency.name_ar || currency.name : currency.name}</span>
+                        <span className="text-slate-500">({currency.code})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedCurrency && selectedCurrency.code !== 'USD' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-blue-700">
+                      {isArabic ? "المبلغ المطلوب:" : "Amount to pay:"}
+                    </span>
+                    <span className="text-lg font-bold text-blue-800">
+                      {formatCurrencyAmount(calculateCurrencyAmount(), selectedCurrency)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">
+                    {isArabic 
+                      ? `سعر الصرف: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
+                      : `Exchange rate: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Discount Code */}
           <div className="space-y-3">

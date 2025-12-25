@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import datetime
 from server.app import create_app
-from server.models import SocialMedia, db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner, SeedVersion
+from server.models import SocialMedia, db, User, Role, CreditPackage, PaymentMethod, EmailTemplate, SystemSettings, Partner, SeedVersion, Currency
 import bcrypt
 
 PERMISSIONS = {
@@ -37,6 +37,7 @@ SEED_VERSIONS = {
     'system_settings': 1,
     'partners': 1,
     'social_media' : 1,
+    'currencies': 1,
 }
 
 def get_applied_version(seed_name):
@@ -642,6 +643,87 @@ def seed_social_media():
     set_applied_version('social_media', SEED_VERSIONS['social_media'])
     print("Social media seeded successfully!")    
 
+def seed_currencies():
+    if not should_run_seed('currencies'):
+        print("Currencies seed already applied (version up to date), skipping...")
+        return
+    
+    currencies_data = [
+        {
+            'code': 'USD',
+            'name': 'US Dollar',
+            'name_ar': 'دولار أمريكي',
+            'symbol': '$',
+            'exchange_rate': 1.0,
+            'is_default': True,
+            'is_active': True,
+            'sort_order': 1
+        },
+        {
+            'code': 'EUR',
+            'name': 'Euro',
+            'name_ar': 'يورو',
+            'symbol': '€',
+            'exchange_rate': 0.92,
+            'is_default': False,
+            'is_active': True,
+            'sort_order': 2
+        },
+        {
+            'code': 'SYP',
+            'name': 'Syrian Pound',
+            'name_ar': 'ليرة سورية',
+            'symbol': 'ل.س',
+            'exchange_rate': 14500.0,
+            'is_default': False,
+            'is_active': True,
+            'sort_order': 3
+        },
+        {
+            'code': 'SAR',
+            'name': 'Saudi Riyal',
+            'name_ar': 'ريال سعودي',
+            'symbol': 'ر.س',
+            'exchange_rate': 3.75,
+            'is_default': False,
+            'is_active': True,
+            'sort_order': 4
+        },
+        {
+            'code': 'AED',
+            'name': 'UAE Dirham',
+            'name_ar': 'درهم إماراتي',
+            'symbol': 'د.إ',
+            'exchange_rate': 3.67,
+            'is_default': False,
+            'is_active': True,
+            'sort_order': 5
+        },
+        {
+            'code': 'TRY',
+            'name': 'Turkish Lira',
+            'name_ar': 'ليرة تركية',
+            'symbol': '₺',
+            'exchange_rate': 34.50,
+            'is_default': False,
+            'is_active': True,
+            'sort_order': 6
+        }
+    ]
+    
+    for currency_data in currencies_data:
+        existing = Currency.query.filter_by(code=currency_data['code']).first()
+        if not existing:
+            currency = Currency(**currency_data)
+            db.session.add(currency)
+            print(f"Created currency: {currency_data['code']}")
+        else:
+            print(f"Currency already exists: {currency_data['code']}")
+    
+    db.session.commit()
+    set_applied_version('currencies', SEED_VERSIONS['currencies'])
+    print("Currencies seeded successfully!")
+
 def run_seed():
     """Run all seed operations with versioning"""
     app = create_app()
@@ -658,6 +740,7 @@ def run_seed():
         seed_system_settings()
         seed_partners()
         seed_social_media()
+        seed_currencies()
         
         admin_email = os.environ.get('ADMIN_EMAIL', 'admin@planlyze.com')
         admin_password = os.environ.get('ADMIN_PASSWORD', 'Admin@123')

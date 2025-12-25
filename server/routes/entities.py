@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import (
     db, Analysis, Transaction, CreditPackage, Payment, EmailTemplate,
     PaymentMethod, DiscountCode, Role, AuditLog, ActivityFeed, 
-    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner
+    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner, Currency
 )
 from server.routes.auth import get_current_user
 from datetime import datetime
@@ -2071,3 +2071,150 @@ def update_settings(user):
     for s in settings:
         result[s.key] = s.value
     return jsonify(result)
+
+# Currency endpoints
+@entities_bp.route('/currencies', methods=['GET'])
+def get_currencies():
+    """
+    Get all active currencies
+    ---
+    tags:
+      - Currencies
+    responses:
+      200:
+        description: List of currencies
+    """
+    active_only = request.args.get('active_only', 'true').lower() == 'true'
+    query = Currency.query
+    if active_only:
+        query = query.filter_by(is_active=True)
+    currencies = query.order_by(Currency.sort_order, Currency.code).all()
+    return jsonify([c.to_dict() for c in currencies])
+
+@entities_bp.route('/currencies/all', methods=['GET'])
+@require_admin
+def get_all_currencies(user):
+    """
+    Get all currencies including inactive (admin only)
+    ---
+    tags:
+      - Currencies
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of all currencies
+    """
+    currencies = Currency.query.order_by(Currency.sort_order, Currency.code).all()
+    return jsonify([c.to_dict() for c in currencies])
+
+@entities_bp.route('/currencies/<id>', methods=['GET'])
+def get_currency(id):
+    currency = Currency.query.get(id)
+    if not currency:
+        return jsonify({'error': 'Currency not found'}), 404
+    return jsonify(currency.to_dict())
+
+@entities_bp.route('/currencies', methods=['POST'])
+@require_admin
+def create_currency(user):
+    """
+    Create a new currency (admin only)
+    ---
+    tags:
+      - Currencies
+    security:
+      - Bearer: []
+    """
+    data = request.get_json()
+    
+    existing = Currency.query.filter_by(code=data.get('code', '').upper()).first()
+    if existing:
+        return jsonify({'error': 'Currency code already exists'}), 400
+    
+    if data.get('is_default'):
+        Currency.query.update({Currency.is_default: False})
+    
+    currency = Currency(
+        code=data.get('code', '').upper(),
+        name=data.get('name', ''),
+        name_ar=data.get('name_ar'),
+        symbol=data.get('symbol', '$'),
+        exchange_rate=float(data.get('exchange_rate', 1.0)),
+        is_default=data.get('is_default', False),
+        is_active=data.get('is_active', True),
+        sort_order=data.get('sort_order', 0)
+    )
+    db.session.add(currency)
+    db.session.commit()
+    return jsonify(currency.to_dict()), 201
+
+@entities_bp.route('/currencies/<id>', methods=['PUT'])
+@require_admin
+def update_currency(user, id):
+    """
+    Update a currency (admin only)
+    ---
+    tags:
+      - Currencies
+    security:
+      - Bearer: []
+    """
+    currency = Currency.query.get(id)
+    if not currency:
+        return jsonify({'error': 'Currency not found'}), 404
+    
+    data = request.get_json()
+    
+    if 'code' in data and data['code'].upper() != currency.code:
+        existing = Currency.query.filter_by(code=data['code'].upper()).first()
+        if existing:
+            return jsonify({'error': 'Currency code already exists'}), 400
+        currency.code = data['code'].upper()
+    
+    if data.get('is_default') and not currency.is_default:
+        Currency.query.filter(Currency.id != id).update({Currency.is_default: False})
+        currency.is_default = True
+    elif 'is_default' in data:
+        currency.is_default = data['is_default']
+    
+    if 'name' in data:
+        currency.name = data['name']
+    if 'name_ar' in data:
+        currency.name_ar = data['name_ar']
+    if 'symbol' in data:
+        currency.symbol = data['symbol']
+    if 'exchange_rate' in data:
+        currency.exchange_rate = float(data['exchange_rate'])
+    if 'is_active' in data:
+        currency.is_active = data['is_active']
+    if 'sort_order' in data:
+        currency.sort_order = data['sort_order']
+    
+    db.session.commit()
+    return jsonify(currency.to_dict())
+
+@entities_bp.route('/currencies/<id>', methods=['DELETE'])
+@require_admin
+def delete_currency(user, id):
+    """
+    Delete a currency (admin only)
+    ---
+    tags:
+      - Currencies
+    security:
+      - Bearer: []
+    """
+    currency = Currency.query.get(id)
+    if not currency:
+        return jsonify({'error': 'Currency not found'}), 404
+    
+    if currency.is_default:
+        return jsonify({'error': 'Cannot delete default currency'}), 400
+    
+    if currency.code == 'USD':
+        return jsonify({'error': 'Cannot delete USD currency'}), 400
+    
+    db.session.delete(currency)
+    db.session.commit()
+    return jsonify({'success': True})
