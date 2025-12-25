@@ -34,6 +34,7 @@ import StarRating from "@/components/common/StarRating";
 import { toast } from "sonner";
 import FloatingAIAssistant from "../components/results/FloatingAIAssistant";
 import { useAuth } from "@/lib/AuthContext";
+import { emitCreditUpdate } from "@/lib/creditEvents";
 import { PDFExporter } from "@/utils/pdfExport";
 import PDFExportModal from "../components/results/PDFExportModal";
 
@@ -724,6 +725,7 @@ export default function AnalysisResult() {
       await api.post(`/analyses/${analysis.id}/upgrade-premium`);
       
       await refreshUser();
+      emitCreditUpdate();
       
       toast.success(analysis.report_language === 'arabic' ? 'تمت الترقية بنجاح!' : 'Successfully upgraded!');
       

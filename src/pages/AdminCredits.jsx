@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import PaymentMethodsManager from "../components/admin/PaymentMethodsManager";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
+import { emitCreditUpdate } from "@/lib/creditEvents";
 
 export default function AdminCredits() {
   const navigate = useNavigate();
@@ -223,6 +224,7 @@ export default function AdminCredits() {
       setShowConfirmation(false);
       setIsAdjustDialogOpen(false);
       await loadData();
+      emitCreditUpdate();
     } catch (error) {
       console.error("Error adjusting credits:", error);
       toast.error("Failed to adjust credits");

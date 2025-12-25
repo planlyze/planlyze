@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { hasPermission, hasAnyPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
 import { notifyPaymentApproved, notifyPaymentRejected } from "@/components/utils/notificationHelper";
+import { emitCreditUpdate } from "@/lib/creditEvents";
 
 export default function AdminPayments() {
   const navigate = useNavigate();
@@ -84,6 +85,7 @@ export default function AdminPayments() {
       setConfirmAction(null);
       setAdminNotes("");
       loadPayments();
+      emitCreditUpdate();
     } catch (error) {
       console.error("Error approving payment:", error);
       toast.error("Failed to approve payment: " + (error.message || "Unknown error"));

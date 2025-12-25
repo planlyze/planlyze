@@ -7,6 +7,7 @@ import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, S
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { User } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
+import { onCreditUpdate } from "@/lib/creditEvents";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import planLyzeLogo from "@assets/Main_logo-04_1766053107732.png";
@@ -183,7 +184,7 @@ export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   const { i18n, t } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const { user: authUser, isAuthenticated, logout: authLogout, updateMyUserData } = useAuth();
+  const { user: authUser, isAuthenticated, logout: authLogout, updateMyUserData, refreshUser } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
   const [navigationItems, setNavigationItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -298,6 +299,19 @@ export default function Layout({ children, currentPageName }) {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [i18n]);
+
+  useEffect(() => {
+    const unsubscribe = onCreditUpdate(() => {
+      if (isAuthenticated && refreshUser) {
+        refreshUser().then(updatedUser => {
+          if (updatedUser) {
+            setCurrentUser(updatedUser);
+          }
+        }).catch(err => console.error('Failed to refresh user credits:', err));
+      }
+    });
+    return unsubscribe;
+  }, [isAuthenticated, refreshUser]);
 
   const handleSaveDisplayName = async () => {
     setIsSavingDisplayName(true);
