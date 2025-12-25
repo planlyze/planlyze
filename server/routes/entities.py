@@ -1255,13 +1255,6 @@ def create_payment(user):
         notes=data.get('notes')
     )
     db.session.add(payment)
-    
-    # Increment discount code used_count if a discount code was used
-    if discount_code_str:
-        discount = DiscountCode.query.filter_by(code=discount_code_str).first()
-        if discount:
-            discount.used_count = (discount.used_count or 0) + 1
-    
     db.session.commit()
 
     from server.services.admin_notification_service import notify_new_payment
@@ -1308,6 +1301,13 @@ def approve_payment(user, id):
         reference_id=payment.id
     )
     db.session.add(transaction)
+    
+    # Increment discount code used_count only when payment is approved
+    if payment.discount_code:
+        discount = DiscountCode.query.filter_by(code=payment.discount_code).first()
+        if discount:
+            discount.used_count = (discount.used_count or 0) + 1
+    
     db.session.commit()
     
     from server.services.user_notification_service import notify_payment_status_changed
