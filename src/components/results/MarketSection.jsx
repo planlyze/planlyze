@@ -8,12 +8,22 @@ import { SWOTChart, MarketSizeChart } from "./charts/AnalysisCharts";
 export default function MarketSection({ data = {}, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
 
-  const targetAudiences = data.target_audiences || [];
-  const problems = data.problems || [];
-  const solution = data.solution || {};
-  const syrianMarket = data.syrian_market || {};
-  const syrianCompetitors = data.syrian_competitors || [];
-  const swot = data.swot || {};
+  // Handle raw_response case where data is stored as JSON string
+  let parsedData = data || {};
+  if (data?.raw_response && typeof data.raw_response === 'string') {
+    try {
+      parsedData = JSON.parse(data.raw_response);
+    } catch (e) {
+      console.error('Failed to parse raw_response:', e);
+    }
+  }
+
+  const targetAudiences = parsedData.target_audiences || [];
+  const problems = parsedData.problems || [];
+  const solution = parsedData.solution || {};
+  const syrianMarket = parsedData.syrian_market || {};
+  const syrianCompetitors = parsedData.syrian_competitors || [];
+  const swot = parsedData.swot || {};
   
   const hasSwotData = swot.strengths?.length || swot.weaknesses?.length || swot.opportunities?.length || swot.threats?.length;
 

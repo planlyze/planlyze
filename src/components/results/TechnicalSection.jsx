@@ -18,12 +18,22 @@ export default function TechnicalSection({ data, isArabic = false, isPremium = t
     );
   }
 
-  const techStack = data.technical_stack || {};
+  // Handle raw_response case where data is stored as JSON string
+  let parsedData = data;
+  if (data.raw_response && typeof data.raw_response === 'string') {
+    try {
+      parsedData = JSON.parse(data.raw_response);
+    } catch (e) {
+      console.error('Failed to parse raw_response:', e);
+    }
+  }
+
+  const techStack = parsedData.technical_stack || {};
   const recommendedStack = techStack.recommended_stack || [];
   const teamRequirements = techStack.team_requirements || [];
-  const developmentPlan = data.development_plan || [];
-  const mvp = data.mvp || {};
-  const aiTools = data.ai_tools || [];
+  const developmentPlan = parsedData.development_plan || [];
+  const mvp = parsedData.mvp || {};
+  const aiTools = parsedData.ai_tools || [];
 
   const categoryColors = {
     frontend: "from-blue-500 to-indigo-500",

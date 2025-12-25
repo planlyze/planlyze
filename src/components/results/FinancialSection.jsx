@@ -17,9 +17,19 @@ export default function FinancialSection({ data, isArabic = false }) {
     );
   }
 
-  const revenueStreams = data.revenue_streams || [];
-  const pricingStrategy = data.pricing_strategy || {};
-  const fundingOpportunities = data.funding_opportunities || [];
+  // Handle raw_response case where data is stored as JSON string
+  let parsedData = data;
+  if (data.raw_response && typeof data.raw_response === 'string') {
+    try {
+      parsedData = JSON.parse(data.raw_response);
+    } catch (e) {
+      console.error('Failed to parse raw_response:', e);
+    }
+  }
+
+  const revenueStreams = parsedData.revenue_streams || [];
+  const pricingStrategy = parsedData.pricing_strategy || {};
+  const fundingOpportunities = parsedData.funding_opportunities || [];
 
   const potentialColors = {
     high: "bg-emerald-100 text-emerald-700 border-emerald-300",

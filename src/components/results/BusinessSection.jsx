@@ -17,13 +17,23 @@ export default function BusinessSection({ data, isArabic = false }) {
     );
   }
 
-  const gtm = data.go_to_market_strategy || {};
+  // Handle raw_response case where data is stored as JSON string
+  let parsedData = data;
+  if (data.raw_response && typeof data.raw_response === 'string') {
+    try {
+      parsedData = JSON.parse(data.raw_response);
+    } catch (e) {
+      console.error('Failed to parse raw_response:', e);
+    }
+  }
+
+  const gtm = parsedData.go_to_market_strategy || {};
   const validationSteps = gtm.validation_steps || [];
   const marketingStrategy = gtm.marketing_strategy || {};
-  const distributionChannels = data.distribution_channels || [];
-  const marketingIdeas = data.marketing_ideas_and_partnerships?.marketing_ideas || [];
-  const partnerships = data.marketing_ideas_and_partnerships?.partnerships || [];
-  const kpis = data.kpis || [];
+  const distributionChannels = parsedData.distribution_channels || [];
+  const marketingIdeas = parsedData.marketing_ideas_and_partnerships?.marketing_ideas || [];
+  const partnerships = parsedData.marketing_ideas_and_partnerships?.partnerships || [];
+  const kpis = parsedData.kpis || [];
 
   const priorityColors = {
     high: "bg-red-100 text-red-700 border-red-300",

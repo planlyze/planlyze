@@ -201,12 +201,25 @@ export default function AnalysisResult() {
   const [tabLoading, setTabLoading] = useState({});
   const [tabError, setTabError] = useState({});
   
+  // Helper to parse raw_response if present
+  const parseTabData = (data) => {
+    if (!data) return data;
+    if (data.raw_response && typeof data.raw_response === 'string') {
+      try {
+        return JSON.parse(data.raw_response);
+      } catch (e) {
+        console.error('Failed to parse raw_response:', e);
+      }
+    }
+    return data;
+  };
+  
   const loadTabContent = useCallback(async (tabName) => {
     if (tabData[tabName] || tabLoading[tabName] || tabError[tabName] || !analysis) return;
     
     const cachedData = analysis[`tab_${tabName}`];
     if (cachedData) {
-      setTabData(prev => ({ ...prev, [tabName]: cachedData }));
+      setTabData(prev => ({ ...prev, [tabName]: parseTabData(cachedData) }));
       setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       return;
     }
@@ -223,7 +236,7 @@ export default function AnalysisResult() {
       });
       
       if (response?.data) {
-        setTabData(prev => ({ ...prev, [tabName]: response.data }));
+        setTabData(prev => ({ ...prev, [tabName]: parseTabData(response.data) }));
         setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       }
     } catch (error) {

@@ -18,8 +18,18 @@ export default function StrategySection({ data, isArabic = false, isPremium = tr
     );
   }
 
-  const riskAssessment = data.risk_assessment || [];
-  const actionPlan = data.action_plan || [];
+  // Handle raw_response case where data is stored as JSON string
+  let parsedData = data;
+  if (data.raw_response && typeof data.raw_response === 'string') {
+    try {
+      parsedData = JSON.parse(data.raw_response);
+    } catch (e) {
+      console.error('Failed to parse raw_response:', e);
+    }
+  }
+
+  const riskAssessment = parsedData.risk_assessment || [];
+  const actionPlan = parsedData.action_plan || [];
 
   const severityColors = {
     high: { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: "text-red-500" },
