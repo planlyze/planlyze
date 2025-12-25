@@ -347,8 +347,8 @@ export default function AnalysisResult() {
                 tab_name: tabName,
                 language: lang
               });
-              if (response.data?.data) {
-                allTabData[tabName] = response.data.data;
+              if (response?.data) {
+                allTabData[tabName] = response.data;
               }
             } catch (err) {
               console.error(`Error loading ${tabName}:`, err);
