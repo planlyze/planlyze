@@ -187,9 +187,8 @@ Respond ONLY with the JSON object, no other text."""
     except json.JSONDecodeError as e:
         current_app.logger.warning(f"[Idea Validation] Failed to parse AI response: {e}")
         return {
-            'valid': False, 
-            'reason': 'Unable to validate. Please try again with a clearer business description.' if language == 'en'
-                      else 'غير قادر على التحقق. يرجى المحاولة مرة أخرى مع وصف أعمال أوضح.',
+            'valid': True, 
+            'reason': '',
             'confidence': 0.5
         }
         
@@ -197,9 +196,8 @@ Respond ONLY with the JSON object, no other text."""
         current_app.logger.error(f"[Idea Validation] Error during validation: {e}")
         current_app.logger.error(traceback.format_exc())
         return {
-            'valid': False, 
-            'reason': 'Unable to validate. Please try again with a clearer business description.' if language == 'en'
-                      else 'غير قادر على التحقق. يرجى المحاولة مرة أخرى مع وصف أعمال أوضح.',
+            'valid': True, 
+            'reason': '',
             'confidence': 0.5
         }
 
