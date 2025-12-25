@@ -4,6 +4,7 @@ from server.routes.auth import get_current_user
 import anthropic
 import os
 import json
+from datetime import datetime
 
 ai_bp = Blueprint('ai', __name__)
 
