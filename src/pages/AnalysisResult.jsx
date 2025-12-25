@@ -1450,56 +1450,58 @@ export default function AnalysisResult() {
               )}
             </LazyTabContent>
 
-            <Card className="border shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                  <Sparkles className="w-6 h-6" />
-                  {isUIArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
-                </h2>
-              </div>
-              <CardContent className="p-6">
-                <p className="text-slate-600 mb-4">
-                  {isUIArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
-                </p>
-
-                <div className="flex items-center gap-4 mb-4">
-                  <StarRating
-                    value={rating || 0}
-                    onChange={setRating}
-                    disabled={!canRate}
-                    size={32}
-                  />
-                  <span className="text-lg font-semibold text-slate-700">
-                    {rating ? `${rating}/5` : (isUIArabic ? "بدون تقييم" : "No rating")}
-                  </span>
+            {loadedTabs.market && loadedTabs.business && loadedTabs.technical && loadedTabs.financial && loadedTabs.strategy && loadedTabs.overview && (
+              <Card className="border shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                    <Sparkles className="w-6 h-6" />
+                    {isUIArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
+                  </h2>
                 </div>
-
-                <div className="space-y-4">
-                  <Textarea
-                    placeholder={isUIArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    disabled={!canRate}
-                    className="min-h-[100px]"
-                  />
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={handleSaveRating}
-                      disabled={!canRate || savingRating}
-                      className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
-                    >
-                      {savingRating ? (isUIArabic ? "جارٍ الحفظ..." : "Saving...") : (isUIArabic ? "حفظ التقييم" : "Save Rating")}
-                    </Button>
-                  </div>
-                </div>
-
-                {!canRate && rating != null && (
-                  <p className="text-sm text-slate-500 mt-4 text-center">
-                    {isUIArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
+                <CardContent className="p-6">
+                  <p className="text-slate-600 mb-4">
+                    {isUIArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
                   </p>
-                )}
-              </CardContent>
-            </Card>
+
+                  <div className="flex items-center gap-4 mb-4">
+                    <StarRating
+                      value={rating || 0}
+                      onChange={setRating}
+                      disabled={!canRate}
+                      size={32}
+                    />
+                    <span className="text-lg font-semibold text-slate-700">
+                      {rating ? `${rating}/5` : (isUIArabic ? "بدون تقييم" : "No rating")}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Textarea
+                      placeholder={isUIArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      disabled={!canRate}
+                      className="min-h-[100px]"
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={handleSaveRating}
+                        disabled={!canRate || savingRating}
+                        className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
+                      >
+                        {savingRating ? (isUIArabic ? "جارٍ الحفظ..." : "Saving...") : (isUIArabic ? "حفظ التقييم" : "Save Rating")}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {!canRate && rating != null && (
+                    <p className="text-sm text-slate-500 mt-4 text-center">
+                      {isUIArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
 
