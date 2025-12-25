@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { User, Transaction, CreditPackage, Settings, auth } from "@/api/client";
+import { User, Transaction, CreditPackage, Settings, auth, api } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Wallet, Sparkles, Package, ArrowLeft, Banknote, 
   Crown, Gift, Rocket, CheckCircle2, Plus, Minus,
   History, TrendingUp, TrendingDown, Clock, CreditCard,
-  ArrowUpRight, ArrowDownRight, Zap, Star, Briefcase
+  ArrowUpRight, ArrowDownRight, Zap, Star, Briefcase, Globe
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +29,9 @@ export default function Credits() {
   const [cashModalOpen, setCashModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [hoveredPackage, setHoveredPackage] = useState(null);
-  const [packageQuantities, setPackageQuantities] = useState({});  
+  const [packageQuantities, setPackageQuantities] = useState({});
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState(null);  
 
   useEffect(() => {
     loadData();
@@ -48,12 +51,33 @@ export default function Credits() {
       });
       setPackageQuantities(initialQuantities);
       
+      try {
+        const currencyResponse = await api.get('/currencies');
+        const currencyList = Array.isArray(currencyResponse) ? currencyResponse : (currencyResponse?.data || []);
+        setCurrencies(currencyList);
+        if (currencyList.length > 0) {
+          const defaultCurrency = currencyList.find(c => c.is_default) || currencyList.find(c => c.code === 'USD') || currencyList[0];
+          if (defaultCurrency) {
+            setSelectedCurrency(defaultCurrency);
+          }
+        }
+      } catch (currencyError) {
+        console.error("Error loading currencies:", currencyError);
+        setCurrencies([]);
+      }
+      
     } catch (error) {
       console.error("Error loading credits data:", error);
       await User.loginWithRedirect(window.location.href);
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const formatConvertedPrice = (usdAmount) => {
+    if (!selectedCurrency || selectedCurrency.code === 'USD') return null;
+    const converted = usdAmount * selectedCurrency.exchange_rate;
+    return `${selectedCurrency.symbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const updateQuantity = (pkgId, delta) => {
@@ -197,6 +221,37 @@ export default function Credits() {
             <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
               {t('credits.investSuccess')}
             </p>
+            
+            {/* Currency Selector */}
+            {currencies.length > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <Globe className="w-5 h-5 text-purple-500" />
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
+                  {isArabic ? "عرض الأسعار بعملة:" : "View prices in:"}
+                </span>
+                <Select
+                  value={selectedCurrency?.code || 'USD'}
+                  onValueChange={(code) => {
+                    const currency = currencies.find(c => c.code === code);
+                    setSelectedCurrency(currency);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px] bg-white dark:bg-gray-800 border-purple-200 dark:border-purple-700">
+                    <SelectValue placeholder={isArabic ? "اختر العملة" : "Select currency"} />
+                  </SelectTrigger>
+                  <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.code} value={currency.code} className="dark:text-white dark:focus:bg-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{currency.symbol}</span>
+                          <span>{isArabic ? currency.name_ar || currency.name : currency.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -269,6 +324,13 @@ export default function Credits() {
                               <p className="text-slate-400 text-lg line-through mt-1">
                                 ${originalPrice}
                               </p>
+                            )}
+                            {formatConvertedPrice(totalPrice) && (
+                              <div className="mt-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg px-4 py-2 inline-block">
+                                <span className="text-purple-600 dark:text-purple-300 font-semibold text-lg">
+                                  ≈ {formatConvertedPrice(totalPrice)}
+                                </span>
+                              </div>
                             )}
                           </div>
 
@@ -350,38 +412,47 @@ export default function Credits() {
                         </p>
 
                         {/* Quantity Selector & Price */}
-                        <div className="flex items-center justify-center gap-4 mb-6 py-4 border-y border-slate-100 dark:border-gray-700">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(pkg.id, -1)}
-                            disabled={quantity <= 1}
-                            className="h-10 w-10 rounded-full border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          
-                          <div className="text-center">
-                            <div className="flex items-baseline justify-center gap-1">
-                              <span className="text-4xl font-bold text-purple-600 dark:text-purple-400">
-                                {totalCredits}
-                              </span>
-                              <span className="text-slate-500 dark:text-slate-400 text-sm">{t('credits.credit')}</span>
-                              <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
-                              <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                ${totalPrice}
+                        <div className="flex flex-col items-center gap-3 mb-6 py-4 border-y border-slate-100 dark:border-gray-700">
+                          <div className="flex items-center justify-center gap-4">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(pkg.id, -1)}
+                              disabled={quantity <= 1}
+                              className="h-10 w-10 rounded-full border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                            
+                            <div className="text-center">
+                              <div className="flex items-baseline justify-center gap-1">
+                                <span className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                                  {totalCredits}
+                                </span>
+                                <span className="text-slate-500 dark:text-slate-400 text-sm">{t('credits.credit')}</span>
+                                <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
+                                <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                  ${totalPrice}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => updateQuantity(pkg.id, 1)}
+                              className="h-10 w-10 rounded-full border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          {formatConvertedPrice(totalPrice) && (
+                            <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg px-4 py-2">
+                              <span className="text-purple-600 dark:text-purple-300 font-semibold">
+                                ≈ {formatConvertedPrice(totalPrice)}
                               </span>
                             </div>
-                          </div>
-                          
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => updateQuantity(pkg.id, 1)}
-                            className="h-10 w-10 rounded-full border-2 border-slate-300 dark:border-gray-600 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
+                          )}
                         </div>
 
                         {/* Features List */}
