@@ -16,9 +16,10 @@ export default function VerifyEmail() {
   const [isResending, setIsResending] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
-  const { setUser } = useAuth();
+  const { verify } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  
 
   const email = localStorage.getItem("pending_verification_email");
 
@@ -70,13 +71,9 @@ export default function VerifyEmail() {
 
     setIsVerifying(true);
     try {
-      const response = await auth.verifyEmail(email, code);
-      if (response.token) {
-        auth.setToken(response.token);
-        setUser(response.user);
-        localStorage.removeItem("pending_verification_email");
-      }
-      toast.success(response.message || t('auth.emailVerified'), { duration: 1000 });
+      await verify(email, code); 
+      toast.success(t('auth.emailVerified'), { duration: 1000 });
+      console.log("Email verified successfully.");   
       navigate("/Dashboard");
     } catch (error) {
       setStatus("error");

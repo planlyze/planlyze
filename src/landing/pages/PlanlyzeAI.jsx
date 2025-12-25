@@ -24,8 +24,7 @@ import {
   Award,
   Crown,
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import Header from "@/landing/components/planlyze/Header";
 import Footer from "@/landing/components/planlyze/Footer";
@@ -33,10 +32,10 @@ import FeatureCard from "@/landing/components/planlyze/FeatureCard";
 import BenefitCard from "@/landing/components/planlyze/BenefitCard";
 import PricingCard from "@/landing/components/planlyze/PricingCard";
 import SEOSchema from "@/landing/components/planlyze/SEOSchema";
-import { api } from '@/api/client';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { CTA_BUTTON_CLASS, CTA_SMALL_BUTTON_CLASS } from '@/config';
+import { api } from "@/api/client";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { CTA_BUTTON_CLASS, CTA_SMALL_BUTTON_CLASS } from "@/config";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -86,7 +85,6 @@ const CountUp = ({ end }) => {
   return <span>{count.toLocaleString()}+</span>;
 };
 
-
 export default function PlanlyzeAIPage() {
   const { t: ti, i18n } = useTranslation("landing");
   const lang = i18n?.language || "en";
@@ -94,20 +92,23 @@ export default function PlanlyzeAIPage() {
   const [isSending, setIsSending] = useState(false);
   const [packages, setPackages] = useState([]);
   const [packagesLoading, setPackagesLoading] = useState(true);
-  const [stats, setStats] = useState({ users_count: 500, reports_count: 2000, syrian_apps_count: 150 });
+  const [stats, setStats] = useState({
+    users_count: 500,
+    reports_count: 2000,
+    syrian_apps_count: 150,
+  });
   const [partners, setPartners] = useState([]);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await fetch('/api/credit-packages');
+        const response = await fetch("/api/credit-packages");
         if (response.ok) {
           const data = await response.json();
           setPackages(data || []);
         }
       } catch (error) {
-        console.error('Failed to fetch packages:', error);
+        console.error("Failed to fetch packages:", error);
       } finally {
         setPackagesLoading(false);
       }
@@ -118,13 +119,13 @@ export default function PlanlyzeAIPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/landing-stats');
+        const response = await fetch("/api/landing-stats");
         if (response.ok) {
           const data = await response.json();
           setStats(data);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       }
     };
     fetchStats();
@@ -133,7 +134,7 @@ export default function PlanlyzeAIPage() {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const response = await fetch('/api/partners');
+        const response = await fetch("/api/partners");
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
@@ -141,7 +142,7 @@ export default function PlanlyzeAIPage() {
           }
         }
       } catch (error) {
-        console.error('Failed to fetch partners:', error);
+        console.error("Failed to fetch partners:", error);
       }
     };
     fetchPartners();
@@ -226,19 +227,49 @@ export default function PlanlyzeAIPage() {
   const t = new Proxy({}, { get: (_, prop) => ti(String(prop)) });
 
   const features = [
-    { icon: Target, titleKey: 'feature1Title', descKey: 'feature1Desc', colorClass: 'text-purple-400' },
-    { icon: BarChart3, titleKey: 'feature2Title', descKey: 'feature2Desc', colorClass: 'text-orange-400' },
-    { icon: MapPin, titleKey: 'feature3Title', descKey: 'feature3Desc', colorClass: 'text-purple-400' },
-    { icon: CheckCircle, titleKey: 'feature4Title', descKey: 'feature4Desc', colorClass: 'text-orange-400' },
-    { icon: FileText, titleKey: 'feature5Title', descKey: 'feature5Desc', colorClass: 'text-purple-400' },
-    { icon: TrendingUp, titleKey: 'feature6Title', descKey: 'feature6Desc', colorClass: 'text-orange-400' },
+    {
+      icon: Target,
+      titleKey: "feature1Title",
+      descKey: "feature1Desc",
+      colorClass: "text-purple-400",
+    },
+    {
+      icon: BarChart3,
+      titleKey: "feature2Title",
+      descKey: "feature2Desc",
+      colorClass: "text-orange-400",
+    },
+    {
+      icon: MapPin,
+      titleKey: "feature3Title",
+      descKey: "feature3Desc",
+      colorClass: "text-purple-400",
+    },
+    {
+      icon: CheckCircle,
+      titleKey: "feature4Title",
+      descKey: "feature4Desc",
+      colorClass: "text-orange-400",
+    },
+    {
+      icon: FileText,
+      titleKey: "feature5Title",
+      descKey: "feature5Desc",
+      colorClass: "text-purple-400",
+    },
+    {
+      icon: TrendingUp,
+      titleKey: "feature6Title",
+      descKey: "feature6Desc",
+      colorClass: "text-orange-400",
+    },
   ];
 
   const benefits = [
-    { icon: Award, titleKey: 'benefit1Title', descKey: 'benefit1Desc' },
-    { icon: FileText, titleKey: 'benefit2Title', descKey: 'benefit2Desc' },
-    { icon: Clock, titleKey: 'benefit3Title', descKey: 'benefit3Desc' },
-    { icon: BarChart3, titleKey: 'benefit4Title', descKey: 'benefit4Desc' },
+    { icon: Award, titleKey: "benefit1Title", descKey: "benefit1Desc" },
+    { icon: FileText, titleKey: "benefit2Title", descKey: "benefit2Desc" },
+    { icon: Clock, titleKey: "benefit3Title", descKey: "benefit3Desc" },
+    { icon: BarChart3, titleKey: "benefit4Title", descKey: "benefit4Desc" },
   ];
 
   const steps = [
@@ -334,7 +365,7 @@ export default function PlanlyzeAIPage() {
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Link to={createPageUrl('Login')}>
+                  <Link to={createPageUrl("Login")}>
                     <Button size="lg" className={CTA_BUTTON_CLASS}>
                       {t.tryAiNow} <Zap className="ms-2 w-5 h-5" />
                     </Button>
@@ -411,8 +442,16 @@ export default function PlanlyzeAIPage() {
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 { number: stats.users_count, label: t.statsUsers, icon: User },
-                { number: stats.reports_count, label: t.statsReports, icon: FileText },
-                { number: stats.syrian_apps_count, label: t.syApps, icon: Smartphone },
+                {
+                  number: stats.reports_count,
+                  label: t.statsReports,
+                  icon: FileText,
+                },
+                {
+                  number: stats.syrian_apps_count,
+                  label: t.syApps,
+                  icon: Smartphone,
+                },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -581,14 +620,19 @@ export default function PlanlyzeAIPage() {
               </motion.div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {partners.map((partner, index) => {
-                  const partnerName = lang === 'ar' && partner.name_ar ? partner.name_ar : partner.name;
-                  const displayName = partner.logo_url ? '' : partnerName;
-                  const CardWrapper = partner.website_url ? 'a' : 'div';
-                  const cardProps = partner.website_url ? {
-                    href: partner.website_url,
-                    target: '_blank',
-                    rel: 'noopener noreferrer'
-                  } : {};
+                  const partnerName =
+                    lang === "ar" && partner.name_ar
+                      ? partner.name_ar
+                      : partner.name;
+                  const displayName = partner.logo_url ? "" : partnerName;
+                  const CardWrapper = partner.website_url ? "a" : "div";
+                  const cardProps = partner.website_url
+                    ? {
+                        href: partner.website_url,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }
+                    : {};
                   return (
                     <motion.div
                       key={partner.id || index}
@@ -598,7 +642,9 @@ export default function PlanlyzeAIPage() {
                     >
                       <CardWrapper
                         {...cardProps}
-                        className={`flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${partner.website_url ? 'cursor-pointer' : ''}`}
+                        className={`flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 transition-all duration-300 hover:shadow-lg h-full ${
+                          partner.website_url ? "cursor-pointer" : ""
+                        }`}
                       >
                         <div className="w-full h-24 mb-4 flex items-center justify-center">
                           {partner.logo_url ? (
@@ -608,11 +654,20 @@ export default function PlanlyzeAIPage() {
                               className="max-w-full max-h-full object-contain rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300"
                             />
                           ) : (
-                            <div 
+                            <div
                               className="w-full h-full rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                              style={{ backgroundColor: `#${partner.color || '6B46C1'}` }}
+                              style={{
+                                backgroundColor: `#${
+                                  partner.color || "6B46C1"
+                                }`,
+                              }}
                             >
-                              {partnerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
+                              {partnerName
+                                .split(" ")
+                                .map((w) => w[0])
+                                .join("")
+                                .substring(0, 2)
+                                .toUpperCase()}
                             </div>
                           )}
                         </div>
@@ -654,7 +709,11 @@ export default function PlanlyzeAIPage() {
                 price="$0"
                 descriptionKey="freeTierDesc"
                 featuresKeys={["freeTierFeature1", "freeTierFeature2"]}
-                notIncludedKeys={["freeTierNotIncluded1", "freeTierNotIncluded2", "freeTierNotIncluded3"]}
+                notIncludedKeys={[
+                  "freeTierNotIncluded1",
+                  "freeTierNotIncluded2",
+                  "freeTierNotIncluded3",
+                ]}
                 selectTextKey="tryAiNow"
               />
               {packagesLoading ? (
@@ -666,12 +725,32 @@ export default function PlanlyzeAIPage() {
                   <PricingCard
                     key={pkg.id}
                     icon={pkg.is_popular ? Zap : Crown}
-                    title={lang === 'ar' ? (pkg.name_ar || pkg.name) : pkg.name}
+                    title={lang === "ar" ? pkg.name_ar || pkg.name : pkg.name}
                     price={`$${pkg.price_usd}`}
-                    description={lang === 'ar' ? (pkg.description_ar || pkg.description) : pkg.description}
-                    features={lang === 'ar' ? (pkg.features_ar || pkg.features || []) : (pkg.features || [])}
-                    badge={pkg.is_popular ? t.mostPopular : (index === packages.length - 1 ? t.bestValue : null)}
-                    variant={pkg.is_popular ? 'popular' : (index === packages.length - 1 ? 'best' : 'default')}
+                    description={
+                      lang === "ar"
+                        ? pkg.description_ar || pkg.description
+                        : pkg.description
+                    }
+                    features={
+                      lang === "ar"
+                        ? pkg.features_ar || pkg.features || []
+                        : pkg.features || []
+                    }
+                    badge={
+                      pkg.is_popular
+                        ? t.mostPopular
+                        : index === packages.length - 1
+                        ? t.bestValue
+                        : null
+                    }
+                    variant={
+                      pkg.is_popular
+                        ? "popular"
+                        : index === packages.length - 1
+                        ? "best"
+                        : "default"
+                    }
                     selectText={t.tryAiNow}
                   />
                 ))
@@ -682,7 +761,14 @@ export default function PlanlyzeAIPage() {
                     titleKey="payPerReport"
                     price={t.payPerReportPrice}
                     descriptionKey="payPerReportDesc"
-                    featuresKeys={["payPerReportFeature1","payPerReportFeature2","payPerReportFeature3","payPerReportFeature4","payPerReportFeature5","payPerReportFeature6"]}
+                    featuresKeys={[
+                      "payPerReportFeature1",
+                      "payPerReportFeature2",
+                      "payPerReportFeature3",
+                      "payPerReportFeature4",
+                      "payPerReportFeature5",
+                      "payPerReportFeature6",
+                    ]}
                     badge={t.mostPopular}
                     variant="popular"
                     selectTextKey="selectPlan"
@@ -692,7 +778,14 @@ export default function PlanlyzeAIPage() {
                     titleKey="bundlePackage"
                     price={t.bundlePackagePrice}
                     descriptionKey="bundlePackageDesc"
-                    featuresKeys={["bundlePackageFeature1","bundlePackageFeature2","bundlePackageFeature3","bundlePackageFeature4","bundlePackageFeature5","bundlePackageFeature6"]}
+                    featuresKeys={[
+                      "bundlePackageFeature1",
+                      "bundlePackageFeature2",
+                      "bundlePackageFeature3",
+                      "bundlePackageFeature4",
+                      "bundlePackageFeature5",
+                      "bundlePackageFeature6",
+                    ]}
                     badge={t.bestValue}
                     variant="best"
                     selectTextKey="selectPlan"
@@ -733,7 +826,7 @@ export default function PlanlyzeAIPage() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                <Link to={createPageUrl('Login')}>
+                <Link to={createPageUrl("Login")}>
                   <Button
                     size="lg"
                     className="bg-white hover:bg-gray-100 text-purple-600 my-5 px-4 py-2 text-lg font-semibold rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
@@ -822,29 +915,20 @@ export default function PlanlyzeAIPage() {
                       const email = formData.get("email");
                       const message = formData.get("message");
                       try {
-                        await api.post('/contact', { name, email, message });
-                        toast({
-                          title:
-                            lang === "ar"
-                              ? "تم الإرسال بنجاح!"
-                              : "Message Sent!",
-                          description:
-                            lang === "ar"
-                              ? "شكراً لتواصلك معنا. سنرد عليك قريباً."
-                              : "Thank you for contacting us. We will get back to you soon.",
-                          duration: 1000,
-                        });
+                        await api.post("/contact", { name, email, message });
+                        toast.success(
+                          lang === "ar" ? "تم الإرسال بنجاح!" : "Message Sent!",
+                          { duration: 1000 }
+                        );
+
                         e.target.reset();
                       } catch (error) {
-                        toast({
-                          title: lang === "ar" ? "حدث خطأ" : "Error",
-                          description:
-                            lang === "ar"
-                              ? "فشل إرسال الرسالة. حاول مرة أخرى."
-                              : "Failed to send message. Please try again.",
-                          variant: "destructive",
-                          duration: 1000,
-                        });
+                        toast.error(
+                          lang === "ar"
+                            ? "فشل إرسال الرسالة. حاول مرة أخرى."
+                            : "Failed to send message. Please try again.",
+                          { duration: 1000 }
+                        );
                       } finally {
                         setIsSending(false);
                       }
@@ -907,7 +991,6 @@ export default function PlanlyzeAIPage() {
       </main>
 
       <Footer />
-      <Toaster />
     </div>
   );
 }

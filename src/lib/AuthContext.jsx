@@ -68,6 +68,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const verify = async (email, code) => {
+    try {
+      setIsLoadingAuth(true);
+      const response = await auth.verifyEmail( email, code );
+       if (response.token) {
+      auth.setToken(response.token);
+      setUser(response.user);
+      setIsAuthenticated(true);
+      setAuthError(null);
+      localStorage.removeItem("pending_verification_email");
+       }
+      return response;
+    } catch (error) {
+      setAuthError({
+        type: 'verify_failed',
+        message: error.message || 'Login failed'
+      });
+      throw error;
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  };
+
   const register = async (email, password, fullName) => {
     try {
       setIsLoadingAuth(true);
@@ -142,6 +165,7 @@ export const AuthProvider = ({ children }) => {
       authError,
       appPublicSettings,
       login,
+      verify,
       register,
       logout,
       navigateToLogin,
