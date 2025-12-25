@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { motion } from "framer-motion";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
+import PageLoader from "@/components/common/PageLoader";
 
 export default function NewAnalysis() {
   const navigate = useNavigate();
@@ -58,11 +59,7 @@ export default function NewAnalysis() {
   };
 
   if (!authChecked) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
-        <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <PageLoader isArabic={isUIArabic} />;
   }
 
   const features = [

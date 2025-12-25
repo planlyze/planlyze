@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import PageLoader from "@/components/common/PageLoader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -160,27 +160,6 @@ function ReportCard({
   );
 }
 
-function ReportCardSkeleton() {
-  return (
-    <Card className="border shadow-sm bg-card rounded-xl">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start gap-4">
-          <div className="space-y-3 flex-1">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-1/3" />
-            <Skeleton className="h-6 w-24" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-10 rounded-lg" />
-            <Skeleton className="h-10 w-32 rounded-lg" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function Reports() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -316,11 +295,7 @@ export default function Reports() {
         </FilterBar>
 
         {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <ReportCardSkeleton key={i} />
-            ))}
-          </div>
+          <PageLoader isArabic={isArabic} />
         ) : filteredAnalyses.length === 0 ? (
           <Card className="border shadow-sm">
             <CardContent className="text-center py-16">
