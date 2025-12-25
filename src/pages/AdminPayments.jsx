@@ -300,14 +300,14 @@ export default function AdminPayments() {
           <CardContent>
             <div className="space-y-3">
               {processedPayments.map((payment) => (
-                <div key={payment.id} className="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
-                  <div>
+                <div key={payment.id} className="bg-slate-50 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
                     {payment.unique_id && (
-                      <p className="text-xs font-mono font-semibold text-purple-600 mb-1">
+                      <p className="text-xs font-mono font-semibold text-purple-600 mb-1 truncate">
                         {payment.unique_id}
                       </p>
                     )}
-                    <p className="font-medium text-slate-800">{payment.user_email}</p>
+                    <p className="font-medium text-slate-800 truncate">{payment.user_email}</p>
                     <p className="text-sm text-slate-600">
                       {payment.credits} credits - ${payment.amount_usd}
                     </p>
@@ -324,7 +324,7 @@ export default function AdminPayments() {
                       <p className="text-xs text-slate-500 italic mt-1">Note: {payment.admin_notes}</p>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="outline"
                       size="sm"
@@ -332,7 +332,8 @@ export default function AdminPayments() {
                       className="gap-2"
                     >
                       <Eye className="w-4 h-4" />
-                      View Details
+                      <span className="hidden sm:inline">View Details</span>
+                      <span className="sm:hidden">Details</span>
                     </Button>
                     <Badge className={getStatusColor(payment.status)}>
                       {payment.status}
