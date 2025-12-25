@@ -176,6 +176,13 @@ const adminNavigationItems = [
     url: createPageUrl("AdminSettings"),
     icon: Settings,
     requiredPermissions: [PERMISSIONS.MANAGE_SETTINGS]
+  },
+  {
+    id: "admin_currencies",
+    title: "Currency Management",
+    url: createPageUrl("AdminCurrencies"),
+    icon: Wallet,
+    requiredPermissions: [PERMISSIONS.MANAGE_SETTINGS]
   }
 ];
 
@@ -222,6 +229,11 @@ export default function Layout({ children, currentPageName }) {
         case "role_management": return "الأدوار والصلاحيات";
         case "user_roles": return "تعيين أدوار المستخدمين";
         case "audit_logs": return "سجلات التدقيق";
+        case "admin_settings": return "إعدادات الصفحة الرئيسية";
+        case "admin_currencies": return "إدارة العملات";
+        case "admin_users": return "جميع المستخدمين";
+        case "admin_reports": return "جميع التقارير";
+        case "admin_referrals": return "جميع الإحالات";
         default: return en;
       }
     };

@@ -23,6 +23,7 @@ import AdminSettings from './pages/AdminSettings';
 import AdminReports from './pages/AdminReports';
 import AdminReferrals from './pages/AdminReferrals';
 import AdminUsers from './pages/AdminUsers';
+import AdminCurrencies from './pages/AdminCurrencies';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "AdminReports": AdminReports,
     "AdminReferrals": AdminReferrals,
     "AdminUsers": AdminUsers,
+    "AdminCurrencies": AdminCurrencies,
 }
 
 export const pagesConfig = {
