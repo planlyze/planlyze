@@ -396,6 +396,7 @@ export default function Layout({ children, currentPageName }) {
       <div className={`min-h-screen flex w-full bg-gray-50 dark:bg-gray-900`} dir={isArabic ? 'rtl' : 'ltr'}>
         {isLoggedIn &&
         <Sidebar
+          side={isArabic ? 'right' : 'left'}
           className={`${isArabic ? 'order-2 border-l' : 'order-1 border-r'} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 no-print`}
         >
             <SidebarHeader className="border-b border-gray-100 dark:border-gray-700 p-5">

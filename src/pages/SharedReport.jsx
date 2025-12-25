@@ -43,7 +43,7 @@ export default function SharedReport() {
     setIsLoading(true);
     try {
       // Use backend function to load shared report (bypasses RLS)
-      const { data } = await api.post('getSharedReport', { token });
+      const { data } = await api.post('/getSharedReport', { token });
 
       if (!data.share || !data.analysis) {
         setError("not_found");
