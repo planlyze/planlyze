@@ -37,9 +37,10 @@ NOTIFICATION_TYPES = {
 
 def get_admin_emails():
     """Get all admin and super_admin user emails"""
-    admins = User.query.filter(
-        User.role.in_(['admin', 'super_admin']),
-        User.is_verified == True
+    from server.models import Role
+    admins = User.query.join(Role).filter(
+        Role.name.in_(['admin', 'super_admin']),
+        User.email_verified == True
     ).all()
     return [admin.email for admin in admins]
 
