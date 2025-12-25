@@ -270,18 +270,22 @@ def reserve_premium_credit(user_email: str, analysis_id: str) -> dict:
         if user.credits >= 1:
             user.credits -= 1
             
+            # Get analysis to check language
+            analysis = Analysis.query.get(analysis_id)
+            is_arabic = analysis and analysis.report_language == 'arabic'
+            tx_description = 'تقرير تحليل متميز (قيد الانتظار)' if is_arabic else 'Premium analysis report (pending)'
+            
             transaction = Transaction(
                 user_email=user_email,
                 type='analysis',
                 credits=-1,
-                description=f'Premium analysis report (pending)',
+                description=tx_description,
                 reference_id=analysis_id,
                 status='pending'
             )
             db.session.add(transaction)
             db.session.flush()
             
-            analysis = Analysis.query.get(analysis_id)
             if analysis:
                 analysis.report_type = 'premium'
                 analysis.pending_transaction_id = transaction.id
@@ -352,9 +356,11 @@ def finalize_transaction(analysis_id: str, success: bool, error_message: str = N
             current_app.logger.info(f"[Transaction Finalize] Transaction {transaction.id} already finalized: {transaction.status}")
             return {'success': True, 'refunded': transaction.status == 'refunded', 'error': None}
         
+        is_arabic = analysis.report_language == 'arabic'
+        
         if success:
             transaction.status = 'completed'
-            transaction.description = f'Premium analysis report (completed)'
+            transaction.description = 'تقرير تحليل متميز (مكتمل)' if is_arabic else 'Premium analysis report (completed)'
             
             analysis.pending_transaction_id = None
             
@@ -371,7 +377,11 @@ def finalize_transaction(analysis_id: str, success: bool, error_message: str = N
                 current_app.logger.info(f"[Transaction Finalize] Refunded 1 credit to user {user.email}")
             
             transaction.status = 'refunded'
-            transaction.description = f'Premium analysis report (refunded - failed: {error_message or "Unknown error"})'
+            error_text = error_message or ("خطأ غير معروف" if is_arabic else "Unknown error")
+            if is_arabic:
+                transaction.description = f'تقرير تحليل متميز (مسترد - فشل: {error_text})'
+            else:
+                transaction.description = f'Premium analysis report (refunded - failed: {error_text})'
             
             analysis.pending_transaction_id = None
             analysis.last_error = error_message

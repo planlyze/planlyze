@@ -179,12 +179,18 @@ def generate_analysis_entry(user):
         user_record = User.query.filter_by(email=user.email).first()
         if user_record and user_record.credits >= 1:
             user_record.credits -= 1
-            # Create transaction record
+            # Create transaction record with language-appropriate description
+            is_arabic = report_language == 'arabic'
+            idea_preview = business_idea[:50] + '...' if len(business_idea) > 50 else business_idea
+            if is_arabic:
+                tx_description = f'تحليل متميز: {idea_preview}'
+            else:
+                tx_description = f'Premium analysis: {idea_preview}'
             tx = Transaction(
                 user_email=user.email,
                 type='analysis',
                 credits=-1,
-                description=f'Premium analysis: {business_idea[:50]}...' if len(business_idea) > 50 else f'Premium analysis: {business_idea}',
+                description=tx_description,
                 reference_id=analysis.id,
                 status='completed'
             )
@@ -1286,12 +1292,19 @@ def approve_payment(user, id):
     if target_user:
         target_user.credits = (target_user.credits or 0) + payment.credits
     
+    # Generate description based on user's language preference
+    is_arabic = target_user and target_user.language == 'arabic'
+    if is_arabic:
+        tx_description = f'تمت الموافقة على الدفع - {payment.credits} رصيد'
+    else:
+        tx_description = f'Payment approved - {payment.credits} credits'
+    
     transaction = Transaction(
         user_email=payment.user_email,
         type='purchase',
         credits=payment.credits,
         amount_usd=payment.amount_usd,
-        description=f'Payment approved - {payment.credits} credits',
+        description=tx_description,
         reference_id=payment.id
     )
     db.session.add(transaction)
@@ -2189,11 +2202,21 @@ def adjust_user_credits(user, id):
     
     target_user.credits = (target_user.credits or 0) + credits
     
+    # Generate description based on user's language preference
+    is_arabic = target_user.language == 'arabic'
+    if is_arabic:
+        action_text = 'إضافة' if credits > 0 else 'خصم'
+        description = f'تعديل إداري: {action_text} {abs(credits)} رصيد. {reason}'
+        audit_desc = f'{"تم إضافة" if credits > 0 else "تم خصم"} {abs(credits)} رصيد. {reason}'
+    else:
+        description = f'Admin adjustment: {"Added" if credits > 0 else "Deducted"} {abs(credits)} credits. {reason}'
+        audit_desc = f'{"Added" if credits > 0 else "Deducted"} {abs(credits)} credits. {reason}'
+    
     transaction = Transaction(
         user_email=target_user.email,
         type='adjustment',
         credits=credits,
-        description=f'Admin adjustment: {reason}',
+        description=description,
         reference_id=f'admin-{user.email}'
     )
     db.session.add(transaction)
@@ -2202,7 +2225,7 @@ def adjust_user_credits(user, id):
         action_type='credit_adjustment',
         user_email=target_user.email,
         performed_by=user.email,
-        description=f'{"Added" if credits > 0 else "Deducted"} {abs(credits)} credits. {reason}',
+        description=audit_desc,
         metadata={'credits': credits, 'reason': reason}
     )
     db.session.add(log)
