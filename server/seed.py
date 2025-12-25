@@ -658,17 +658,7 @@ def seed_currencies():
             'is_default': True,
             'is_active': True,
             'sort_order': 1
-        },
-        {
-            'code': 'EUR',
-            'name': 'Euro',
-            'name_ar': 'يورو',
-            'symbol': '€',
-            'exchange_rate': 0.92,
-            'is_default': False,
-            'is_active': True,
-            'sort_order': 2
-        },
+        },       
         {
             'code': 'SYP',
             'name': 'Syrian Pound',
@@ -677,37 +667,7 @@ def seed_currencies():
             'exchange_rate': 14500.0,
             'is_default': False,
             'is_active': True,
-            'sort_order': 3
-        },
-        {
-            'code': 'SAR',
-            'name': 'Saudi Riyal',
-            'name_ar': 'ريال سعودي',
-            'symbol': 'ر.س',
-            'exchange_rate': 3.75,
-            'is_default': False,
-            'is_active': True,
-            'sort_order': 4
-        },
-        {
-            'code': 'AED',
-            'name': 'UAE Dirham',
-            'name_ar': 'درهم إماراتي',
-            'symbol': 'د.إ',
-            'exchange_rate': 3.67,
-            'is_default': False,
-            'is_active': True,
-            'sort_order': 5
-        },
-        {
-            'code': 'TRY',
-            'name': 'Turkish Lira',
-            'name_ar': 'ليرة تركية',
-            'symbol': '₺',
-            'exchange_rate': 34.50,
-            'is_default': False,
-            'is_active': True,
-            'sort_order': 6
+            'sort_order': 2
         }
     ]
     
