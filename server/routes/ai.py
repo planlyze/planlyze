@@ -764,6 +764,8 @@ Respond in JSON format:
 }
 
 
+PROCESSING_TIMEOUT_SECONDS = 300  # 5 minutes
+
 @ai_bp.route('/generate-tab-content', methods=['POST'])
 @require_auth
 def generate_tab_content(user):
@@ -778,6 +780,7 @@ def generate_tab_content(user):
     analysis_id = data.get('analysis_id')
     tab_name = data.get('tab_name')
     language = data.get('language', 'en')
+    force_regenerate = data.get('force', False)
     
     if not analysis_id or not tab_name:
         return jsonify({'error': 'analysis_id and tab_name are required'}), 400
@@ -793,10 +796,43 @@ def generate_tab_content(user):
     
     tab_field = f'tab_{tab_name}'
     existing_data = getattr(analysis, tab_field, None)
-    if existing_data:
+    
+    # Check if tab has cached data (unless force regenerate)
+    if existing_data and not force_regenerate:
         return jsonify({'data': existing_data, 'cached': True})
     
+    # Check if tab is currently being processed
+    processing_started = analysis.tab_processing_started or {}
+    if tab_name in processing_started and not force_regenerate:
+        started_at = processing_started.get(tab_name)
+        if started_at:
+            try:
+                started_time = datetime.fromisoformat(started_at)
+                elapsed_seconds = (datetime.utcnow() - started_time).total_seconds()
+                
+                if elapsed_seconds < PROCESSING_TIMEOUT_SECONDS:
+                    # Still processing within timeout
+                    return jsonify({
+                        'status': 'processing',
+                        'started_at': started_at,
+                        'elapsed_seconds': int(elapsed_seconds),
+                        'timeout_seconds': PROCESSING_TIMEOUT_SECONDS
+                    })
+                else:
+                    # Processing timed out - allow retry
+                    pass
+            except (ValueError, TypeError):
+                pass
+    
     try:
+        # Mark tab as processing
+        if not analysis.tab_processing_started:
+            analysis.tab_processing_started = {}
+        processing_data = dict(analysis.tab_processing_started or {})
+        processing_data[tab_name] = datetime.utcnow().isoformat()
+        analysis.tab_processing_started = processing_data
+        db.session.commit()
+        
         language_instruction = "Respond in Arabic language." if language == 'ar' else "Respond in English."
         
         prompt = f"""You are an expert business and technology strategist specializing in helping tech entrepreneurs turn their ideas into successful startups.
@@ -829,10 +865,85 @@ Budget: {analysis.budget or 'Not specified'}
         except json.JSONDecodeError:
             tab_data = {"raw_response": response_text}
         
+        # Save tab data and clear processing flag
         setattr(analysis, tab_field, tab_data)
+        processing_data = dict(analysis.tab_processing_started or {})
+        if tab_name in processing_data:
+            del processing_data[tab_name]
+        analysis.tab_processing_started = processing_data
         db.session.commit()
         
         return jsonify({'data': tab_data, 'cached': False})
         
     except Exception as e:
+        # Clear processing flag on error
+        try:
+            processing_data = dict(analysis.tab_processing_started or {})
+            if tab_name in processing_data:
+                del processing_data[tab_name]
+            analysis.tab_processing_started = processing_data
+            db.session.commit()
+        except:
+            pass
         return jsonify({'error': str(e)}), 500
+
+
+@ai_bp.route('/check-tab-status', methods=['POST'])
+@require_auth
+def check_tab_status(user):
+    """
+    Check the processing status of a specific tab
+    """
+    data = request.get_json()
+    analysis_id = data.get('analysis_id')
+    tab_name = data.get('tab_name')
+    
+    if not analysis_id or not tab_name:
+        return jsonify({'error': 'analysis_id and tab_name are required'}), 400
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis:
+        return jsonify({'error': 'Analysis not found'}), 404
+    if analysis.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    tab_field = f'tab_{tab_name}'
+    existing_data = getattr(analysis, tab_field, None)
+    
+    if existing_data:
+        return jsonify({
+            'status': 'completed',
+            'data': existing_data,
+            'cached': True
+        })
+    
+    processing_started = analysis.tab_processing_started or {}
+    if tab_name in processing_started:
+        started_at = processing_started.get(tab_name)
+        if started_at:
+            try:
+                started_time = datetime.fromisoformat(started_at)
+                elapsed_seconds = (datetime.utcnow() - started_time).total_seconds()
+                
+                if elapsed_seconds >= PROCESSING_TIMEOUT_SECONDS:
+                    return jsonify({
+                        'status': 'stuck',
+                        'started_at': started_at,
+                        'elapsed_seconds': int(elapsed_seconds),
+                        'timeout_seconds': PROCESSING_TIMEOUT_SECONDS,
+                        'can_retry': True
+                    })
+                else:
+                    return jsonify({
+                        'status': 'processing',
+                        'started_at': started_at,
+                        'elapsed_seconds': int(elapsed_seconds),
+                        'timeout_seconds': PROCESSING_TIMEOUT_SECONDS
+                    })
+            except (ValueError, TypeError):
+                pass
+    
+    return jsonify({
+        'status': 'pending',
+        'can_generate': True
+    })

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Analysis, User, auth, api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,7 +67,7 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 
-const TabLoadingSpinner = ({ isUIArabic, tabName }) => {
+const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
   const tabIcons = {
     market: TrendingUp,
     business: Briefcase,
@@ -91,6 +91,18 @@ const TabLoadingSpinner = ({ isUIArabic, tabName }) => {
   const IconComponent = tabIcons[tabName] || Sparkles;
   const label = tabLabels[tabName] || { en: 'Content', ar: 'المحتوى' };
   
+  const formatElapsed = (seconds) => {
+    if (!seconds || seconds < 5) return null;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins > 0) {
+      return isUIArabic ? `${mins} دقيقة ${secs} ثانية` : `${mins}m ${secs}s`;
+    }
+    return isUIArabic ? `${secs} ثانية` : `${secs}s`;
+  };
+  
+  const elapsedText = formatElapsed(elapsedSeconds);
+  
   return (
     <div className="relative min-h-[400px] flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-orange-50/50 animate-pulse" />
@@ -113,6 +125,11 @@ const TabLoadingSpinner = ({ isUIArabic, tabName }) => {
               ? "الذكاء الاصطناعي يحلل بياناتك ويعد محتوى مخصصاً..."
               : "AI is analyzing your data and preparing customized content..."}
           </p>
+          {elapsedText && (
+            <p className="text-purple-600 text-xs font-medium mt-2">
+              {isUIArabic ? `الوقت المنقضي: ${elapsedText}` : `Elapsed: ${elapsedText}`}
+            </p>
+          )}
         </div>
         
         <div className="flex items-center gap-2">
@@ -141,7 +158,39 @@ const TabLoadingSpinner = ({ isUIArabic, tabName }) => {
   );
 };
 
-const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, tabName, children }) => {
+const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, onForceRetry, tabName, processingStatus, children }) => {
+  // Show stuck status UI with force retry option
+  if (processingStatus?.status === 'stuck') {
+    const minutes = Math.floor(processingStatus.elapsedSeconds / 60);
+    return (
+      <div className="relative min-h-[300px] flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/50" />
+        <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-5">
+          <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center">
+            <Clock className="w-8 h-8 text-amber-500" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="text-slate-800 font-semibold text-lg">
+              {isUIArabic ? "انتهت مهلة المعالجة" : "Processing Timed Out"}
+            </p>
+            <p className="text-slate-500 text-sm max-w-sm">
+              {isUIArabic 
+                ? `تجاوزت المعالجة ${minutes} دقيقة. قد يكون هناك خطأ.`
+                : `Processing exceeded ${minutes} minutes. There may have been an error.`}
+            </p>
+          </div>
+          <button
+            onClick={onForceRetry}
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl flex items-center gap-2 font-medium"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {isUIArabic ? "إعادة التوليد" : "Regenerate"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   if (hasError) {
     return (
       <div className="relative min-h-[300px] flex items-center justify-center">
@@ -172,7 +221,7 @@ const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, ta
     );
   }
   if (isLoading || !isLoaded) {
-    return <TabLoadingSpinner isUIArabic={isUIArabic} tabName={tabName} />;
+    return <TabLoadingSpinner isUIArabic={isUIArabic} tabName={tabName} elapsedSeconds={processingStatus?.elapsedSeconds} />;
   }
   return <>{children}</>;
 };
@@ -200,6 +249,7 @@ export default function AnalysisResult() {
   const [tabData, setTabData] = useState({});
   const [tabLoading, setTabLoading] = useState({});
   const [tabError, setTabError] = useState({});
+  const [tabProcessingStatus, setTabProcessingStatus] = useState({});  // Track processing status from backend
   
   // Helper to parse raw_response if present
   const parseTabData = (data) => {
@@ -214,17 +264,107 @@ export default function AnalysisResult() {
     return data;
   };
   
-  const loadTabContent = useCallback(async (tabName) => {
-    if (tabData[tabName] || tabLoading[tabName] || tabError[tabName] || !analysis) return;
+  const pollingIntervalsRef = useRef({});
+  
+  const checkTabStatus = useCallback(async (tabName) => {
+    if (!analysis) return;
+    
+    try {
+      const response = await api.post('/ai/check-tab-status', {
+        analysis_id: analysis.id,
+        tab_name: tabName
+      });
+      
+      if (response?.status === 'completed' && response?.data) {
+        if (pollingIntervalsRef.current[tabName]) {
+          clearInterval(pollingIntervalsRef.current[tabName]);
+          delete pollingIntervalsRef.current[tabName];
+        }
+        setTabData(prev => ({ ...prev, [tabName]: parseTabData(response.data) }));
+        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
+        setTabLoading(prev => ({ ...prev, [tabName]: false }));
+        setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
+        return true;
+      }
+      
+      if (response?.status === 'stuck') {
+        if (pollingIntervalsRef.current[tabName]) {
+          clearInterval(pollingIntervalsRef.current[tabName]);
+          delete pollingIntervalsRef.current[tabName];
+        }
+        setTabProcessingStatus(prev => ({ 
+          ...prev, 
+          [tabName]: {
+            status: 'stuck',
+            startedAt: response.started_at,
+            elapsedSeconds: response.elapsed_seconds,
+            canRetry: true
+          }
+        }));
+        setTabLoading(prev => ({ ...prev, [tabName]: false }));
+        return true;
+      }
+      
+      if (response?.status === 'processing') {
+        setTabProcessingStatus(prev => ({ 
+          ...prev, 
+          [tabName]: {
+            status: 'processing',
+            startedAt: response.started_at,
+            elapsedSeconds: response.elapsed_seconds,
+            timeoutSeconds: response.timeout_seconds
+          }
+        }));
+      }
+      
+      return false;
+    } catch (error) {
+      console.error(`Error checking tab status for ${tabName}:`, error);
+      return false;
+    }
+  }, [analysis]);
+  
+  const startPolling = useCallback((tabName) => {
+    if (pollingIntervalsRef.current[tabName]) {
+      clearInterval(pollingIntervalsRef.current[tabName]);
+    }
+    
+    pollingIntervalsRef.current[tabName] = setInterval(async () => {
+      const isResolved = await checkTabStatus(tabName);
+      if (isResolved) {
+        clearInterval(pollingIntervalsRef.current[tabName]);
+        delete pollingIntervalsRef.current[tabName];
+      }
+    }, 5000);
+  }, [checkTabStatus]);
+  
+  useEffect(() => {
+    return () => {
+      Object.values(pollingIntervalsRef.current).forEach(clearInterval);
+      pollingIntervalsRef.current = {};
+    };
+  }, []);
+  
+  const loadTabContent = useCallback(async (tabName, forceRegenerate = false) => {
+    const currentProcessingStatus = tabProcessingStatus[tabName];
+    if (!forceRegenerate && (currentProcessingStatus?.status === 'processing' || currentProcessingStatus?.status === 'stuck')) {
+      return;
+    }
+    
+    if (!forceRegenerate && (tabData[tabName] || tabLoading[tabName] || tabError[tabName] || !analysis)) return;
     
     const cachedData = analysis[`tab_${tabName}`];
-    if (cachedData) {
+    if (!forceRegenerate && cachedData) {
       setTabData(prev => ({ ...prev, [tabName]: parseTabData(cachedData) }));
       setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       return;
     }
     
     setTabLoading(prev => ({ ...prev, [tabName]: true }));
+    setTabError(prev => ({ ...prev, [tabName]: false }));
+    if (!forceRegenerate) {
+      setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
+    }
     const isAr = analysis?.report_language === 'arabic';
     const lang = analysis?.report_language === 'arabic' ? 'ar' : 'en';
     
@@ -232,25 +372,64 @@ export default function AnalysisResult() {
       const response = await api.post('/ai/generate-tab-content', {
         analysis_id: analysis.id,
         tab_name: tabName,
-        language: lang
+        language: lang,
+        force: forceRegenerate
       });
+      
+      if (response?.status === 'processing') {
+        setTabProcessingStatus(prev => ({ 
+          ...prev, 
+          [tabName]: {
+            status: 'processing',
+            startedAt: response.started_at,
+            elapsedSeconds: response.elapsed_seconds,
+            timeoutSeconds: response.timeout_seconds
+          }
+        }));
+        startPolling(tabName);
+        return;
+      }
+      
+      if (response?.status === 'stuck') {
+        setTabProcessingStatus(prev => ({ 
+          ...prev, 
+          [tabName]: {
+            status: 'stuck',
+            startedAt: response.started_at,
+            elapsedSeconds: response.elapsed_seconds,
+            canRetry: true
+          }
+        }));
+        setTabLoading(prev => ({ ...prev, [tabName]: false }));
+        return;
+      }
       
       if (response?.data) {
         setTabData(prev => ({ ...prev, [tabName]: parseTabData(response.data) }));
         setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
+        setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
+        setTabLoading(prev => ({ ...prev, [tabName]: false }));
       }
     } catch (error) {
       console.error(`Error loading ${tabName} tab:`, error);
       toast.error(isAr ? "خطأ في تحميل المحتوى. انقر للمحاولة مرة أخرى." : "Error loading content. Click to retry.");
       setTabError(prev => ({ ...prev, [tabName]: true }));
-    } finally {
       setTabLoading(prev => ({ ...prev, [tabName]: false }));
     }
-  }, [analysis, tabData, tabLoading, tabError]);
+  }, [analysis, tabData, tabLoading, tabError, tabProcessingStatus, startPolling]);
 
   const retryTab = useCallback((tabName) => {
     setTabError(prev => ({ ...prev, [tabName]: false }));
+    setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
     setTimeout(() => loadTabContent(tabName), 100);
+  }, [loadTabContent]);
+  
+  const forceRetryTab = useCallback((tabName) => {
+    setTabError(prev => ({ ...prev, [tabName]: false }));
+    setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
+    setTabData(prev => ({ ...prev, [tabName]: null }));
+    setLoadedTabs(prev => ({ ...prev, [tabName]: false }));
+    setTimeout(() => loadTabContent(tabName, true), 100);
   }, [loadTabContent]);
 
   useEffect(() => {
@@ -1143,7 +1322,7 @@ export default function AnalysisResult() {
 
           {/* Tab 1: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')} tabName="market">
+            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')} onForceRetry={() => forceRetryTab('market')} tabName="market" processingStatus={tabProcessingStatus.market}>
             
             {tabData.market ? (
               <MarketSection data={tabData.market} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
@@ -1205,7 +1384,7 @@ export default function AnalysisResult() {
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')} tabName="business">
+            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')} onForceRetry={() => forceRetryTab('business')} tabName="business" processingStatus={tabProcessingStatus.business}>
             {tabData.business ? (
               <BusinessSection data={tabData.business} isArabic={isReportArabic} />
             ) : (
@@ -1237,7 +1416,7 @@ export default function AnalysisResult() {
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')} tabName="technical">
+            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')} onForceRetry={() => forceRetryTab('technical')} tabName="technical" processingStatus={tabProcessingStatus.technical}>
             {tabData.technical ? (
               <TechnicalSection data={tabData.technical} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
@@ -1284,7 +1463,7 @@ export default function AnalysisResult() {
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')} tabName="financial">
+            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')} onForceRetry={() => forceRetryTab('financial')} tabName="financial" processingStatus={tabProcessingStatus.financial}>
             {tabData.financial ? (
               <FinancialSection data={tabData.financial} isArabic={isReportArabic} />
             ) : (
@@ -1309,7 +1488,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')} tabName="strategy">
+            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')} onForceRetry={() => forceRetryTab('strategy')} tabName="strategy" processingStatus={tabProcessingStatus.strategy}>
             {tabData.strategy ? (
               <StrategySection data={tabData.strategy} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
             ) : (
@@ -1349,7 +1528,7 @@ export default function AnalysisResult() {
 
           {/* Tab 6: Overview */}
           <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')} tabName="overview">
+            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')} onForceRetry={() => forceRetryTab('overview')} tabName="overview" processingStatus={tabProcessingStatus.overview}>
               {tabData.overview && (
                 <>
                   <Card className="border shadow-lg overflow-hidden">

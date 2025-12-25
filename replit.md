@@ -9,6 +9,13 @@ I prefer clear and direct communication. When suggesting code changes, please pr
 ## System Architecture
 Planlyze utilizes a React 18/Vite frontend with TailwindCSS and shadcn/ui for a modern, responsive user interface, emphasizing a mobile-first design. The backend is built with Flask, Flask-SQLAlchemy, and PostgreSQL, providing a robust API and data persistence layer. Key architectural decisions include a 6-tab lazy-loaded report structure for AI analysis results, a credit-based system for premium features, and comprehensive internationalization (i18n) for Arabic/English support. The system incorporates an admin notification system for critical events and a user notification system with customizable preferences. All legal pages (Privacy Policy, Terms of Service, Idea Security) are designed to meet compliance standards for an AI tech startup, featuring strong data privacy and security guarantees. A multi-currency payment system with automatic exchange rate conversion is integrated. Database seeding is version-controlled to protect user data across deployments. Frontend development runs on port 5000 and the Flask API on port 3000.
 
+### Tab Processing Timeout Detection
+The AI report generation system includes robust timeout detection for stuck tabs:
+- **Backend**: Tracks processing start times in `tab_processing_started` JSON field, with 5-minute timeout threshold
+- **API Endpoints**: `generate-tab-content` returns processing/stuck status; `check-tab-status` for polling
+- **Frontend**: Polls every 5 seconds when a tab is processing, transitions to stuck UI with regenerate button after timeout
+- **Force Retry**: Users can force regenerate stuck tabs via the `force` parameter
+
 ## External Dependencies
 - **AI**: Anthropic Claude API (claude-sonnet-4-5)
 - **Database**: PostgreSQL
