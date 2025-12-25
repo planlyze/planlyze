@@ -20,8 +20,10 @@ import {
   Sparkles,
   Zap,
   Target,
-  BarChart3
+  BarChart3,
+  HelpCircle
 } from "lucide-react";
+import OnboardingGuide, { OnboardingTrigger } from "@/components/onboarding/OnboardingGuide";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -139,6 +141,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <OnboardingGuide />
       <motion.div 
         className="max-w-7xl mx-auto space-y-8"
         variants={containerVariants}
@@ -156,12 +159,15 @@ export default function Dashboard() {
                 {isArabic ? 'إليك نظرة عامة على نشاطك.' : "Here's an overview of your activity."}
               </p>
             </div>
-            <Link to={createPageUrl("NewAnalysis")}>
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
-                <Plus className="w-5 h-5 mr-2" />
-                {isArabic ? "تحليل جديد" : "New Analysis"}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-3">
+              <OnboardingTrigger className="hidden md:flex" />
+              <Link to={createPageUrl("NewAnalysis")}>
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
+                  <Plus className="w-5 h-5 mr-2" />
+                  {isArabic ? "تحليل جديد" : "New Analysis"}
+                </Button>
+              </Link>
+            </div>
           </div>
         </motion.div>
 
