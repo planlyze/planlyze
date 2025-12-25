@@ -104,18 +104,106 @@ server/
 | PUT | `/<id>` | Update user (admin) |
 | POST | `/<id>/adjust-credits` | Adjust user credits (admin) |
 
-### Other Endpoints
-- `/api/transactions` - Transaction history
-- `/api/payment-methods` - Payment method management
-- `/api/discount-codes` - Discount code management
-- `/api/roles` - Role management
-- `/api/notifications` - User notifications
-- `/api/report-shares` - Report sharing
-- `/api/referrals` - Referral system
-- `/api/partners` - Partner management
-- `/api/landing-stats` - Public landing page stats
-- `/api/contact` - Contact form submissions
-- `/api/audit-logs` - Audit logging (admin)
+### Transactions (`/api/transactions`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get transaction history |
+| POST | `/` | Create transaction record |
+
+### Payment Methods (`/api/payment-methods`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List payment methods |
+| POST | `/` | Create payment method (admin) |
+| PUT | `/<id>` | Update payment method (admin) |
+| DELETE | `/<id>` | Delete payment method (admin) |
+
+### Discount Codes (`/api/discount-codes`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List discount codes (admin) |
+| POST | `/` | Create discount code (admin) |
+| PUT | `/<id>` | Update discount code (admin) |
+| DELETE | `/<id>` | Delete discount code (admin) |
+| POST | `/validate` | Validate discount code |
+| GET | `/<id>/users` | Get users who used code |
+
+### Roles (`/api/roles`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List all roles |
+| POST | `/` | Create role (admin) |
+| GET | `/<id>` | Get role details |
+| PUT | `/<id>` | Update role (admin) |
+| DELETE | `/<id>` | Delete role (admin) |
+
+### Notifications (`/api/notifications`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get user notifications |
+| POST | `/` | Create notification |
+| POST | `/<id>/read` | Mark notification as read |
+| POST | `/mark-all-read` | Mark all as read |
+| DELETE | `/<id>` | Delete notification |
+
+### Report Shares (`/api/report-shares`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List shared reports |
+| POST | `/` | Create share link |
+| GET | `/public/<token>` | Get public shared report |
+
+### Referrals (`/api/referrals`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get user's referrals |
+| POST | `/apply` | Apply referral code |
+
+### Partners (`/api/partners`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List partners (public) |
+| POST | `/` | Create partner (admin) |
+| PUT | `/<id>` | Update partner (admin) |
+| DELETE | `/<id>` | Delete partner (admin) |
+
+### Public Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/landing-stats` | Get landing page statistics |
+| POST | `/contact` | Submit contact form |
+| GET | `/social-media` | Get social media links |
+
+### Admin Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/contact-messages` | List contact messages |
+| PUT | `/contact-messages/<id>/read` | Mark message as read |
+| DELETE | `/contact-messages/<id>` | Delete message |
+| GET | `/audit-logs` | Get audit logs |
+| POST | `/audit-logs` | Create audit log |
+| GET | `/api-request-logs` | Get API request logs |
+| GET | `/api-request-logs/<id>` | Get specific log |
+| GET | `/system-settings` | Get system settings |
+| GET | `/system-settings/<key>` | Get specific setting |
+| PUT | `/system-settings/<key>` | Update setting |
+| GET | `/activity-feed` | Get activity feed |
+| POST | `/activity-feed` | Create activity entry |
+
+### Chat Conversations (`/api/chat-conversations`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List conversations |
+| GET | `/<id>` | Get conversation |
+| POST | `/` | Create conversation |
+| PUT | `/<id>` | Update conversation |
+
+### Settings (`/api/settings`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get public settings |
+| GET | `/<key>` | Get specific setting |
+| POST | `/` | Update settings (admin) |
 
 ## Authentication
 
