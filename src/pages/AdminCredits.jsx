@@ -443,11 +443,11 @@ export default function AdminCredits() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="purchase">Purchase</SelectItem>
-                      <SelectItem value="usage">Usage</SelectItem>
-                      <SelectItem value="bonus">Bonus</SelectItem>
-                      <SelectItem value="refund">Refund</SelectItem>
+                      <SelectItem value="all">{isArabic ? "جميع الأنواع" : "All Types"}</SelectItem>
+                      <SelectItem value="purchase">{isArabic ? "شراء" : "Purchase"}</SelectItem>
+                      <SelectItem value="usage">{isArabic ? "استخدام" : "Usage"}</SelectItem>
+                      <SelectItem value="bonus">{isArabic ? "مكافأة" : "Bonus"}</SelectItem>
+                      <SelectItem value="refund">{isArabic ? "استرداد" : "Refund"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -511,7 +511,15 @@ export default function AdminCredits() {
                                     tx.type === 'bonus' ? 'bg-purple-100 text-purple-800' :
                                     'bg-red-100 text-red-800'
                                   }`}>
-                                    {tx.type}
+                                    {isArabic ? (
+                                      tx.type === 'purchase' ? 'شراء' :
+                                      tx.type === 'usage' ? 'استخدام' :
+                                      tx.type === 'bonus' ? 'مكافأة' :
+                                      tx.type === 'refund' ? 'استرداد' :
+                                      tx.type === 'adjustment' ? 'تعديل' : tx.type
+                                    ) : (
+                                      tx.type.charAt(0).toUpperCase() + tx.type.slice(1)
+                                    )}
                                   </span>
                                 </TableCell>
                                 <TableCell className={`text-right font-medium ${

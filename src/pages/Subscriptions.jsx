@@ -304,7 +304,7 @@ export default function Subscriptions() {
                                   tx.type === 'bonus' ? 'bg-purple-500 text-white border-purple-600' :
                                   'bg-red-500 text-white border-red-600'
                                 }`}>
-                                  {tx.type}
+                                  {t(`subscriptions.${tx.type}`)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-slate-600 flex items-center gap-2">
