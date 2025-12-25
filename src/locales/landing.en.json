@@ -113,57 +113,136 @@
   "footerDesc": "Empowering entrepreneurs to turn software ideas into reality with AI-powered strategies and comprehensive education.",
   "legal": "Legal",
   "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
   "ideaSecurity": "Idea Security",
-  "copyright": "© 2024 Planlyze. All rights reserved."
-  ,
-  "privacyPolicy.title": "Privacy Policy",
-  "privacyPolicy.lastUpdated": "Last Updated: Jan 2026",
-  "privacyPolicy.backToHome": "Back to Home",
-  "privacyPolicy.intro": "At Planlyze, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered business strategy platform.",
-  "privacyPolicy.section1Title": "Information We Collect",
-  "privacyPolicy.section1Content": "We collect information that you provide directly to us, including your name, email address, business ideas, and any other information you choose to provide when using our platform. We also automatically collect certain information about your device and how you interact with our services.",
-  "privacyPolicy.section2Title": "How We Use Your Information",
-  "privacyPolicy.section2Content": "We use the information we collect to provide, maintain, and improve our services, to process your requests, to communicate with you, and to develop new features. Your business ideas and strategies are used solely to generate personalized reports and are not shared with third parties.",
-  "privacyPolicy.section3Title": "Data Security",
-  "privacyPolicy.section3Content": "We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. All data is encrypted in transit and at rest using industry-standard protocols.",
-  "privacyPolicy.section4Title": "Information Sharing",
-  "privacyPolicy.section4Content": "We do not sell, trade, or rent your personal information to third parties. We may share your information only with service providers who assist us in operating our platform, conducting our business, or serving our users, and only to the extent necessary.",
-  "privacyPolicy.section5Title": "Your Rights",
-  "privacyPolicy.section5Content": "You have the right to access, update, or delete your personal information at any time. You can also opt-out of marketing communications and request a copy of your data. Contact us at info@planlyze.com to exercise these rights.",
-  "privacyPolicy.section6Title": "Cookies and Tracking",
-  "privacyPolicy.section6Content": "We use cookies and similar tracking technologies to track activity on our platform and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.",
-  "privacyPolicy.section7Title": "Changes to This Policy",
-  "privacyPolicy.section7Content": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the 'Last Updated' date.",
-  "privacyPolicy.section8Title": "Contact Us",
-  "privacyPolicy.section8Content": "If you have any questions about this Privacy Policy, please contact us at info@planlyze.com or through our support channels.",
+  "copyright": "© 2025 Planlyze. All rights reserved.",
 
-  "ideaSecurity.title": "Idea Security",
+  "privacyPolicy.title": "Privacy Policy",
+  "privacyPolicy.lastUpdated": "Last Updated: January 2025",
+  "privacyPolicy.backToHome": "Back to Home",
+  "privacyPolicy.intro": "At Planlyze, we are committed to protecting your privacy and ensuring the security of your personal information. As an AI-powered business strategy platform, we understand the sensitive nature of your business ideas and data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information in compliance with applicable data protection laws.",
+
+  "privacyPolicy.section1Title": "Information We Collect",
+  "privacyPolicy.section1Content": "We collect several types of information: (1) Account Information: name, email address, phone number, country, and preferred language when you register; (2) Business Idea Data: your business concepts, industry preferences, target markets, and any details you provide for analysis; (3) Payment Information: processed securely through third-party payment providers - we do not store complete payment card details; (4) Usage Data: how you interact with our platform, features used, and session analytics; (5) Device Information: browser type, IP address, device identifiers, and operating system for security and optimization purposes.",
+
+  "privacyPolicy.section2Title": "How We Use Your Information",
+  "privacyPolicy.section2Content": "Your information is used to: (1) Generate personalized AI-powered business analysis reports; (2) Provide and improve our platform services; (3) Process transactions and manage your account; (4) Communicate service updates, security alerts, and support responses; (5) Analyze usage patterns to enhance user experience; (6) Comply with legal obligations and protect against fraud. We explicitly DO NOT use your business ideas to train our AI models or share them with third parties.",
+
+  "privacyPolicy.section3Title": "AI Processing & Data Handling",
+  "privacyPolicy.section3Content": "Your business ideas are processed by our AI system to generate strategic reports. Important: (1) Your ideas are processed in real-time and not stored for AI training purposes; (2) We use third-party AI providers (Anthropic Claude) with strict data processing agreements; (3) AI providers are contractually prohibited from using your data for their own training; (4) Generated reports are stored securely and accessible only to you; (5) We implement prompt isolation to prevent cross-user data leakage.",
+
+  "privacyPolicy.section4Title": "Data Security Measures",
+  "privacyPolicy.section4Content": "We implement comprehensive security measures: (1) 256-bit AES encryption for data at rest; (2) TLS 1.3 encryption for all data in transit; (3) Regular security audits and vulnerability assessments; (4) Access controls with role-based permissions; (5) Secure cloud infrastructure with enterprise-grade protection; (6) Regular backups with encrypted storage; (7) Incident response procedures for potential breaches.",
+
+  "privacyPolicy.section5Title": "Data Sharing & Third Parties",
+  "privacyPolicy.section5Content": "We do not sell, rent, or trade your personal information. We may share data with: (1) Service Providers: hosting, payment processing, and analytics services under strict confidentiality agreements; (2) AI Processing Partners: Anthropic for AI analysis, bound by data processing agreements; (3) Legal Requirements: when required by law, court order, or to protect our rights; (4) Business Transfers: in the event of merger or acquisition, with continued privacy protections.",
+
+  "privacyPolicy.section6Title": "Your Rights & Controls",
+  "privacyPolicy.section6Content": "You have the right to: (1) Access your personal data and request a copy; (2) Correct inaccurate or incomplete information; (3) Delete your account and associated data; (4) Export your data in a portable format; (5) Opt-out of marketing communications; (6) Restrict or object to certain data processing; (7) Withdraw consent where processing is based on consent. Contact info@planlyze.com to exercise these rights.",
+
+  "privacyPolicy.section7Title": "Data Retention",
+  "privacyPolicy.section7Content": "We retain your data as follows: (1) Account information: retained while your account is active and for 3 years after deletion for legal compliance; (2) Generated reports: retained until you delete them or close your account; (3) Transaction records: retained for 7 years for tax and legal requirements; (4) Usage logs: retained for 2 years for analytics and security; (5) Upon account deletion, personal data is permanently removed within 30 days, except where retention is legally required.",
+
+  "privacyPolicy.section8Title": "Cookies & Tracking Technologies",
+  "privacyPolicy.section8Content": "We use cookies and similar technologies for: (1) Essential Functions: authentication, security, and session management; (2) Analytics: understanding usage patterns to improve our service; (3) Preferences: remembering your language and display settings. You can manage cookie preferences in your browser settings. Blocking essential cookies may affect platform functionality.",
+
+  "privacyPolicy.section9Title": "International Data Transfers",
+  "privacyPolicy.section9Content": "Your data may be processed in countries outside your residence. We ensure appropriate safeguards through: (1) Standard contractual clauses approved by regulatory authorities; (2) Selecting processors with adequate data protection certifications; (3) Implementing technical measures to protect data during transfer. For users in the EU/EEA, we comply with GDPR transfer requirements.",
+
+  "privacyPolicy.section10Title": "Children's Privacy",
+  "privacyPolicy.section10Content": "Planlyze is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If we discover that a child has provided us with personal information, we will promptly delete it. If you believe a child has provided us with their data, please contact us immediately.",
+
+  "privacyPolicy.section11Title": "Changes to This Policy",
+  "privacyPolicy.section11Content": "We may update this Privacy Policy periodically. We will notify you of significant changes via email or platform notification. The 'Last Updated' date indicates when changes were made. Continued use of the platform after changes constitutes acceptance of the updated policy.",
+
+  "privacyPolicy.section12Title": "Contact Us",
+  "privacyPolicy.section12Content": "For privacy-related inquiries, data requests, or complaints, contact us at: Email: info@planlyze.com. We aim to respond to all requests within 30 days. If you are unsatisfied with our response, you may lodge a complaint with your local data protection authority.",
+
+  "termsOfService.title": "Terms of Service",
+  "termsOfService.lastUpdated": "Last Updated: January 2025",
+  "termsOfService.backToHome": "Back to Home",
+  "termsOfService.intro": "Welcome to Planlyze. These Terms of Service ('Terms') govern your access to and use of our AI-powered business analysis platform. By creating an account or using our services, you agree to be bound by these Terms. Please read them carefully.",
+
+  "termsOfService.section1Title": "Acceptance of Terms",
+  "termsOfService.section1Content": "By accessing or using Planlyze, you confirm that: (1) You are at least 18 years old; (2) You have the legal capacity to enter into binding agreements; (3) You will comply with these Terms and all applicable laws; (4) If using on behalf of an organization, you have authority to bind that organization. If you do not agree to these Terms, you must not use our platform.",
+
+  "termsOfService.section2Title": "Description of Services",
+  "termsOfService.section2Content": "Planlyze provides AI-powered business analysis services including: (1) Business idea validation and analysis; (2) Market research and competitor analysis reports; (3) Technical architecture recommendations; (4) Financial projections and strategy planning; (5) Interactive AI assistant for report clarification. Our services are informational and advisory in nature - they do not constitute professional business, legal, or financial advice.",
+
+  "termsOfService.section3Title": "Account Registration & Security",
+  "termsOfService.section3Content": "To use Planlyze, you must: (1) Provide accurate, current, and complete registration information; (2) Maintain the security and confidentiality of your login credentials; (3) Notify us immediately of any unauthorized access; (4) Not share your account or transfer it to others. You are responsible for all activities under your account. We reserve the right to suspend or terminate accounts that violate these Terms.",
+
+  "termsOfService.section4Title": "Credits & Payment Terms",
+  "termsOfService.section4Content": "Our credit-based system works as follows: (1) Credits are required for premium report generation; (2) Free reports have limited features and analysis depth; (3) Credits are purchased in advance and are non-refundable once used; (4) Unused credits do not expire for single purchases; bundle credits expire after 12 months; (5) Prices are subject to change with 30 days notice; (6) Refunds are available within 7 days of purchase for unused credits only; (7) We reserve the right to modify credit requirements for services.",
+
+  "termsOfService.section5Title": "Intellectual Property Rights",
+  "termsOfService.section5Content": "Ownership is divided as follows: (1) Your Content: You retain all rights to your business ideas, concepts, and information you submit; (2) Generated Reports: You own the generated analysis reports for your personal and business use; (3) Platform IP: Planlyze owns all rights to the platform, including AI models, algorithms, design, and underlying technology; (4) Feedback: Any suggestions or feedback you provide may be used by us without obligation. You grant us a limited license to process your content solely to provide our services.",
+
+  "termsOfService.section6Title": "Acceptable Use Policy",
+  "termsOfService.section6Content": "You agree not to: (1) Use the platform for illegal purposes or to promote illegal activities; (2) Submit content that is defamatory, obscene, or violates third-party rights; (3) Attempt to reverse-engineer, hack, or compromise platform security; (4) Circumvent usage limits, access controls, or payment systems; (5) Use automated systems to access the platform without permission; (6) Resell, redistribute, or commercially exploit our services without authorization; (7) Submit false or misleading information; (8) Interfere with other users' access to the platform.",
+
+  "termsOfService.section7Title": "AI-Generated Content Disclaimer",
+  "termsOfService.section7Content": "You acknowledge that: (1) Reports are generated by artificial intelligence and may contain errors or inaccuracies; (2) AI analysis is based on available data and algorithms, not guaranteed predictions; (3) Reports are for informational purposes and should not replace professional advice; (4) Market conditions, regulations, and circumstances change - reports reflect analysis at generation time; (5) You are responsible for verifying information and making independent business decisions; (6) We do not guarantee business success or specific outcomes from using our analysis.",
+
+  "termsOfService.section8Title": "Limitation of Liability",
+  "termsOfService.section8Content": "To the maximum extent permitted by law: (1) Planlyze is provided 'as is' without warranties of any kind; (2) We disclaim all implied warranties including merchantability and fitness for purpose; (3) We are not liable for indirect, incidental, special, or consequential damages; (4) Our total liability shall not exceed the amount you paid us in the 12 months prior to the claim; (5) We are not responsible for decisions made based on our reports; (6) We do not guarantee uninterrupted or error-free service.",
+
+  "termsOfService.section9Title": "Indemnification",
+  "termsOfService.section9Content": "You agree to indemnify, defend, and hold harmless Planlyze, its officers, directors, employees, and agents from any claims, damages, losses, or expenses (including legal fees) arising from: (1) Your use of the platform; (2) Your violation of these Terms; (3) Your violation of any third-party rights; (4) Content you submit to the platform; (5) Your business activities based on our reports.",
+
+  "termsOfService.section10Title": "Termination",
+  "termsOfService.section10Content": "Either party may terminate this agreement: (1) You may close your account at any time through settings or by contacting support; (2) We may suspend or terminate accounts for Terms violations; (3) We may discontinue services with 30 days notice; (4) Upon termination, your right to use the platform ends immediately; (5) Provisions regarding IP, liability, and indemnification survive termination; (6) No refunds are provided for unused credits upon voluntary termination.",
+
+  "termsOfService.section11Title": "Dispute Resolution",
+  "termsOfService.section11Content": "Any disputes arising from these Terms shall be: (1) First attempted to be resolved through good-faith negotiation; (2) If unresolved after 30 days, submitted to binding arbitration; (3) Arbitration shall be conducted in accordance with applicable arbitration rules; (4) The arbitration decision shall be final and binding; (5) Each party bears its own arbitration costs unless otherwise determined. You waive the right to participate in class action lawsuits against Planlyze.",
+
+  "termsOfService.section12Title": "Governing Law",
+  "termsOfService.section12Content": "These Terms shall be governed by and construed in accordance with applicable laws. Any legal proceedings shall be brought in courts of competent jurisdiction. If any provision is found unenforceable, the remaining provisions continue in effect.",
+
+  "termsOfService.section13Title": "Modifications to Terms",
+  "termsOfService.section13Content": "We reserve the right to modify these Terms at any time. We will notify you of material changes via email or platform notification at least 30 days before they take effect. Continued use after the effective date constitutes acceptance. If you disagree with changes, you must stop using the platform and close your account.",
+
+  "termsOfService.section14Title": "Contact Information",
+  "termsOfService.section14Content": "For questions about these Terms, contact us at: Email: info@planlyze.com. We aim to respond to all inquiries within 5 business days.",
+
+  "ideaSecurity.title": "Idea Security & Confidentiality",
   "ideaSecurity.subtitle": "Your Ideas Are Safe With Us",
   "ideaSecurity.backToHome": "Back to Home",
-  "ideaSecurity.intro": "We understand that your business ideas are your most valuable assets. At Planlyze, we've implemented comprehensive security measures to ensure your ideas remain confidential and protected.",
+  "ideaSecurity.intro": "Your business ideas are your most valuable intellectual assets. At Planlyze, we understand the competitive nature of entrepreneurship and have implemented enterprise-grade security measures to ensure your ideas remain completely confidential and protected from unauthorized access.",
+
   "ideaSecurity.section1Title": "End-to-End Encryption",
-  "ideaSecurity.section1Content": "All data transmitted between your device and our servers is protected using industry-standard TLS/SSL encryption. Your ideas are encrypted both in transit and at rest, ensuring no unauthorized access.",
-  "ideaSecurity.section2Title": "Zero Data Sharing",
-  "ideaSecurity.section2Content": "We never sell, share, or distribute your business ideas to third parties. Your ideas are used exclusively to generate your personalized reports and are never used to train our AI models or shared with competitors.",
-  "ideaSecurity.section3Title": "Secure Infrastructure",
-  "ideaSecurity.section3Content": "Our platform is hosted on enterprise-grade cloud infrastructure with multiple layers of security, including firewalls, intrusion detection systems, and regular security audits by independent third parties.",
-  "ideaSecurity.section4Title": "Access Control",
-  "ideaSecurity.section4Content": "Your data is protected by strict access controls. Only you have access to your ideas and generated reports. Our team members have no access to your confidential business information.",
-  "ideaSecurity.section5Title": "Data Retention",
-  "ideaSecurity.section5Content": "You have complete control over your data. You can delete your ideas and reports at any time, and they will be permanently removed from our systems within 30 days.",
+  "ideaSecurity.section1Content": "All data transmitted between your device and our servers is protected using TLS 1.3 encryption with perfect forward secrecy. Your ideas are encrypted both in transit and at rest using 256-bit AES encryption, the same standard used by financial institutions and government agencies.",
+
+  "ideaSecurity.section2Title": "Zero Data Sharing Policy",
+  "ideaSecurity.section2Content": "We have a strict zero-sharing policy: (1) Your business ideas are NEVER sold, shared, or distributed to third parties; (2) Your ideas are NOT used to train our AI models or any external AI systems; (3) We do not share data with competitors, investors, or other users; (4) Our AI processing partner (Anthropic) is contractually prohibited from retaining or using your data; (5) Employee access to user data is strictly limited and logged.",
+
+  "ideaSecurity.section3Title": "Secure Cloud Infrastructure",
+  "ideaSecurity.section3Content": "Our platform is hosted on enterprise-grade cloud infrastructure featuring: (1) SOC 2 Type II certified data centers; (2) Multiple layers of firewalls and intrusion detection systems; (3) DDoS protection and threat mitigation; (4) Automatic failover and disaster recovery systems; (5) Geographic data redundancy for reliability; (6) Regular security audits by independent third parties.",
+
+  "ideaSecurity.section4Title": "Strict Access Controls",
+  "ideaSecurity.section4Content": "Your data is protected by comprehensive access controls: (1) Only you can access your ideas and generated reports; (2) Role-based access ensures employees only access necessary data; (3) All access is logged and monitored for anomalies; (4) Two-factor authentication available for enhanced account security; (5) Automatic session timeout for inactive accounts; (6) IP-based access monitoring and suspicious activity alerts.",
+
+  "ideaSecurity.section5Title": "Data Retention & Deletion",
+  "ideaSecurity.section5Content": "You have complete control over your data: (1) Delete individual reports or ideas at any time; (2) Request complete account deletion with full data removal; (3) Deleted data is permanently removed from active systems within 30 days; (4) Backup data is purged within 90 days of deletion request; (5) We provide data export in standard formats upon request; (6) No 'soft delete' - when you delete, the data is truly removed.",
+
   "ideaSecurity.section6Title": "Compliance & Certifications",
-  "ideaSecurity.section6Content": "We comply with international data protection regulations including GDPR. Our security practices are regularly reviewed and updated to meet the highest industry standards.",
+  "ideaSecurity.section6Content": "We maintain compliance with international standards: (1) GDPR compliance for European users; (2) Regular security assessments and penetration testing; (3) Employee background checks and security training; (4) Vendor security assessments for all third-party services; (5) Incident response procedures with 24-hour notification commitment; (6) Data processing agreements with all service providers.",
+
   "ideaSecurity.guaranteeTitle": "Our Security Guarantee",
   "ideaSecurity.guaranteeItems": [
     "256-bit AES encryption for all stored data",
-    "Regular security audits and penetration testing",
-    "24/7 monitoring and threat detection",
-    "Secure backup and disaster recovery",
-    "Dedicated security team",
-    "Bug bounty program"
+    "TLS 1.3 encryption for all data in transit",
+    "No AI training on your submitted ideas",
+    "Regular third-party security audits",
+    "24/7 infrastructure monitoring and threat detection",
+    "Secure backup with encrypted storage",
+    "Strict employee access controls and NDA requirements",
+    "30-day complete data deletion guarantee"
   ],
+
   "ideaSecurity.confidentialityTitle": "Confidentiality Commitment",
-  "ideaSecurity.confidentialityContent": "We treat every idea submitted to our platform with the highest level of confidentiality. All our employees and contractors sign strict non-disclosure agreements. We understand the competitive nature of business and take every measure to protect your intellectual property.",
-  "ideaSecurity.contactTitle": "Security Questions?",
-  "ideaSecurity.contactContent": "If you have any questions about our security measures or need to report a security concern, please contact our security team at info@planlyze.com"
+  "ideaSecurity.confidentialityContent": "Every idea submitted to Planlyze is treated with the highest level of confidentiality: (1) All employees and contractors sign comprehensive Non-Disclosure Agreements; (2) We operate on a strict need-to-know basis for data access; (3) Our AI processing is designed with privacy-by-design principles; (4) We never review your ideas for purposes other than providing our service; (5) Legal hold procedures protect your data from unauthorized disclosure.",
+
+  "ideaSecurity.contactTitle": "Security Questions or Concerns?",
+  "ideaSecurity.contactContent": "If you have questions about our security measures, need to report a security concern, or want to request a security audit report, please contact our security team at: info@planlyze.com. We take all security reports seriously and aim to respond within 24 hours."
 }

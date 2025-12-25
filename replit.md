@@ -195,7 +195,53 @@ Users can control their notification preferences in their profile. Default prefe
 - Service: `server/services/user_notification_service.py`
 - Functions: `notify_referral_joined()`, `notify_credits_changed()`, `notify_analysis_completed()`, `notify_payment_status_changed()`, `notify_low_credits()`, `notify_shared_report_opened()`
 
+## Legal Pages
+The platform includes comprehensive legal documentation designed for an AI tech startup:
+
+### Privacy Policy (`/PrivacyPolicy`)
+- 12 comprehensive sections covering:
+  - Information collection and usage
+  - AI processing and data handling (specifically addresses AI provider agreements)
+  - Data security measures (encryption, access controls)
+  - Third-party data sharing policies
+  - User rights and controls (GDPR-compliant)
+  - Data retention policies
+  - Cookies and tracking
+  - International data transfers
+  - Children's privacy
+  - Policy updates and contact information
+
+### Terms of Service (`/TermsOfService`)
+- 14 comprehensive sections covering:
+  - Service description and acceptance of terms
+  - Account registration and security
+  - Credits and payment terms (non-refundable once used)
+  - Intellectual property rights
+  - Acceptable use policy
+  - AI-generated content disclaimer
+  - Limitation of liability
+  - Indemnification
+  - Termination conditions
+  - Dispute resolution
+  - Governing law
+
+### Idea Security (`/IdeaSecurity`)
+- Comprehensive confidentiality guarantees including:
+  - End-to-end encryption (TLS 1.3, AES-256)
+  - Zero data sharing policy
+  - No AI training on submitted ideas
+  - Strict access controls
+  - 30-day complete data deletion guarantee
+  - SOC 2 compliant infrastructure
+
+All legal pages are bilingual (English/Arabic) with RTL support.
+
 ## Recent Changes
+- Enhanced legal documentation for AI tech startup compliance
+- Added comprehensive Terms of Service page with 14 sections
+- Enhanced Privacy Policy with 12 sections including AI-specific clauses
+- Enhanced Idea Security with 8-point security guarantee
+- Updated copyright to 2025
 - Added user notification system with preference controls
 - Added admin notification system for contact messages, failed analyses, payments, server errors, and ratings
 - Partners section now loads from database with bilingual support

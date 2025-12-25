@@ -80,6 +80,9 @@ export default function Footer() {
               <Link to={createPageUrl('PrivacyPolicy')} className="block text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors duration-300">
                 {t.privacyPolicy}
               </Link>
+              <Link to={createPageUrl('TermsOfService')} className="block text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors duration-300">
+                {t.termsOfService}
+              </Link>
               <Link to={createPageUrl('IdeaSecurity')} className="block text-gray-600 dark:text-gray-400 hover:text-orange-500 transition-colors duration-300">
                 {t.ideaSecurity}
               </Link>

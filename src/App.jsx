@@ -13,6 +13,7 @@ import Register from '@/pages/Register';
 import VerifyEmail from '@/pages/VerifyEmail';
 import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
 import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
+import TermsOfServicePage from '@/landing/pages/TermsOfService';
 import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
 import i18n from '@/i18n/config';
 import { ThemeProvider } from 'next-themes';
@@ -87,6 +88,7 @@ const AuthenticatedApp = () => {
       <Route path="/verify-email" element={<VerifyEmail />} />
       {/* Public legal / info pages */}
       <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
+      <Route path="/TermsOfService" element={<TermsOfServicePage />} />
       <Route path="/IdeaSecurity" element={<IdeaSecurityPage />} />
       <Route path="/landing" element={<PlanlyzeAIPage />} />
       <Route path="/" element={
