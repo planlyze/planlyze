@@ -1424,7 +1424,7 @@ export default function AnalysisResult() {
                           {isUIArabic ? "مشاركة التقرير" : "Share Report"}
                         </Button>
                         
-                        {isPremium ? (
+                        {isPremium && (
                           <>
                             <Button
                               onClick={handleDownloadPdf}
@@ -1444,17 +1444,20 @@ export default function AnalysisResult() {
                               {isDownloadingCsv ? (isUIArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isUIArabic ? 'تحميل CSV' : 'Download CSV')}
                             </Button>
                           </>
-                        ) : (
-                          <Button
-                            onClick={() => navigate(createPageUrl("Credits"))}
-                            variant="outline"
-                            className="gap-2 flex-1 min-w-[150px] h-12"
-                          >
-                            <Download className="w-5 h-5" />
-                            {isUIArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
-                          </Button>
                         )}
                       </div>
+                      {!isPremium && (
+                        <div className="mt-4">
+                          <LockedContent
+                            title={isUIArabic ? "تصدير التقرير" : "Export Report"}
+                            description={isUIArabic ? "قم بالترقية إلى التقرير المتميز لتصدير التحليل كملف PDF أو CSV" : "Upgrade to premium report to export your analysis as PDF or CSV"}
+                            isArabic={isUIArabic}
+                            onUnlock={handleUpgradeToPremium}
+                            isUnlocking={isUpgrading}
+                            variant="inline"
+                          />
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </>
