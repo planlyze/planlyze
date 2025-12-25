@@ -285,28 +285,29 @@ export default function AdminReports() {
                         <Badge className={getTypeColor(report.is_premium)}>
                           {report.is_premium ? "Premium" : "Free"}
                         </Badge>
-                        <Select 
-                          value={report.status} 
-                          onValueChange={(value) => handleStatusChange(report.id, value)}
-                          disabled={updatingStatus === report.id}
-                        >
-                          <SelectTrigger 
-                            className={`w-[130px] h-7 text-xs ${getStatusColor(report.status)}`}
-                            onClick={(e) => e.stopPropagation()}
+                        <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                          <Select 
+                            value={report.status} 
+                            onValueChange={(value) => handleStatusChange(report.id, value)}
+                            disabled={updatingStatus === report.id}
                           >
-                            {updatingStatus === report.id ? (
-                              <RefreshCw className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <SelectValue />
-                            )}
-                          </SelectTrigger>
-                          <SelectContent onClick={(e) => e.stopPropagation()}>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="processing">Processing</SelectItem>
-                            <SelectItem value="failed">Failed</SelectItem>
-                          </SelectContent>
-                        </Select>
+                            <SelectTrigger 
+                              className={`w-[130px] h-7 text-xs ${getStatusColor(report.status)}`}
+                            >
+                              {updatingStatus === report.id ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <SelectValue />
+                              )}
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="processing">Processing</SelectItem>
+                              <SelectItem value="failed">Failed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
