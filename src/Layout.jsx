@@ -86,6 +86,13 @@ const baseNavigationItems = [
 
 const adminNavigationItems = [
   {
+    id: "admin_users",
+    title: "All Users",
+    url: createPageUrl("AdminUsers"),
+    icon: UserIcon,
+    requiredPermissions: [PERMISSIONS.VIEW_USERS]
+  },
+  {
     id: "admin_reports",
     title: "All Reports",
     url: createPageUrl("AdminReports"),
