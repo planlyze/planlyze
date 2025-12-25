@@ -1597,7 +1597,7 @@ def get_discount_code_users(user, id):
     if not code:
         return jsonify({'error': 'Discount code not found'}), 404
     
-    payments = Payment.query.filter_by(discount_code=code.code).order_by(Payment.created_at.desc()).all()
+    payments = Payment.query.filter_by(discount_code=code.code, status='approved').order_by(Payment.created_at.desc()).all()
     
     users_data = []
     for payment in payments:
