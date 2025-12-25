@@ -369,9 +369,9 @@ export default function Subscriptions() {
 
       {/* Payment Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir={isArabic ? 'rtl' : 'ltr'}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border dark:border-gray-700" dir={isArabic ? 'rtl' : 'ltr'}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-xl">
+            <DialogTitle className="flex items-center gap-3 text-xl text-slate-800 dark:text-white">
               <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
                 <Banknote className="w-6 h-6 text-white" />
               </div>
@@ -480,7 +480,7 @@ export default function Subscriptions() {
 
               {/* Close Button */}
               <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-                <Button onClick={() => setIsDetailsOpen(false)} variant="outline" className="px-6">
+                <Button onClick={() => setIsDetailsOpen(false)} variant="outline" className="px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                   {isArabic ? "إغلاق" : "Close"}
                 </Button>
               </div>
