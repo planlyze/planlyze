@@ -291,7 +291,7 @@ export default function CashPaymentModal({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600 dark:text-gray-400">
-                  {isArabic ? "السعر:" : "Price:"}
+                  {isArabic ? "السعر (USD):" : "Price (USD):"}
                 </span>
                 <span className="font-bold text-purple-700 dark:text-purple-400">
                   ${selectedPackage.price}
@@ -308,11 +308,17 @@ export default function CashPaymentModal({
                         : `$${appliedDiscount.discount_amount || 0}`}
                     </span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-green-600 dark:text-green-400 pt-2 border-t border-purple-200 dark:border-purple-700">
-                    <span>{isArabic ? "المجموع:" : "Total:"}</span>
+                  <div className="flex justify-between text-base font-bold text-green-600 dark:text-green-400 pt-2 border-t border-purple-200 dark:border-purple-700">
+                    <span>{isArabic ? "المجموع (USD):" : "Total (USD):"}</span>
                     <span>${calculateFinalAmount().toFixed(2)}</span>
                   </div>
                 </>
+              )}
+              {selectedCurrency && selectedCurrency.code !== 'USD' && (
+                <div className="flex justify-between text-base font-bold text-blue-600 dark:text-blue-400 pt-2 border-t border-purple-200 dark:border-purple-700">
+                  <span>{isArabic ? `المجموع (${selectedCurrency.code}):` : `Total (${selectedCurrency.code}):`}</span>
+                  <span>{formatCurrencyAmount(calculateCurrencyAmount(), selectedCurrency)}</span>
+                </div>
               )}
             </div>
           </div>
@@ -347,21 +353,31 @@ export default function CashPaymentModal({
                 </SelectContent>
               </Select>
               {selectedCurrency && selectedCurrency.code !== 'USD' && (
-                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-blue-700 dark:text-blue-300">
-                      {isArabic ? "المبلغ المطلوب:" : "Amount to pay:"}
-                    </span>
-                    <span className="text-lg font-bold text-blue-800 dark:text-blue-200">
-                      {formatCurrencyAmount(calculateCurrencyAmount(), selectedCurrency)}
-                    </span>
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-200 dark:border-blue-600">
+                      <span className="text-sm font-medium text-slate-600 dark:text-gray-400">
+                        {isArabic ? "المبلغ المستحق (USD):" : "Amount due (USD):"}
+                      </span>
+                      <span className="text-base font-bold text-slate-700 dark:text-gray-300">
+                        ${calculateFinalAmount().toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        {isArabic ? `المبلغ المطلوب (${selectedCurrency.code}):` : `Amount to pay (${selectedCurrency.code}):`}
+                      </span>
+                      <span className="text-xl font-bold text-blue-800 dark:text-blue-200">
+                        {formatCurrencyAmount(calculateCurrencyAmount(), selectedCurrency)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 pt-2 border-t border-blue-200 dark:border-blue-600">
+                      {isArabic 
+                        ? `سعر الصرف: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
+                        : `Exchange rate: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
+                      }
+                    </p>
                   </div>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    {isArabic 
-                      ? `سعر الصرف: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
-                      : `Exchange rate: 1 USD = ${selectedCurrency.exchange_rate.toLocaleString()} ${selectedCurrency.code}`
-                    }
-                  </p>
                 </div>
               )}
             </div>
