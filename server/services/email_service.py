@@ -122,40 +122,46 @@ def send_verification_email(to_email, to_name, otp_code, lang='en'):
     return success
 
 
-def send_password_reset_email(to_email, to_name, reset_link, lang='en'):
-    """Send password reset email"""
+def send_password_reset_code_email(to_email, to_name, reset_code, lang='en'):
+    """Send password reset code email"""
     if lang == 'ar':
-        subject = "إعادة تعيين كلمة المرور - Planlyze"
+        subject = "رمز إعادة تعيين كلمة المرور - Planlyze"
         html_body = f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
             </div>
             <h2 style="color: #333;">إعادة تعيين كلمة المرور</h2>
-            <p style="color: #666; font-size: 16px;">تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بك. اضغط على الزر أدناه:</p>
+            <p style="color: #666; font-size: 16px;">تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بك. رمز التحقق الخاص بك هو:</p>
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_link}" style="background: linear-gradient(135deg, #581c87 0%, #ea580c 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-size: 16px; display: inline-block;">إعادة تعيين كلمة المرور</a>
+                <div style="background: linear-gradient(135deg, #581c87 0%, #ea580c 100%); padding: 25px 40px; border-radius: 12px; display: inline-block;">
+                    <span style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: white;">{reset_code}</span>
+                </div>
             </div>
+            <p style="color: #666; font-size: 14px;">أدخل هذا الرمز في صفحة إعادة تعيين كلمة المرور.</p>
             <p style="color: #999; font-size: 14px;">إذا لم تطلب إعادة التعيين، يمكنك تجاهل هذا البريد.</p>
-            <p style="color: #ea580c; font-size: 14px; font-weight: bold;">هذا الرابط صالح لمدة ساعة واحدة.</p>
+            <p style="color: #ea580c; font-size: 14px; font-weight: bold;">هذا الرمز صالح لمدة 15 دقيقة.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px; text-align: center;">فريق Planlyze</p>
         </div>
         """
     else:
-        subject = "Reset Your Password - Planlyze"
+        subject = "Password Reset Code - Planlyze"
         html_body = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h1 style="color: #581c87; margin: 0;">Planlyze</h1>
             </div>
             <h2 style="color: #333;">Password Reset Request</h2>
-            <p style="color: #666; font-size: 16px;">We received a request to reset your password. Click the button below:</p>
+            <p style="color: #666; font-size: 16px;">We received a request to reset your password. Your reset code is:</p>
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_link}" style="background: linear-gradient(135deg, #581c87 0%, #ea580c 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-size: 16px; display: inline-block;">Reset Password</a>
+                <div style="background: linear-gradient(135deg, #581c87 0%, #ea580c 100%); padding: 25px 40px; border-radius: 12px; display: inline-block;">
+                    <span style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: white;">{reset_code}</span>
+                </div>
             </div>
+            <p style="color: #666; font-size: 14px;">Enter this code on the password reset page.</p>
             <p style="color: #999; font-size: 14px;">If you didn't request a password reset, you can ignore this email.</p>
-            <p style="color: #ea580c; font-size: 14px; font-weight: bold;">This link is valid for 1 hour.</p>
+            <p style="color: #ea580c; font-size: 14px; font-weight: bold;">This code is valid for 15 minutes.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px; text-align: center;">The Planlyze Team</p>
         </div>

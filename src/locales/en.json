@@ -67,7 +67,30 @@
     "sendResetLink": "Send Reset Link",
     "resetLinkSent": "Password reset link sent to your email",
     "newPassword": "New Password",
-    "passwordResetSuccess": "Password reset successfully"
+    "passwordResetSuccess": "Password reset successfully",
+    "passwordsDoNotMatch": "Passwords do not match"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "description": "Enter your email address and we'll send you a code to reset your password",
+    "verifyTitle": "Verify Code",
+    "verifyDescription": "Enter the 6-digit code sent to your email",
+    "resetTitle": "Reset Password",
+    "resetDescription": "Enter your new password",
+    "sendCode": "Send Reset Code",
+    "codeSent": "Reset code sent to your email",
+    "codeSentTo": "We sent a 6-digit code to",
+    "codeVerified": "Code verified successfully",
+    "verifyCode": "Verify Code",
+    "resendCode": "Resend Code",
+    "resendIn": "Resend in",
+    "changeEmail": "Change email",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordsMatch": "Passwords match",
+    "resetPassword": "Reset Password",
+    "passwordResetSuccess": "Password reset successfully! You can now login.",
+    "backToLogin": "Back to Login"
   },
   "dashboard": {
     "title": "Your Dashboard",

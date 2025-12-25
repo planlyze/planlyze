@@ -77,7 +77,12 @@ export default function Login() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">{t('auth.password')}</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">{t('auth.password')}</Label>
+                  <Link to="/forgot-password" className="text-sm text-orange-500 hover:text-orange-600 hover:underline transition-colors duration-200">
+                    {t('auth.forgotPassword')}
+                  </Link>
+                </div>
                 <div className={`relative transition-all duration-300 ${focusedField === 'password' ? 'scale-[1.02]' : ''}`}>
                   <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'password' ? 'text-orange-500' : 'text-gray-400'}`} />
                   <Input

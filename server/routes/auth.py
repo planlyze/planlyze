@@ -4,7 +4,8 @@ from server.utils.translations import get_message, get_language
 from server.services.email_service import (
     send_verification_email, 
     send_referral_bonus_email_to_referrer,
-    send_referral_bonus_email_to_referred
+    send_referral_bonus_email_to_referred,
+    send_password_reset_code_email
 )
 import bcrypt
 import jwt
@@ -572,3 +573,196 @@ def logout():
     """
     lang = get_language(request.headers)
     return jsonify({'message': get_message('auth.logout_success', lang)})
+
+
+@auth_bp.route('/forgot-password/request', methods=['POST'])
+def forgot_password_request():
+    """
+    Request password reset code
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+          required:
+            - email
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Password reset code sent if email exists
+    """
+    data = request.get_json()
+    lang = get_language(request.headers)
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'error': get_message('auth.email_required', lang)}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if user and user.is_active:
+        reset_token = generate_verification_token()
+        reset_expires = datetime.utcnow() + timedelta(minutes=15)
+        
+        user.password_reset_token = reset_token
+        user.password_reset_token_expires = reset_expires
+        user.password_reset_attempts = 0
+        db.session.commit()
+        
+        user_lang = user.language or lang
+        send_password_reset_code_email(email, user.full_name, reset_token, user_lang)
+    
+    return jsonify({
+        'message': get_message('auth.reset_code_sent', lang),
+        'email': email
+    })
+
+
+@auth_bp.route('/forgot-password/verify', methods=['POST'])
+def forgot_password_verify():
+    """
+    Verify password reset code
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+            code:
+              type: string
+          required:
+            - email
+            - code
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Code verified successfully
+      400:
+        description: Invalid or expired code
+    """
+    data = request.get_json()
+    lang = get_language(request.headers)
+    email = data.get('email')
+    code = data.get('code')
+    
+    if not email or not code:
+        return jsonify({'error': get_message('auth.email_code_required', lang)}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({'error': get_message('auth.invalid_reset_code', lang)}), 400
+    
+    if not user.password_reset_token:
+        return jsonify({'error': get_message('auth.no_reset_requested', lang)}), 400
+    
+    if user.password_reset_attempts >= 5:
+        return jsonify({'error': get_message('auth.too_many_attempts', lang)}), 400
+    
+    if user.password_reset_token != code:
+        user.password_reset_attempts = (user.password_reset_attempts or 0) + 1
+        db.session.commit()
+        return jsonify({'error': get_message('auth.invalid_reset_code', lang)}), 400
+    
+    if user.password_reset_token_expires and user.password_reset_token_expires < datetime.utcnow():
+        return jsonify({'error': get_message('auth.code_expired', lang)}), 400
+    
+    return jsonify({
+        'message': get_message('auth.code_verified', lang),
+        'verified': True
+    })
+
+
+@auth_bp.route('/forgot-password/reset', methods=['POST'])
+def forgot_password_reset():
+    """
+    Reset password with verification code
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+            code:
+              type: string
+            new_password:
+              type: string
+          required:
+            - email
+            - code
+            - new_password
+      - name: Accept-Language
+        in: header
+        type: string
+        default: en
+    responses:
+      200:
+        description: Password reset successfully
+      400:
+        description: Invalid code or password
+    """
+    data = request.get_json()
+    lang = get_language(request.headers)
+    email = data.get('email')
+    code = data.get('code')
+    new_password = data.get('new_password')
+    
+    if not email or not code or not new_password:
+        return jsonify({'error': get_message('auth.all_fields_required', lang)}), 400
+    
+    if len(new_password) < 6:
+        return jsonify({'error': get_message('auth.password_too_short', lang)}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({'error': get_message('auth.invalid_reset_code', lang)}), 400
+    
+    if not user.password_reset_token:
+        return jsonify({'error': get_message('auth.no_reset_requested', lang)}), 400
+    
+    if user.password_reset_attempts >= 5:
+        return jsonify({'error': get_message('auth.too_many_attempts', lang)}), 400
+    
+    if user.password_reset_token != code:
+        user.password_reset_attempts = (user.password_reset_attempts or 0) + 1
+        db.session.commit()
+        return jsonify({'error': get_message('auth.invalid_reset_code', lang)}), 400
+    
+    if user.password_reset_token_expires and user.password_reset_token_expires < datetime.utcnow():
+        return jsonify({'error': get_message('auth.code_expired', lang)}), 400
+    
+    user.password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    user.password_reset_token = None
+    user.password_reset_token_expires = None
+    user.password_reset_attempts = 0
+    db.session.commit()
+    
+    return jsonify({
+        'message': get_message('auth.password_reset_success', lang)
+    })

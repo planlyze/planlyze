@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import VerifyEmail from '@/pages/VerifyEmail';
+import ForgotPassword from '@/pages/ForgotPassword';
 import PlanlyzeAIPage from '@/landing/pages/PlanlyzeAI';
 import PrivacyPolicyPage from '@/landing/pages/PrivacyPolicy';
 import TermsOfServicePage from '@/landing/pages/TermsOfService';
@@ -86,6 +87,11 @@ const AuthenticatedApp = () => {
         </PublicRoute>
       } />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={
+        <PublicRoute>
+          <ForgotPassword />
+        </PublicRoute>
+      } />
       {/* Public legal / info pages */}
       <Route path="/PrivacyPolicy" element={<PrivacyPolicyPage />} />
       <Route path="/TermsOfService" element={<TermsOfServicePage />} />

@@ -63,6 +63,13 @@ export const auth = {
   updateProfile: (data) => api.put("/auth/me", data),
   changePassword: (data) => api.post("/auth/change-password", data),
   logout: () => api.post("/auth/logout"),
+  
+  forgotPasswordRequest: (email) =>
+    api.post("/auth/forgot-password/request", { email }),
+  forgotPasswordVerify: (email, code) =>
+    api.post("/auth/forgot-password/verify", { email, code }),
+  forgotPasswordReset: (email, code, new_password) =>
+    api.post("/auth/forgot-password/reset", { email, code, new_password }),
 
   setToken: (token) => localStorage.setItem("auth_token", token),
   getToken: () => localStorage.getItem("auth_token"),
