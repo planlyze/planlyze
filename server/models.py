@@ -54,6 +54,25 @@ class User(db.Model):
     role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
     
     def to_dict(self):
+        import logging
+        total_referrals = 0
+        referral_credits_earned = 0
+        try:
+            from sqlalchemy import text
+            result = db.session.execute(
+                text("SELECT COUNT(*) FROM referrals WHERE referrer_email = :email"),
+                {"email": self.email}
+            )
+            total_referrals = result.scalar() or 0
+            
+            result = db.session.execute(
+                text("SELECT COUNT(*) FROM referrals WHERE referrer_email = :email AND status = 'rewarded'"),
+                {"email": self.email}
+            )
+            referral_credits_earned = result.scalar() or 0
+        except Exception as e:
+            logging.warning(f"Failed to fetch referral stats for user {self.email}: {str(e)}")
+        
         return {
             'id': self.id,
             'email': self.email,
@@ -75,7 +94,9 @@ class User(db.Model):
             'is_active': self.is_active,
             'last_login': self.last_login.isoformat() if self.last_login else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'total_referrals': total_referrals,
+            'referral_credits_earned': referral_credits_earned
         }
 
 class Analysis(db.Model):
