@@ -6,7 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import PageLoader from "@/components/common/PageLoader";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -59,14 +59,7 @@ export default function Subscriptions() {
   const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 via-white to-orange-50">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <Skeleton className="h-10 w-80 gradient-primary opacity-20 rounded-xl" />
-          <Skeleton className="h-96 w-full gradient-primary opacity-20 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
