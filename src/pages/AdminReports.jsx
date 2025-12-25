@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { auth, Analysis, User } from "@/api/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw, Download } from "lucide-react";
+import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw, Download, X } from "lucide-react";
 import { exportToExcel, getReportsExportColumns } from "@/components/utils/excelExport";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/commo
 
 export default function AdminReports() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [users, setUsers] = useState({});
@@ -29,10 +30,15 @@ export default function AdminReports() {
   const [ratingFilter, setRatingFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [userFilter, setUserFilter] = useState("");
 
   useEffect(() => {
+    const userParam = searchParams.get("user");
+    if (userParam) {
+      setUserFilter(decodeURIComponent(userParam));
+    }
     loadReports();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const loadReports = async () => {
     setIsLoading(true);
@@ -92,7 +98,15 @@ export default function AdminReports() {
       : 'bg-slate-100 text-slate-800';
   };
 
+  const clearUserFilter = () => {
+    setUserFilter("");
+    searchParams.delete("user");
+    setSearchParams(searchParams);
+  };
+
   const filteredReports = reports.filter(r => {
+    const matchesUserFilter = !userFilter || r.user_email === userFilter;
+    
     const matchesSearch = !searchQuery.trim() || 
       r.business_idea?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.user_email?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -107,7 +121,7 @@ export default function AdminReports() {
       (ratingFilter === "rated" && r.user_rating) ||
       (ratingFilter === "unrated" && !r.user_rating);
 
-    return matchesSearch && matchesType && matchesStatus && matchesRating;
+    return matchesUserFilter && matchesSearch && matchesType && matchesStatus && matchesRating;
   }).sort((a, b) => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
@@ -227,6 +241,23 @@ export default function AdminReports() {
             )}
           </Button>
         </FilterBar>
+
+        {userFilter && (
+          <div className="mb-4 flex items-center gap-2">
+            <Badge variant="secondary" className="gap-2 px-3 py-1.5 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+              <Mail className="w-3 h-3" />
+              Showing reports for: {userFilter}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearUserFilter}
+                className="h-4 w-4 p-0 ml-1 hover:bg-orange-200 dark:hover:bg-orange-800 rounded-full"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </Badge>
+          </div>
+        )}
 
         {filteredReports.length === 0 ? (
           <Card>
