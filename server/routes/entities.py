@@ -173,6 +173,23 @@ def generate_analysis_entry(user):
         report_type=expected_report_type
     )
     db.session.add(analysis)
+    
+    # Deduct credit for premium reports
+    if expected_report_type == 'premium':
+        user_record = User.query.filter_by(email=user.email).first()
+        if user_record and user_record.credits >= 1:
+            user_record.credits -= 1
+            # Create transaction record
+            tx = Transaction(
+                user_email=user.email,
+                type='analysis',
+                credits=-1,
+                description=f'Premium analysis: {business_idea[:50]}...' if len(business_idea) > 50 else f'Premium analysis: {business_idea}',
+                reference_id=analysis.id,
+                status='completed'
+            )
+            db.session.add(tx)
+    
     db.session.commit()
     
     response_data = analysis.to_dict()

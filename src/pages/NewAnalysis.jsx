@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import { ArrowLeft, Sparkles, Coins, Lightbulb, Shield, Zap, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
+import { emitCreditUpdate } from "@/lib/creditEvents";
 import { motion } from "framer-motion";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
@@ -44,9 +45,10 @@ export default function NewAnalysis() {
       }
 
       await refreshUser();
+      emitCreditUpdate();
       
       toast.success(formDataFromWizard.report_language === 'arabic' 
-        ? "تم إنشاء التحليل بنجاح!" 
+        ? "تم إنشاء التحליل بنجاح!" 
         : "Analysis created successfully!");
       navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
 
