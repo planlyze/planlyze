@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { auth, Analysis } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageLoader from "@/components/common/PageLoader";
@@ -27,7 +26,6 @@ import {
   Plus,
   FileText,
   Clock,
-  CheckCircle2,
   AlertCircle,
   Trash2,
   Loader2,
@@ -40,25 +38,6 @@ import { canAccessAdmin } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 
-const STATUS_CONFIG = {
-  draft: { 
-    icon: Clock, 
-    className: "bg-muted text-muted-foreground" 
-  },
-  analyzing: { 
-    icon: AlertCircle, 
-    className: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300" 
-  },
-  completed: { 
-    icon: CheckCircle2, 
-    className: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300" 
-  },
-  failed: { 
-    icon: AlertCircle, 
-    className: "bg-destructive/10 text-destructive" 
-  }
-};
-
 function ReportCard({ 
   analysis, 
   isOwnReports, 
@@ -67,8 +46,6 @@ function ReportCard({
   onDelete, 
   isArabic 
 }) {
-  const statusConfig = STATUS_CONFIG[analysis.status] || STATUS_CONFIG.draft;
-  const StatusIcon = statusConfig.icon;
 
   return (
     <Card className="border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-card rounded-xl">
@@ -104,13 +81,6 @@ function ReportCard({
                   Free
                 </span>
               )}
-            </div>
-            
-            <div className="pt-1">
-              <Badge className={`${statusConfig.className} px-3 py-1 text-xs font-medium`}>
-                <StatusIcon className="w-3 h-3 mr-1" />
-                {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
-              </Badge>
             </div>
           </div>
           
