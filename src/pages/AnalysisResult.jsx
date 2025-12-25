@@ -222,8 +222,8 @@ export default function AnalysisResult() {
         language: lang
       });
       
-      if (response.data?.data) {
-        setTabData(prev => ({ ...prev, [tabName]: response.data.data }));
+      if (response?.data) {
+        setTabData(prev => ({ ...prev, [tabName]: response.data }));
         setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
       }
     } catch (error) {
