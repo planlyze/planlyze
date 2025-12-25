@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { auth, api, Analysis, Payment, User, AI, Transaction, CreditPackage, Settings, Role } from "@/api/client";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,14 @@ import { auditLogger } from "@/components/utils/auditLogger";
 
 export default function AdminCredits() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const [users, setUsers] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("users");
+  const [currentUser, setCurrentUser] = useState(null);
+  
+  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
   
   // Credit adjustment dialog
   const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false);
@@ -58,6 +63,34 @@ export default function AdminCredits() {
   const [roles, setRoles] = useState([]);
   const [roleFilter, setRoleFilter] = useState("user");
 
+  // Derived filtered data for export
+  const filteredUsers = useMemo(() => {
+    let filtered = users;
+    if (roleFilter !== "all") {
+      filtered = filtered.filter(u => u.role === roleFilter);
+    }
+    if (userSearchQuery.trim()) {
+      filtered = filtered.filter(u => 
+        u.id?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase())
+      );
+    }
+    return filtered;
+  }, [users, roleFilter, userSearchQuery]);
+
+  const filteredTransactions = useMemo(() => {
+    let filtered = txTypeFilter === "all" ? transactions : transactions.filter(tx => tx.type === txTypeFilter);
+    if (txSearchQuery.trim()) {
+      const query = txSearchQuery.toLowerCase();
+      filtered = filtered.filter(tx => 
+        tx.unique_id?.toLowerCase().includes(query) ||
+        tx.user_email?.toLowerCase().includes(query)
+      );
+    }
+    return filtered;
+  }, [transactions, txTypeFilter, txSearchQuery]);
+
   useEffect(() => {
     checkAdminAndLoadData();
   }, []);
@@ -65,8 +98,9 @@ export default function AdminCredits() {
   const checkAdminAndLoadData = async () => {
     setIsLoading(true);
     try {
-      const currentUser = await auth.me();
-      if (!hasPermission(currentUser, PERMISSIONS.VIEW_CREDITS)) {
+      const user = await auth.me();
+      setCurrentUser(user);
+      if (!hasPermission(user, PERMISSIONS.VIEW_CREDITS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view credits");
         return;
