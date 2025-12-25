@@ -88,6 +88,29 @@ def get_all_analyses(user):
 @entities_bp.route('/analyses/<id>', methods=['GET'])
 @require_auth
 def get_analysis(user, id):
+    """
+    Get a specific analysis by ID
+    ---
+    tags:
+      - Analyses
+    security:
+      - Bearer: []
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: Analysis ID
+    responses:
+      200:
+        description: Analysis details
+      401:
+        description: Not authenticated
+      403:
+        description: Access denied
+      404:
+        description: Analysis not found
+    """
     analysis = Analysis.query.get(id)
     if not analysis:
         return jsonify({'error': 'Analysis not found'}), 404
@@ -867,6 +890,19 @@ def upgrade_analysis_premium(user, id):
 @entities_bp.route('/transactions', methods=['GET'])
 @require_auth
 def get_transactions(user):
+    """
+    Get transaction history
+    ---
+    tags:
+      - Transactions
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: List of transactions (all for admin, own for user)
+      401:
+        description: Not authenticated
+    """
     if is_admin(user):
         transactions = Transaction.query.order_by(Transaction.created_at.desc()).all()
     else:
@@ -876,6 +912,35 @@ def get_transactions(user):
 @entities_bp.route('/transactions', methods=['POST'])
 @require_auth
 def create_transaction(user):
+    """
+    Create a new transaction record
+    ---
+    tags:
+      - Transactions
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [purchase, usage, refund, bonus]
+            credits:
+              type: integer
+            amount_usd:
+              type: number
+            description:
+              type: string
+    responses:
+      201:
+        description: Transaction created
+      401:
+        description: Not authenticated
+    """
     data = request.get_json()
     transaction = Transaction(
         user_email=data.get('user_email', user.email),
@@ -1966,6 +2031,37 @@ def get_users(user):
 @entities_bp.route('/users/<id>', methods=['PUT'])
 @require_admin
 def update_user(user, id):
+    """
+    Update user details (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        schema:
+          type: object
+          properties:
+            role_id:
+              type: string
+            credits:
+              type: integer
+            is_active:
+              type: boolean
+    responses:
+      200:
+        description: User updated
+      403:
+        description: Cannot modify protected users
+      404:
+        description: User not found
+    """
     target_user = User.query.get(id)
     if not target_user:
         return jsonify({'error': 'User not found'}), 404
@@ -1998,6 +2094,36 @@ def update_user(user, id):
 @entities_bp.route('/users/<id>/adjust-credits', methods=['POST'])
 @require_admin
 def adjust_user_credits(user, id):
+    """
+    Adjust user credits (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            credits:
+              type: integer
+              description: Amount to add (positive) or deduct (negative)
+            reason:
+              type: string
+              description: Reason for adjustment
+    responses:
+      200:
+        description: Credits adjusted successfully
+      404:
+        description: User not found
+    """
     target_user = User.query.get(id)
     if not target_user:
         return jsonify({'error': 'User not found'}), 404
