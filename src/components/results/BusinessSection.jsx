@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Megaphone, TrendingUp, Users, Handshake, Target, ArrowRight } from "lucide-react";
+import { CheckCircle, Megaphone, TrendingUp, Users, Handshake, Target, ArrowRight, BarChart2 } from "lucide-react";
+import { KPIsChart } from "./charts/AnalysisCharts";
 
 export default function BusinessSection({ data, isArabic = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
@@ -202,7 +203,16 @@ export default function BusinessSection({ data, isArabic = false }) {
             {t("Key Performance Indicators (KPIs)", "مؤشرات الأداء الرئيسية")}
           </h2>
         </div>
-        <CardContent className="p-6">
+        <CardContent className="p-6 space-y-6">
+          {kpis.length > 0 && (
+            <div className="bg-slate-50 rounded-xl p-4 border">
+              <h4 className="text-sm font-medium text-slate-600 mb-4 flex items-center gap-2">
+                <BarChart2 className="w-4 h-4" />
+                {t("KPIs Overview", "نظرة عامة على مؤشرات الأداء")}
+              </h4>
+              <KPIsChart kpis={kpis} isArabic={isArabic} />
+            </div>
+          )}
           {kpis.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {kpis.map((kpi, idx) => (

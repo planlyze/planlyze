@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Shield, ListChecks, ArrowRight, Clock } from "lucide-react";
+import { AlertTriangle, Shield, ListChecks, ArrowRight, Clock, PieChart as PieChartIcon } from "lucide-react";
 import LockedContent from "./LockedContent";
+import { RiskSeverityChart } from "./charts/AnalysisCharts";
 
 export default function StrategySection({ data, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
@@ -41,7 +42,16 @@ export default function StrategySection({ data, isArabic = false, isPremium = tr
             {t("Risk Assessment & Mitigation", "تقييم المخاطر والتخفيف")}
           </h2>
         </div>
-        <CardContent className="p-6">
+        <CardContent className="p-6 space-y-6">
+          {riskAssessment.length > 1 && (
+            <div className="bg-slate-50 rounded-xl p-4 border">
+              <h4 className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4" />
+                {t("Risk Severity Distribution", "توزيع شدة المخاطر")}
+              </h4>
+              <RiskSeverityChart risks={riskAssessment} isArabic={isArabic} />
+            </div>
+          )}
           {riskAssessment.length > 0 ? (
             <div className="space-y-4">
               {riskAssessment.map((risk, idx) => {

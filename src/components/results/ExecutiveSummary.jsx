@@ -1,7 +1,9 @@
-
 import React from 'react';
 import ScoreCard from "./ScoreCard";
 import { TrendingUp, Code, Gauge } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScoresRadarChart } from "./charts/AnalysisCharts";
+import { BarChart2 } from "lucide-react";
 
 export default function ExecutiveSummary({ analysis, businessReport, technicalReport, isArabic = false }) {
   const rawViability = Number(businessReport?.overall_viability_score ?? businessReport?.overall_business_viability_assessment ?? 0);
@@ -55,6 +57,13 @@ export default function ExecutiveSummary({ analysis, businessReport, technicalRe
     ? "تلخيص لمدى قابلية الفكرة للنجاح تجارياً بناءً على السوق والتنفيذ والتكلفة والمخاطر."
     : "Summary of how viable the idea is to succeed considering market, execution, cost, and risks.";
 
+  const radarData = [
+    { name: isArabic ? "الجدوى" : "Viability", score: viabilityScore ?? 0 },
+    { name: isArabic ? "التعقيد" : "Complexity", score: complexityScore ?? 0 },
+    { name: isArabic ? "MVP بالذكاء" : "AI MVP", score: aiMvpScore ?? 0 },
+    { name: isArabic ? "التقييم" : "Overall", score: overallAssessmentScore ?? 0 },
+  ].filter(item => item.score > 0);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -90,6 +99,20 @@ export default function ExecutiveSummary({ analysis, businessReport, technicalRe
           footnote={overallFootnote}
         />
       </div>
+
+      {radarData.length >= 3 && (
+        <Card className="glass-effect border rounded-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BarChart2 className="w-5 h-5 text-blue-600" />
+              {isArabic ? "مخطط الدرجات" : "Scores Overview"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScoresRadarChart data={radarData} isArabic={isArabic} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

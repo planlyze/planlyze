@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, TrendingUp, Coins, Building, CheckCircle, Tag } from "lucide-react";
+import { DollarSign, TrendingUp, Coins, Building, CheckCircle, Tag, PieChart as PieChartIcon } from "lucide-react";
+import { RevenueStreamsChart } from "./charts/AnalysisCharts";
 
 export default function FinancialSection({ data, isArabic = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
@@ -35,7 +36,16 @@ export default function FinancialSection({ data, isArabic = false }) {
             {t("Revenue Streams", "مصادر الإيرادات")}
           </h2>
         </div>
-        <CardContent className="p-6">
+        <CardContent className="p-6 space-y-6">
+          {revenueStreams.length > 1 && (
+            <div className="bg-slate-50 rounded-xl p-4 border">
+              <h4 className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4" />
+                {t("Revenue Potential Distribution", "توزيع إمكانات الإيرادات")}
+              </h4>
+              <RevenueStreamsChart streams={revenueStreams} isArabic={isArabic} />
+            </div>
+          )}
           {revenueStreams.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {revenueStreams.map((stream, idx) => (

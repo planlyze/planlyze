@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code, Users, Clock, Cpu, Layers, Rocket, Wrench, CheckCircle, XCircle, DollarSign, Sparkles } from "lucide-react";
+import { Code, Users, Clock, Cpu, Layers, Rocket, Wrench, CheckCircle, XCircle, DollarSign, Sparkles, PieChart as PieChartIcon } from "lucide-react";
 import LockedContent from "./LockedContent";
+import { TechStackChart, TeamCostChart } from "./charts/AnalysisCharts";
 
 export default function TechnicalSection({ data, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
@@ -46,6 +47,16 @@ export default function TechnicalSection({ data, isArabic = false, isPremium = t
           </h2>
         </div>
         <CardContent className="p-6 space-y-6">
+          {recommendedStack.length > 1 && (
+            <div className="bg-slate-50 rounded-xl p-4 border mb-6">
+              <h4 className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4" />
+                {t("Technology Stack Distribution", "توزيع المكدس التقني")}
+              </h4>
+              <TechStackChart stack={recommendedStack} isArabic={isArabic} />
+            </div>
+          )}
+
           {recommendedStack.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold text-slate-800 mb-4">{t("Recommended Technologies", "التقنيات الموصى بها")}</h3>
@@ -153,6 +164,15 @@ export default function TechnicalSection({ data, isArabic = false, isPremium = t
                 <Users className="w-5 h-5 text-purple-600" />
                 {t("Team Requirements", "متطلبات الفريق")}
               </h3>
+              {teamRequirements.length > 1 && (
+                <div className="bg-purple-50 rounded-xl p-4 border border-purple-200 mb-4">
+                  <h4 className="text-sm font-medium text-purple-600 mb-2 flex items-center gap-2">
+                    <PieChartIcon className="w-4 h-4" />
+                    {t("Team Cost Breakdown", "تفصيل تكلفة الفريق")}
+                  </h4>
+                  <TeamCostChart team={teamRequirements} isArabic={isArabic} />
+                </div>
+              )}
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {teamRequirements.map((member, idx) => (
                   <div key={idx} className="bg-purple-50 rounded-lg p-4 border border-purple-200">

@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, AlertCircle, Lightbulb, TrendingUp, Building2, Target } from "lucide-react";
+import { Users, AlertCircle, Lightbulb, TrendingUp, Building2, Target, PieChart } from "lucide-react";
 import LockedContent from "./LockedContent";
+import { SWOTChart, MarketSizeChart } from "./charts/AnalysisCharts";
 
 export default function MarketSection({ data = {}, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
@@ -13,6 +14,8 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
   const syrianMarket = data.syrian_market || {};
   const syrianCompetitors = data.syrian_competitors || [];
   const swot = data.swot || {};
+  
+  const hasSwotData = swot.strengths?.length || swot.weaknesses?.length || swot.opportunities?.length || swot.threats?.length;
 
   return (
     <div className="space-y-6">
@@ -305,7 +308,16 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
                 {t("SWOT Analysis", "تحليل SWOT")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
+              {hasSwotData && (
+                <div className="bg-slate-50 rounded-xl p-4 border">
+                  <h4 className="text-sm font-medium text-slate-600 mb-2 flex items-center gap-2">
+                    <PieChart className="w-4 h-4" />
+                    {t("SWOT Distribution", "توزيع SWOT")}
+                  </h4>
+                  <SWOTChart swot={swot} isArabic={isArabic} />
+                </div>
+              )}
               <div className="grid sm:grid-cols-2 gap-4">
                 {swot.strengths && swot.strengths.length > 0 && (
                   <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
