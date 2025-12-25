@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Users, Calendar, Gift, CheckCircle, Clock, SortDesc, SortAsc, Mail, UserPlus } from "lucide-react";
+import { Users, Calendar, Gift, CheckCircle, Clock, SortDesc, SortAsc, Mail, UserPlus, Download } from "lucide-react";
+import { exportToExcel, getReferralsExportColumns } from "@/components/utils/excelExport";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -123,6 +124,21 @@ export default function AdminReferrals() {
           description={`${filteredReferrals.length} referrals`}
           backUrl={createPageUrl("Dashboard")}
           icon={UserPlus}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const success = exportToExcel(filteredReferrals, getReferralsExportColumns(), 'referrals', 'Referrals');
+                if (success) toast.success('Referrals exported to Excel');
+                else toast.error('No data to export');
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         <div className="grid md:grid-cols-4 gap-4 mb-6">

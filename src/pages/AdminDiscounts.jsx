@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail } from "lucide-react";
+import { Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail, Download } from "lucide-react";
+import { exportToExcel, getDiscountsExportColumns } from "@/components/utils/excelExport";
 import PageHeader from "@/components/common/PageHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
@@ -164,10 +165,25 @@ export default function AdminDiscounts() {
           icon={Tag}
           isArabic={isArabic}
           actions={
-            <Button onClick={handleCreate} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2">
-              <Plus className="w-4 h-4" />
-              {isArabic ? "كود جديد" : "New Code"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const success = exportToExcel(discounts, getDiscountsExportColumns(), 'discount_codes', 'Discount Codes');
+                  if (success) toast.success(isArabic ? 'تم التصدير بنجاح' : 'Discounts exported to Excel');
+                  else toast.error(isArabic ? 'لا توجد بيانات للتصدير' : 'No data to export');
+                }}
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                {isArabic ? "تصدير" : "Export"}
+              </Button>
+              <Button onClick={handleCreate} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2">
+                <Plus className="w-4 h-4" />
+                {isArabic ? "كود جديد" : "New Code"}
+              </Button>
+            </div>
           }
         />
 

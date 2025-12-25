@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
+import { exportToExcel, getAuditLogsExportColumns } from "@/components/utils/excelExport";
 
 export default function AuditLogs() {
   const navigate = useNavigate();
@@ -255,6 +256,21 @@ export default function AuditLogs() {
           description="Monitor all significant user actions and API requests"
           backUrl={createPageUrl("Dashboard")}
           icon={Activity}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const success = exportToExcel(filteredLogs, getAuditLogsExportColumns(), 'audit_logs', 'Audit Logs');
+                if (success) toast.success('Audit logs exported to Excel');
+                else toast.error('No data to export');
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

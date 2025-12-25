@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote } from "lucide-react";
+import { Wallet, Plus, Minus, DollarSign, History, Settings as SettingsIcon, Banknote, Download } from "lucide-react";
+import { exportToExcel, getUsersExportColumns, getTransactionsExportColumns, getCreditPackagesExportColumns } from "@/components/utils/excelExport";
 import PageHeader from "@/components/common/PageHeader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 import { format } from "date-fns";
@@ -285,6 +286,31 @@ export default function AdminCredits() {
           description="Manage user credits, transactions, and pricing"
           backUrl={createPageUrl("Dashboard")}
           icon={Wallet}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (activeTab === 'users') {
+                  const success = exportToExcel(filteredUsers, getUsersExportColumns(), 'users_credits', 'User Credits');
+                  if (success) toast.success('User credits exported to Excel');
+                  else toast.error('No data to export');
+                } else if (activeTab === 'transactions') {
+                  const success = exportToExcel(filteredTransactions, getTransactionsExportColumns(), 'transactions', 'Transactions');
+                  if (success) toast.success('Transactions exported to Excel');
+                  else toast.error('No data to export');
+                } else if (activeTab === 'packages') {
+                  const success = exportToExcel(packages, getCreditPackagesExportColumns(), 'credit_packages', 'Credit Packages');
+                  if (success) toast.success('Credit packages exported to Excel');
+                  else toast.error('No data to export');
+                }
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         {/* Tabs */}

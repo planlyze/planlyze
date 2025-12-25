@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, XCircle, Eye, Clock, Banknote, Search, Filter } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Clock, Banknote, Search, Filter, Download } from "lucide-react";
+import { exportToExcel, getPaymentsExportColumns } from "@/components/utils/excelExport";
 import PageHeader from "@/components/common/PageHeader";
 import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
 import { format } from "date-fns";
@@ -156,6 +157,21 @@ export default function AdminPayments() {
           description="Review and approve cash payment requests"
           backUrl={createPageUrl("Dashboard")}
           icon={Banknote}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const success = exportToExcel(filteredPayments, getPaymentsExportColumns(), 'payments', 'Payments');
+                if (success) toast.success('Payments exported to Excel');
+                else toast.error('No data to export');
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         <FilterBar>

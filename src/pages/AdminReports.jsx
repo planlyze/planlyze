@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw } from "lucide-react";
+import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, RefreshCw, Download } from "lucide-react";
+import { exportToExcel, getReportsExportColumns } from "@/components/utils/excelExport";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -152,6 +153,21 @@ export default function AdminReports() {
           description={`${filteredReports.length} reports`}
           backUrl={createPageUrl("Dashboard")}
           icon={FileText}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const success = exportToExcel(filteredReports, getReportsExportColumns(), 'reports', 'Reports');
+                if (success) toast.success('Reports exported to Excel');
+                else toast.error('No data to export');
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         <FilterBar className="mb-6">

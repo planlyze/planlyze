@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Users, Mail, Calendar, FileText, SortDesc, SortAsc, 
-  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield, HelpCircle
+  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield, HelpCircle, Download
 } from "lucide-react";
+import { exportToExcel, getUsersExportColumns } from "@/components/utils/excelExport";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
@@ -177,6 +178,21 @@ export default function AdminUsers() {
           backUrl={createPageUrl("Dashboard")}
           icon={Users}
           isArabic={isArabic}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const success = exportToExcel(filteredUsers, getUsersExportColumns(), 'users', 'Users');
+                if (success) toast.success('Users exported to Excel');
+                else toast.error('No data to export');
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          }
         />
 
         <FilterBar className="mb-6">

@@ -236,7 +236,27 @@ The platform includes comprehensive legal documentation designed for an AI tech 
 
 All legal pages are bilingual (English/Arabic) with RTL support.
 
+## Excel Export Feature
+All admin list pages include an "Export" button that exports filtered data to Excel (.xlsx) format:
+
+### Supported Pages
+- **AdminUsers**: User list with email, name, role, credits, referral code, etc.
+- **AdminPayments**: Payment requests with user, package, amount, status, etc.
+- **AdminReports**: Analysis reports with business idea, industry, status, rating, etc.
+- **AdminCredits**: Dynamically exports based on active tab (users, transactions, or packages)
+- **AdminReferrals**: Referral records with referrer, referred, status, credits awarded
+- **AdminDiscounts**: Discount codes with usage stats, validity dates, etc.
+- **AuditLogs**: Audit logs with user actions, entity types, IP addresses
+
+### Implementation
+- Utility: `src/components/utils/excelExport.jsx`
+- Uses `xlsx` library for Excel file generation
+- Exports include timestamp in filename (e.g., `users_2025-12-25_09-30.xlsx`)
+- Auto-sizes columns based on content
+- Respects current filter state (exports filtered data, not all data)
+
 ## Recent Changes
+- Added Excel export functionality to all admin list pages
 - Enhanced legal documentation for AI tech startup compliance
 - Added comprehensive Terms of Service page with 14 sections
 - Enhanced Privacy Policy with 12 sections including AI-specific clauses
