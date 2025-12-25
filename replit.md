@@ -255,7 +255,46 @@ All admin list pages include an "Export" button that exports filtered data to Ex
 - Auto-sizes columns based on content
 - Respects current filter state (exports filtered data, not all data)
 
+## Multi-Currency Payment Support
+The platform supports multiple currencies for payment processing with automatic exchange rate conversion.
+
+### Currency Model
+Stored in `currencies` table with fields:
+- `code`: ISO currency code (USD, EUR, SYP, SAR, AED, TRY)
+- `name`/`name_ar`: Currency name in English and Arabic
+- `symbol`: Currency symbol ($, €, ل.س, etc.)
+- `exchange_rate`: Rate relative to USD (1 USD = X currency)
+- `is_default`: Default currency for display (USD)
+- `is_active`: Enable/disable currency
+- `sort_order`: Display order in dropdown
+
+### Default Currencies
+Seeded currencies (defined in `server/seed.py`):
+- USD (default) - US Dollar
+- EUR - Euro
+- SYP - Syrian Pound
+- SAR - Saudi Riyal
+- AED - UAE Dirham
+- TRY - Turkish Lira
+
+### Payment Flow
+1. User selects currency in CashPaymentModal
+2. Amount displayed in selected currency with exchange rate
+3. Payment stored with: `amount_usd`, `currency_code`, `currency_amount`, `exchange_rate`
+4. Admin sees both USD and local currency amounts in payment details
+
+### API Endpoints
+- `GET /api/currencies` - List active currencies (public)
+- `GET /api/currencies/all` - List all currencies (admin)
+- `POST /api/currencies` - Create currency (admin)
+- `PUT /api/currencies/<id>` - Update currency (admin)
+- `DELETE /api/currencies/<id>` - Delete currency (admin)
+
 ## Recent Changes
+- Added multi-currency support for payment processing with 6 default currencies
+- Currency selection dropdown in CashPaymentModal with exchange rate display
+- Admin payment details now show currency information for non-USD payments
+- Excel export includes currency columns (code, amount, exchange rate)
 - Added Excel export functionality to all admin list pages
 - Enhanced legal documentation for AI tech startup compliance
 - Added comprehensive Terms of Service page with 14 sections

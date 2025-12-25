@@ -60,8 +60,11 @@ export const getPaymentsExportColumns = () => [
   { key: 'id', header: 'ID' },
   { key: 'user_email', header: 'User Email' },
   { header: 'Package', accessor: (row) => row.package_name || row.credit_package?.name || 'N/A' },
-  { key: 'amount', header: 'Amount' },
+  { header: 'Amount (USD)', accessor: (row) => row.amount_usd || row.amount || 0 },
   { key: 'credits', header: 'Credits' },
+  { header: 'Currency', accessor: (row) => row.currency_code || 'USD' },
+  { header: 'Currency Amount', accessor: (row) => row.currency_amount || row.amount_usd || row.amount || '' },
+  { header: 'Exchange Rate', accessor: (row) => row.exchange_rate || 1.0 },
   { header: 'Payment Method', accessor: (row) => row.payment_method?.name || row.payment_method || 'N/A' },
   { key: 'status', header: 'Status' },
   { key: 'admin_notes', header: 'Admin Notes' },
@@ -143,4 +146,16 @@ export const getCreditPackagesExportColumns = () => [
   { key: 'price', header: 'Price' },
   { key: 'description', header: 'Description' },
   { header: 'Active', accessor: (row) => row.is_active ? 'Yes' : 'No' }
+];
+
+export const getCurrenciesExportColumns = () => [
+  { key: 'code', header: 'Code' },
+  { key: 'name', header: 'Name (EN)' },
+  { key: 'name_ar', header: 'Name (AR)' },
+  { key: 'symbol', header: 'Symbol' },
+  { key: 'exchange_rate', header: 'Exchange Rate' },
+  { header: 'Default', accessor: (row) => row.is_default ? 'Yes' : 'No' },
+  { header: 'Active', accessor: (row) => row.is_active ? 'Yes' : 'No' },
+  { key: 'sort_order', header: 'Sort Order' },
+  { header: 'Updated', accessor: (row) => row.updated_at ? format(new Date(row.updated_at), 'yyyy-MM-dd HH:mm') : '' }
 ];
