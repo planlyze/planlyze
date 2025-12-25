@@ -145,13 +145,13 @@ export default function AnalysisWizard({ onSubmit }) {
       >
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 font-bold text-sm">
               1
             </div>
-            <Label htmlFor="business_idea" className="text-base font-semibold text-slate-800">
+            <Label htmlFor="business_idea" className="text-base font-semibold text-slate-800 dark:text-white">
               {isUIArabic ? "ما هي فكرتك؟" : "What's your idea?"}
             </Label>
-            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+            <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs">
               {isUIArabic ? "مطلوب" : "Required"}
             </Badge>
           </div>
@@ -164,10 +164,10 @@ export default function AnalysisWizard({ onSubmit }) {
                 : "Describe your product idea in detail...\n\n• What problem does it solve?\n• Who will use it?\n• What makes it unique?"}
               value={formData.business_idea}
               onChange={(e) => handleInputChange('business_idea', e.target.value)}
-              className={`min-h-[160px] resize-none border-2 transition-all duration-200 bg-slate-50/50 focus:bg-white ${
+              className={`min-h-[160px] resize-none border-2 transition-all duration-200 bg-slate-50/50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700 dark:text-white ${
                 validationErrors.business_idea 
                   ? 'border-red-300 focus:border-red-400 focus:ring-red-100' 
-                  : 'border-slate-200 focus:border-purple-400 focus:ring-purple-100'
+                  : 'border-slate-200 dark:border-gray-600 focus:border-purple-400 focus:ring-purple-100'
               }`}
               maxLength={5000}
             />
@@ -198,17 +198,17 @@ export default function AnalysisWizard({ onSubmit }) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-4 bg-red-50 border border-red-200 rounded-xl overflow-hidden"
+                className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl overflow-hidden"
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-1.5 bg-red-100 rounded-lg">
+                  <div className="p-1.5 bg-red-100 dark:bg-red-900/50 rounded-lg">
                     <AlertCircle className="w-4 h-4 text-red-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-red-700">
+                    <p className="text-sm font-semibold text-red-700 dark:text-red-400">
                       {isUIArabic ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
                     </p>
-                    <p className="text-sm text-red-600 mt-1">{aiValidationError}</p>
+                    <p className="text-sm text-red-600 dark:text-red-300 mt-1">{aiValidationError}</p>
                   </div>
                 </div>
               </motion.div>
@@ -216,18 +216,18 @@ export default function AnalysisWizard({ onSubmit }) {
           </AnimatePresence>
         </div>
 
-        <div className="p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 rounded-xl border border-slate-200">
+        <div className="p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 dark:from-gray-700/50 dark:to-purple-900/20 rounded-xl border border-slate-200 dark:border-gray-600">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 font-bold text-sm">
               2
             </div>
-            <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+            <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
               <Target className="w-4 h-4 text-purple-500" />
               {isUIArabic ? "الجمهور المستهدف" : "Target Audience"}
             </Label>
           </div>
 
-          <div className="flex items-center gap-3 mb-4 p-3 bg-white rounded-lg border border-slate-200">
+          <div className="flex items-center gap-3 mb-4 p-3 bg-white dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600">
             <input
               id="auto_target"
               type="checkbox"
@@ -241,7 +241,7 @@ export default function AnalysisWizard({ onSubmit }) {
               }}
               className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
             />
-            <Label htmlFor="auto_target" className="font-medium text-sm text-slate-700 select-none cursor-pointer flex items-center gap-2">
+            <Label htmlFor="auto_target" className="font-medium text-sm text-slate-700 dark:text-slate-200 select-none cursor-pointer flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-500" />
               {isUIArabic ? "دع الذكاء الاصطناعي يحدد الجمهور المستهدف" : "Let AI determine the best target audience"}
             </Label>
@@ -259,7 +259,7 @@ export default function AnalysisWizard({ onSubmit }) {
                   placeholder={isUIArabic ? "مثال: الشركات الصغيرة، طلاب الجامعات..." : "e.g., Small businesses, university students..."}
                   value={formData.target_market}
                   onChange={(e) => handleInputChange('target_market', e.target.value)}
-                  className={`border-2 ${validationErrors.target_market ? 'border-red-300' : 'border-slate-200'} bg-white`}
+                  className={`border-2 ${validationErrors.target_market ? 'border-red-300' : 'border-slate-200 dark:border-gray-600'} bg-white dark:bg-gray-700 dark:text-white`}
                 />
                 {validationErrors.target_market && (
                   <p className="text-sm text-red-600 flex items-center gap-1 mt-2">
@@ -275,17 +275,17 @@ export default function AnalysisWizard({ onSubmit }) {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 font-bold text-sm">
                 3
               </div>
-              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-purple-500" />
                 {isUIArabic ? "المجال" : "Industry"}
               </Label>
             </div>
             
             <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-              <SelectTrigger className={`border-2 bg-slate-50/50 ${validationErrors.industry ? 'border-red-300' : 'border-slate-200'}`}>
+              <SelectTrigger className={`border-2 bg-slate-50/50 dark:bg-gray-700/50 dark:text-white ${validationErrors.industry ? 'border-red-300' : 'border-slate-200 dark:border-gray-600'}`}>
                 <SelectValue placeholder={isUIArabic ? "اختر المجال" : "Select industry"} />
               </SelectTrigger>
               <SelectContent>
@@ -306,10 +306,10 @@ export default function AnalysisWizard({ onSubmit }) {
 
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 font-bold text-sm">
                 4
               </div>
-              <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-purple-500" />
                 {isUIArabic ? "الدولة" : "Country"}
               </Label>
@@ -320,9 +320,9 @@ export default function AnalysisWizard({ onSubmit }) {
               disabled={true}
               value={formData.country}
               onChange={(e) => handleInputChange('country', e.target.value)}
-              className="border-2 border-slate-200 bg-slate-100 cursor-not-allowed"
+              className="border-2 border-slate-200 dark:border-gray-600 bg-slate-100 dark:bg-gray-700/50 dark:text-white cursor-not-allowed"
             />
-            <p className="text-xs text-slate-500 mt-1.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
               {isUIArabic ? "التحليل مخصص لسوريا حالياً" : "Analysis is tailored for Syria"}
             </p>
           </div>
@@ -330,10 +330,10 @@ export default function AnalysisWizard({ onSubmit }) {
 
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 font-bold text-sm">
               5
             </div>
-            <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+            <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
               <Globe className="w-4 h-4 text-purple-500" />
               {isUIArabic ? "لغة التقرير" : "Report Language"}
             </Label>
@@ -347,13 +347,13 @@ export default function AnalysisWizard({ onSubmit }) {
                 onClick={() => handleInputChange('report_language', lang.value)}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 ${
                   formData.report_language === lang.value
-                    ? 'border-purple-400 bg-purple-50 ring-2 ring-purple-100'
-                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/30 ring-2 ring-purple-100 dark:ring-purple-900/50'
+                    : 'border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-slate-300 dark:hover:border-gray-500 hover:bg-slate-50 dark:hover:bg-gray-600'
                 }`}
               >
                 <span className="text-2xl">{lang.flag}</span>
                 <div className="text-left">
-                  <p className={`font-semibold ${formData.report_language === lang.value ? 'text-purple-700' : 'text-slate-700'}`}>
+                  <p className={`font-semibold ${formData.report_language === lang.value ? 'text-purple-700 dark:text-purple-300' : 'text-slate-700 dark:text-slate-200'}`}>
                     {lang.label}
                   </p>
                 </div>
@@ -390,7 +390,7 @@ export default function AnalysisWizard({ onSubmit }) {
           </Button>
           
           {!canSubmit() && formData.business_idea.length > 0 && (
-            <p className="text-center text-sm text-slate-500 mt-3">
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-3">
               {isUIArabic ? 'أكمل جميع الحقول المطلوبة للمتابعة' : 'Complete all required fields to continue'}
             </p>
           )}
