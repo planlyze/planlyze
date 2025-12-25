@@ -4,7 +4,6 @@ from server.utils.translations import get_message, get_language
 from server.services.email_service import (
     send_verification_email, 
     send_referral_bonus_email_to_referrer,
-    send_referral_bonus_email_to_referred,
     send_password_reset_code_email
 )
 import bcrypt
@@ -128,7 +127,7 @@ def register():
         referral_code=generate_referral_code(),
         referred_by=referrer.email if referrer else None,
         role_id=default_role.id if default_role else None,
-        credits=1 if referrer else 0,
+        credits=0,
         language=lang,
         email_verified=False,
         verification_token=verification_token,
@@ -158,15 +157,6 @@ def register():
         )
         db.session.add(referrer_notification)
         
-        referred_notification = Notification(
-            user_email=user.email,
-            type='referral_welcome',
-            title=get_message('auth.referral_welcome_title', lang),
-            message=get_message('auth.referral_welcome_message', lang).format(email=referrer.email),
-            meta_data={'referrer_email': referrer.email, 'credits_received': 1}
-        )
-        db.session.add(referred_notification)
-        
         referrer_transaction = Transaction(
             user_email=referrer.email,
             type='referral_bonus',
@@ -177,17 +167,6 @@ def register():
             status='completed'
         )
         db.session.add(referrer_transaction)
-        
-        referred_transaction = Transaction(
-            user_email=user.email,
-            type='referral_welcome',
-            credits=1,
-            amount_usd=0,
-            description=f'Welcome bonus: Signed up with referral from {referrer.email}',
-            reference_id=referral_record.id,
-            status='completed'
-        )
-        db.session.add(referred_transaction)
         
         db.session.commit()
         
@@ -201,14 +180,6 @@ def register():
             referral_code=referrer.referral_code,
             app_url=app_url,
             lang=referrer_lang
-        )
-        
-        send_referral_bonus_email_to_referred(
-            referred_email=user.email,
-            referred_name=full_name,
-            referrer_email=referrer.email,
-            app_url=app_url,
-            lang=lang
         )
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)

@@ -17,7 +17,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 const REFERRER_REWARD = 1; // Credits for referrer
-const REFERRED_REWARD = 1; // Credits for new user
 
 export default function Referrals() {
   const { t, i18n } = useTranslation();
@@ -104,13 +103,6 @@ export default function Referrals() {
       icon: Sparkles,
       color: "text-purple-600",
       bg: "bg-purple-100"
-    },
-    {
-      label: t('referrals.pendingRewards'),
-      value: referrals.filter(r => r.status === 'completed').length,
-      icon: Gift,
-      color: "text-amber-600",
-      bg: "bg-amber-100"
     }
   ];
 
@@ -244,7 +236,7 @@ export default function Referrals() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid md:grid-cols-3 gap-4"
+          className="grid md:grid-cols-2 gap-4"
         >
           {stats.map((stat, index) => (
             <Card key={index} className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
