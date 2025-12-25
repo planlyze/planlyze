@@ -20,6 +20,7 @@ const REPORT_LANGUAGES = [
 
 export default function AnalysisWizard({ onSubmit }) {
   const { user } = useAuth();
+  const isUIArabic = user?.language === 'arabic';
   const [autoTarget, setAutoTarget] = useState(true);
   const [formData, setFormData] = useState({
     business_idea: "",
@@ -64,19 +65,19 @@ export default function AnalysisWizard({ onSubmit }) {
     const errors = {};
     
     if (formData.business_idea.trim().length < 1) {
-      errors.business_idea = "Please describe your idea";
+      errors.business_idea = isUIArabic ? "يرجى وصف فكرتك" : "Please describe your idea";
     }
     if (!formData.industry) {
-      errors.industry = "Please select an industry";
+      errors.industry = isUIArabic ? "يرجى اختيار مجال العمل" : "Please select an industry";
     }
     if (!autoTarget && formData.target_market.trim().length < 3) {
-      errors.target_market = "Please specify your target audience";
+      errors.target_market = isUIArabic ? "يرجى تحديد جمهورك المستهدف" : "Please specify your target audience";
     }
     if (!formData.country || formData.country.trim().length === 0) {
-      errors.country = "Country is required";
+      errors.country = isUIArabic ? "الدولة مطلوبة" : "Country is required";
     }
     if (!formData.report_language) {
-      errors.report_language = "Please select report language";
+      errors.report_language = isUIArabic ? "يرجى اختيار لغة التقرير" : "Please select report language";
     }
     
     setValidationErrors(errors);
@@ -125,7 +126,7 @@ export default function AnalysisWizard({ onSubmit }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto" dir={isUIArabic ? 'rtl' : 'ltr'}>
       <Card className="border-2 border-slate-200 shadow-sm hover:shadow-md transition-shadow">
         <CardContent className="p-8">
           <motion.div
@@ -139,21 +140,21 @@ export default function AnalysisWizard({ onSubmit }) {
                   <Lightbulb className="w-5 h-5 text-purple-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800">
-                  Your Tech Idea
+                  {isUIArabic ? "فكرتك التقنية" : "Your Tech Idea"}
                 </h2>
               </div>
-              <p className="text-slate-600">Tell us about your product concept and preferences</p>
+              <p className="text-slate-600">{isUIArabic ? "أخبرنا عن مفهوم منتجك وتفضيلاتك" : "Tell us about your product concept and preferences"}</p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <Label htmlFor="business_idea" className="text-base font-semibold flex items-center gap-2">
-                  What's your tech idea? *
-                  <Badge variant="outline" className="text-xs">Required</Badge>
+                  {isUIArabic ? "ما هي فكرتك التقنية؟ *" : "What's your tech idea? *"}
+                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
                 </Label>
                 <Textarea
                   id="business_idea"
-                  placeholder="Describe your software product idea in detail. What problem does it solve? Who will use it? What makes it unique? Be specific!"
+                  placeholder={isUIArabic ? "صف فكرة منتجك البرمجي بالتفصيل. ما المشكلة التي يحلها؟ من سيستخدمه؟ ما الذي يجعله فريداً؟ كن محدداً!" : "Describe your software product idea in detail. What problem does it solve? Who will use it? What makes it unique? Be specific!"}
                   value={formData.business_idea}
                   onChange={(e) => handleInputChange('business_idea', e.target.value)}
                   className={`mt-2 min-h-[140px] resize-none border-2 ${validationErrors.business_idea ? 'border-red-400' : 'border-slate-300'} focus:border-purple-400`}
@@ -161,7 +162,7 @@ export default function AnalysisWizard({ onSubmit }) {
                 />
                 <div className="flex items-center justify-between mt-1">
                   <p className={`text-sm ${formData.business_idea.length >= 10 ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
-                    {formData.business_idea.length} characters {formData.business_idea.length < 10 && (formData.report_language === 'arabic' ? '(10 أحرف على الأقل)' : '(min 10)')}
+                    {formData.business_idea.length} {isUIArabic ? "حرف" : "characters"} {formData.business_idea.length < 10 && (isUIArabic ? '(10 أحرف على الأقل)' : '(min 10)')}
                   </p>
                 </div>
                 
@@ -182,7 +183,7 @@ export default function AnalysisWizard({ onSubmit }) {
                       <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="text-sm font-semibold text-red-700">
-                          {formData.report_language === 'arabic' ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
+                          {isUIArabic ? 'فكرتك تحتاج تحسين' : 'Your idea needs improvement'}
                         </p>
                         <p className="text-sm text-red-600 mt-1">{aiValidationError}</p>
                       </div>
@@ -208,17 +209,17 @@ export default function AnalysisWizard({ onSubmit }) {
                   />
                   <Label htmlFor="auto_target" className="font-medium text-sm text-slate-700 select-none flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-purple-600" />
-                    Let AI decide the target audience
+                    {isUIArabic ? "دع الذكاء الاصطناعي يحدد الجمهور المستهدف" : "Let AI decide the target audience"}
                   </Label>
                 </div>
 
                 <div>
                   <Label htmlFor="target_market" className="text-base font-semibold">
-                    Target audience {autoTarget ? "(optional)" : "*"}
+                    {isUIArabic ? "الجمهور المستهدف" : "Target audience"} {autoTarget ? (isUIArabic ? "(اختياري)" : "(optional)") : "*"}
                   </Label>
                   <Input
                     id="target_market"
-                    placeholder={autoTarget ? "AI will determine the best audience" : "e.g., Small businesses in Syria, university students"}
+                    placeholder={autoTarget ? (isUIArabic ? "سيحدد الذكاء الاصطناعي أفضل جمهور" : "AI will determine the best audience") : (isUIArabic ? "مثال: الشركات الصغيرة في سوريا، طلاب الجامعات" : "e.g., Small businesses in Syria, university students")}
                     value={formData.target_market}
                     onChange={(e) => handleInputChange('target_market', e.target.value)}
                     disabled={autoTarget}
@@ -235,18 +236,18 @@ export default function AnalysisWizard({ onSubmit }) {
 
               <div>
                 <Label className="text-base font-semibold flex items-center gap-2">
-                  Industry Category *
-                  <Badge variant="outline" className="text-xs">Required</Badge>
+                  {isUIArabic ? "فئة المجال *" : "Industry Category *"}
+                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
                 </Label>
                 
                 <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
                   <SelectTrigger className={`mt-2 border-2 ${validationErrors.industry ? 'border-red-400' : 'border-slate-300'}`}>
-                    <SelectValue placeholder="Select industry" />
+                    <SelectValue placeholder={isUIArabic ? "اختر المجال" : "Select industry"} />
                   </SelectTrigger>
                   <SelectContent>
                     {WIZARD_INDUSTRIES.map((industry) =>
                       <SelectItem key={industry.value} value={industry.value}>
-                        {industry.label}
+                        {isUIArabic ? industry.label_ar || industry.label : industry.label}
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -260,25 +261,25 @@ export default function AnalysisWizard({ onSubmit }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-base font-semibold">Country *</Label>
+                <Label htmlFor="country" className="text-base font-semibold">{isUIArabic ? "الدولة *" : "Country *"}</Label>
                 <Input
                   id="country"
                   disabled={true}
-                  placeholder="e.g., Saudi Arabia"
+                  placeholder={isUIArabic ? "مثال: المملكة العربية السعودية" : "e.g., Saudi Arabia"}
                   value={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)} />
-                <p className="text-sm text-slate-500">We'll tailor the analysis to this country.</p>
+                <p className="text-sm text-slate-500">{isUIArabic ? "سنخصص التحليل لهذه الدولة." : "We'll tailor the analysis to this country."}</p>
               </div>
 
               <div>
                 <Label className="text-base font-semibold flex items-center gap-2">
                   <Globe className="w-4 h-4" />
-                  Report Language *
-                  <Badge variant="outline" className="text-xs">Required</Badge>
+                  {isUIArabic ? "لغة التقرير *" : "Report Language *"}
+                  <Badge variant="outline" className="text-xs">{isUIArabic ? "مطلوب" : "Required"}</Badge>
                 </Label>
                 <Select value={formData.report_language} onValueChange={(value) => handleInputChange('report_language', value)}>
                   <SelectTrigger className={`mt-2 border-2 ${validationErrors.report_language ? 'border-red-400' : 'border-slate-300'}`}>
-                    <SelectValue placeholder="Choose your preferred language for the report" />
+                    <SelectValue placeholder={isUIArabic ? "اختر لغة التقرير المفضلة" : "Choose your preferred language for the report"} />
                   </SelectTrigger>
                   <SelectContent>
                     {REPORT_LANGUAGES.map((lang) =>
@@ -318,18 +319,18 @@ export default function AnalysisWizard({ onSubmit }) {
           className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-3 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:bg-slate-400">
           {isValidating ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-              {formData.report_language === 'arabic' ? 'جاري التحقق من الفكرة...' : 'Validating idea...'}
+              <div className={`w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
+              {isUIArabic ? 'جاري التحقق من الفكرة...' : 'Validating idea...'}
             </>
           ) : isSubmitting ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-              {formData.report_language === 'arabic' ? 'جاري الإنشاء...' : 'Creating analysis...'}
+              <div className={`w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
+              {isUIArabic ? 'جاري الإنشاء...' : 'Creating analysis...'}
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 mr-2" />
-              {formData.report_language === 'arabic' ? 'بدء تحليل الذكاء الاصطناعي' : 'Start AI Analysis'}
+              <Sparkles className={`w-4 h-4 ${isUIArabic ? 'ml-2' : 'mr-2'}`} />
+              {isUIArabic ? 'بدء تحليل الذكاء الاصطناعي' : 'Start AI Analysis'}
             </>
           )}
         </Button>

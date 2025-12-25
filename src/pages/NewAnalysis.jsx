@@ -18,6 +18,8 @@ export default function NewAnalysis() {
   const [authChecked, setAuthChecked] = useState(false);
   const [pendingAnalysisId, setPendingAnalysisId] = useState(null);
   const [reportLanguage, setReportLanguage] = useState('english');
+  
+  const isUIArabic = currentUser?.language === 'arabic';
 
   React.useEffect(() => {
     (async () => {
@@ -71,11 +73,9 @@ export default function NewAnalysis() {
     );
   }
 
-  const isArabic = currentUser?.language === 'arabic' || reportLanguage === 'arabic';
-
   if (isSubmitting) {
     return (
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto">
           <Card className="border-2 border-slate-200 shadow-lg bg-white">
             <GeneratingReportLoader 
@@ -89,7 +89,7 @@ export default function NewAnalysis() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir={isUIArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -97,13 +97,13 @@ export default function NewAnalysis() {
             size="icon"
             onClick={() => navigate(createPageUrl("Dashboard"))}
             className="shadow-sm border-2 border-purple-200 hover:bg-purple-50 hover:border-purple-300 transition-all">
-            <ArrowLeft className="w-4 h-4 text-purple-600" />
+            <ArrowLeft className={`w-4 h-4 text-purple-600 ${isUIArabic ? 'rotate-180' : ''}`} />
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "تحليل أعمال تقني جديد" : "New Tech Business Analysis"}
+              {isUIArabic ? "تحليل أعمال تقني جديد" : "New Tech Business Analysis"}
             </h1>
-            <p className="text-slate-600 mt-1">{isArabic ? "احصل على رؤى Planlyze المدعومة بالذكاء الاصطناعي لفكرة منتجك البرمجي" : "Get Planlyze AI-powered insights for your software product idea"}</p>
+            <p className="text-slate-600 mt-1">{isUIArabic ? "احصل على رؤى Planlyze المدعومة بالذكاء الاصطناعي لفكرة منتجك البرمجي" : "Get Planlyze AI-powered insights for your software product idea"}</p>
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function NewAnalysis() {
               </div>
             </div>
             <CardTitle className="text-2xl font-bold text-slate-800">
-              {isArabic ? "أخبرنا عن فكرتك" : "Tell Us About Your Idea"}
+              {isUIArabic ? "أخبرنا عن فكرتك" : "Tell Us About Your Idea"}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
