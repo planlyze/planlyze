@@ -853,7 +853,7 @@ Budget: {analysis.budget or 'Not specified'}
 
         response = client.messages.create(
             model=DEFAULT_MODEL,
-            max_tokens=4096,
+            max_tokens=8192,
             messages=[{"role": "user", "content": prompt}]
         )
         
