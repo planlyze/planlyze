@@ -24,6 +24,15 @@ Admin-configurable credit settings stored in SystemSettings table:
 - **Referral Flow**: Signup sets referral status='pending' → First premium report completion → Award bonus to referrer + send notification
 - **Admin UI**: "Credit Settings" tab in Admin Settings page for managing these values
 
+### Syrian Competitors Analysis
+Enhanced competitor analysis using real competitor data from Supabase:
+- **Data Source**: `server/services/competitor_service.py` fetches competitor JSON files from Supabase URLs organized by industry (Delivery, Ecommerce, Health, Job, Taxi, etc.)
+- **Data Structure**: Each competitor includes app name, cities, social media links (Facebook, Instagram, WhatsApp, Telegram), app links (Android, iOS, Website), and enabled features
+- **AI Matching**: Claude AI analyzes which competitors are relevant to the user's idea based on feature overlap and generates descriptions, pros, cons, and relevance explanations
+- **Market Uniqueness**: AI identifies market gaps, differentiation opportunities, recommended features, and competitive advantages
+- **Frontend Display**: `MarketSection.jsx` renders competitor cards with clickable app/social links, relevance badges, and uniqueness recommendations
+- **Error Handling**: Service guards against None/null values in social/app link data; frontend hides empty relevance sections
+
 ## External Dependencies
 - **AI**: Anthropic Claude API (claude-sonnet-4-5)
 - **Database**: PostgreSQL
