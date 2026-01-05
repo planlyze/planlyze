@@ -874,12 +874,13 @@ def generate_tab_content(user):
         if tab_name == 'market':
             competitors = get_competitors_for_analysis(analysis.industry)
             if competitors:
-                competitor_data_str = format_competitors_for_prompt(competitors)
+                limited_competitors = competitors[:15]
+                competitor_data_str = format_competitors_for_prompt(limited_competitors)
                 competitor_section = f"""
 
 === SYRIAN COMPETITOR DATA (USE THIS DATA) ===
 Below is REAL data about Syrian competitors. Analyze which ones are RELEVANT to the user's business idea based on feature overlap.
-For each relevant competitor, you MUST use their actual name and links from this data.
+For each relevant competitor, you MUST use their actual name and links from this data. Only include 3-5 most relevant competitors in your response.
 {competitor_data_str}
 === END COMPETITOR DATA ===
 """
@@ -896,9 +897,11 @@ Budget: {analysis.budget or 'Not specified'}
 
 {TAB_PROMPTS[tab_name]}"""
 
+        max_tokens_for_tab = 12000 if tab_name == 'market' else 8192
+        
         response = client.messages.create(
             model=DEFAULT_MODEL,
-            max_tokens=8192,
+            max_tokens=max_tokens_for_tab,
             messages=[{"role": "user", "content": prompt}]
         )
         
