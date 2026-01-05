@@ -34,7 +34,7 @@ SEED_VERSIONS = {
     'credit_packages': 1,
     'payment_methods': 1,
     'email_templates': 1,
-    'system_settings': 1,
+    'system_settings': 2,
     'partners': 1,
     'social_media' : 1,
     'currencies': 1,
@@ -549,6 +549,16 @@ def seed_system_settings():
             'key': 'syrian_apps_count',
             'value': '150',
             'description': 'Number of Syrian apps to display on landing page statistics'
+        },
+        {
+            'key': 'premium_report_cost',
+            'value': '1',
+            'description': 'Number of credits required to generate a premium report'
+        },
+        {
+            'key': 'referral_bonus_credits',
+            'value': '1',
+            'description': 'Number of credits awarded when a referred user generates their first premium report'
         }
     ]
     

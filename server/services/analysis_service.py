@@ -4,6 +4,7 @@ import traceback
 from datetime import datetime
 from anthropic import Anthropic
 from server.models import db, User, Analysis, Transaction
+from server.services.settings_service import get_premium_report_cost
 from flask import current_app
 
 
@@ -267,8 +268,10 @@ def reserve_premium_credit(user_email: str, analysis_id: str) -> dict:
                 'error': 'User not found'
             }
         
-        if user.credits >= 1:
-            user.credits -= 1
+        credit_cost = get_premium_report_cost()
+        
+        if user.credits >= credit_cost:
+            user.credits -= credit_cost
             
             # Get analysis to check language
             analysis = Analysis.query.get(analysis_id)
@@ -278,7 +281,7 @@ def reserve_premium_credit(user_email: str, analysis_id: str) -> dict:
             transaction = Transaction(
                 user_email=user_email,
                 type='analysis',
-                credits=-1,
+                credits=-credit_cost,
                 description=tx_description,
                 reference_id=analysis_id,
                 status='pending'
@@ -292,7 +295,7 @@ def reserve_premium_credit(user_email: str, analysis_id: str) -> dict:
             
             db.session.commit()
             
-            current_app.logger.info(f"[Credit Reserve] Reserved 1 credit for user {user_email}, transaction {transaction.id}")
+            current_app.logger.info(f"[Credit Reserve] Reserved {credit_cost} credit(s) for user {user_email}, transaction {transaction.id}")
             
             return {
                 'success': True,
