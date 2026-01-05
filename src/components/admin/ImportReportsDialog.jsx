@@ -211,7 +211,9 @@ export default function ImportReportsDialog({ open, onOpenChange, onImportComple
                           )}
                         </td>
                         <td className="px-3 py-2">{row.user_email}</td>
-                        <td className="px-3 py-2 max-w-[200px] truncate" title={row.business_idea}>{row.business_idea}</td>
+                        <td className="px-3 py-2 max-w-[250px]" title={row.business_idea}>
+                          <span className="line-clamp-2">{row.business_idea}</span>
+                        </td>
                         <td className="px-3 py-2">{row.report_type || 'premium'}</td>
                         <td className="px-3 py-2">
                           {row.errors?.length > 0 && (
