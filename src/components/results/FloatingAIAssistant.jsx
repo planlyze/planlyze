@@ -425,10 +425,20 @@ When answering:
                 {/* Input */}
                 <div className="p-3 bg-slate-50">
                   {selectedText && (
-                    <div className="mb-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs">
-                      <p className="text-purple-700 font-semibold mb-1">
-                        {isArabic ? 'نص محدد:' : 'Selected:'}
-                      </p>
+                    <div className="mb-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs relative">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-purple-700 font-semibold">
+                          {isArabic ? 'نص محدد:' : 'Selected:'}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedText("")}
+                          className="h-5 w-5 p-0 hover:bg-purple-200 text-purple-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
                       <p className="text-slate-600 line-clamp-2">{selectedText}</p>
                     </div>
                   )}
