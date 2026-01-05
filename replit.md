@@ -25,13 +25,13 @@ Admin-configurable credit settings stored in SystemSettings table:
 - **Admin UI**: "Credit Settings" tab in Admin Settings page for managing these values
 
 ### Syrian Competitors Analysis
-Enhanced competitor analysis using real competitor data from Supabase:
-- **Data Source**: `server/services/competitor_service.py` fetches competitor JSON files from Supabase URLs organized by industry (Delivery, Ecommerce, Health, Job, Taxi, etc.)
+Enhanced competitor analysis using hardcoded Syrian competitor data:
+- **Data Source**: `server/services/competitor_service.py` contains hardcoded competitor data (20 Syrian apps/services across delivery, e-commerce, jobs, taxi, health, real estate, etc.)
 - **Data Structure**: Each competitor includes app name, cities, social media links (Facebook, Instagram, WhatsApp, Telegram), app links (Android, iOS, Website), and enabled features
+- **No Industry Filtering**: All competitors are provided to AI regardless of user's industry - AI determines relevance based on business idea
 - **AI Matching**: Claude AI analyzes which competitors are relevant to the user's idea based on feature overlap and generates descriptions, pros, cons, and relevance explanations
 - **Market Uniqueness**: AI identifies market gaps, differentiation opportunities, recommended features, and competitive advantages
 - **Frontend Display**: `MarketSection.jsx` renders competitor cards with clickable app/social links, relevance badges, and uniqueness recommendations
-- **Error Handling**: Service guards against None/null values in social/app link data; frontend hides empty relevance sections
 
 ## External Dependencies
 - **AI**: Anthropic Claude API (claude-sonnet-4-5)
