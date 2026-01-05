@@ -242,7 +242,7 @@ export default function AdminReports() {
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-2 mb-2">
-                        <h3 className="font-medium text-slate-800 truncate flex-1">
+                        <h3 className="font-medium text-slate-800 flex-1 line-clamp-2" title={report.business_idea}>
                           {report.business_idea || "Untitled Report"}
                         </h3>
                         <Badge className={getTypeColor(report.is_premium)}>
