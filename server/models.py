@@ -27,7 +27,7 @@ class User(db.Model):
     
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)
     full_name = db.Column(db.String(255))
     display_name = db.Column(db.String(255))
     role_id = db.Column(db.String(36), db.ForeignKey('roles.id'))
