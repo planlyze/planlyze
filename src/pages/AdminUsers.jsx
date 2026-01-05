@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Users, Mail, Calendar, FileText, SortDesc, SortAsc, 
-  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield, HelpCircle, Download
+  CreditCard, UserCheck, Tag, Receipt, History, Eye, Shield, HelpCircle, Download, Upload
 } from "lucide-react";
 import { exportToExcel, getUsersExportColumns } from "@/components/utils/excelExport";
 import { format } from "date-fns";
@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ImportUsersDialog from "@/components/admin/ImportUsersDialog";
 
 export default function AdminUsers() {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function AdminUsers() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -169,19 +171,30 @@ export default function AdminUsers() {
           icon={Users}
           isArabic={isArabic}
           actions={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const success = exportToExcel(filteredUsers, getUsersExportColumns(), 'users', 'Users');
-                if (success) toast.success('Users exported to Excel');
-                else toast.error('No data to export');
-              }}
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImportDialog(true)}
+                className="gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                {isArabic ? 'استيراد' : 'Import'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const success = exportToExcel(filteredUsers, getUsersExportColumns(), 'users', 'Users');
+                  if (success) toast.success('Users exported to Excel');
+                  else toast.error('No data to export');
+                }}
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                {isArabic ? 'تصدير' : 'Export'}
+              </Button>
+            </div>
           }
         />
 
@@ -458,6 +471,12 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
+
+      <ImportUsersDialog 
+        open={showImportDialog} 
+        onOpenChange={setShowImportDialog}
+        onSuccess={loadUsers}
+      />
     </div>
   );
 }

@@ -379,6 +379,25 @@ export const User = {
   update: (id, data) => api.put(`/users/${id}`, data),
   adjustCredits: (id, credits, reason) =>
     api.post(`/users/${id}/adjust-credits`, { credits, reason }),
+  importFromExcel: async (file, commit = false) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("commit", commit.toString());
+    const token = localStorage.getItem("auth_token");
+    const response = await fetch(`${API_BASE}/users/import`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Import failed");
+    }
+    return data;
+  },
+  getImportTemplate: () => api.get("/users/import/template"),
   filter: async (filters) => {
     const users = await api.get("/users");
     if (!filters || Object.keys(filters).length === 0) return users;
