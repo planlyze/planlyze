@@ -2213,6 +2213,117 @@ def get_import_template_info(user):
     from server.services.user_import_service import get_template_columns
     return jsonify(get_template_columns())
 
+@entities_bp.route('/reports/import', methods=['POST'])
+@require_admin
+def import_reports_from_excel(user):
+    """
+    Import reports from Excel file (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: file
+        in: formData
+        type: file
+        required: true
+        description: Excel file (.xlsx) with report data
+      - name: commit
+        in: formData
+        type: boolean
+        required: false
+        description: If true, actually import reports. If false, just validate and preview.
+    responses:
+      200:
+        description: Import preview or result
+      400:
+        description: Invalid file or data
+    """
+    from server.services.report_import_service import parse_excel_file, validate_rows, import_reports, get_template_columns
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.endswith('.xlsx'):
+        return jsonify({'error': 'File must be an Excel file (.xlsx)'}), 400
+    
+    file_data = file.read()
+    if len(file_data) > 10 * 1024 * 1024:
+        return jsonify({'error': 'File size exceeds 10MB limit'}), 400
+    
+    parsed, error = parse_excel_file(file_data)
+    if error:
+        return jsonify({'error': error}), 400
+    
+    validated_rows = validate_rows(parsed['rows'])
+    
+    commit = request.form.get('commit', 'false').lower() == 'true'
+    
+    valid_count = sum(1 for r in validated_rows if r['status'] == 'valid')
+    invalid_count = sum(1 for r in validated_rows if r['status'] == 'invalid')
+    
+    if not commit:
+        preview_rows = []
+        for row in validated_rows:
+            preview_rows.append({
+                'row_number': row['row_number'],
+                'status': row['status'],
+                'errors': row['errors'],
+                'warnings': row['warnings'],
+                'user_email': row['original'].get('user_email', ''),
+                'business_idea': str(row['original'].get('business_idea', ''))[:100],
+                'report_type': row['original'].get('report_type', 'premium'),
+            })
+        
+        return jsonify({
+            'preview': True,
+            'columns': parsed['columns'],
+            'rows': preview_rows,
+            'summary': {
+                'total': len(validated_rows),
+                'valid': valid_count,
+                'invalid': invalid_count
+            },
+            'template_info': get_template_columns()
+        })
+    
+    if valid_count == 0:
+        return jsonify({'error': 'No valid rows to import'}), 400
+    
+    imported, failed = import_reports(validated_rows)
+    
+    return jsonify({
+        'success': True,
+        'imported': len(imported),
+        'failed': len(failed),
+        'imported_reports': imported,
+        'failed_rows': failed
+    })
+
+@entities_bp.route('/reports/import/template', methods=['GET'])
+@require_admin
+def get_report_import_template_info(user):
+    """
+    Get report import template column information (admin only)
+    ---
+    tags:
+      - Admin
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Template column information
+    """
+    from server.services.report_import_service import get_template_columns
+    return jsonify(get_template_columns())
+
 @entities_bp.route('/users/<id>', methods=['PUT'])
 @require_admin
 def update_user(user, id):

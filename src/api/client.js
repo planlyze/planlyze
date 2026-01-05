@@ -96,6 +96,27 @@ export const Analysis = {
   },
 };
 
+export const reports = {
+  importFromExcel: async (file, commit = false) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("commit", commit.toString());
+    const token = localStorage.getItem("auth_token");
+    const response = await fetch(`${API_BASE}/reports/import`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Import failed");
+    }
+    return data;
+  },
+};
+
 export const Transaction = {
   list: () => api.get("/transactions"),
   create: (data) => api.post("/transactions", data),

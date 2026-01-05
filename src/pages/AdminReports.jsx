@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, Download, X } from "lucide-react";
+import { Star, FileText, Calendar, Mail, SortDesc, SortAsc, Download, X, Upload } from "lucide-react";
 import { exportToExcel, getReportsExportColumns } from "@/components/utils/excelExport";
+import ImportReportsDialog from "@/components/admin/ImportReportsDialog";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +31,7 @@ export default function AdminReports() {
   const [ratingFilter, setRatingFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
   const [userFilter, setUserFilter] = useState("");
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   useEffect(() => {
     const userParam = searchParams.get("user");
@@ -130,19 +132,30 @@ export default function AdminReports() {
           backUrl={createPageUrl("Dashboard")}
           icon={FileText}
           actions={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const success = exportToExcel(filteredReports, getReportsExportColumns(), 'reports', 'Reports');
-                if (success) toast.success('Reports exported to Excel');
-                else toast.error('No data to export');
-              }}
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImportDialog(true)}
+                className="gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Import
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const success = exportToExcel(filteredReports, getReportsExportColumns(), 'reports', 'Reports');
+                  if (success) toast.success('Reports exported to Excel');
+                  else toast.error('No data to export');
+                }}
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </div>
           }
         />
 
@@ -266,6 +279,12 @@ export default function AdminReports() {
           </div>
         )}
       </div>
+      
+      <ImportReportsDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImportComplete={loadReports}
+      />
     </div>
   );
 }
