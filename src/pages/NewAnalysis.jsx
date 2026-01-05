@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { auth, api } from "@/api/client";
+import React, { useState, useEffect } from "react";
+import { auth, api, SystemSettings } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -18,10 +18,11 @@ export default function NewAnalysis() {
   const { user: currentUser, refreshUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [premiumReportCost, setPremiumReportCost] = useState(1);
   
   const isUIArabic = currentUser?.language === 'arabic';
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         await auth.me();
@@ -31,6 +32,20 @@ export default function NewAnalysis() {
         setAuthChecked(true);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const fetchCreditSettings = async () => {
+      try {
+        const response = await SystemSettings.get('premium_report_cost');
+        const cost = parseInt(response?.data?.value || response?.value || '1', 10);
+        setPremiumReportCost(cost >= 1 ? cost : 1);
+      } catch (error) {
+        console.error("Failed to fetch credit settings:", error);
+        setPremiumReportCost(1);
+      }
+    };
+    fetchCreditSettings();
   }, []);
 
   const handleFormSubmit = async (formDataFromWizard) => {
@@ -214,13 +229,15 @@ export default function NewAnalysis() {
                       <p className="text-sm text-slate-600 dark:text-slate-400">
                         {isUIArabic ? "تكلفة التحليل" : "Analysis Cost"}
                       </p>
-                      <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">1 {isUIArabic ? "رصيد" : "Credit"}</p>
+                      <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {premiumReportCost} {isUIArabic ? (premiumReportCost === 1 ? "رصيد" : "رصيد") : (premiumReportCost === 1 ? "Credit" : "Credits")}
+                      </p>
                     </div>
                     <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
                       <Coins className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                     </div>
                   </div>
-                  {currentUser?.credits < 1 && (
+                  {currentUser?.credits < premiumReportCost && (
                     <Button 
                       onClick={() => navigate(createPageUrl("Credits"))}
                       className="w-full mt-4 bg-purple-600 hover:bg-purple-700"
