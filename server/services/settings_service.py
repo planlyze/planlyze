@@ -18,26 +18,33 @@ def get_setting(key: str, default=None):
         return default
     return SYSTEM_SETTING_DEFAULTS.get(key)
 
-def get_setting_int(key: str, default=None) -> int:
+def get_setting_int(key: str, default=None, min_value: int = None) -> int:
     """
     Get a system setting value as integer.
     Returns the setting value as int, or default if not found or invalid.
+    If min_value is provided, ensures the returned value is at least min_value.
     """
     value = get_setting(key, default)
     try:
-        return int(value)
+        result = int(value)
     except (ValueError, TypeError):
         if default is not None:
-            return int(default)
-        return int(SYSTEM_SETTING_DEFAULTS.get(key, 0))
+            result = int(default)
+        else:
+            result = int(SYSTEM_SETTING_DEFAULTS.get(key, 0))
+    
+    if min_value is not None and result < min_value:
+        result = min_value
+    
+    return result
 
 def get_premium_report_cost() -> int:
-    """Get the credit cost for generating a premium report."""
-    return get_setting_int('premium_report_cost', 1)
+    """Get the credit cost for generating a premium report. Minimum is 1."""
+    return get_setting_int('premium_report_cost', 1, min_value=1)
 
 def get_referral_bonus_credits() -> int:
-    """Get the number of credits awarded for successful referral."""
-    return get_setting_int('referral_bonus_credits', 1)
+    """Get the number of credits awarded for successful referral. Minimum is 0."""
+    return get_setting_int('referral_bonus_credits', 1, min_value=0)
 
 def set_setting(key: str, value: str, description: str = None):
     """

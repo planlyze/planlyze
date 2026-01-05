@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check, Share2, Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink } from "lucide-react";
+import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check, Share2, Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink, Coins } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
@@ -24,7 +24,10 @@ export default function AdminSettings() {
   
   const [partners, setPartners] = useState([]);
   const [syrianAppsCount, setSyrianAppsCount] = useState("150");
+  const [premiumReportCost, setPremiumReportCost] = useState("1");
+  const [referralBonusCredits, setReferralBonusCredits] = useState("1");
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isSavingCreditSettings, setIsSavingCreditSettings] = useState(false);
   
   const [contactMessages, setContactMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -101,6 +104,24 @@ export default function AdminSettings() {
         }
       } catch (e) {
         console.log("Syrian apps setting not found, using default");
+      }
+      
+      try {
+        const premiumCostSetting = await SystemSettings.get('premium_report_cost');
+        if (premiumCostSetting?.value) {
+          setPremiumReportCost(premiumCostSetting.value);
+        }
+      } catch (e) {
+        console.log("Premium report cost setting not found, using default");
+      }
+      
+      try {
+        const referralBonusSetting = await SystemSettings.get('referral_bonus_credits');
+        if (referralBonusSetting?.value) {
+          setReferralBonusCredits(referralBonusSetting.value);
+        }
+      } catch (e) {
+        console.log("Referral bonus credits setting not found, using default");
       }
       
       try {
@@ -232,6 +253,34 @@ export default function AdminSettings() {
     }
   };
 
+  const handleSaveCreditSettings = async () => {
+    const costValue = parseInt(premiumReportCost, 10);
+    const bonusValue = parseInt(referralBonusCredits, 10);
+    
+    if (isNaN(costValue) || costValue < 1) {
+      toast.error("Premium report cost must be at least 1");
+      return;
+    }
+    if (isNaN(bonusValue) || bonusValue < 0) {
+      toast.error("Referral bonus credits must be 0 or greater");
+      return;
+    }
+    
+    setIsSavingCreditSettings(true);
+    try {
+      await SystemSettings.update('premium_report_cost', String(costValue));
+      await SystemSettings.update('referral_bonus_credits', String(bonusValue));
+      setPremiumReportCost(String(costValue));
+      setReferralBonusCredits(String(bonusValue));
+      toast.success("Credit settings updated successfully");
+    } catch (error) {
+      console.error("Error saving credit settings:", error);
+      toast.error("Failed to save credit settings");
+    } finally {
+      setIsSavingCreditSettings(false);
+    }
+  };
+
   const openPartnerDialog = (partner = null) => {
     if (partner) {
       setEditingPartner(partner);
@@ -354,6 +403,10 @@ export default function AdminSettings() {
             <TabsTrigger value="social" className="gap-2">
               <Share2 className="w-4 h-4" />
               Social Media
+            </TabsTrigger>
+            <TabsTrigger value="credits" className="gap-2">
+              <Coins className="w-4 h-4" />
+              Credit Settings
             </TabsTrigger>
           </TabsList>
 
@@ -662,6 +715,75 @@ export default function AdminSettings() {
                     )}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="credits">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-yellow-600" />
+                  Credit Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure credit costs and referral bonuses
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 max-w-md">
+                  <div className="space-y-2">
+                    <Label htmlFor="premiumReportCost">Premium Report Cost (Credits)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="premiumReportCost"
+                        type="number"
+                        min="1"
+                        value={premiumReportCost}
+                        onChange={(e) => setPremiumReportCost(e.target.value)}
+                        placeholder="1"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Number of credits deducted when a user generates a premium report.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="referralBonusCredits">Referral Bonus Credits</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="referralBonusCredits"
+                        type="number"
+                        min="0"
+                        value={referralBonusCredits}
+                        onChange={(e) => setReferralBonusCredits(e.target.value)}
+                        placeholder="1"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Credits awarded to the referrer when a referred user generates their first premium report.
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={handleSaveCreditSettings}
+                    disabled={isSavingCreditSettings}
+                    className="gap-2 w-fit"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSavingCreditSettings ? "Saving..." : "Save Credit Settings"}
+                  </Button>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-300">How Referral Bonuses Work</h4>
+                  <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
+                    <li>When a new user signs up with a referral code, the referral is marked as "pending"</li>
+                    <li>The referrer receives the bonus credits only when the referred user generates their first premium report</li>
+                    <li>This ensures referrers are rewarded for bringing active, engaged users</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

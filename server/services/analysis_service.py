@@ -5,6 +5,7 @@ from datetime import datetime
 from anthropic import Anthropic
 from server.models import db, User, Analysis, Transaction
 from server.services.settings_service import get_premium_report_cost
+from server.services.referral_service import check_and_award_referral_bonus
 from flask import current_app
 
 
@@ -371,13 +372,28 @@ def finalize_transaction(analysis_id: str, success: bool, error_message: str = N
             
             current_app.logger.info(f"[Transaction Finalize] Transaction {transaction.id} completed for analysis {analysis_id}")
             
+            try:
+                referral_result = check_and_award_referral_bonus(
+                    user_email=analysis.user_email,
+                    analysis_id=analysis_id,
+                    is_premium_completed=True
+                )
+                if referral_result['awarded']:
+                    current_app.logger.info(
+                        f"[Transaction Finalize] Referral bonus awarded: {referral_result['credits']} credits to {referral_result['referrer_email']}"
+                    )
+            except Exception as referral_error:
+                current_app.logger.warning(f"[Transaction Finalize] Referral bonus check failed: {referral_error}")
+            
             return {'success': True, 'refunded': False, 'error': None}
         else:
             user = User.query.filter_by(email=analysis.user_email).with_for_update().first()
             
+            refund_amount = abs(transaction.credits) if transaction.credits else get_premium_report_cost()
+            
             if user:
-                user.credits += 1
-                current_app.logger.info(f"[Transaction Finalize] Refunded 1 credit to user {user.email}")
+                user.credits += refund_amount
+                current_app.logger.info(f"[Transaction Finalize] Refunded {refund_amount} credit(s) to user {user.email}")
             
             transaction.status = 'refunded'
             error_text = error_message or ("خطأ غير معروف" if is_arabic else "Unknown error")
@@ -408,6 +424,7 @@ def get_report_type_for_user(user_email: str) -> str:
     Returns: 'premium' if user has credits, 'free' otherwise
     """
     user = User.query.filter_by(email=user_email).first()
-    if user and user.credits >= 1:
+    credit_cost = get_premium_report_cost()
+    if user and user.credits >= credit_cost:
         return 'premium'
     return 'free'

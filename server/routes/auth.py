@@ -138,49 +138,14 @@ def register():
     db.session.commit()
     
     if referrer:
-        referrer.credits = (referrer.credits or 0) + 1
-        
         referral_record = Referral(
             referrer_email=referrer.email,
             referred_email=user.email,
             referral_code=referral_code,
-            status='completed'
+            status='pending'
         )
         db.session.add(referral_record)
-        
-        referrer_notification = Notification(
-            user_email=referrer.email,
-            type='referral_bonus',
-            title=get_message('auth.referral_bonus_title', lang),
-            message=get_message('auth.referral_bonus_message', lang).format(email=user.email),
-            meta_data={'referred_email': user.email, 'credits_earned': 1}
-        )
-        db.session.add(referrer_notification)
-        
-        referrer_transaction = Transaction(
-            user_email=referrer.email,
-            type='referral_bonus',
-            credits=1,
-            amount_usd=0,
-            description=f'Referral bonus: {user.email} signed up using your code',
-            reference_id=referral_record.id,
-            status='completed'
-        )
-        db.session.add(referrer_transaction)
-        
         db.session.commit()
-        
-        app_url = f"https://{APP_DOMAIN}"
-        referrer_lang = referrer.language or 'en'
-        
-        send_referral_bonus_email_to_referrer(
-            referrer_email=referrer.email,
-            referrer_name=referrer.full_name,
-            referred_email=user.email,
-            referral_code=referrer.referral_code,
-            app_url=app_url,
-            lang=referrer_lang
-        )
     
     email_sent = send_verification_email(email, full_name, verification_token, lang)
     
