@@ -31,7 +31,8 @@ export default function Credits() {
   const [hoveredPackage, setHoveredPackage] = useState(null);
   const [packageQuantities, setPackageQuantities] = useState({});
   const [currencies, setCurrencies] = useState([]);
-  const [selectedCurrency, setSelectedCurrency] = useState(null);  
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
+  const [premiumReportCost, setPremiumReportCost] = useState(1);  
 
   useEffect(() => {
     loadData();
@@ -64,6 +65,15 @@ export default function Credits() {
       } catch (currencyError) {
         console.error("Error loading currencies:", currencyError);
         setCurrencies([]);
+      }
+      
+      try {
+        const settingsData = await Settings.get();
+        if (settingsData?.premium_report_cost) {
+          setPremiumReportCost(settingsData.premium_report_cost);
+        }
+      } catch (settingsError) {
+        console.error("Error loading settings:", settingsError);
       }
       
     } catch (error) {
@@ -169,7 +179,10 @@ export default function Credits() {
                       <p className="text-purple-200 mt-2 text-sm md:text-base">
                         {credits === 0 
                           ? t('credits.startJourney')
-                          : t(credits === 1 ? 'credits.readyToCreate' : 'credits.readyToCreatePlural', { count: credits })
+                          : (() => {
+                              const reportCount = Math.floor(credits / premiumReportCost);
+                              return t(reportCount === 1 ? 'credits.readyToCreate' : 'credits.readyToCreatePlural', { count: reportCount });
+                            })()
                         }
                       </p>
                     </div>
