@@ -59,6 +59,8 @@ class User(db.Model):
         referral_credits_earned = 0
         try:
             from sqlalchemy import text
+            from server.services.settings_service import get_referral_bonus_credits
+            
             result = db.session.execute(
                 text("SELECT COUNT(*) FROM referrals WHERE referrer_email = :email"),
                 {"email": self.email}
@@ -69,7 +71,9 @@ class User(db.Model):
                 text("SELECT COUNT(*) FROM referrals WHERE referrer_email = :email AND status = 'rewarded'"),
                 {"email": self.email}
             )
-            referral_credits_earned = result.scalar() or 0
+            rewarded_count = result.scalar() or 0
+            bonus_per_referral = get_referral_bonus_credits()
+            referral_credits_earned = rewarded_count * bonus_per_referral
         except Exception as e:
             logging.warning(f"Failed to fetch referral stats for user {self.email}: {str(e)}")
         

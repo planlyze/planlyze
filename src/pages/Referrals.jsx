@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { auth, Referral } from "@/api/client";
+import { auth, Referral, Settings } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,8 +17,6 @@ import PageLoader from "@/components/common/PageLoader";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-const REFERRER_REWARD = 1; // Credits for referrer
-
 export default function Referrals() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -26,6 +24,7 @@ export default function Referrals() {
   const [referrals, setReferrals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [referralBonus, setReferralBonus] = useState(1);
 
   useEffect(() => {
     loadData();
@@ -40,6 +39,16 @@ export default function Referrals() {
       // Load referrals for this user
       const userReferrals = await Referral.list();
       setReferrals(Array.isArray(userReferrals) ? userReferrals : []);
+      
+      // Load referral bonus from settings
+      try {
+        const settings = await Settings.get();
+        if (settings?.referral_bonus_credits) {
+          setReferralBonus(settings.referral_bonus_credits);
+        }
+      } catch (err) {
+        console.error("Error loading settings:", err);
+      }
     } catch (error) {
       console.error("Error loading referral data:", error);
       window.location.href = "/login";
@@ -153,7 +162,7 @@ export default function Referrals() {
                     </div>
                     <div className="flex items-center gap-3 bg-white/10 rounded-lg p-3">
                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">3</div>
-                      <span>{t('referrals.step3', { reward: REFERRER_REWARD })}</span>
+                      <span>{t('referrals.step3', { reward: referralBonus })}</span>
                     </div>
                   </div>
                 </div>
@@ -163,7 +172,7 @@ export default function Referrals() {
                     <Award className="w-12 h-12" />
                   </div>
                   <Badge className="bg-white/20 text-white border-0 text-lg px-4 py-1">
-                    +{REFERRER_REWARD} {t('credits.credit')}
+                    +{referralBonus} {t('credits.credit')}
                   </Badge>
                 </div>
               </div>
