@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, AlertCircle, Lightbulb, TrendingUp, Building2, Target, PieChart } from "lucide-react";
+import { Users, AlertCircle, Lightbulb, TrendingUp, Building2, Target, PieChart, Sparkles, ExternalLink, Smartphone, Globe, Facebook, Instagram, MessageCircle, Send } from "lucide-react";
 import LockedContent from "./LockedContent";
 import { SWOTChart, MarketSizeChart } from "./charts/AnalysisCharts";
 
@@ -24,8 +24,10 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
   const syrianMarket = parsedData.syrian_market || {};
   const syrianCompetitors = parsedData.syrian_competitors || [];
   const swot = parsedData.swot || {};
+  const marketUniqueness = parsedData.market_uniqueness || {};
   
   const hasSwotData = swot.strengths?.length || swot.weaknesses?.length || swot.opportunities?.length || swot.threats?.length;
+  const hasUniquenessData = marketUniqueness.gaps_in_market?.length || marketUniqueness.differentiation_opportunities?.length || marketUniqueness.unique_value_proposition;
 
   return (
     <div className="space-y-6">
@@ -254,23 +256,102 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
               <div className="space-y-4">
                 {syrianCompetitors.map((comp, idx) => (
                   <div key={idx} className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-100">
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                      <h4 className="font-semibold text-slate-800">{comp.name}</h4>
-                      {comp.website && (
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <h4 className="font-semibold text-slate-800 text-lg">{comp.name}</h4>
+                      {comp.relevance && typeof comp.relevance === 'string' && comp.relevance.trim() && (
+                        <Badge variant="outline" className="bg-purple-100 text-purple-700 text-xs">
+                          {t("Relevant", "ذو صلة")}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {comp.description && typeof comp.description === 'string' && comp.description.trim() && (
+                      <p className="text-sm text-slate-600 mb-3">{comp.description}</p>
+                    )}
+                    
+                    {comp.relevance && typeof comp.relevance === 'string' && comp.relevance.trim() && (
+                      <div className="mb-3 p-2 bg-purple-100/50 rounded text-sm text-purple-800">
+                        <span className="font-medium">{t("Why relevant:", "لماذا ذو صلة:")}</span> {comp.relevance}
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {(comp.app_links?.android || comp.android) && (
                         <a 
-                          href={comp.website} 
+                          href={comp.app_links?.android || comp.android} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-sm text-purple-600 hover:text-purple-800 underline"
+                          className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
                         >
-                          {t("Visit Website", "زيارة الموقع")} →
+                          <Smartphone className="w-3 h-3" /> Android
+                        </a>
+                      )}
+                      {(comp.app_links?.ios || comp.ios) && (
+                        <a 
+                          href={comp.app_links?.ios || comp.ios} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                        >
+                          <Smartphone className="w-3 h-3" /> iOS
+                        </a>
+                      )}
+                      {(comp.app_links?.website || comp.website) && (
+                        <a 
+                          href={comp.app_links?.website || comp.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                        >
+                          <Globe className="w-3 h-3" /> {t("Website", "الموقع")}
+                        </a>
+                      )}
+                      {comp.social?.facebook && (
+                        <a 
+                          href={comp.social.facebook} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          <Facebook className="w-3 h-3" /> Facebook
+                        </a>
+                      )}
+                      {comp.social?.instagram && (
+                        <a 
+                          href={comp.social.instagram} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded hover:bg-pink-100 transition-colors"
+                        >
+                          <Instagram className="w-3 h-3" /> Instagram
+                        </a>
+                      )}
+                      {comp.social?.whatsapp && (
+                        <a 
+                          href={comp.social.whatsapp.startsWith('http') ? comp.social.whatsapp : `https://wa.me/${comp.social.whatsapp}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-600 px-2 py-1 rounded hover:bg-green-100 transition-colors"
+                        >
+                          <MessageCircle className="w-3 h-3" /> WhatsApp
+                        </a>
+                      )}
+                      {comp.social?.telegram && (
+                        <a 
+                          href={comp.social.telegram} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-sky-50 text-sky-600 px-2 py-1 rounded hover:bg-sky-100 transition-colors"
+                        >
+                          <Send className="w-3 h-3" /> Telegram
                         </a>
                       )}
                     </div>
+                    
                     <div className="grid sm:grid-cols-2 gap-4">
                       {comp.pros && comp.pros.length > 0 && (
-                        <div>
-                          <span className="text-sm font-medium text-green-700">{t("Pros:", "الإيجابيات:")}</span>
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <span className="text-sm font-medium text-green-700">{t("Strengths:", "نقاط القوة:")}</span>
                           <ul className="mt-1 space-y-1">
                             {comp.pros.map((pro, pidx) => (
                               <li key={pidx} className="flex items-start gap-2 text-sm text-slate-600">
@@ -281,8 +362,8 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
                         </div>
                       )}
                       {comp.cons && comp.cons.length > 0 && (
-                        <div>
-                          <span className="text-sm font-medium text-red-700">{t("Cons:", "السلبيات:")}</span>
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <span className="text-sm font-medium text-red-700">{t("Weaknesses:", "نقاط الضعف:")}</span>
                           <ul className="mt-1 space-y-1">
                             {comp.cons.map((con, cidx) => (
                               <li key={cidx} className="flex items-start gap-2 text-sm text-slate-600">
@@ -302,6 +383,91 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
           <LockedContent
             title={t("Syrian Competitors Analysis", "تحليل المنافسين في سوريا")}
             description={t("Unlock detailed competitor analysis with pros and cons", "افتح تحليل المنافسين التفصيلي مع الإيجابيات والسلبيات")}
+            isArabic={isArabic}
+            onUnlock={onUnlock}
+            isUnlocking={isUnlocking}
+          />
+        )
+      )}
+
+      {hasUniquenessData && (
+        isPremium ? (
+          <Card className="glass-effect border rounded-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                {t("How to Be Unique", "كيف تكون فريداً")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg border border-amber-100">
+                {marketUniqueness.unique_value_proposition && (
+                  <div className="mb-4 p-3 bg-white/70 rounded-lg border-l-4 border-amber-400">
+                    <span className="text-sm font-medium text-amber-700">{t("Unique Value Proposition:", "القيمة الفريدة:")}</span>
+                    <p className="text-slate-700 mt-1">{marketUniqueness.unique_value_proposition}</p>
+                  </div>
+                )}
+                
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {marketUniqueness.gaps_in_market && marketUniqueness.gaps_in_market.length > 0 && (
+                    <div className="bg-white/60 p-3 rounded-lg">
+                      <span className="text-sm font-medium text-amber-700">{t("Market Gaps:", "فجوات السوق:")}</span>
+                      <ul className="mt-2 space-y-1">
+                        {marketUniqueness.gaps_in_market.map((gap, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-amber-500">◆</span> {gap}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {marketUniqueness.differentiation_opportunities && marketUniqueness.differentiation_opportunities.length > 0 && (
+                    <div className="bg-white/60 p-3 rounded-lg">
+                      <span className="text-sm font-medium text-amber-700">{t("How to Differentiate:", "كيف تتميز:")}</span>
+                      <ul className="mt-2 space-y-1">
+                        {marketUniqueness.differentiation_opportunities.map((diff, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-amber-500">★</span> {diff}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {marketUniqueness.recommended_features && marketUniqueness.recommended_features.length > 0 && (
+                    <div className="bg-white/60 p-3 rounded-lg">
+                      <span className="text-sm font-medium text-amber-700">{t("Recommended Features:", "الميزات الموصى بها:")}</span>
+                      <ul className="mt-2 space-y-1">
+                        {marketUniqueness.recommended_features.map((feat, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-green-500">✓</span> {feat}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {marketUniqueness.competitive_advantages && marketUniqueness.competitive_advantages.length > 0 && (
+                    <div className="bg-white/60 p-3 rounded-lg">
+                      <span className="text-sm font-medium text-amber-700">{t("Competitive Advantages:", "المزايا التنافسية:")}</span>
+                      <ul className="mt-2 space-y-1">
+                        {marketUniqueness.competitive_advantages.map((adv, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="text-purple-500">→</span> {adv}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <LockedContent
+            title={t("How to Be Unique", "كيف تكون فريداً")}
+            description={t("Unlock strategies to differentiate your business from competitors", "افتح استراتيجيات لتمييز عملك عن المنافسين")}
             isArabic={isArabic}
             onUnlock={onUnlock}
             isUnlocking={isUnlocking}

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import db, Analysis, Transaction, User, ChatConversation
 from server.routes.auth import get_current_user
 from server.services.settings_service import get_premium_report_cost
+from server.services.competitor_service import get_competitors_for_analysis, format_competitors_for_prompt
 import anthropic
 import os
 import json
@@ -513,14 +514,22 @@ Respond in JSON format:
     "value_proposition": "A concise 2-3 line description of the core value this business provides to customers and what makes it unique in the market."
 }}""",
 
-    'market': """Generate a comprehensive Market & Competition analysis for this business idea. Focus on:
+    'market': """Generate a comprehensive Market & Competition analysis for this business idea.
 
+IMPORTANT: You will be provided with REAL Syrian competitor data. Analyze which competitors are RELEVANT to the user's business idea based on overlapping features and market positioning. For each relevant competitor, generate a description, pros, cons based on their features.
+
+Focus on:
 1. Target Audiences (identify 4 distinct customer segments)
 2. Key Problems (2-4 main problems, each with 4 detailed sub-points)
 3. Solution Overview
 4. Syrian Market Opportunity (market size, growth potential, unique factors)
-5. Syrian Competitors Analysis (local competitors with name, website, pros, cons)
+5. Syrian Competitors Analysis - ONLY include competitors from the provided data that are relevant to this business idea. For each:
+   - Generate a description of what the app does
+   - Analyze pros (based on their enabled features)
+   - Analyze cons (based on missing features or weaknesses)
+   - Include their actual links (social media, app stores, website)
 6. SWOT Analysis for this idea
+7. Market Uniqueness - How can the user's business be UNIQUE compared to competitors? What gaps exist that they can fill?
 
 Respond in JSON format:
 {{
@@ -557,10 +566,32 @@ Respond in JSON format:
         "regulations": "..."
     }},
     "syrian_competitors": [
-        {{"name": "Competitor 1", "website": "https://...", "pros": ["..."], "cons": ["..."]}},
-        {{"name": "Competitor 2", "website": "https://...", "pros": ["..."], "cons": ["..."]}},
-        {{"name": "Competitor 3", "website": "https://...", "pros": ["..."], "cons": ["..."]}}
+        {{
+            "name": "Actual competitor name from data",
+            "description": "AI-generated description of what this app/service does",
+            "pros": ["Based on enabled features - strength 1", "strength 2", "strength 3"],
+            "cons": ["Based on missing features - weakness 1", "weakness 2", "weakness 3"],
+            "relevance": "Why this competitor is relevant to the user's idea",
+            "app_links": {{
+                "android": "actual link or null",
+                "ios": "actual link or null", 
+                "website": "actual link or null"
+            }},
+            "social": {{
+                "facebook": "actual link or null",
+                "instagram": "actual link or null",
+                "whatsapp": "actual number or null",
+                "telegram": "actual link or null"
+            }}
+        }}
     ],
+    "market_uniqueness": {{
+        "gaps_in_market": ["Gap 1 that competitors don't address", "Gap 2", "Gap 3"],
+        "differentiation_opportunities": ["How to stand out 1", "How to stand out 2", "How to stand out 3"],
+        "unique_value_proposition": "A clear statement of how this idea can be unique in the Syrian market",
+        "recommended_features": ["Feature competitors lack 1", "Feature 2", "Feature 3"],
+        "competitive_advantages": ["Advantage 1", "Advantage 2"]
+    }},
     "swot": {{
         "strengths": ["strength 1", "strength 2", "strength 3"],
         "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
@@ -839,6 +870,20 @@ def generate_tab_content(user):
         
         language_instruction = "Respond in Arabic language." if language == 'ar' else "Respond in English."
         
+        competitor_section = ""
+        if tab_name == 'market':
+            competitors = get_competitors_for_analysis(analysis.industry)
+            if competitors:
+                competitor_data_str = format_competitors_for_prompt(competitors)
+                competitor_section = f"""
+
+=== SYRIAN COMPETITOR DATA (USE THIS DATA) ===
+Below is REAL data about Syrian competitors. Analyze which ones are RELEVANT to the user's business idea based on feature overlap.
+For each relevant competitor, you MUST use their actual name and links from this data.
+{competitor_data_str}
+=== END COMPETITOR DATA ===
+"""
+        
         prompt = f"""You are an expert business and technology strategist specializing in helping tech entrepreneurs turn their ideas into successful startups.
 
 Business Idea: {analysis.business_idea}
@@ -846,7 +891,7 @@ Industry: {analysis.industry or 'Not specified'}
 Target Market: {analysis.target_market or 'Not specified'}
 Location: {analysis.location or 'Not specified'}
 Budget: {analysis.budget or 'Not specified'}
-
+{competitor_section}
 {language_instruction}
 
 {TAB_PROMPTS[tab_name]}"""
