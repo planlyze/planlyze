@@ -16,6 +16,14 @@ The AI report generation system includes robust timeout detection for stuck tabs
 - **Frontend**: Polls every 5 seconds when a tab is processing, transitions to stuck UI with regenerate button after timeout
 - **Force Retry**: Users can force regenerate stuck tabs via the `force` parameter
 
+### Dynamic Credit System
+Admin-configurable credit settings stored in SystemSettings table:
+- **Premium Report Cost**: Credits deducted per premium report (default: 1, minimum: 1)
+- **Referral Bonus**: Credits awarded to referrer when referred user generates first premium report (default: 1, minimum: 0)
+- **Settings Service**: `server/services/settings_service.py` retrieves settings with validation and defaults
+- **Referral Flow**: Signup sets referral status='pending' → First premium report completion → Award bonus to referrer + send notification
+- **Admin UI**: "Credit Settings" tab in Admin Settings page for managing these values
+
 ## External Dependencies
 - **AI**: Anthropic Claude API (claude-sonnet-4-5)
 - **Database**: PostgreSQL
