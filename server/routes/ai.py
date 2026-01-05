@@ -397,7 +397,7 @@ Be concise but helpful. If the user asks about their specific analysis, referenc
         response = client.messages.create(
             model=DEFAULT_MODEL,
             max_tokens=2048,
-            system=system_prompt,
+            system=[{"type": "text", "text": system_prompt}],
             messages=messages
         )
         
@@ -484,7 +484,7 @@ def invoke_llm(user):
         response = client.messages.create(
             model=DEFAULT_MODEL,
             max_tokens=max_tokens,
-            system=system if system else None,
+            system=[{"type": "text", "text": system}] if system else None,
             messages=[{"role": "user", "content": prompt}]
         )
         
