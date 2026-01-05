@@ -9,9 +9,11 @@ export default function LockedContent({
   isArabic = false, 
   onUnlock,
   isUnlocking = false,
-  variant = "card"
+  variant = "card",
+  premiumCost = 1
 }) {
   const t = (en, ar) => (isArabic ? ar : en);
+  const creditWord = isArabic ? "رصيد" : (premiumCost === 1 ? "Credit" : "Credits");
 
   if (variant === "inline") {
     return (
@@ -39,7 +41,7 @@ export default function LockedContent({
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  {t("Unlock with 1 Credit", "افتح بـ 1 رصيد")}
+                  {isArabic ? `افتح بـ ${premiumCost} ${creditWord}` : `Unlock with ${premiumCost} ${creditWord}`}
                 </>
               )}
             </Button>
@@ -75,7 +77,7 @@ export default function LockedContent({
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  {t("Unlock with 1 Credit", "افتح بـ 1 رصيد")}
+                  {isArabic ? `افتح بـ ${premiumCost} ${creditWord}` : `Unlock with ${premiumCost} ${creditWord}`}
                 </>
               )}
             </Button>

@@ -12,8 +12,10 @@ export default function UpgradePrompt({
   feature = null,
   userCredits = 0,
   onUpgrade = null,
-  isUpgrading = false
+  isUpgrading = false,
+  premiumCost = 1
 }) {
+  const creditWord = isArabic ? "رصيد" : (premiumCost === 1 ? "Credit" : "Credits");
   const premiumFeatures = [
     isArabic ? "تحليل المنافسين الكامل" : "Full competitor analysis",
     isArabic ? "بيانات السوق السوري" : "Syrian market data",
@@ -21,7 +23,7 @@ export default function UpgradePrompt({
     isArabic ? "تصدير PDF/Excel" : "PDF/Excel export"
   ];
 
-  const hasCredits = userCredits > 0;
+  const hasCredits = userCredits >= premiumCost;
 
   if (variant === "banner") {
     return (
@@ -47,7 +49,7 @@ export default function UpgradePrompt({
             >
               {isUpgrading 
                 ? (isArabic ? "جارٍ الترقية..." : "Upgrading...") 
-                : (isArabic ? `استخدم 1 رصيد (${userCredits} متاح)` : `Use 1 Credit (${userCredits} available)`)
+                : (isArabic ? `استخدم ${premiumCost} ${creditWord} (${userCredits} متاح)` : `Use ${premiumCost} ${creditWord} (${userCredits} available)`)
               }
             </Button>
           ) : (
@@ -85,7 +87,7 @@ export default function UpgradePrompt({
             <Sparkles className="w-4 h-4 mr-2" />
             {isUpgrading 
               ? (isArabic ? "جارٍ..." : "Upgrading...") 
-              : (isArabic ? `استخدم 1 رصيد (${userCredits})` : `Use 1 Credit (${userCredits})`)
+              : (isArabic ? `استخدم ${premiumCost} ${creditWord} (${userCredits})` : `Use ${premiumCost} ${creditWord} (${userCredits})`)
             }
           </Button>
         ) : (

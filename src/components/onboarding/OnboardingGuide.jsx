@@ -9,6 +9,7 @@ import {
   Target, BarChart3, Star, ArrowRight
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SystemSettings } from "@/api/client";
 
 const ONBOARDING_KEY = "planlyze_onboarding_completed";
 const ONBOARDING_STEP_KEY = "planlyze_onboarding_step";
@@ -78,8 +79,8 @@ const steps = [
       ar: "نظام الرصيد"
     },
     description: {
-      en: "Purchase credits to generate premium reports. Each premium analysis costs 1 credit. Choose from flexible packages that suit your needs.",
-      ar: "اشترِ رصيداً لإنشاء تقارير مميزة. كل تحليل مميز يكلف رصيداً واحداً. اختر من الباقات المرنة التي تناسب احتياجاتك."
+      en: (cost) => `Purchase credits to generate premium reports. Each premium analysis costs ${cost} credit${cost === 1 ? '' : 's'}. Choose from flexible packages that suit your needs.`,
+      ar: (cost) => `اشترِ رصيداً لإنشاء تقارير مميزة. كل تحليل مميز يكلف ${cost} رصيد. اختر من الباقات المرنة التي تناسب احتياجاتك.`
     },
     tip: {
       en: "Check the Credits page to view available packages and your current balance.",
@@ -147,6 +148,20 @@ export default function OnboardingGuide({ onComplete, forceShow = false }) {
   const isArabic = i18n.language === 'ar';
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [premiumCost, setPremiumCost] = useState(1);
+
+  useEffect(() => {
+    const fetchCost = async () => {
+      try {
+        const response = await SystemSettings.get('premium_report_cost');
+        const cost = parseInt(response?.data?.value || response?.value || '1', 10);
+        setPremiumCost(cost >= 1 ? cost : 1);
+      } catch (e) {
+        console.error("Failed to fetch premium cost:", e);
+      }
+    };
+    fetchCost();
+  }, []);
 
   useEffect(() => {
     if (forceShow) {
@@ -264,7 +279,9 @@ export default function OnboardingGuide({ onComplete, forceShow = false }) {
                   transition={{ delay: 0.1 }}
                   className="text-slate-600 dark:text-slate-400"
                 >
-                  {isArabic ? step.description.ar : step.description.en}
+                  {isArabic 
+                    ? (typeof step.description.ar === 'function' ? step.description.ar(premiumCost) : step.description.ar) 
+                    : (typeof step.description.en === 'function' ? step.description.en(premiumCost) : step.description.en)}
                 </motion.p>
               </div>
 

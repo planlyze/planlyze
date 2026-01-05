@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, Analysis, Transaction } from "@/api/client";
+import { auth, Analysis, Transaction, SystemSettings } from "@/api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl, safeFormatDate } from "@/utils";
 import { motion } from "framer-motion";
@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [premiumReportCost, setPremiumReportCost] = useState(1);
 
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
@@ -53,6 +54,14 @@ export default function Dashboard() {
         const user = await auth.me();
         setCurrentUser(user);
         await loadAnalyses(user.email);
+        
+        try {
+          const response = await SystemSettings.get('premium_report_cost');
+          const cost = parseInt(response?.data?.value || response?.value || '1', 10);
+          setPremiumReportCost(cost >= 1 ? cost : 1);
+        } catch (e) {
+          console.error("Failed to fetch premium report cost:", e);
+        }
       } catch (error) {
         window.location.href = "/login";
       }
@@ -84,6 +93,9 @@ export default function Dashboard() {
     return <PageLoader />;
   }
 
+  const creditsUsed = premiumAnalyses.length * premiumReportCost;
+  const creditWord = isArabic ? "رصيد" : (premiumReportCost === 1 ? "credit" : "credits");
+  
   const stats = [
     {
       title: isArabic ? "الأرصدة المتبقية" : "Credits Available",
@@ -92,8 +104,8 @@ export default function Dashboard() {
       color: "orange",
       bgGradient: "from-orange-500 to-orange-600",
       tooltip: isArabic 
-        ? "عدد الأرصدة المتاحة لديك. كل تحليل متميز يستهلك رصيداً واحداً." 
-        : "The number of credits you have available. Each premium analysis uses 1 credit."
+        ? `عدد الأرصدة المتاحة لديك. كل تحليل متميز يستهلك ${premiumReportCost} ${creditWord}.` 
+        : `The number of credits you have available. Each premium analysis uses ${premiumReportCost} ${creditWord}.`
     },
     {
       title: isArabic ? "إجمالي التقارير" : "Total Reports",
@@ -107,13 +119,13 @@ export default function Dashboard() {
     },
     {
       title: isArabic ? "الأرصدة المستخدمة" : "Credits Used",
-      value: premiumAnalyses.length,
+      value: creditsUsed,
       icon: TrendingUp,
       color: "gray",
       bgGradient: "from-gray-600 to-gray-700",
       tooltip: isArabic 
-        ? "عدد الأرصدة التي استخدمتها للتحليلات المتميزة." 
-        : "Number of credits you've used for premium analyses."
+        ? `عدد الأرصدة التي استخدمتها للتحليلات المتميزة (${premiumAnalyses.length} تقرير × ${premiumReportCost} رصيد).` 
+        : `Number of credits you've used for premium analyses (${premiumAnalyses.length} reports × ${premiumReportCost} ${creditWord}).`
     }
   ];
 
