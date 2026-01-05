@@ -327,6 +327,13 @@ def login():
     if not user:
         return jsonify({'error': get_message('auth.invalid_credentials', lang)}), 401
     
+    if not user.password_hash:
+        return jsonify({
+            'error': get_message('auth.password_not_set', lang),
+            'requires_password_setup': True,
+            'email': email
+        }), 403
+    
     if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
         return jsonify({'error': get_message('auth.invalid_credentials', lang)}), 401
     

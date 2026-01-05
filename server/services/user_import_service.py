@@ -6,8 +6,8 @@ from server.models import db, User, Role
 import secrets
 import string
 
-REQUIRED_COLUMNS = ['email', 'password']
-OPTIONAL_COLUMNS = ['full_name', 'display_name', 'credits', 'role', 'language', 'phone_number', 'country', 'city']
+REQUIRED_COLUMNS = ['email']
+OPTIONAL_COLUMNS = ['password', 'full_name', 'display_name', 'credits', 'role', 'language', 'phone_number', 'country', 'city']
 ALL_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
@@ -25,8 +25,8 @@ def validate_email(email):
     return True, email
 
 def validate_password(password):
-    if not password:
-        return False, "Password is required"
+    if not password or str(password).strip() == '':
+        return True, None
     password = str(password).strip()
     if len(password) < 6:
         return False, "Password must be at least 6 characters"
@@ -235,10 +235,12 @@ def import_users(validated_rows, skip_invalid=True):
         
         try:
             data = row['data']
-            password_hash = bcrypt.hashpw(
-                data['password'].encode('utf-8'), 
-                bcrypt.gensalt()
-            ).decode('utf-8')
+            password_hash = None
+            if data.get('password'):
+                password_hash = bcrypt.hashpw(
+                    data['password'].encode('utf-8'), 
+                    bcrypt.gensalt()
+                ).decode('utf-8')
             
             referral_code = generate_referral_code()
             while User.query.filter_by(referral_code=referral_code).first():

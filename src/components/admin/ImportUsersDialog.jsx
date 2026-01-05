@@ -128,7 +128,7 @@ export default function ImportUsersDialog({ open, onOpenChange, onSuccess }) {
   const downloadTemplate = () => {
     const headers = ['email', 'password', 'full_name', 'display_name', 'credits', 'role', 'language', 'phone_number', 'country', 'city'];
     const exampleRow = ['user@example.com', 'SecurePass123', 'John Doe', 'John', '10', 'user', 'en', '+1234567890', 'USA', 'New York'];
-    const exampleRow2 = ['jane@example.com', 'Password456', 'Jane Smith', 'Jane', '5', 'user', 'ar', '+9876543210', 'Saudi Arabia', 'Riyadh'];
+    const exampleRow2 = ['jane@example.com', '', 'Jane Smith', 'Jane', '5', 'user', 'ar', '+9876543210', 'Saudi Arabia', 'Riyadh'];
     
     const csvContent = [headers.join(','), exampleRow.join(','), exampleRow2.join(',')].join('\n');
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });

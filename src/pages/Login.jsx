@@ -34,6 +34,10 @@ export default function Login() {
         localStorage.setItem("pending_verification_email", error.data.email || email);
         toast.error(error.message || t('auth.verificationRequired'), { duration: 1000 });
         navigate("/verify-email");
+      } else if (error.data?.requires_password_setup) {
+        localStorage.setItem("pending_password_reset_email", error.data.email || email);
+        toast.info(error.message || t('auth.passwordNotSet'), { duration: 3000 });
+        navigate("/forgot-password");
       } else {
         toast.error(error.message || t('auth.invalidCredentials'), { duration: 1000 });
       }
