@@ -109,10 +109,11 @@ When answering:
 - Use clear structure with markdown formatting
 - Be encouraging and constructive`;
 
-      const response = await AI.invoke({
-        prompt: `${systemPrompt}\n\nUser Question: ${userMessage.content}`,
-        add_context_from_internet: false
-      });
+      const response = await AI.invoke(
+        `${systemPrompt}\n\nUser Question: ${userMessage.content}`,
+        null,
+        2048
+      );
 
       const assistantMessage = {
         role: 'assistant',
