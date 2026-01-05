@@ -176,9 +176,11 @@ def generate_analysis_entry(user):
     
     # Deduct credit for premium reports
     if expected_report_type == 'premium':
+        from server.services.settings_service import get_premium_report_cost
+        premium_cost = get_premium_report_cost()
         user_record = User.query.filter_by(email=user.email).first()
-        if user_record and user_record.credits >= 1:
-            user_record.credits -= 1
+        if user_record and user_record.credits >= premium_cost:
+            user_record.credits -= premium_cost
             # Create transaction record with language-appropriate description
             is_arabic = report_language == 'arabic'
             idea_preview = business_idea[:50] + '...' if len(business_idea) > 50 else business_idea
@@ -189,7 +191,7 @@ def generate_analysis_entry(user):
             tx = Transaction(
                 user_email=user.email,
                 type='analysis',
-                credits=-1,
+                credits=-premium_cost,
                 description=tx_description,
                 reference_id=analysis.id,
                 status='completed'
@@ -882,7 +884,10 @@ def delete_analysis(user, id):
 @entities_bp.route('/analyses/<id>/upgrade-premium', methods=['POST'])
 @require_auth
 def upgrade_analysis_premium(user, id):
-    """Upgrade an analysis to premium (deducts 1 credit)"""
+    """Upgrade an analysis to premium (deducts credits based on settings)"""
+    from server.services.settings_service import get_premium_report_cost
+    premium_cost = get_premium_report_cost()
+    
     analysis = Analysis.query.get(id)
     if not analysis:
         return jsonify({'error': 'Analysis not found'}), 404
@@ -893,11 +898,11 @@ def upgrade_analysis_premium(user, id):
         return jsonify({'error': 'Analysis is already premium'}), 400
     
     user_record = User.query.filter_by(email=user.email).first()
-    if not user_record or user_record.credits <= 0:
+    if not user_record or user_record.credits < premium_cost:
         return jsonify({'error': 'Insufficient credits'}), 402
     
     # Deduct credit
-    user_record.credits -= 1
+    user_record.credits -= premium_cost
     
     # Update analysis to premium
     analysis.report_type = 'premium'
@@ -906,7 +911,7 @@ def upgrade_analysis_premium(user, id):
     tx = Transaction(
         user_email=user.email,
         type='usage',
-        credits=-1,
+        credits=-premium_cost,
         description=f'Upgraded analysis to premium: {analysis.business_idea[:50]}...' if analysis.business_idea else 'Premium upgrade',
         reference_id=id,
         status='completed'

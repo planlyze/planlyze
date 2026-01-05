@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from server.models import db, Analysis, Transaction, User, ChatConversation
 from server.routes.auth import get_current_user
+from server.services.settings_service import get_premium_report_cost
 import anthropic
 import os
 import json
@@ -63,7 +64,9 @@ def generate_analysis(user):
       500:
         description: AI service not configured
     """
-    if user.credits < 1:
+    premium_cost = get_premium_report_cost()
+    
+    if user.credits < premium_cost:
         return jsonify({'error': 'Insufficient credits'}), 402
     
     client = get_anthropic_client()
@@ -81,11 +84,11 @@ def generate_analysis(user):
     
     analysis.status = 'processing'
     
-    user.credits -= 1
+    user.credits -= premium_cost
     transaction = Transaction(
         user_email=user.email,
         type='usage',
-        credits=-1,
+        credits=-premium_cost,
         description=f'Premium Analysis: {analysis.business_idea[:50]}...',
         reference_id=analysis.id,
         status='completed'
