@@ -159,12 +159,12 @@ def seed_credit_packages():
         {
             'name': 'Entrepreneurial',
             'name_ar': 'ريادي',
-            'credits': 1,
-            'price_usd': 10.00,
+            'credits': 10,
+            'price_usd': 20.00,
             'description': 'Complete analysis for serious entrepreneurs',
             'description_ar': 'تحليل شامل لرواد الأعمال الجادين',
             'features': [
-                '1 premium report credit',
+                '1 premium report',
                 'Detailed competitor analysis',
                 'Syrian market data & local opportunities',
                 'AI-powered strategic recommendations',
@@ -185,12 +185,12 @@ def seed_credit_packages():
         {
             'name': 'Enterprise',
             'name_ar': 'الأساسي',
-            'credits': 10,
-            'price_usd': 90.00,
+            'credits': 100,
+            'price_usd': 180.00,
             'description': 'Best value - Save 10%',
             'description_ar': 'رائع للشركات الصغيرة مع 10 تقارير مميزة',
             'features': [
-                '1 premium report credit',
+                '10 premium reports',
                 'Detailed competitor analysis',
                 'Syrian market data & local opportunities',
                 'AI-powered strategic recommendations',
@@ -234,14 +234,13 @@ def seed_payment_methods():
             'name_ar': 'تحويل بنكي',
             'type': 'bank_transfer',
             'details': {
-                'bank_name': 'Example Bank',
-                'account_name': 'Planlyze LLC',
-                'account_number': '1234567890',
-                'iban': 'XX00XXXX0000000000000000',
-                'swift': 'EXAMPLEXXX'
+                'bank_name': 'بنك الهرم',
+                'account_name': 'لانا محمد الزيبق',
+                'phone_number': '0994229981',
+                'location': 'دمشق - سوريا'
             },
             'instructions': 'Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',           
-            'instructions_ar': 'AR Please transfer the exact amount to our bank account and upload the receipt as proof of payment.',           
+            'instructions_ar': 'يرجى تحويل المبلغ المحدد إلى حسابنا المصرفي وتحميل الإيصال كإثبات للدفع.',           
             'is_active': True
         }
     ]
@@ -547,17 +546,17 @@ def seed_system_settings():
     settings_data = [
         {
             'key': 'syrian_apps_count',
-            'value': '150',
+            'value': '350',
             'description': 'Number of Syrian apps to display on landing page statistics'
         },
         {
             'key': 'premium_report_cost',
-            'value': '1',
+            'value': '10',
             'description': 'Number of credits required to generate a premium report'
         },
         {
             'key': 'referral_bonus_credits',
-            'value': '1',
+            'value': '5',
             'description': 'Number of credits awarded when a referred user generates their first premium report'
         }
     ]
@@ -674,9 +673,9 @@ def seed_currencies():
             'name': 'Syrian Pound',
             'name_ar': 'ليرة سورية',
             'symbol': 'ل.س',
-            'exchange_rate': 14500.0,
+            'exchange_rate': 12000.0,
             'is_default': False,
-            'is_active': True,
+            'is_active': False,
             'sort_order': 2
         }
     ]
@@ -712,7 +711,7 @@ def run_seed():
         seed_social_media()
         seed_currencies()
         
-        admin_email = os.environ.get('ADMIN_EMAIL', 'admin@planlyze.com')
+        admin_email = os.environ.get('ADMIN_EMAIL', 'info@planlyze.com')
         admin_password = os.environ.get('ADMIN_PASSWORD', 'Admin@123')
         existing_admin = User.query.filter_by(email=admin_email).first()
         if not existing_admin:
