@@ -321,14 +321,14 @@ export default function Referrals() {
                   {referrals.map((referral) => (
                     <div
                       key={referral.id}
-                      className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200"
+                      className="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-200"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                           <Users className="w-5 h-5 text-purple-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-800">
+                          <p className="font-medium text-slate-800 dark:text-slate-400">
                             {referral.referred_email || t("referrals.newUser")}
                           </p>
                           <p className="text-sm text-slate-500">

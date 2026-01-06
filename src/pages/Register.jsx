@@ -85,14 +85,14 @@ export default function Register() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              {referralCode && (
+              {/* {referralCode && (
                 <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                   <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <p className="text-sm text-green-700 dark:text-green-300 font-medium">
                     {t('auth.referralBonus') || 'You\'ll get 1 bonus credit for signing up with a referral!'}
                   </p>
                 </div>
-              )}
+              )} */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-gray-700 dark:text-gray-300 font-medium">{t('auth.fullName')}</Label>
                 <div className={`relative transition-all duration-300 ${focusedField === 'fullName' ? 'scale-[1.02]' : ''}`}>

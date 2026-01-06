@@ -11,8 +11,8 @@ export const INDUSTRIES = [
   { value: "SellRentCars", label: "Sell / Rent Cars", label_ar: "بيع / تأجير السيارات" },
   { value: "SellRentRealestate", label: "Sell / Rent Realestate", label_ar: "بيع / تأجير العقارات" },
   { value: "ServicesTaxi", label: "Services Taxi", label_ar: "خدمات التاكسي" },
-  { value: "JobOppurtunity", label: "Job Oppurtunity", label_ar: "فرص العمل" }
-  
+  { value: "JobOppurtunity", label: "Job Oppurtunity", label_ar: "فرص العمل" },
+  { value: "other", label: "Other", label_ar: "أخرى" }
 ];
 
 export default INDUSTRIES;
