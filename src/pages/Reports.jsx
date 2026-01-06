@@ -234,7 +234,7 @@ export default function Reports() {
           isArabic={isArabic}
           actions={
             <Link to={createPageUrl("NewAnalysis")}>
-              <Button className="gap-2">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
                 <Plus className="w-4 h-4" />
                 {t('reports.newAnalysis')}
               </Button>

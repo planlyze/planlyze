@@ -47,11 +47,11 @@ export default function PageHeader({
         )}
         
         <div>
-          <h1 className={`text-2xl md:text-3xl font-bold text-orange-600 ${titleClassName}`}>
+          <h1 className={`text-2xl md:text-3xl font-bold text-orange-500 ${titleClassName}`}>
             {title}
           </h1>
           {description && (
-            <p className="text-slate-600 mt-1 text-sm md:text-base">
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm md:text-base">
               {description}
             </p>
           )}

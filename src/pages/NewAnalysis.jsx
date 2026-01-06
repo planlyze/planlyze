@@ -4,7 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Sparkles, Coins, Lightbulb, Shield, Zap, TrendingUp } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  Coins,
+  Lightbulb,
+  Shield,
+  Zap,
+  TrendingUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
 import { emitCreditUpdate } from "@/lib/creditEvents";
@@ -12,6 +20,8 @@ import { motion } from "framer-motion";
 
 import AnalysisWizard from "../components/analysis/AnalysisWizard";
 import PageLoader from "@/components/common/PageLoader";
+import { useTranslation } from "react-i18next";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function NewAnalysis() {
   const navigate = useNavigate();
@@ -19,8 +29,9 @@ export default function NewAnalysis() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [premiumReportCost, setPremiumReportCost] = useState(1);
-  
-  const isUIArabic = currentUser?.language === 'arabic';
+  const { t, i18n } = useTranslation();
+  const isUIArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
 
   useEffect(() => {
     (async () => {
@@ -37,8 +48,11 @@ export default function NewAnalysis() {
   useEffect(() => {
     const fetchCreditSettings = async () => {
       try {
-        const response = await SystemSettings.get('premium_report_cost');
-        const cost = parseInt(response?.data?.value || response?.value || '1', 10);
+        const response = await SystemSettings.get("premium_report_cost");
+        const cost = parseInt(
+          response?.data?.value || response?.value || "1",
+          10
+        );
         setPremiumReportCost(cost >= 1 ? cost : 1);
       } catch (error) {
         console.error("Failed to fetch credit settings:", error);
@@ -52,7 +66,7 @@ export default function NewAnalysis() {
     setIsSubmitting(true);
 
     try {
-      const resp = await api.post('/analyses/generate', formDataFromWizard);
+      const resp = await api.post("/analyses/generate", formDataFromWizard);
       const createdAnalysis = resp?.data || resp;
 
       if (!createdAnalysis?.id) {
@@ -61,15 +75,19 @@ export default function NewAnalysis() {
 
       await refreshUser();
       emitCreditUpdate();
-      
-      toast.success(formDataFromWizard.report_language === 'arabic' 
-        ? "تم إنشاء التحליل بنجاح!" 
-        : "Analysis created successfully!");
-      navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
 
+      toast.success(
+        formDataFromWizard.report_language === "arabic"
+          ? "تم إنشاء التحליل بنجاح!"
+          : "Analysis created successfully!"
+      );
+      navigate(createPageUrl(`AnalysisResult?id=${createdAnalysis.id}`));
     } catch (error) {
       console.error("Analysis creation failed:", error);
-      const errorMsg = error?.response?.data?.error || error.message || "An unexpected error occurred.";
+      const errorMsg =
+        error?.response?.data?.error ||
+        error.message ||
+        "An unexpected error occurred.";
       toast.error(errorMsg);
       setIsSubmitting(false);
     }
@@ -80,56 +98,52 @@ export default function NewAnalysis() {
   }
 
   const features = [
-    { 
-      icon: TrendingUp, 
+    {
+      icon: TrendingUp,
       title: isUIArabic ? "تحليل السوق" : "Market Analysis",
-      desc: isUIArabic ? "رؤى عميقة للسوق" : "Deep market insights"
+      desc: isUIArabic ? "رؤى عميقة للسوق" : "Deep market insights",
     },
-    { 
-      icon: Shield, 
+    {
+      icon: Shield,
       title: isUIArabic ? "تحليل المخاطر" : "Risk Analysis",
-      desc: isUIArabic ? "تحديد التحديات" : "Identify challenges"
+      desc: isUIArabic ? "تحديد التحديات" : "Identify challenges",
     },
-    { 
-      icon: Zap, 
+    {
+      icon: Zap,
       title: isUIArabic ? "خطة العمل" : "Action Plan",
-      desc: isUIArabic ? "خطوات واضحة" : "Clear next steps"
-    }
+      desc: isUIArabic ? "خطوات واضحة" : "Clear next steps",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isUIArabic ? 'rtl' : 'ltr'}>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200/30 dark:bg-orange-900/20 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative p-4 md:p-8">
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isUIArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         <div className="max-w-5xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-between mb-8"
           >
             <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigate(createPageUrl("Dashboard"))}
-                className="shadow-md border-2 border-purple-200 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-gray-800 hover:border-purple-300 transition-all bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-                <ArrowLeft className={`w-4 h-4 text-purple-600 dark:text-purple-400 ${isUIArabic ? 'rotate-180' : ''}`} />
-              </Button>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
-                  {isUIArabic ? "تحليل أعمال جديد" : "New Business Analysis"}
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm md:text-base">
-                  {isUIArabic ? "احصل على رؤى مدعومة بالذكاء الاصطناعي" : "Get AI-powered insights for your idea"}
-                </p>
-              </div>
+              <PageHeader
+                title={
+                  isUIArabic ? "تحليل أعمال جديد" : "New Business Analysis"
+                }
+                description={
+                  isUIArabic
+                    ? "احصل على رؤى مدعومة بالذكاء الاصطناعي"
+                    : "Get AI-powered insights for your idea"
+                }
+                // backUrl={createPageUrl("Dashboard")}
+                icon={Sparkles}
+                isArabic={isUIArabic}
+              />
             </div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-orange-100 dark:from-purple-900/50 dark:to-orange-900/50 rounded-full border border-purple-200 dark:border-purple-700"
@@ -142,7 +156,7 @@ export default function NewAnalysis() {
           </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
@@ -156,21 +170,28 @@ export default function NewAnalysis() {
                     </div>
                     <div>
                       <CardTitle className="text-xl font-bold">
-                        {isUIArabic ? "أخبرنا عن فكرتك" : "Tell Us About Your Idea"}
+                        {isUIArabic
+                          ? "أخبرنا عن فكرتك"
+                          : "Tell Us About Your Idea"}
                       </CardTitle>
                       <p className="text-purple-100 text-sm mt-1">
-                        {isUIArabic ? "سنقوم بتحليل شامل لفكرتك" : "We'll provide a comprehensive analysis"}
+                        {isUIArabic
+                          ? "سنقوم بتحليل شامل لفكرتك"
+                          : "We'll provide a comprehensive analysis"}
                       </p>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6 -mt-4 bg-white dark:bg-gray-800 rounded-t-3xl relative">
-                  <AnalysisWizard onSubmit={handleFormSubmit} isSubmitting={isSubmitting} />
+                  <AnalysisWizard
+                    onSubmit={handleFormSubmit}
+                    isSubmitting={isSubmitting}
+                  />
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -187,7 +208,7 @@ export default function NewAnalysis() {
                     </h3>
                   </div>
                   <p className="text-orange-100 text-sm leading-relaxed">
-                    {isUIArabic 
+                    {isUIArabic
                       ? "كلما كانت فكرتك أكثر تفصيلاً، كان التحليل أكثر دقة وفائدة. اذكر المشكلة، الحل، والجمهور المستهدف."
                       : "The more detailed your idea, the more accurate and useful the analysis. Mention the problem, solution, and target audience."}
                   </p>
@@ -202,7 +223,7 @@ export default function NewAnalysis() {
                   </h3>
                   <div className="space-y-3">
                     {features.map((feature, i) => (
-                      <motion.div 
+                      <motion.div
                         key={i}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -213,8 +234,12 @@ export default function NewAnalysis() {
                           <feature.icon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-800 dark:text-white text-sm">{feature.title}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{feature.desc}</p>
+                          <p className="font-medium text-slate-800 dark:text-white text-sm">
+                            {feature.title}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {feature.desc}
+                          </p>
                         </div>
                       </motion.div>
                     ))}
@@ -230,7 +255,14 @@ export default function NewAnalysis() {
                         {isUIArabic ? "تكلفة التحليل" : "Analysis Cost"}
                       </p>
                       <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        {premiumReportCost} {isUIArabic ? (premiumReportCost === 1 ? "رصيد" : "رصيد") : (premiumReportCost === 1 ? "Credit" : "Credits")}
+                        {premiumReportCost}{" "}
+                        {isUIArabic
+                          ? premiumReportCost === 1
+                            ? "رصيد"
+                            : "رصيد"
+                          : premiumReportCost === 1
+                          ? "Credit"
+                          : "Credits"}
                       </p>
                     </div>
                     <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
@@ -238,7 +270,7 @@ export default function NewAnalysis() {
                     </div>
                   </div>
                   {currentUser?.credits < premiumReportCost && (
-                    <Button 
+                    <Button
                       onClick={() => navigate(createPageUrl("Credits"))}
                       className="w-full mt-4 bg-purple-600 hover:bg-purple-700"
                     >

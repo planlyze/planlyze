@@ -81,7 +81,7 @@ export default function Subscriptions() {
         <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-top-4 duration-500"  dir={isArabic ? 'rtl' : 'ltr'}>
           <div className="flex items-center gap-4 mb-6">
             
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-2 mb-6 [&>button]:text-slate-600 [&>button[data-state=inactive]]:text-slate-500">
               <TabsTrigger value="payments">
                 <Banknote className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
                 {t('subscriptions.paymentRequests')}

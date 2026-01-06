@@ -154,7 +154,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               <OnboardingTrigger className="hidden md:flex" />
               <Link to={createPageUrl("NewAnalysis")}>
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
                   <Plus className="w-5 h-5 mr-2" />
                   {isArabic ? "تحليل جديد" : "New Analysis"}
                 </Button>
@@ -233,7 +233,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <Link to={createPageUrl("NewAnalysis")}>
-                    <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 rounded-full shadow-lg hover:shadow-xl transition-all">
+                    <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-6 rounded-xl shadow-lg hover:shadow-xl transition-all">
                       {isArabic ? "ابدأ الآن" : "Start Now"}
                       <ArrowRight className={`w-4 h-4 ml-2 ${isArabic ? 'rotate-180' : ''}`} />
                     </Button>
@@ -276,7 +276,7 @@ export default function Dashboard() {
                       {isArabic ? "ابدأ أول تحليل لترى النتائج هنا" : "Start your first analysis to see results here"}
                     </p>
                     <Link to={createPageUrl("NewAnalysis")}>
-                      <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full">
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl">
                         <Plus className="w-4 h-4 mr-2" />
                         {isArabic ? "ابدأ أول تحليل" : "Start First Analysis"}
                       </Button>
@@ -332,7 +332,7 @@ export default function Dashboard() {
                     </div>
                     {isArabic ? "أحدث المعاملات" : "Recent Transactions"}
                   </CardTitle>
-                  <Link to={createPageUrl("Credits")}>
+                  <Link to={createPageUrl("Subscriptions")}>
                     <Button variant="ghost" size="sm" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/30">
                       {isArabic ? "عرض الكل" : "View All"}
                       <ArrowRight className={`w-4 h-4 ml-1 ${isArabic ? 'rotate-180' : ''}`} />
@@ -353,7 +353,7 @@ export default function Dashboard() {
                       {isArabic ? "قم بشراء أرصدة لبدء التحليل" : "Purchase credits to start analyzing"}
                     </p>
                     <Link to={createPageUrl("Credits")}>
-                      <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-full">
+                      <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl">
                         <Wallet className="w-4 h-4 mr-2" />
                         {isArabic ? "شراء أرصدة" : "Buy Credits"}
                       </Button>
