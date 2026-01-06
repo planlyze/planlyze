@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CashPaymentModal from "@/components/credits/CashPaymentModal";
 import PageLoader from "@/components/common/PageLoader";
 import { format } from "date-fns";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function Credits() {
   const { t, i18n } = useTranslation();
@@ -117,36 +118,30 @@ export default function Credits() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-orange-500/5" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 " />
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96  rounded-full blur-3xl" />
         
-        <div className="relative max-w-6xl mx-auto px-4 md:px-8 pt-6 pb-12">
+        
+       <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 mb-8"
           >
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(createPageUrl("Dashboard"))}
-              className="shadow-md hover:shadow-lg transition-all border-slate-300 dark:border-gray-600 hover:border-purple-400 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-orange-600 dark:text-orange-500">
-                {t('credits.title')}
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">
-                {t('credits.subtitle')}
-              </p>
-            </div>
+         
+          <PageHeader
+                  title={t('credits.title')}
+                  description={t('credits.subtitle')}
+                  // backUrl={createPageUrl("Dashboard")}
+                  icon={Gift}
+                  isArabic={isArabic}
+                />
+                
           </motion.div>
 
           {/* Current Balance Card */}

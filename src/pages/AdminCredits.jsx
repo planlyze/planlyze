@@ -24,6 +24,7 @@ import PaymentMethodsManager from "../components/admin/PaymentMethodsManager";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
 import { emitCreditUpdate } from "@/lib/creditEvents";
+import PageLoader from "@/components/common/PageLoader";
 
 export default function AdminCredits() {
   const navigate = useNavigate();
@@ -304,23 +305,18 @@ export default function AdminCredits() {
   const totalReports = transactions.filter(t => t.type === 'usage' || t.type === 'analysis').length;
 
   if (isLoading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8" />
-        <div className="grid md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-        </div>
-      </div>
-    );
-  }
+   return <PageLoader isArabic={isArabic} />; 
+   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+     <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title="Credits & Revenue Management"
-          description="Manage user credits, transactions, and pricing"
-          backUrl={createPageUrl("Dashboard")}
+          description="Manage user credits, transactions, and pricing"          
           icon={Wallet}
           actions={
             <Button

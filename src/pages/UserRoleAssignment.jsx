@@ -7,13 +7,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
+import PageLoader from "@/components/common/PageLoader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Shield, Users as UsersIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { PERMISSION_LABELS, hasPermission, PERMISSIONS, canAccessAdmin } from "@/components/utils/permissions";
+import {
+  PERMISSION_LABELS,
+  hasPermission,
+  PERMISSIONS,
+  canAccessAdmin,
+} from "@/components/utils/permissions";
 import { auditLogger } from "@/components/utils/auditLogger";
 import PageHeader from "@/components/common/PageHeader";
 import FilterBar, { SearchInput } from "@/components/common/FilterBar";
@@ -25,7 +52,15 @@ export default function UserRoleAssignment() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [updatingUserId, setUpdatingUserId] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, userId: null, roleId: null, roleName: null, userName: null });
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    userId: null,
+    roleId: null,
+    roleName: null,
+    userName: null,
+  });
+  const { t, i18n } = useTranslation();
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -35,6 +70,7 @@ export default function UserRoleAssignment() {
     setIsLoading(true);
     try {
       const user = await auth.me();
+      setCurrentUser(user);
       if (!hasPermission(user, PERMISSIONS.MANAGE_USERS)) {
         navigate(createPageUrl("Dashboard"));
         return;
@@ -42,7 +78,7 @@ export default function UserRoleAssignment() {
 
       const [usersData, rolesData] = await Promise.all([
         User.filter({}, "-created_at"),
-        Role.filter({ is_active: true }, "name")
+        Role.filter({ is_active: true }, "name"),
       ]);
 
       setUsers(usersData);
@@ -56,34 +92,40 @@ export default function UserRoleAssignment() {
   };
 
   const openConfirmDialog = (userId, roleId, roleName) => {
-    const targetUser = users.find(u => u.id === userId);
+    const targetUser = users.find((u) => u.id === userId);
     setConfirmDialog({
       open: true,
       userId,
       roleId,
-      roleName: roleName || 'User',
-      userName: targetUser?.full_name || targetUser?.email || 'User'
+      roleName: roleName || "User",
+      userName: targetUser?.full_name || targetUser?.email || "User",
     });
   };
 
   const handleRoleChange = async () => {
     const { userId, roleId, roleName } = confirmDialog;
-    setConfirmDialog({ open: false, userId: null, roleId: null, roleName: null, userName: null });
+    setConfirmDialog({
+      open: false,
+      userId: null,
+      roleId: null,
+      roleName: null,
+      userName: null,
+    });
     setUpdatingUserId(userId);
-    
+
     try {
       await User.update(userId, {
-        role_id: roleId || null
+        role_id: roleId || null,
       });
 
       const currentAdmin = await auth.me();
-      const targetUser = users.find(u => u.id === userId);
-      const selectedRole = roles.find(r => r.id === roleId);
-      
+      const targetUser = users.find((u) => u.id === userId);
+      const selectedRole = roles.find((r) => r.id === roleId);
+
       await auditLogger.logRoleAssignment(
         currentAdmin.email,
         targetUser.email,
-        roleName || 'User',
+        roleName || "User",
         selectedRole?.permissions || []
       );
 
@@ -98,36 +140,38 @@ export default function UserRoleAssignment() {
   };
 
   const getRoleName = (user) => {
-    if (user.role === 'super_admin') return 'Super Admin';
-    if (user.role === 'admin') return 'Admin';
+    if (user.role === "super_admin") return "Super Admin";
+    if (user.role === "admin") return "Admin";
     if (user.role_id) {
-      const role = roles.find(r => r.id === user.role_id);
-      return role?.name || 'Custom Role';
+      const role = roles.find((r) => r.id === user.role_id);
+      return role?.name || "Custom Role";
     }
-    return 'User';
+    return "User";
   };
 
-  const filteredUsers = users.filter(user => 
-    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
   if (isLoading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8" />
-        <Skeleton className="h-96" />
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+     <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title="User Role Assignment"
           description="Assign roles to users to control their permissions"
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={Shield}
         />
 
@@ -162,30 +206,41 @@ export default function UserRoleAssignment() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium text-slate-800">{user.full_name}</div>
-                        <div className="text-sm text-slate-500">{user.email}</div>
+                        <div className="font-medium text-slate-800">
+                          {user.full_name}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          {user.email}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={
-                        canAccessAdmin(user)
-                          ? 'bg-purple-100 text-purple-800' 
-                          : user.role_id
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-slate-100 text-slate-800'
-                      }>
+                      <Badge
+                        className={
+                          canAccessAdmin(user)
+                            ? "bg-purple-100 text-purple-800"
+                            : user.role_id
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-slate-100 text-slate-800"
+                        }
+                      >
                         {getRoleName(user)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {user.role === 'super_admin' ? (
-                        <span className="text-sm text-slate-500">Cannot modify super_admin</span>
+                      {user.role === "super_admin" ? (
+                        <span className="text-sm text-slate-500">
+                          Cannot modify super_admin
+                        </span>
                       ) : (
                         <Select
-                          value={user.role_id || 'none'}
+                          value={user.role_id || "none"}
                           onValueChange={(value) => {
-                            const roleId = value === 'none' ? null : value;
-                            const roleName = value === 'none' ? 'User' : roles.find(r => r.id === value)?.name;
+                            const roleId = value === "none" ? null : value;
+                            const roleName =
+                              value === "none"
+                                ? "User"
+                                : roles.find((r) => r.id === value)?.name;
                             openConfirmDialog(user.id, roleId, roleName);
                           }}
                           disabled={updatingUserId === user.id}
@@ -195,11 +250,13 @@ export default function UserRoleAssignment() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">User (No Role)</SelectItem>
-                            {roles.filter(role => role.name !== 'super_admin').map((role) => (
-                              <SelectItem key={role.id} value={role.id}>
-                                {role.name}
-                              </SelectItem>
-                            ))}
+                            {roles
+                              .filter((role) => role.name !== "super_admin")
+                              .map((role) => (
+                                <SelectItem key={role.id} value={role.id}>
+                                  {role.name}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                       )}
@@ -221,7 +278,19 @@ export default function UserRoleAssignment() {
         </Card>
       </div>
 
-      <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, userId: null, roleId: null, roleName: null, userName: null })}>
+      <Dialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          !open &&
+          setConfirmDialog({
+            open: false,
+            userId: null,
+            roleId: null,
+            roleName: null,
+            userName: null,
+          })
+        }
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -231,7 +300,15 @@ export default function UserRoleAssignment() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-slate-600">
-              Are you sure you want to change the role for <span className="font-semibold text-slate-800">{confirmDialog.userName}</span> to <span className="font-semibold text-purple-600">{confirmDialog.roleName}</span>?
+              Are you sure you want to change the role for{" "}
+              <span className="font-semibold text-slate-800">
+                {confirmDialog.userName}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-purple-600">
+                {confirmDialog.roleName}
+              </span>
+              ?
             </p>
             <p className="text-sm text-slate-500 mt-2">
               This will update the user's permissions immediately.
@@ -241,7 +318,7 @@ export default function UserRoleAssignment() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button 
+            <Button
               onClick={handleRoleChange}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >

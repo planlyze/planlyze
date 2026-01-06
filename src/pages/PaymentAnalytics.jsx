@@ -1,20 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { auth, api, Analysis, Payment, User, AI, Transaction } from "@/api/client";
+import { auth, Analysis, Payment, User, Transaction } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, TrendingUp, DollarSign, CreditCard, AlertCircle, Users, Activity, Sparkles } from "lucide-react";
-import { format, subDays, startOfDay, endOfDay, parseISO, eachDayOfInterval } from "date-fns";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  TrendingUp,
+  DollarSign,
+  CreditCard,
+  AlertCircle,
+  Users,
+  Activity,
+  Sparkles,
+  BarChart2,
+} from "lucide-react";
+import {
+  format,
+  subDays,
+  startOfDay,
+  endOfDay,
+  parseISO,
+  eachDayOfInterval,
+} from "date-fns";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
+import PageLoader from "@/components/common/PageLoader";
+import PageHeader from "@/components/common/PageHeader";
 
-const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#ef4444', '#6366f1'];
+const COLORS = [
+  "#8b5cf6",
+  "#06b6d4",
+  "#f59e0b",
+  "#10b981",
+  "#ef4444",
+  "#6366f1",
+];
 
 export default function PaymentAnalytics() {
   const navigate = useNavigate();
@@ -23,14 +63,18 @@ export default function PaymentAnalytics() {
   const [users, setUsers] = useState([]);
   const [analyses, setAnalyses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const { t, i18n } = useTranslation();
+  const [currentUser, setCurrentUser] = useState(null);
+
   // Date filters with presets
-  const [startDate, setStartDate] = useState(format(subDays(new Date(), 30), 'yyyy-MM-dd'));
-  const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [startDate, setStartDate] = useState(
+    format(subDays(new Date(), 30), "yyyy-MM-dd")
+  );
+  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const setDateRange = (days) => {
-    setStartDate(format(subDays(new Date(), days), 'yyyy-MM-dd'));
-    setEndDate(format(new Date(), 'yyyy-MM-dd'));
+    setStartDate(format(subDays(new Date(), days), "yyyy-MM-dd"));
+    setEndDate(format(new Date(), "yyyy-MM-dd"));
   };
 
   useEffect(() => {
@@ -41,23 +85,25 @@ export default function PaymentAnalytics() {
     setIsLoading(true);
     try {
       const user = await auth.me();
+      setCurrentUser(user);
       if (!hasPermission(user, PERMISSIONS.VIEW_PAYMENTS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view payment analytics");
         return;
       }
 
-      const [txList, paymentsList, usersList, analysesList] = await Promise.all([
-        Transaction.list(),
-        Payment.list(),
-        User.list(),
-        Analysis.list()
-      ]);
+      const [txList, paymentsList, usersList, analysesList] = await Promise.all(
+        [Transaction.list(), Payment.list(), User.list(), Analysis.list()]
+      );
 
       setTransactions(Array.isArray(txList) ? txList : []);
       setPayments(Array.isArray(paymentsList) ? paymentsList : []);
       setUsers(Array.isArray(usersList) ? usersList : []);
-      setAnalyses((Array.isArray(analysesList) ? analysesList : []).filter(a => a.is_deleted !== true));
+      setAnalyses(
+        (Array.isArray(analysesList) ? analysesList : []).filter(
+          (a) => a.is_deleted !== true
+        )
+      );
     } catch (error) {
       console.error("Error loading data:", error);
       window.location.href = "/login";
@@ -70,38 +116,53 @@ export default function PaymentAnalytics() {
   const filterByDateRange = (items) => {
     const start = startOfDay(parseISO(startDate));
     const end = endOfDay(parseISO(endDate));
-    
-    return items.filter(item => {
+
+    return items.filter((item) => {
       const itemDate = parseISO(item.created_at);
       return itemDate >= start && itemDate <= end;
     });
   };
 
-  const filteredTransactions = filterByDateRange(transactions.filter(t => t.type === 'purchase' && t.status === 'completed'));
+  const filteredTransactions = filterByDateRange(
+    transactions.filter(
+      (t) => t.type === "purchase" && t.status === "completed"
+    )
+  );
   const filteredPayments = filterByDateRange(payments);
   const filteredUsers = filterByDateRange(users);
   const filteredAnalyses = filterByDateRange(analyses);
-  const filteredCreditUsage = filterByDateRange(transactions.filter(t => t.type === 'usage'));
+  const filteredCreditUsage = filterByDateRange(
+    transactions.filter((t) => t.type === "usage")
+  );
 
   // Total revenue
-  const totalRevenue = filteredTransactions.reduce((sum, t) => sum + (t.amount_usd || 0), 0);
-  const totalCreditsUsed = filteredCreditUsage.reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+  const totalRevenue = filteredTransactions.reduce(
+    (sum, t) => sum + (t.amount_usd || 0),
+    0
+  );
+  const totalCreditsUsed = filteredCreditUsage.reduce(
+    (sum, t) => sum + Math.abs(t.credits || 0),
+    0
+  );
 
   // Revenue over time
   const revenueOverTime = (() => {
     const dailyRevenue = {};
-    filteredTransactions.forEach(tx => {
-      const date = format(parseISO(tx.created_at), 'MMM d');
+    filteredTransactions.forEach((tx) => {
+      const date = format(parseISO(tx.created_at), "MMM d");
       dailyRevenue[date] = (dailyRevenue[date] || 0) + (tx.amount_usd || 0);
     });
-    return Object.entries(dailyRevenue).map(([date, revenue]) => ({ date, revenue }));
+    return Object.entries(dailyRevenue).map(([date, revenue]) => ({
+      date,
+      revenue,
+    }));
   })();
 
   // Payment method breakdown
   const paymentMethodData = (() => {
     const methods = {};
-    filteredPayments.forEach(p => {
-      const method = p.payment_method || 'Unknown';
+    filteredPayments.forEach((p) => {
+      const method = p.payment_method || "Unknown";
       methods[method] = (methods[method] || 0) + 1;
     });
     return Object.entries(methods).map(([name, value]) => ({ name, value }));
@@ -110,8 +171,8 @@ export default function PaymentAnalytics() {
   // Package popularity
   const packageData = (() => {
     const packages = {};
-    filteredTransactions.forEach(tx => {
-      const pkg = tx.package_type || 'Unknown';
+    filteredTransactions.forEach((tx) => {
+      const pkg = tx.package_type || "Unknown";
       packages[pkg] = (packages[pkg] || 0) + 1;
     });
     return Object.entries(packages).map(([name, value]) => ({ name, value }));
@@ -120,7 +181,7 @@ export default function PaymentAnalytics() {
   // Payment success/failure rates
   const paymentStatusData = (() => {
     const statuses = { approved: 0, pending: 0, rejected: 0 };
-    filteredPayments.forEach(p => {
+    filteredPayments.forEach((p) => {
       if (p.status in statuses) {
         statuses[p.status]++;
       }
@@ -131,19 +192,21 @@ export default function PaymentAnalytics() {
   // Top users by revenue
   const topUsers = (() => {
     const userRevenue = {};
-    filteredTransactions.forEach(tx => {
+    filteredTransactions.forEach((tx) => {
       const email = tx.user_email;
       userRevenue[email] = (userRevenue[email] || 0) + (tx.amount_usd || 0);
     });
-    
+
     return Object.entries(userRevenue)
       .map(([email, revenue]) => {
-        const user = users.find(u => u.email === email);
+        const user = users.find((u) => u.email === email);
         return {
           email,
           name: user?.full_name || email,
           revenue,
-          transactions: filteredTransactions.filter(t => t.user_email === email).length
+          transactions: filteredTransactions.filter(
+            (t) => t.user_email === email
+          ).length,
         };
       })
       .sort((a, b) => b.revenue - a.revenue)
@@ -155,15 +218,17 @@ export default function PaymentAnalytics() {
     const start = startOfDay(parseISO(startDate));
     const end = endOfDay(parseISO(endDate));
     const days = eachDayOfInterval({ start, end });
-    
-    return days.map(day => {
-      const dayStr = format(day, 'MMM d');
-      const usersUpToDay = users.filter(u => parseISO(u.created_at) <= day).length;
-      const newUsersOnDay = users.filter(u => {
+
+    return days.map((day) => {
+      const dayStr = format(day, "MMM d");
+      const usersUpToDay = users.filter(
+        (u) => parseISO(u.created_at) <= day
+      ).length;
+      const newUsersOnDay = users.filter((u) => {
         const created = parseISO(u.created_at);
-        return format(created, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
+        return format(created, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
       }).length;
-      
+
       return { date: dayStr, total: usersUpToDay, new: newUsersOnDay };
     });
   })();
@@ -173,21 +238,25 @@ export default function PaymentAnalytics() {
     const start = startOfDay(parseISO(startDate));
     const end = endOfDay(parseISO(endDate));
     const days = eachDayOfInterval({ start, end });
-    
-    return days.map(day => {
-      const dayStr = format(day, 'MMM d');
-      const usageOnDay = transactions.filter(t => {
-        if (t.type !== 'usage') return false;
-        const txDate = parseISO(t.created_at);
-        return format(txDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
-      }).reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
-      
-      const purchaseOnDay = transactions.filter(t => {
-        if (t.type !== 'purchase' || t.status !== 'completed') return false;
-        const txDate = parseISO(t.created_at);
-        return format(txDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
-      }).reduce((sum, t) => sum + (t.credits || 0), 0);
-      
+
+    return days.map((day) => {
+      const dayStr = format(day, "MMM d");
+      const usageOnDay = transactions
+        .filter((t) => {
+          if (t.type !== "usage") return false;
+          const txDate = parseISO(t.created_at);
+          return format(txDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
+        })
+        .reduce((sum, t) => sum + Math.abs(t.credits || 0), 0);
+
+      const purchaseOnDay = transactions
+        .filter((t) => {
+          if (t.type !== "purchase" || t.status !== "completed") return false;
+          const txDate = parseISO(t.created_at);
+          return format(txDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
+        })
+        .reduce((sum, t) => sum + (t.credits || 0), 0);
+
       return { date: dayStr, used: usageOnDay, purchased: purchaseOnDay };
     });
   })();
@@ -195,10 +264,10 @@ export default function PaymentAnalytics() {
   // Analysis Type Breakdown
   const analysisTypeData = (() => {
     const types = {
-      'Premium': filteredAnalyses.filter(a => a.is_premium === true).length,
-      'Free': filteredAnalyses.filter(a => a.is_premium !== true).length
+      Premium: filteredAnalyses.filter((a) => a.is_premium === true).length,
+      Free: filteredAnalyses.filter((a) => a.is_premium !== true).length,
     };
-    
+
     return Object.entries(types)
       .filter(([_, count]) => count > 0)
       .map(([name, value]) => ({ name, value }));
@@ -207,11 +276,11 @@ export default function PaymentAnalytics() {
   // Analysis by Industry
   const industryData = (() => {
     const industries = {};
-    filteredAnalyses.forEach(a => {
-      const industry = a.industry || a.custom_industry || 'Other';
+    filteredAnalyses.forEach((a) => {
+      const industry = a.industry || a.custom_industry || "Other";
       industries[industry] = (industries[industry] || 0) + 1;
     });
-    
+
     return Object.entries(industries)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8)
@@ -221,50 +290,47 @@ export default function PaymentAnalytics() {
   // Analysis by Status
   const statusData = (() => {
     const statuses = {};
-    filteredAnalyses.forEach(a => {
-      const status = a.status || 'draft';
+    filteredAnalyses.forEach((a) => {
+      const status = a.status || "draft";
       statuses[status] = (statuses[status] || 0) + 1;
     });
-    
+
     return Object.entries(statuses).map(([name, value]) => ({ name, value }));
   })();
 
   // Stats
   const totalTransactions = filteredTransactions.length;
-  const avgTransactionValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
-  const approvedPayments = filteredPayments.filter(p => p.status === 'approved').length;
+  const avgTransactionValue =
+    totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+  const approvedPayments = filteredPayments.filter(
+    (p) => p.status === "approved"
+  ).length;
   const totalPaymentRequests = filteredPayments.length;
-  const approvalRate = totalPaymentRequests > 0 ? (approvedPayments / totalPaymentRequests) * 100 : 0;
+  const approvalRate =
+    totalPaymentRequests > 0
+      ? (approvedPayments / totalPaymentRequests) * 100
+      : 0;
+
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
 
   if (isLoading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8" />
-        <div className="grid md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-purple-600 bg-clip-text text-transparent">
-              Analytics Dashboard
-            </h1>
-            <p className="text-slate-600 mt-1">Comprehensive insights into revenue, user growth, and platform usage</p>
-          </div>
+          <PageHeader
+            title="Analytics Dashboard"
+            description="Comprehensive insights into revenue, user growth, and platform usage"
+            icon={BarChart2}
+          />
         </div>
 
         {/* Date Range Filter */}
@@ -272,31 +338,36 @@ export default function PaymentAnalytics() {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <Badge 
+                <Badge
                   onClick={() => setDateRange(7)}
                   className="cursor-pointer hover:bg-purple-700"
                   variant="default"
                 >
                   Last 7 Days
                 </Badge>
-                <Badge 
+                <Badge
                   onClick={() => setDateRange(30)}
                   className="cursor-pointer hover:bg-purple-700"
                   variant="default"
                 >
                   Last 30 Days
                 </Badge>
-                <Badge 
+                <Badge
                   onClick={() => setDateRange(90)}
                   className="cursor-pointer hover:bg-purple-700"
                   variant="default"
                 >
                   Last 90 Days
                 </Badge>
-                <Badge 
+                <Badge
                   onClick={() => {
-                    setStartDate(format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd'));
-                    setEndDate(format(new Date(), 'yyyy-MM-dd'));
+                    setStartDate(
+                      format(
+                        new Date(new Date().getFullYear(), 0, 1),
+                        "yyyy-MM-dd"
+                      )
+                    );
+                    setEndDate(format(new Date(), "yyyy-MM-dd"));
                   }}
                   className="cursor-pointer hover:bg-purple-700"
                   variant="default"
@@ -323,7 +394,7 @@ export default function PaymentAnalytics() {
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     min={startDate}
-                    max={format(new Date(), 'yyyy-MM-dd')}
+                    max={format(new Date(), "yyyy-MM-dd")}
                   />
                 </div>
               </div>
@@ -336,25 +407,35 @@ export default function PaymentAnalytics() {
           <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-slate-600">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-600">
+                  Total Revenue
+                </CardTitle>
                 <DollarSign className="w-5 h-5 text-green-600" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">${totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-slate-500 mt-1">{totalTransactions} transactions</p>
+              <div className="text-3xl font-bold text-green-600">
+                ${totalRevenue.toFixed(2)}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                {totalTransactions} transactions
+              </p>
             </CardContent>
           </Card>
 
           <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-slate-600">New Users</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-600">
+                  New Users
+                </CardTitle>
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{filteredUsers.length}</div>
+              <div className="text-3xl font-bold text-blue-600">
+                {filteredUsers.length}
+              </div>
               <p className="text-xs text-slate-500 mt-1">in selected period</p>
             </CardContent>
           </Card>
@@ -362,31 +443,44 @@ export default function PaymentAnalytics() {
           <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-slate-600">Credits Used</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-600">
+                  Credits Used
+                </CardTitle>
                 <Activity className="w-5 h-5 text-purple-600" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-600">{totalCreditsUsed}</div>
-              <p className="text-xs text-slate-500 mt-1">{filteredAnalyses.length} analyses</p>
+              <div className="text-3xl font-bold text-purple-600">
+                {totalCreditsUsed}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                {filteredAnalyses.length} analyses
+              </p>
             </CardContent>
           </Card>
 
           <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-slate-600">Premium Reports</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-600">
+                  Premium Reports
+                </CardTitle>
                 <Sparkles className="w-5 h-5 text-orange-600" />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-orange-600">
-                {filteredAnalyses.filter(a => a.is_premium).length}
+                {filteredAnalyses.filter((a) => a.is_premium).length}
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                {filteredAnalyses.length > 0 ? 
-                  `${((filteredAnalyses.filter(a => a.is_premium).length / filteredAnalyses.length) * 100).toFixed(1)}%` : 
-                  '0%'} of total
+                {filteredAnalyses.length > 0
+                  ? `${(
+                      (filteredAnalyses.filter((a) => a.is_premium).length /
+                        filteredAnalyses.length) *
+                      100
+                    ).toFixed(1)}%`
+                  : "0%"}{" "}
+                of total
               </p>
             </CardContent>
           </Card>
@@ -405,8 +499,8 @@ export default function PaymentAnalytics() {
               <AreaChart data={userGrowthData}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -414,8 +508,21 @@ export default function PaymentAnalytics() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Area type="monotone" dataKey="total" stroke="#3b82f6" fillOpacity={1} fill="url(#colorTotal)" name="Total Users" />
-                <Line type="monotone" dataKey="new" stroke="#10b981" strokeWidth={2} name="New Users" />
+                <Area
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#3b82f6"
+                  fillOpacity={1}
+                  fill="url(#colorTotal)"
+                  name="Total Users"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="new"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  name="New Users"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -434,12 +541,18 @@ export default function PaymentAnalytics() {
               <AreaChart data={creditUsageTrends}>
                 <defs>
                   <linearGradient id="colorUsed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
                   </linearGradient>
-                  <linearGradient id="colorPurchased" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                  <linearGradient
+                    id="colorPurchased"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -447,8 +560,22 @@ export default function PaymentAnalytics() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Area type="monotone" dataKey="purchased" stroke="#10b981" fillOpacity={1} fill="url(#colorPurchased)" name="Credits Purchased" />
-                <Area type="monotone" dataKey="used" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorUsed)" name="Credits Used" />
+                <Area
+                  type="monotone"
+                  dataKey="purchased"
+                  stroke="#10b981"
+                  fillOpacity={1}
+                  fill="url(#colorPurchased)"
+                  name="Credits Purchased"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="used"
+                  stroke="#8b5cf6"
+                  fillOpacity={1}
+                  fill="url(#colorUsed)"
+                  name="Credits Used"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -470,7 +597,13 @@ export default function PaymentAnalytics() {
                 <YAxis />
                 <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
                 <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} name="Revenue ($)" />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  name="Revenue ($)"
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -494,13 +627,18 @@ export default function PaymentAnalytics() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
                     {paymentMethodData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -547,13 +685,18 @@ export default function PaymentAnalytics() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
                     {analysisTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.name === 'Premium' ? '#8b5cf6' : '#06b6d4'} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.name === "Premium" ? "#8b5cf6" : "#06b6d4"}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -599,13 +742,18 @@ export default function PaymentAnalytics() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
                     {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -647,27 +795,45 @@ export default function PaymentAnalytics() {
             <CardContent>
               <div className="space-y-3">
                 {topUsers.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-8">No data available</p>
+                  <p className="text-sm text-slate-500 text-center py-8">
+                    No data available
+                  </p>
                 ) : (
                   topUsers.map((user, index) => (
-                    <div key={user.email} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div
+                      key={user.email}
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
-                          index === 0 ? 'bg-yellow-500' :
-                          index === 1 ? 'bg-slate-400' :
-                          index === 2 ? 'bg-orange-600' :
-                          'bg-slate-300'
-                        }`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${
+                            index === 0
+                              ? "bg-yellow-500"
+                              : index === 1
+                              ? "bg-slate-400"
+                              : index === 2
+                              ? "bg-orange-600"
+                              : "bg-slate-300"
+                          }`}
+                        >
                           {index + 1}
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-800">{user.name}</div>
-                          <div className="text-xs text-slate-500">{user.email}</div>
+                          <div className="font-semibold text-slate-800">
+                            {user.name}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {user.email}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-green-600">${user.revenue.toFixed(2)}</div>
-                        <div className="text-xs text-slate-500">{user.transactions} txn</div>
+                        <div className="font-bold text-green-600">
+                          ${user.revenue.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {user.transactions} txn
+                        </div>
                       </div>
                     </div>
                   ))

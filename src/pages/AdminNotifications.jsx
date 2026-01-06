@@ -11,6 +11,7 @@ import { Send, Users, User as UserIcon, Shield, Bell } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import { useTranslation } from "react-i18next";
 
 export default function AdminNotifications() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function AdminNotifications() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -129,19 +131,24 @@ export default function AdminNotifications() {
     }
   };
 
-  const isArabic = currentUser?.language === 'arabic';
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
 
   const getUsersByRole = (roleId) => {
     return users.filter(u => u.role_id === roleId).length;
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-3xl mx-auto space-y-8">
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title={isArabic ? "إرسال إشعارات" : "Send Notifications"}
           description={isArabic ? "إرسال إشعارات مخصصة للمستخدمين" : "Send custom notifications to users"}
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={Bell}
           isArabic={isArabic}
         />

@@ -121,12 +121,12 @@ export default function Referrals() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title={t('referrals.title')}
           description={t('referrals.subtitle')}
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={Gift}
           isArabic={isArabic}
         />

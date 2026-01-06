@@ -10,9 +10,10 @@ import PageLoader from "@/components/common/PageLoader";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search, Eye, X } from "lucide-react";
+import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search, Eye, X, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function Subscriptions() {
   const { t, i18n } = useTranslation();
@@ -63,19 +64,23 @@ export default function Subscriptions() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
+     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+     
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+          
+           <PageHeader
+                  title={t('subscriptions.title')}
+                  description={t('subscriptions.subtitle')}
+                  // backUrl={createPageUrl("Dashboard")}
+                  icon={FileText}
+                  isArabic={isArabic}
+                />
+          
         {/* Tabs at the top */}
-        <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-top-4 duration-500">
+        <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-top-4 duration-500"  dir={isArabic ? 'rtl' : 'ltr'}>
           <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(createPageUrl("Dashboard"))}
-              className="shadow-md hover:shadow-lg transition-all duration-300 border-slate-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 dark:bg-gray-800"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
+            
             <TabsList>
               <TabsTrigger value="payments">
                 <Banknote className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
@@ -88,15 +93,7 @@ export default function Subscriptions() {
             </TabsList>
           </div>
 
-          {/* Header */}
-          <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-            <h1 className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-              {t('subscriptions.title')}
-            </h1>
-            <p className="text-slate-600 dark:text-gray-400 mt-2 text-lg">
-              {t('subscriptions.subtitle')}
-            </p>
-          </div>
+          
 
           {/* Payment Requests Tab */}
           <TabsContent value="payments" className="mt-6">

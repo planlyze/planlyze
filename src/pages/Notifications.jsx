@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import PageLoader from "@/components/common/PageLoader";
+import PageHeader from "@/components/common/PageHeader";
 
 const notificationIcons = {
   analysis_complete: FileText,
@@ -117,25 +118,18 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/30 to-orange-50/20 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm border-2 border-purple-300 hover:bg-purple-50"
-          >
-            <ArrowLeft className="w-4 h-4 text-purple-600" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-orange-600">
-              {t('notifications.title')}
-            </h1>
-            <p className="text-slate-600">
-              {t('notifications.subtitle')}
-            </p>
-          </div>
+          
+          <PageHeader
+                  title={t('notifications.title')}
+                  description={t('notifications.subtitle')}
+                  // backUrl={createPageUrl("Dashboard")}
+                  icon={Bell}
+                  isArabic={isArabic}
+                />
+           
           {unreadCount > 0 && (
             <Button 
               variant="outline" 

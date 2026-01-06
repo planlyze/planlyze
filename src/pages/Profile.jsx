@@ -13,6 +13,7 @@ import { User as UserIcon, Mail, Phone, MapPin, Lock, Save } from "lucide-react"
 import PageHeader from "@/components/common/PageHeader";
 import { logProfileUpdated } from "@/components/utils/activityHelper";
 import { useAuth } from "@/lib/AuthContext";
+import PageLoader from "@/components/common/PageLoader";
 
 export default function Profile() {
   const { t, i18n } = useTranslation();
@@ -84,23 +85,16 @@ export default function Profile() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 dark:bg-gray-900">
-        <div className="max-w-3xl mx-auto">
-          <div className="h-8 w-40 bg-slate-200 dark:bg-gray-700 rounded animate-pulse mb-6" />
-          <div className="h-72 bg-slate-100 dark:bg-gray-800 rounded-lg animate-pulse" />
-        </div>
-      </div>
-    );
+   return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title={t('profile.title')}
           description={t('profile.subtitle')}
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={UserIcon}
           isArabic={isArabic}
         />

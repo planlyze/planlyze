@@ -224,12 +224,12 @@ export default function Reports() {
   });
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-background" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title={viewingEmail && !isOwnReports ? `${t('reports.titleOther')} - ${viewingEmail}` : t('reports.title')}
           description={t('reports.subtitle')}
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={FileText}
           isArabic={isArabic}
           actions={

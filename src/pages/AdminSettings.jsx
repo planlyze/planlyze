@@ -2,37 +2,92 @@ import React, { useState, useEffect } from "react";
 import { auth, Partner, SystemSettings } from "@/api/client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Settings, Users, Plus, Pencil, Trash2, Save, Globe, MessageSquare, Mail, Eye, Check, Share2, Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink, Coins } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  ArrowLeft,
+  Settings,
+  Users,
+  Plus,
+  Pencil,
+  Trash2,
+  Save,
+  Globe,
+  MessageSquare,
+  Mail,
+  Eye,
+  Check,
+  Share2,
+  Facebook,
+  Linkedin,
+  Instagram,
+  Twitter,
+  Youtube,
+  Send,
+  MessageCircle,
+  ExternalLink,
+  Coins,
+  Settings2Icon,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import { api } from "@/api/client";
+import { useTranslation } from "react-i18next";
+import PageLoader from "@/components/common/PageLoader";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function AdminSettings() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("partners");
-  
+
   const [partners, setPartners] = useState([]);
   const [syrianAppsCount, setSyrianAppsCount] = useState("150");
   const [premiumReportCost, setPremiumReportCost] = useState("1");
   const [referralBonusCredits, setReferralBonusCredits] = useState("1");
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isSavingCreditSettings, setIsSavingCreditSettings] = useState(false);
-  
+  const { t, i18n } = useTranslation();
+  const [currentUser, setCurrentUser] = useState(null);
+
   const [contactMessages, setContactMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-  
+
   const [socialMediaLinks, setSocialMediaLinks] = useState([]);
   const [isSocialDialogOpen, setIsSocialDialogOpen] = useState(false);
   const [editingSocial, setEditingSocial] = useState(null);
@@ -42,21 +97,53 @@ export default function AdminSettings() {
     icon: "Facebook",
     hover_color: "hover:bg-orange-500 hover:border-orange-500",
     display_order: 0,
-    is_active: true
+    is_active: true,
   });
   const [isSavingSocial, setIsSavingSocial] = useState(false);
-  
+
   const iconOptions = [
-    { value: "Facebook", label: "Facebook", color: "hover:bg-blue-600 hover:border-blue-600" },
-    { value: "Linkedin", label: "LinkedIn", color: "hover:bg-blue-700 hover:border-blue-700" },
-    { value: "Instagram", label: "Instagram", color: "hover:bg-pink-500 hover:border-pink-500" },
-    { value: "Twitter", label: "Twitter/X", color: "hover:bg-black hover:border-black" },
-    { value: "Youtube", label: "YouTube", color: "hover:bg-red-600 hover:border-red-600" },
-    { value: "MessageCircle", label: "WhatsApp", color: "hover:bg-green-500 hover:border-green-500" },
-    { value: "Send", label: "Telegram", color: "hover:bg-blue-500 hover:border-blue-500" },
-    { value: "ExternalLink", label: "Other", color: "hover:bg-orange-500 hover:border-orange-500" }
+    {
+      value: "Facebook",
+      label: "Facebook",
+      color: "hover:bg-blue-600 hover:border-blue-600",
+    },
+    {
+      value: "Linkedin",
+      label: "LinkedIn",
+      color: "hover:bg-blue-700 hover:border-blue-700",
+    },
+    {
+      value: "Instagram",
+      label: "Instagram",
+      color: "hover:bg-pink-500 hover:border-pink-500",
+    },
+    {
+      value: "Twitter",
+      label: "Twitter/X",
+      color: "hover:bg-black hover:border-black",
+    },
+    {
+      value: "Youtube",
+      label: "YouTube",
+      color: "hover:bg-red-600 hover:border-red-600",
+    },
+    {
+      value: "MessageCircle",
+      label: "WhatsApp",
+      color: "hover:bg-green-500 hover:border-green-500",
+    },
+    {
+      value: "Send",
+      label: "Telegram",
+      color: "hover:bg-blue-500 hover:border-blue-500",
+    },
+    {
+      value: "ExternalLink",
+      label: "Other",
+      color: "hover:bg-orange-500 hover:border-orange-500",
+    },
   ];
-  
+
   const [isPartnerDialogOpen, setIsPartnerDialogOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState(null);
   const [partnerForm, setPartnerForm] = useState({
@@ -66,7 +153,7 @@ export default function AdminSettings() {
     website_url: "",
     color: "6B46C1",
     display_order: 0,
-    is_active: true
+    is_active: true,
   });
   const [isSavingPartner, setIsSavingPartner] = useState(false);
 
@@ -96,43 +183,47 @@ export default function AdminSettings() {
     try {
       const partnersData = await Partner.list();
       setPartners(Array.isArray(partnersData) ? partnersData : []);
-      
+
       try {
-        const syrianSetting = await SystemSettings.get('syrian_apps_count');
+        const syrianSetting = await SystemSettings.get("syrian_apps_count");
         if (syrianSetting?.value) {
           setSyrianAppsCount(syrianSetting.value);
         }
       } catch (e) {
         console.log("Syrian apps setting not found, using default");
       }
-      
+
       try {
-        const premiumCostSetting = await SystemSettings.get('premium_report_cost');
+        const premiumCostSetting = await SystemSettings.get(
+          "premium_report_cost"
+        );
         if (premiumCostSetting?.value) {
           setPremiumReportCost(premiumCostSetting.value);
         }
       } catch (e) {
         console.log("Premium report cost setting not found, using default");
       }
-      
+
       try {
-        const referralBonusSetting = await SystemSettings.get('referral_bonus_credits');
+        const referralBonusSetting = await SystemSettings.get(
+          "referral_bonus_credits"
+        );
         if (referralBonusSetting?.value) {
           setReferralBonusCredits(referralBonusSetting.value);
         }
       } catch (e) {
         console.log("Referral bonus credits setting not found, using default");
       }
-      
+
       try {
-        const messagesData = await api.get('/contact-messages');
+        const messagesData = await api.get("/contact-messages");
         setContactMessages(Array.isArray(messagesData) ? messagesData : []);
       } catch (e) {
         console.log("Error loading contact messages:", e);
       }
-      
+
       try {
-        const socialData = await api.get('/social-media/all');
+        const socialData = await api.get("/social-media/all");
         setSocialMediaLinks(Array.isArray(socialData) ? socialData : []);
       } catch (e) {
         console.log("Error loading social media:", e);
@@ -146,12 +237,12 @@ export default function AdminSettings() {
   const handleViewMessage = async (message) => {
     setSelectedMessage(message);
     setIsMessageDialogOpen(true);
-    
+
     if (!message.is_read) {
       try {
         await api.put(`/contact-messages/${message.id}/read`);
-        setContactMessages(prev => 
-          prev.map(m => m.id === message.id ? { ...m, is_read: true } : m)
+        setContactMessages((prev) =>
+          prev.map((m) => (m.id === message.id ? { ...m, is_read: true } : m))
         );
       } catch (e) {
         console.error("Error marking message as read:", e);
@@ -161,10 +252,10 @@ export default function AdminSettings() {
 
   const handleDeleteMessage = async (messageId) => {
     if (!confirm("Are you sure you want to delete this message?")) return;
-    
+
     try {
       await api.delete(`/contact-messages/${messageId}`);
-      setContactMessages(prev => prev.filter(m => m.id !== messageId));
+      setContactMessages((prev) => prev.filter((m) => m.id !== messageId));
       toast.success("Message deleted");
     } catch (e) {
       console.error("Error deleting message:", e);
@@ -179,9 +270,10 @@ export default function AdminSettings() {
         platform: social.platform || "",
         url: social.url || "",
         icon: social.icon || "Facebook",
-        hover_color: social.hover_color || "hover:bg-orange-500 hover:border-orange-500",
+        hover_color:
+          social.hover_color || "hover:bg-orange-500 hover:border-orange-500",
         display_order: social.display_order || 0,
-        is_active: social.is_active !== false
+        is_active: social.is_active !== false,
       });
     } else {
       setEditingSocial(null);
@@ -191,7 +283,7 @@ export default function AdminSettings() {
         icon: "Facebook",
         hover_color: "hover:bg-blue-600 hover:border-blue-600",
         display_order: socialMediaLinks.length + 1,
-        is_active: true
+        is_active: true,
       });
     }
     setIsSocialDialogOpen(true);
@@ -202,14 +294,14 @@ export default function AdminSettings() {
       toast.error("Platform name and URL are required");
       return;
     }
-    
+
     setIsSavingSocial(true);
     try {
       if (editingSocial) {
         await api.put(`/social-media/${editingSocial.id}`, socialForm);
         toast.success("Social media link updated");
       } else {
-        await api.post('/social-media', socialForm);
+        await api.post("/social-media", socialForm);
         toast.success("Social media link added");
       }
       setIsSocialDialogOpen(false);
@@ -223,8 +315,9 @@ export default function AdminSettings() {
   };
 
   const handleDeleteSocial = async (social) => {
-    if (!confirm(`Are you sure you want to delete "${social.platform}"?`)) return;
-    
+    if (!confirm(`Are you sure you want to delete "${social.platform}"?`))
+      return;
+
     try {
       await api.delete(`/social-media/${social.id}`);
       toast.success("Social media link deleted");
@@ -236,14 +329,23 @@ export default function AdminSettings() {
   };
 
   const getIconComponent = (iconName) => {
-    const icons = { Facebook, Linkedin, Instagram, Twitter, Youtube, Send, MessageCircle, ExternalLink };
+    const icons = {
+      Facebook,
+      Linkedin,
+      Instagram,
+      Twitter,
+      Youtube,
+      Send,
+      MessageCircle,
+      ExternalLink,
+    };
     return icons[iconName] || ExternalLink;
   };
 
   const handleSaveSyrianAppsCount = async () => {
     setIsSavingSettings(true);
     try {
-      await SystemSettings.update('syrian_apps_count', syrianAppsCount);
+      await SystemSettings.update("syrian_apps_count", syrianAppsCount);
       toast.success("Syrian apps count updated successfully");
     } catch (error) {
       console.error("Error saving setting:", error);
@@ -256,7 +358,7 @@ export default function AdminSettings() {
   const handleSaveCreditSettings = async () => {
     const costValue = parseInt(premiumReportCost, 10);
     const bonusValue = parseInt(referralBonusCredits, 10);
-    
+
     if (isNaN(costValue) || costValue < 1) {
       toast.error("Premium report cost must be at least 1");
       return;
@@ -265,11 +367,11 @@ export default function AdminSettings() {
       toast.error("Referral bonus credits must be 0 or greater");
       return;
     }
-    
+
     setIsSavingCreditSettings(true);
     try {
-      await SystemSettings.update('premium_report_cost', String(costValue));
-      await SystemSettings.update('referral_bonus_credits', String(bonusValue));
+      await SystemSettings.update("premium_report_cost", String(costValue));
+      await SystemSettings.update("referral_bonus_credits", String(bonusValue));
       setPremiumReportCost(String(costValue));
       setReferralBonusCredits(String(bonusValue));
       toast.success("Credit settings updated successfully");
@@ -291,7 +393,7 @@ export default function AdminSettings() {
         website_url: partner.website_url || "",
         color: partner.color || "6B46C1",
         display_order: partner.display_order || 0,
-        is_active: partner.is_active !== false
+        is_active: partner.is_active !== false,
       });
     } else {
       setEditingPartner(null);
@@ -302,7 +404,7 @@ export default function AdminSettings() {
         website_url: "",
         color: "6B46C1",
         display_order: partners.length + 1,
-        is_active: true
+        is_active: true,
       });
     }
     setIsPartnerDialogOpen(true);
@@ -313,7 +415,7 @@ export default function AdminSettings() {
       toast.error("Partner name is required");
       return;
     }
-    
+
     setIsSavingPartner(true);
     try {
       if (editingPartner) {
@@ -337,7 +439,7 @@ export default function AdminSettings() {
     if (!confirm(`Are you sure you want to delete "${partner.name}"?`)) {
       return;
     }
-    
+
     try {
       await Partner.delete(partner.id);
       toast.success("Partner deleted successfully");
@@ -348,40 +450,27 @@ export default function AdminSettings() {
     }
   };
 
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-96 w-full" />
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-              <Settings className="w-8 h-8 text-purple-600" />
-              Landing Page Settings
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Manage partners and landing page content
-            </p>
-          </div>
-        </div>
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
+        <PageHeader
+          title="Landing Page Settings"
+          description="Manage partners and landing page content"
+          icon={Settings2Icon}
+          
+        />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} dir={isArabic ? "rtl" : "ltr"}>
           <TabsList className="mb-6">
             <TabsTrigger value="partners" className="gap-2">
               <Users className="w-4 h-4" />
@@ -394,9 +483,9 @@ export default function AdminSettings() {
             <TabsTrigger value="messages" className="gap-2">
               <MessageSquare className="w-4 h-4" />
               Messages
-              {contactMessages.filter(m => !m.is_read).length > 0 && (
+              {contactMessages.filter((m) => !m.is_read).length > 0 && (
                 <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
-                  {contactMessages.filter(m => !m.is_read).length}
+                  {contactMessages.filter((m) => !m.is_read).length}
                 </span>
               )}
             </TabsTrigger>
@@ -439,55 +528,70 @@ export default function AdminSettings() {
                   <TableBody>
                     {partners.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        <TableCell
+                          colSpan={6}
+                          className="text-center py-8 text-gray-500"
+                        >
                           No partners found. Add your first partner.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      partners.sort((a, b) => a.display_order - b.display_order).map((partner) => (
-                        <TableRow key={partner.id}>
-                          <TableCell>{partner.display_order}</TableCell>
-                          <TableCell className="font-medium">{partner.name}</TableCell>
-                          <TableCell dir="rtl">{partner.name_ar || "—"}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-6 h-6 rounded border"
-                                style={{ backgroundColor: `#${partner.color}` }}
-                              />
-                              <span className="text-xs text-gray-500">#{partner.color}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              partner.is_active 
-                                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                            }`}>
-                              {partner.is_active ? "Active" : "Inactive"}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => openPartnerDialog(partner)}
+                      partners
+                        .sort((a, b) => a.display_order - b.display_order)
+                        .map((partner) => (
+                          <TableRow key={partner.id}>
+                            <TableCell>{partner.display_order}</TableCell>
+                            <TableCell className="font-medium">
+                              {partner.name}
+                            </TableCell>
+                            <TableCell dir="rtl">
+                              {partner.name_ar || "—"}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-6 h-6 rounded border"
+                                  style={{
+                                    backgroundColor: `#${partner.color}`,
+                                  }}
+                                />
+                                <span className="text-xs text-gray-500">
+                                  #{partner.color}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${
+                                  partner.is_active
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                }`}
                               >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                                onClick={() => handleDeletePartner(partner)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                                {partner.is_active ? "Active" : "Inactive"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openPartnerDialog(partner)}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                  onClick={() => handleDeletePartner(partner)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
                     )}
                   </TableBody>
                 </Table>
@@ -515,7 +619,7 @@ export default function AdminSettings() {
                         onChange={(e) => setSyrianAppsCount(e.target.value)}
                         placeholder="150"
                       />
-                      <Button 
+                      <Button
                         onClick={handleSaveSyrianAppsCount}
                         disabled={isSavingSettings}
                         className="gap-2"
@@ -525,19 +629,26 @@ export default function AdminSettings() {
                       </Button>
                     </div>
                     <p className="text-sm text-gray-500">
-                      This number is displayed on the landing page as the count of Syrian apps analyzed.
+                      This number is displayed on the landing page as the count
+                      of Syrian apps analyzed.
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
                   <h4 className="font-medium mb-2">Automatic Statistics</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    The following statistics are calculated automatically from the database:
+                    The following statistics are calculated automatically from
+                    the database:
                   </p>
                   <ul className="text-sm text-gray-600 dark:text-gray-400 mt-2 list-disc list-inside">
-                    <li><strong>Users Count:</strong> Total active users in the system</li>
-                    <li><strong>Reports Count:</strong> Total completed analyses</li>
+                    <li>
+                      <strong>Users Count:</strong> Total active users in the
+                      system
+                    </li>
+                    <li>
+                      <strong>Reports Count:</strong> Total completed analyses
+                    </li>
                   </ul>
                 </div>
               </CardContent>
@@ -570,13 +681,21 @@ export default function AdminSettings() {
                   <TableBody>
                     {contactMessages.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        <TableCell
+                          colSpan={6}
+                          className="text-center py-8 text-gray-500"
+                        >
                           No contact messages yet.
                         </TableCell>
                       </TableRow>
                     ) : (
                       contactMessages.map((msg) => (
-                        <TableRow key={msg.id} className={!msg.is_read ? "bg-blue-50 dark:bg-blue-900/20" : ""}>
+                        <TableRow
+                          key={msg.id}
+                          className={
+                            !msg.is_read ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                          }
+                        >
                           <TableCell>
                             {msg.is_read ? (
                               <span className="flex items-center gap-1 text-green-600 text-xs">
@@ -588,16 +707,23 @@ export default function AdminSettings() {
                               </span>
                             )}
                           </TableCell>
-                          <TableCell className="font-medium">{msg.name}</TableCell>
+                          <TableCell className="font-medium">
+                            {msg.name}
+                          </TableCell>
                           <TableCell>{msg.email}</TableCell>
                           <TableCell className="text-sm text-gray-500">
-                            {new Date(msg.created_at).toLocaleDateString()} {new Date(msg.created_at).toLocaleTimeString()}
+                            {new Date(msg.created_at).toLocaleDateString()}{" "}
+                            {new Date(msg.created_at).toLocaleTimeString()}
                           </TableCell>
                           <TableCell>
                             {msg.email_sent ? (
-                              <span className="text-green-600 text-xs">Sent</span>
+                              <span className="text-green-600 text-xs">
+                                Sent
+                              </span>
                             ) : (
-                              <span className="text-gray-400 text-xs">Not sent</span>
+                              <span className="text-gray-400 text-xs">
+                                Not sent
+                              </span>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
@@ -660,58 +786,72 @@ export default function AdminSettings() {
                   <TableBody>
                     {socialMediaLinks.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        <TableCell
+                          colSpan={6}
+                          className="text-center py-8 text-gray-500"
+                        >
                           No social media links found. Add your first link.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      socialMediaLinks.sort((a, b) => a.display_order - b.display_order).map((social) => {
-                        const IconComp = getIconComponent(social.icon);
-                        return (
-                          <TableRow key={social.id}>
-                            <TableCell>{social.display_order}</TableCell>
-                            <TableCell className="font-medium">{social.platform}</TableCell>
-                            <TableCell>
-                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <IconComp className="w-4 h-4" />
-                              </div>
-                            </TableCell>
-                            <TableCell className="max-w-[200px] truncate text-sm text-gray-500">
-                              <a href={social.url} target="_blank" rel="noopener noreferrer" className="hover:text-purple-600">
-                                {social.url}
-                              </a>
-                            </TableCell>
-                            <TableCell>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                social.is_active 
-                                  ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                              }`}>
-                                {social.is_active ? "Active" : "Inactive"}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openSocialDialog(social)}
+                      socialMediaLinks
+                        .sort((a, b) => a.display_order - b.display_order)
+                        .map((social) => {
+                          const IconComp = getIconComponent(social.icon);
+                          return (
+                            <TableRow key={social.id}>
+                              <TableCell>{social.display_order}</TableCell>
+                              <TableCell className="font-medium">
+                                {social.platform}
+                              </TableCell>
+                              <TableCell>
+                                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                  <IconComp className="w-4 h-4" />
+                                </div>
+                              </TableCell>
+                              <TableCell className="max-w-[200px] truncate text-sm text-gray-500">
+                                <a
+                                  href={social.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-purple-600"
                                 >
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-red-600 hover:text-red-700"
-                                  onClick={() => handleDeleteSocial(social)}
+                                  {social.url}
+                                </a>
+                              </TableCell>
+                              <TableCell>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs ${
+                                    social.is_active
+                                      ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                  }`}
                                 >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
+                                  {social.is_active ? "Active" : "Inactive"}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => openSocialDialog(social)}
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 hover:text-red-700"
+                                    onClick={() => handleDeleteSocial(social)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                     )}
                   </TableBody>
                 </Table>
@@ -733,7 +873,9 @@ export default function AdminSettings() {
               <CardContent className="space-y-6">
                 <div className="grid gap-6 max-w-md">
                   <div className="space-y-2">
-                    <Label htmlFor="premiumReportCost">Premium Report Cost (Credits)</Label>
+                    <Label htmlFor="premiumReportCost">
+                      Premium Report Cost (Credits)
+                    </Label>
                     <div className="flex gap-2">
                       <Input
                         id="premiumReportCost"
@@ -745,43 +887,62 @@ export default function AdminSettings() {
                       />
                     </div>
                     <p className="text-sm text-gray-500">
-                      Number of credits deducted when a user generates a premium report.
+                      Number of credits deducted when a user generates a premium
+                      report.
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="referralBonusCredits">Referral Bonus Credits</Label>
+                    <Label htmlFor="referralBonusCredits">
+                      Referral Bonus Credits
+                    </Label>
                     <div className="flex gap-2">
                       <Input
                         id="referralBonusCredits"
                         type="number"
                         min="0"
                         value={referralBonusCredits}
-                        onChange={(e) => setReferralBonusCredits(e.target.value)}
+                        onChange={(e) =>
+                          setReferralBonusCredits(e.target.value)
+                        }
                         placeholder="1"
                       />
                     </div>
                     <p className="text-sm text-gray-500">
-                      Credits awarded to the referrer when a referred user generates their first premium report.
+                      Credits awarded to the referrer when a referred user
+                      generates their first premium report.
                     </p>
                   </div>
 
-                  <Button 
+                  <Button
                     onClick={handleSaveCreditSettings}
                     disabled={isSavingCreditSettings}
                     className="gap-2 w-fit"
                   >
                     <Save className="w-4 h-4" />
-                    {isSavingCreditSettings ? "Saving..." : "Save Credit Settings"}
+                    {isSavingCreditSettings
+                      ? "Saving..."
+                      : "Save Credit Settings"}
                   </Button>
                 </div>
-                
+
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-300">How Referral Bonuses Work</h4>
+                  <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-300">
+                    How Referral Bonuses Work
+                  </h4>
                   <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
-                    <li>When a new user signs up with a referral code, the referral is marked as "pending"</li>
-                    <li>The referrer receives the bonus credits only when the referred user generates their first premium report</li>
-                    <li>This ensures referrers are rewarded for bringing active, engaged users</li>
+                    <li>
+                      When a new user signs up with a referral code, the
+                      referral is marked as "pending"
+                    </li>
+                    <li>
+                      The referrer receives the bonus credits only when the
+                      referred user generates their first premium report
+                    </li>
+                    <li>
+                      This ensures referrers are rewarded for bringing active,
+                      engaged users
+                    </li>
                   </ul>
                 </div>
               </CardContent>
@@ -793,7 +954,9 @@ export default function AdminSettings() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
-                {editingSocial ? "Edit Social Media Link" : "Add Social Media Link"}
+                {editingSocial
+                  ? "Edit Social Media Link"
+                  : "Add Social Media Link"}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -802,7 +965,9 @@ export default function AdminSettings() {
                 <Input
                   id="platform"
                   value={socialForm.platform}
-                  onChange={(e) => setSocialForm({ ...socialForm, platform: e.target.value })}
+                  onChange={(e) =>
+                    setSocialForm({ ...socialForm, platform: e.target.value })
+                  }
                   placeholder="Facebook, Twitter, etc."
                 />
               </div>
@@ -811,7 +976,9 @@ export default function AdminSettings() {
                 <Input
                   id="url"
                   value={socialForm.url}
-                  onChange={(e) => setSocialForm({ ...socialForm, url: e.target.value })}
+                  onChange={(e) =>
+                    setSocialForm({ ...socialForm, url: e.target.value })
+                  }
                   placeholder="https://..."
                 />
               </div>
@@ -820,11 +987,11 @@ export default function AdminSettings() {
                 <Select
                   value={socialForm.icon}
                   onValueChange={(value) => {
-                    const option = iconOptions.find(o => o.value === value);
-                    setSocialForm({ 
-                      ...socialForm, 
+                    const option = iconOptions.find((o) => o.value === value);
+                    setSocialForm({
+                      ...socialForm,
                       icon: value,
-                      hover_color: option?.color || socialForm.hover_color
+                      hover_color: option?.color || socialForm.hover_color,
                     });
                   }}
                 >
@@ -852,7 +1019,12 @@ export default function AdminSettings() {
                   id="display_order"
                   type="number"
                   value={socialForm.display_order}
-                  onChange={(e) => setSocialForm({ ...socialForm, display_order: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setSocialForm({
+                      ...socialForm,
+                      display_order: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -860,7 +1032,9 @@ export default function AdminSettings() {
                 <Switch
                   id="is_active"
                   checked={socialForm.is_active}
-                  onCheckedChange={(checked) => setSocialForm({ ...socialForm, is_active: checked })}
+                  onCheckedChange={(checked) =>
+                    setSocialForm({ ...socialForm, is_active: checked })
+                  }
                 />
               </div>
             </div>
@@ -875,7 +1049,10 @@ export default function AdminSettings() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+        <Dialog
+          open={isMessageDialogOpen}
+          onOpenChange={setIsMessageDialogOpen}
+        >
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Contact Message</DialogTitle>
@@ -908,7 +1085,9 @@ export default function AdminSettings() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => window.open(`mailto:${selectedMessage.email}`, '_blank')}
+                    onClick={() =>
+                      window.open(`mailto:${selectedMessage.email}`, "_blank")
+                    }
                   >
                     <Mail className="w-4 h-4 mr-2" />
                     Reply via Email
@@ -924,7 +1103,10 @@ export default function AdminSettings() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isPartnerDialogOpen} onOpenChange={setIsPartnerDialogOpen}>
+        <Dialog
+          open={isPartnerDialogOpen}
+          onOpenChange={setIsPartnerDialogOpen}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
@@ -937,7 +1119,9 @@ export default function AdminSettings() {
                 <Input
                   id="name"
                   value={partnerForm.name}
-                  onChange={(e) => setPartnerForm({ ...partnerForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setPartnerForm({ ...partnerForm, name: e.target.value })
+                  }
                   placeholder="Partner Name"
                 />
               </div>
@@ -947,7 +1131,9 @@ export default function AdminSettings() {
                   id="name_ar"
                   dir="rtl"
                   value={partnerForm.name_ar}
-                  onChange={(e) => setPartnerForm({ ...partnerForm, name_ar: e.target.value })}
+                  onChange={(e) =>
+                    setPartnerForm({ ...partnerForm, name_ar: e.target.value })
+                  }
                   placeholder="اسم الشريك"
                 />
               </div>
@@ -956,7 +1142,9 @@ export default function AdminSettings() {
                 <Input
                   id="logo_url"
                   value={partnerForm.logo_url}
-                  onChange={(e) => setPartnerForm({ ...partnerForm, logo_url: e.target.value })}
+                  onChange={(e) =>
+                    setPartnerForm({ ...partnerForm, logo_url: e.target.value })
+                  }
                   placeholder="https://example.com/logo.png"
                 />
               </div>
@@ -965,7 +1153,12 @@ export default function AdminSettings() {
                 <Input
                   id="website_url"
                   value={partnerForm.website_url}
-                  onChange={(e) => setPartnerForm({ ...partnerForm, website_url: e.target.value })}
+                  onChange={(e) =>
+                    setPartnerForm({
+                      ...partnerForm,
+                      website_url: e.target.value,
+                    })
+                  }
                   placeholder="https://example.com"
                 />
               </div>
@@ -976,10 +1169,15 @@ export default function AdminSettings() {
                     <Input
                       id="color"
                       value={partnerForm.color}
-                      onChange={(e) => setPartnerForm({ ...partnerForm, color: e.target.value.replace('#', '') })}
+                      onChange={(e) =>
+                        setPartnerForm({
+                          ...partnerForm,
+                          color: e.target.value.replace("#", ""),
+                        })
+                      }
                       placeholder="6B46C1"
                     />
-                    <div 
+                    <div
                       className="w-10 h-10 rounded border flex-shrink-0"
                       style={{ backgroundColor: `#${partnerForm.color}` }}
                     />
@@ -991,7 +1189,12 @@ export default function AdminSettings() {
                     id="display_order"
                     type="number"
                     value={partnerForm.display_order}
-                    onChange={(e) => setPartnerForm({ ...partnerForm, display_order: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setPartnerForm({
+                        ...partnerForm,
+                        display_order: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -1000,7 +1203,9 @@ export default function AdminSettings() {
                 <Switch
                   id="is_active"
                   checked={partnerForm.is_active}
-                  onCheckedChange={(checked) => setPartnerForm({ ...partnerForm, is_active: checked })}
+                  onCheckedChange={(checked) =>
+                    setPartnerForm({ ...partnerForm, is_active: checked })
+                  }
                 />
               </div>
             </div>

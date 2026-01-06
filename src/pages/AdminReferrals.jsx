@@ -7,19 +7,51 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Users, Calendar, Gift, CheckCircle, Clock, SortDesc, SortAsc, Mail, UserPlus, Download } from "lucide-react";
-import { exportToExcel, getReferralsExportColumns } from "@/components/utils/excelExport";
+import {
+  Users,
+  Calendar,
+  Gift,
+  CheckCircle,
+  Clock,
+  SortDesc,
+  SortAsc,
+  Mail,
+  UserPlus,
+  Download,
+} from "lucide-react";
+import {
+  exportToExcel,
+  getReferralsExportColumns,
+} from "@/components/utils/excelExport";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/components/common/PageHeader";
-import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
+import FilterBar, {
+  SearchInput,
+  SELECT_TRIGGER_CLASS,
+} from "@/components/common/FilterBar";
+import PageLoader from "@/components/common/PageLoader";
 
 export default function AdminReferrals() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [currentUser, setCurrentUser] = useState(null);
   const [referrals, setReferrals] = useState([]);
   const [users, setUsers] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -35,8 +67,10 @@ export default function AdminReferrals() {
     setIsLoading(true);
     try {
       const user = await auth.me();
-      const roleName = typeof user.role === 'object' ? user.role?.name : user.role || 'user';
-      if (!['admin', 'super_admin', 'owner'].includes(roleName)) {
+      setCurrentUser(user);
+      const roleName =
+        typeof user.role === "object" ? user.role?.name : user.role || "user";
+      if (!["admin", "super_admin", "owner"].includes(roleName)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view referrals");
         return;
@@ -47,7 +81,7 @@ export default function AdminReferrals() {
 
       const allUsers = await User.list();
       const usersMap = {};
-      allUsers.forEach(u => {
+      allUsers.forEach((u) => {
         usersMap[u.email] = u;
       });
       setUsers(usersMap);
@@ -61,77 +95,90 @@ export default function AdminReferrals() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'rewarded': return 'bg-purple-100 text-purple-800';
-      case 'pending': return 'bg-amber-100 text-amber-800';
-      default: return 'bg-slate-100 text-slate-800';
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "rewarded":
+        return "bg-purple-100 text-purple-800";
+      case "pending":
+        return "bg-amber-100 text-amber-800";
+      default:
+        return "bg-slate-100 text-slate-800";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'rewarded': return <Gift className="w-4 h-4" />;
-      case 'pending': return <Clock className="w-4 h-4" />;
-      default: return null;
+      case "completed":
+        return <CheckCircle className="w-4 h-4" />;
+      case "rewarded":
+        return <Gift className="w-4 h-4" />;
+      case "pending":
+        return <Clock className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
-  const filteredReferrals = referrals.filter(r => {
-    const matchesSearch = !searchQuery.trim() || 
-      r.referrer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.referred_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.referral_code?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredReferrals = referrals
+    .filter((r) => {
+      const matchesSearch =
+        !searchQuery.trim() ||
+        r.referrer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.referred_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.referral_code?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || r.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  }).sort((a, b) => {
-    const dateA = new Date(a.created_at);
-    const dateB = new Date(b.created_at);
-    return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-  });
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at);
+      const dateB = new Date(b.created_at);
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
 
   const stats = {
     total: referrals.length,
-    completed: referrals.filter(r => r.status === 'completed').length,
-    rewarded: referrals.filter(r => r.status === 'rewarded').length,
-    pending: referrals.filter(r => r.status === 'pending').length,
-    totalCreditsAwarded: referrals.filter(r => r.status === 'completed' || r.status === 'rewarded').length * 2
+    completed: referrals.filter((r) => r.status === "completed").length,
+    rewarded: referrals.filter((r) => r.status === "rewarded").length,
+    pending: referrals.filter((r) => r.status === "pending").length,
+    totalCreditsAwarded:
+      referrals.filter(
+        (r) => r.status === "completed" || r.status === "rewarded"
+      ).length * 2,
   };
 
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-8 w-48 mb-6" />
-          <div className="grid md:grid-cols-4 gap-4 mb-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))}
-          </div>
-          <Skeleton className="h-96 w-full" />
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title="Referral Management"
           description={`${filteredReferrals.length} referrals`}
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={UserPlus}
           actions={
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const success = exportToExcel(filteredReferrals, getReferralsExportColumns(), 'referrals', 'Referrals');
-                if (success) toast.success('Referrals exported to Excel');
-                else toast.error('No data to export');
+                const success = exportToExcel(
+                  filteredReferrals,
+                  getReferralsExportColumns(),
+                  "referrals",
+                  "Referrals"
+                );
+                if (success) toast.success("Referrals exported to Excel");
+                else toast.error("No data to export");
               }}
               className="gap-2"
             >
@@ -149,7 +196,9 @@ export default function AdminReferrals() {
                   <Users className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                  <p className="text-2xl font-bold text-slate-800">
+                    {stats.total}
+                  </p>
                   <p className="text-sm text-slate-500">Total Referrals</p>
                 </div>
               </div>
@@ -162,7 +211,9 @@ export default function AdminReferrals() {
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{stats.completed}</p>
+                  <p className="text-2xl font-bold text-slate-800">
+                    {stats.completed}
+                  </p>
                   <p className="text-sm text-slate-500">Completed</p>
                 </div>
               </div>
@@ -175,7 +226,9 @@ export default function AdminReferrals() {
                   <Clock className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{stats.pending}</p>
+                  <p className="text-2xl font-bold text-slate-800">
+                    {stats.pending}
+                  </p>
                   <p className="text-sm text-slate-500">Pending</p>
                 </div>
               </div>
@@ -188,7 +241,9 @@ export default function AdminReferrals() {
                   <Gift className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-800">{stats.totalCreditsAwarded}</p>
+                  <p className="text-2xl font-bold text-slate-800">
+                    {stats.totalCreditsAwarded}
+                  </p>
                   <p className="text-sm text-slate-500">Credits Awarded</p>
                 </div>
               </div>
@@ -219,7 +274,11 @@ export default function AdminReferrals() {
             onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
             className="gap-2 h-11"
           >
-            {sortOrder === "desc" ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
+            {sortOrder === "desc" ? (
+              <SortDesc className="w-4 h-4" />
+            ) : (
+              <SortAsc className="w-4 h-4" />
+            )}
             {sortOrder === "desc" ? "Newest" : "Oldest"}
           </Button>
         </FilterBar>
@@ -260,32 +319,56 @@ export default function AdminReferrals() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium text-sm">
-                                {referral.referrer_email?.charAt(0).toUpperCase()}
+                                {referral.referrer_email
+                                  ?.charAt(0)
+                                  .toUpperCase()}
                               </div>
                               <div>
                                 <button
-                                  onClick={() => navigate(createPageUrl("UserProfile") + `?email=${encodeURIComponent(referral.referrer_email)}`)}
+                                  onClick={() =>
+                                    navigate(
+                                      createPageUrl("UserProfile") +
+                                        `?email=${encodeURIComponent(
+                                          referral.referrer_email
+                                        )}`
+                                    )
+                                  }
                                   className="text-sm font-medium text-slate-800 hover:text-purple-600 transition-colors"
                                 >
-                                  {referrer?.full_name || referral.referrer_email}
+                                  {referrer?.full_name ||
+                                    referral.referrer_email}
                                 </button>
-                                <p className="text-xs text-slate-500">{referral.referrer_email}</p>
+                                <p className="text-xs text-slate-500">
+                                  {referral.referrer_email}
+                                </p>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium text-sm">
-                                {referral.referred_email?.charAt(0).toUpperCase()}
+                                {referral.referred_email
+                                  ?.charAt(0)
+                                  .toUpperCase()}
                               </div>
                               <div>
                                 <button
-                                  onClick={() => navigate(createPageUrl("UserProfile") + `?email=${encodeURIComponent(referral.referred_email)}`)}
+                                  onClick={() =>
+                                    navigate(
+                                      createPageUrl("UserProfile") +
+                                        `?email=${encodeURIComponent(
+                                          referral.referred_email
+                                        )}`
+                                    )
+                                  }
                                   className="text-sm font-medium text-slate-800 hover:text-orange-600 transition-colors"
                                 >
-                                  {referred?.full_name || referral.referred_email}
+                                  {referred?.full_name ||
+                                    referral.referred_email}
                                 </button>
-                                <p className="text-xs text-slate-500">{referral.referred_email}</p>
+                                <p className="text-xs text-slate-500">
+                                  {referral.referred_email}
+                                </p>
                               </div>
                             </div>
                           </TableCell>
@@ -295,7 +378,11 @@ export default function AdminReferrals() {
                             </code>
                           </TableCell>
                           <TableCell>
-                            <Badge className={`${getStatusColor(referral.status)} gap-1`}>
+                            <Badge
+                              className={`${getStatusColor(
+                                referral.status
+                              )} gap-1`}
+                            >
                               {getStatusIcon(referral.status)}
                               {referral.status}
                             </Badge>
@@ -304,22 +391,35 @@ export default function AdminReferrals() {
                             <div className="flex items-center gap-1">
                               <Gift className="w-4 h-4 text-purple-500" />
                               <span className="font-medium text-purple-600">
-                                {referral.status === 'completed' || referral.status === 'rewarded' ? '+2' : '0'}
+                                {referral.status === "completed" ||
+                                referral.status === "rewarded"
+                                  ? "+2"
+                                  : "0"}
                               </span>
-                              <span className="text-xs text-slate-500">(1 each)</span>
+                              <span className="text-xs text-slate-500">
+                                (1 each)
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1 text-sm text-slate-600">
                               <Calendar className="w-4 h-4" />
-                              {referral.created_at ? format(new Date(referral.created_at), "MMM d, yyyy") : "-"}
+                              {referral.created_at
+                                ? format(
+                                    new Date(referral.created_at),
+                                    "MMM d, yyyy"
+                                  )
+                                : "-"}
                             </div>
                           </TableCell>
                           <TableCell>
                             {referral.rewarded_at ? (
                               <div className="flex items-center gap-1 text-sm text-green-600">
                                 <CheckCircle className="w-4 h-4" />
-                                {format(new Date(referral.rewarded_at), "MMM d, yyyy")}
+                                {format(
+                                  new Date(referral.rewarded_at),
+                                  "MMM d, yyyy"
+                                )}
                               </div>
                             ) : (
                               <span className="text-slate-400 text-sm">-</span>

@@ -11,9 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Mail, Plus, Edit, Save, X, Send, Info } from "lucide-react";
+import { ArrowLeft, Mail, Plus, Edit, Save, X, Send, Info, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import PageLoader from "@/components/common/PageLoader";
+import PageHeader from "@/components/common/PageHeader";
+import { useTranslation } from "react-i18next";
 
 const defaultTemplates = [
   {
@@ -210,6 +213,7 @@ export default function EmailTemplates() {
   const [testEmail, setTestEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     loadData();
@@ -292,36 +296,25 @@ export default function EmailTemplates() {
     }
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8" />
-        <Skeleton className="h-96" />
-      </div>
-    );
+  const isArabic = i18n.language === "ar" ||  currentUser?.preferred_language === 'arabic';
+ if (isLoading) {
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
+     <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-orange-600">
-              {isArabic ? "قوالب البريد الإلكتروني" : "Email Templates"}
-            </h1>
-            <p className="text-slate-600 mt-1">{isArabic ? "إدارة قوالب إشعارات البريد الإلكتروني" : "Manage email notification templates"}</p>
-          </div>
+           <PageHeader
+            title= {isArabic ? "قوالب البريد الإلكتروني" : "Email Templates"}
+            description={isArabic ? "إدارة قوالب إشعارات البريد الإلكتروني" : "Manage email notification templates"}
+            icon={Bell}
+          />
+         
         </div>
 
         {/* Templates Grid */}

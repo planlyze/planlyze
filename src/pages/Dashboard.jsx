@@ -90,7 +90,7 @@ export default function Dashboard() {
   const isArabic = currentUser?.preferred_language === 'arabic' || currentUser?.language === 'ar';
 
   if (isLoading || !currentUser) {
-    return <PageLoader />;
+    return <PageLoader isArabic={isArabic} />;
   }
 
   const creditsUsed = premiumAnalyses.length * premiumReportCost;

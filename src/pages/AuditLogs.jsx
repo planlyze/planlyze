@@ -7,16 +7,46 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, ChevronLeft, ChevronRight, Download, Globe, Activity, Search } from "lucide-react";
+import {
+  Shield,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Globe,
+  Activity,
+  Search,
+} from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
-import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
-import { exportToExcel, getAuditLogsExportColumns } from "@/components/utils/excelExport";
+import FilterBar, {
+  SearchInput,
+  SELECT_TRIGGER_CLASS,
+} from "@/components/common/FilterBar";
+import {
+  exportToExcel,
+  getAuditLogsExportColumns,
+} from "@/components/utils/excelExport";
+import { useTranslation } from "react-i18next";
+import PageLoader from "@/components/common/PageLoader";
+import { set } from "lodash";
 
 export default function AuditLogs() {
   const navigate = useNavigate();
@@ -28,14 +58,16 @@ export default function AuditLogs() {
   const [actionFilter, setActionFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("audit");
-  
+  const { t, i18n } = useTranslation();
+  const [currentUser, setCurrentUser] = useState(null);
+
   const [apiSearchQuery, setApiSearchQuery] = useState("");
   const [apiMethodFilter, setApiMethodFilter] = useState("all");
   const [apiStatusFilter, setApiStatusFilter] = useState("all");
   const [apiCurrentPage, setApiCurrentPage] = useState(1);
   const [apiTotalPages, setApiTotalPages] = useState(1);
   const [apiTotal, setApiTotal] = useState(0);
-  
+
   const logsPerPage = 50;
 
   useEffect(() => {
@@ -52,6 +84,7 @@ export default function AuditLogs() {
     setIsLoading(true);
     try {
       const user = await auth.me();
+      setCurrentUser(user);
       if (!hasPermission(user, PERMISSIONS.VIEW_AUDIT_LOGS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("You don't have permission to view audit logs");
@@ -59,7 +92,11 @@ export default function AuditLogs() {
       }
 
       const allLogs = await AuditLog.list();
-      const sorted = Array.isArray(allLogs) ? allLogs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
+      const sorted = Array.isArray(allLogs)
+        ? allLogs.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          )
+        : [];
       setLogs(sorted);
     } catch (error) {
       console.error("Error loading logs:", error);
@@ -74,7 +111,7 @@ export default function AuditLogs() {
     try {
       const params = {
         page: apiCurrentPage,
-        per_page: logsPerPage
+        per_page: logsPerPage,
       };
       if (apiMethodFilter !== "all") {
         params.method = apiMethodFilter;
@@ -127,44 +164,63 @@ export default function AuditLogs() {
       role_assigned: "Role Assigned",
       analysis_created: "Analysis Created",
       user_registered: "User Registered",
-      user_login: "User Login"
+      user_login: "User Login",
     };
     return labels[actionType] || actionType;
   };
 
   const getStatusColor = (status) => {
-    if (status >= 200 && status < 300) return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-    if (status >= 300 && status < 400) return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-    if (status >= 400 && status < 500) return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
-    if (status >= 500) return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    if (status >= 200 && status < 300)
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+    if (status >= 300 && status < 400)
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    if (status >= 400 && status < 500)
+      return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
+    if (status >= 500)
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
     return "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
   };
 
   const getMethodColor = (method) => {
     switch (method) {
-      case "GET": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "POST": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "PUT": return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
-      case "DELETE": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "PATCH": return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
-      default: return "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
+      case "GET":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "POST":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "PUT":
+        return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
+      case "DELETE":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "PATCH":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+      default:
+        return "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
     }
   };
 
   const exportToCSV = () => {
-    const headers = ["Date", "Action", "User", "Performed By", "Description", "Metadata"];
-    const rows = filteredLogs.map(log => [
-      log.created_at ? format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss") : "",
+    const headers = [
+      "Date",
+      "Action",
+      "User",
+      "Performed By",
+      "Description",
+      "Metadata",
+    ];
+    const rows = filteredLogs.map((log) => [
+      log.created_at
+        ? format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")
+        : "",
       log.action_type,
       log.user_email,
       log.performed_by || "System",
       log.description,
-      JSON.stringify(log.meta_data || {})
+      JSON.stringify(log.meta_data || {}),
     ]);
 
     const csv = [
       headers.join(","),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
     ].join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
@@ -178,20 +234,30 @@ export default function AuditLogs() {
   };
 
   const exportApiLogsToCSV = () => {
-    const headers = ["Date", "Method", "Path", "Status", "User", "IP", "Execution Time (ms)"];
-    const rows = filteredApiLogs.map(log => [
-      log.created_at ? format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss") : "",
+    const headers = [
+      "Date",
+      "Method",
+      "Path",
+      "Status",
+      "User",
+      "IP",
+      "Execution Time (ms)",
+    ];
+    const rows = filteredApiLogs.map((log) => [
+      log.created_at
+        ? format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")
+        : "",
       log.method,
       log.path,
       log.response_status,
       log.user_email || "Anonymous",
       log.ip_address,
-      log.execution_time_ms
+      log.execution_time_ms,
     ]);
 
     const csv = [
       headers.join(","),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
     ].join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
@@ -204,27 +270,37 @@ export default function AuditLogs() {
     toast.success("API request logs exported successfully");
   };
 
-  const filteredLogs = logs.filter(log => {
-    const matchesSearch = !searchQuery.trim() ||
+  const filteredLogs = logs.filter((log) => {
+    const matchesSearch =
+      !searchQuery.trim() ||
       log.user_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.performed_by?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesAction = actionFilter === "all" || log.action_type === actionFilter;
+    const matchesAction =
+      actionFilter === "all" || log.action_type === actionFilter;
 
     return matchesSearch && matchesAction;
   });
 
-  const filteredApiLogs = apiLogs.filter(log => {
-    const matchesSearch = !apiSearchQuery.trim() ||
+  const filteredApiLogs = apiLogs.filter((log) => {
+    const matchesSearch =
+      !apiSearchQuery.trim() ||
       log.path?.toLowerCase().includes(apiSearchQuery.toLowerCase()) ||
       log.user_email?.toLowerCase().includes(apiSearchQuery.toLowerCase()) ||
       log.ip_address?.includes(apiSearchQuery);
 
-    const matchesStatus = apiStatusFilter === "all" || 
-      (apiStatusFilter === "2xx" && log.response_status >= 200 && log.response_status < 300) ||
-      (apiStatusFilter === "3xx" && log.response_status >= 300 && log.response_status < 400) ||
-      (apiStatusFilter === "4xx" && log.response_status >= 400 && log.response_status < 500) ||
+    const matchesStatus =
+      apiStatusFilter === "all" ||
+      (apiStatusFilter === "2xx" &&
+        log.response_status >= 200 &&
+        log.response_status < 300) ||
+      (apiStatusFilter === "3xx" &&
+        log.response_status >= 300 &&
+        log.response_status < 400) ||
+      (apiStatusFilter === "4xx" &&
+        log.response_status >= 400 &&
+        log.response_status < 500) ||
       (apiStatusFilter === "5xx" && log.response_status >= 500);
 
     return matchesSearch && matchesStatus;
@@ -239,31 +315,37 @@ export default function AuditLogs() {
   const apiEndIndex = Math.min(apiStartIndex + logsPerPage, apiTotal);
   const paginatedApiLogs = filteredApiLogs;
 
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <Skeleton className="h-8 w-64 mb-8" />
-        <Skeleton className="h-96" />
-      </div>
-    );
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
+    if (isLoading) {
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <PageHeader
+   <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
+         <PageHeader
           title="Audit Logs"
           description="Monitor all significant user actions and API requests"
-          backUrl={createPageUrl("Dashboard")}
+          // backUrl={createPageUrl("Dashboard")}
           icon={Activity}
           actions={
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const success = exportToExcel(filteredLogs, getAuditLogsExportColumns(), 'audit_logs', 'Audit Logs');
-                if (success) toast.success('Audit logs exported to Excel');
-                else toast.error('No data to export');
+                const success = exportToExcel(
+                  filteredLogs,
+                  getAuditLogsExportColumns(),
+                  "audit_logs",
+                  "Audit Logs"
+                );
+                if (success) toast.success("Audit logs exported to Excel");
+                else toast.error("No data to export");
               }}
               className="gap-2"
             >
@@ -289,39 +371,68 @@ export default function AuditLogs() {
             <div className="grid md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Logs</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Total Logs
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{logs.length}</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                    {logs.length}
+                  </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Last 24h</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Last 24h
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600">
-                    {logs.filter(l => l.created_at && new Date(l.created_at) > new Date(Date.now() - 86400000)).length}
+                    {
+                      logs.filter(
+                        (l) =>
+                          l.created_at &&
+                          new Date(l.created_at) >
+                            new Date(Date.now() - 86400000)
+                      ).length
+                    }
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Admin Actions</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Admin Actions
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-purple-600">
-                    {logs.filter(l => l.performed_by && l.performed_by !== l.user_email).length}
+                    {
+                      logs.filter(
+                        (l) => l.performed_by && l.performed_by !== l.user_email
+                      ).length
+                    }
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Credit Transactions</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Credit Transactions
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">
-                    {logs.filter(l => ['credit_purchase', 'credit_usage', 'credit_adjustment'].includes(l.action_type)).length}
+                    {
+                      logs.filter((l) =>
+                        [
+                          "credit_purchase",
+                          "credit_usage",
+                          "credit_adjustment",
+                        ].includes(l.action_type)
+                      ).length
+                    }
                   </div>
                 </CardContent>
               </Card>
@@ -348,15 +459,29 @@ export default function AuditLogs() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Actions</SelectItem>
-                  <SelectItem value="credit_purchase">Credit Purchase</SelectItem>
+                  <SelectItem value="credit_purchase">
+                    Credit Purchase
+                  </SelectItem>
                   <SelectItem value="credit_usage">Credit Usage</SelectItem>
-                  <SelectItem value="credit_adjustment">Admin Adjustment</SelectItem>
-                  <SelectItem value="payment_approved">Payment Approved</SelectItem>
-                  <SelectItem value="payment_rejected">Payment Rejected</SelectItem>
-                  <SelectItem value="payment_submitted">Payment Submitted</SelectItem>
+                  <SelectItem value="credit_adjustment">
+                    Admin Adjustment
+                  </SelectItem>
+                  <SelectItem value="payment_approved">
+                    Payment Approved
+                  </SelectItem>
+                  <SelectItem value="payment_rejected">
+                    Payment Rejected
+                  </SelectItem>
+                  <SelectItem value="payment_submitted">
+                    Payment Submitted
+                  </SelectItem>
                   <SelectItem value="role_assigned">Role Assigned</SelectItem>
-                  <SelectItem value="analysis_created">Analysis Created</SelectItem>
-                  <SelectItem value="user_registered">User Registered</SelectItem>
+                  <SelectItem value="analysis_created">
+                    Analysis Created
+                  </SelectItem>
+                  <SelectItem value="user_registered">
+                    User Registered
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -392,7 +517,10 @@ export default function AuditLogs() {
                     <TableBody>
                       {paginatedLogs.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                          <TableCell
+                            colSpan={6}
+                            className="text-center py-8 text-slate-500"
+                          >
                             No logs found
                           </TableCell>
                         </TableRow>
@@ -400,10 +528,16 @@ export default function AuditLogs() {
                         paginatedLogs.map((log) => (
                           <TableRow key={log.id}>
                             <TableCell className="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                              {log.created_at && format(new Date(log.created_at), "MMM d, yyyy HH:mm")}
+                              {log.created_at &&
+                                format(
+                                  new Date(log.created_at),
+                                  "MMM d, yyyy HH:mm"
+                                )}
                             </TableCell>
                             <TableCell>
-                              <Badge className={getActionColor(log.action_type)}>
+                              <Badge
+                                className={getActionColor(log.action_type)}
+                              >
                                 {getActionLabel(log.action_type)}
                               </Badge>
                             </TableCell>
@@ -417,16 +551,17 @@ export default function AuditLogs() {
                               {log.description}
                             </TableCell>
                             <TableCell className="text-xs text-slate-500">
-                              {log.meta_data && Object.keys(log.meta_data).length > 0 && (
-                                <details className="cursor-pointer">
-                                  <summary className="text-blue-600 hover:text-blue-700">
-                                    View metadata
-                                  </summary>
-                                  <pre className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-xs overflow-auto max-w-xs">
-                                    {JSON.stringify(log.meta_data, null, 2)}
-                                  </pre>
-                                </details>
-                              )}
+                              {log.meta_data &&
+                                Object.keys(log.meta_data).length > 0 && (
+                                  <details className="cursor-pointer">
+                                    <summary className="text-blue-600 hover:text-blue-700">
+                                      View metadata
+                                    </summary>
+                                    <pre className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-xs overflow-auto max-w-xs">
+                                      {JSON.stringify(log.meta_data, null, 2)}
+                                    </pre>
+                                  </details>
+                                )}
                             </TableCell>
                           </TableRow>
                         ))
@@ -438,13 +573,17 @@ export default function AuditLogs() {
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between pt-4 border-t mt-4">
                     <div className="text-sm text-slate-600 dark:text-slate-400">
-                      Showing {startIndex + 1}-{Math.min(endIndex, filteredLogs.length)} of {filteredLogs.length}
+                      Showing {startIndex + 1}-
+                      {Math.min(endIndex, filteredLogs.length)} of{" "}
+                      {filteredLogs.length}
                     </div>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(1, p - 1))
+                        }
                         disabled={currentPage === 1}
                       >
                         <ChevronLeft className="w-4 h-4 mr-1" />
@@ -456,7 +595,9 @@ export default function AuditLogs() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
                         disabled={currentPage === totalPages}
                       >
                         Next
@@ -473,39 +614,59 @@ export default function AuditLogs() {
             <div className="grid md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Requests</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Total Requests
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{apiTotal}</div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                    {apiTotal}
+                  </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Success (2xx)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Success (2xx)
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">
-                    {apiLogs.filter(l => l.response_status >= 200 && l.response_status < 300).length}
+                    {
+                      apiLogs.filter(
+                        (l) =>
+                          l.response_status >= 200 && l.response_status < 300
+                      ).length
+                    }
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Client Errors (4xx)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Client Errors (4xx)
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-amber-600">
-                    {apiLogs.filter(l => l.response_status >= 400 && l.response_status < 500).length}
+                    {
+                      apiLogs.filter(
+                        (l) =>
+                          l.response_status >= 400 && l.response_status < 500
+                      ).length
+                    }
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">Server Errors (5xx)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Server Errors (5xx)
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-600">
-                    {apiLogs.filter(l => l.response_status >= 500).length}
+                    {apiLogs.filter((l) => l.response_status >= 500).length}
                   </div>
                 </CardContent>
               </Card>
@@ -607,7 +768,10 @@ export default function AuditLogs() {
                         <TableBody>
                           {paginatedApiLogs.length === 0 ? (
                             <TableRow>
-                              <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                              <TableCell
+                                colSpan={7}
+                                className="text-center py-8 text-slate-500"
+                              >
                                 No API request logs found
                               </TableCell>
                             </TableRow>
@@ -615,7 +779,11 @@ export default function AuditLogs() {
                             paginatedApiLogs.map((log) => (
                               <TableRow key={log.id}>
                                 <TableCell className="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                  {log.created_at && format(new Date(log.created_at), "MMM d, HH:mm:ss")}
+                                  {log.created_at &&
+                                    format(
+                                      new Date(log.created_at),
+                                      "MMM d, HH:mm:ss"
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                   <Badge className={getMethodColor(log.method)}>
@@ -626,7 +794,11 @@ export default function AuditLogs() {
                                   {log.path}
                                 </TableCell>
                                 <TableCell>
-                                  <Badge className={getStatusColor(log.response_status)}>
+                                  <Badge
+                                    className={getStatusColor(
+                                      log.response_status
+                                    )}
+                                  >
                                     {log.response_status}
                                   </Badge>
                                 </TableCell>
@@ -642,18 +814,31 @@ export default function AuditLogs() {
                                       View details
                                     </summary>
                                     <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-xs overflow-auto max-w-md space-y-2">
-                                      <div><strong>IP:</strong> {log.ip_address}</div>
-                                      <div><strong>Full URL:</strong> {log.full_url}</div>
+                                      <div>
+                                        <strong>IP:</strong> {log.ip_address}
+                                      </div>
+                                      <div>
+                                        <strong>Full URL:</strong>{" "}
+                                        {log.full_url}
+                                      </div>
                                       {log.error_message && (
-                                        <div className="text-red-600"><strong>Error:</strong> {log.error_message}</div>
+                                        <div className="text-red-600">
+                                          <strong>Error:</strong>{" "}
+                                          {log.error_message}
+                                        </div>
                                       )}
                                       {log.request_body && (
                                         <div>
                                           <strong>Request Body:</strong>
                                           <pre className="mt-1 overflow-auto">
-                                            {typeof log.request_body === 'string' 
-                                              ? log.request_body 
-                                              : JSON.stringify(log.request_body, null, 2)}
+                                            {typeof log.request_body ===
+                                            "string"
+                                              ? log.request_body
+                                              : JSON.stringify(
+                                                  log.request_body,
+                                                  null,
+                                                  2
+                                                )}
                                           </pre>
                                         </div>
                                       )}
@@ -670,13 +855,16 @@ export default function AuditLogs() {
                     {apiTotalPages > 1 && (
                       <div className="flex items-center justify-between pt-4 border-t mt-4">
                         <div className="text-sm text-slate-600 dark:text-slate-400">
-                          Showing {apiStartIndex + 1}-{apiEndIndex} of {apiTotal}
+                          Showing {apiStartIndex + 1}-{apiEndIndex} of{" "}
+                          {apiTotal}
                         </div>
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setApiCurrentPage(p => Math.max(1, p - 1))}
+                            onClick={() =>
+                              setApiCurrentPage((p) => Math.max(1, p - 1))
+                            }
                             disabled={apiCurrentPage === 1}
                           >
                             <ChevronLeft className="w-4 h-4 mr-1" />
@@ -688,7 +876,11 @@ export default function AuditLogs() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setApiCurrentPage(p => Math.min(apiTotalPages, p + 1))}
+                            onClick={() =>
+                              setApiCurrentPage((p) =>
+                                Math.min(apiTotalPages, p + 1)
+                              )
+                            }
                             disabled={apiCurrentPage === apiTotalPages}
                           >
                             Next

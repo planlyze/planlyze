@@ -6,21 +6,56 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Percent, DollarSign, Tag, Users, Calendar, Mail, Download } from "lucide-react";
-import { exportToExcel, getDiscountsExportColumns } from "@/components/utils/excelExport";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Percent,
+  DollarSign,
+  Tag,
+  Users,
+  Calendar,
+  Mail,
+  Download,
+} from "lucide-react";
+import {
+  exportToExcel,
+  getDiscountsExportColumns,
+} from "@/components/utils/excelExport";
 import PageHeader from "@/components/common/PageHeader";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import { useTranslation } from "react-i18next";
 
 export default function AdminDiscounts() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const { t, i18n } = useTranslation();
   const [discounts, setDiscounts] = useState([]);
   const [packages, setPackages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +75,7 @@ export default function AdminDiscounts() {
     try {
       const user = await auth.me();
       setCurrentUser(user);
-      
+
       if (!hasPermission(user, PERMISSIONS.VIEW_DISCOUNTS)) {
         navigate(createPageUrl("Dashboard"));
         toast.error("Unauthorized access");
@@ -49,7 +84,7 @@ export default function AdminDiscounts() {
 
       const [discountData, packageData] = await Promise.all([
         DiscountCode.list(),
-        CreditPackage.list()
+        CreditPackage.list(),
       ]);
 
       setDiscounts(Array.isArray(discountData) ? discountData : []);
@@ -71,10 +106,10 @@ export default function AdminDiscounts() {
       description_ar: "",
       min_purchase_amount: 0,
       max_uses: null,
-      valid_from: new Date().toISOString().split('T')[0],
+      valid_from: new Date().toISOString().split("T")[0],
       valid_until: "",
       is_active: true,
-      applicable_packages: []
+      applicable_packages: [],
     });
     setIsDialogOpen(true);
   };
@@ -83,12 +118,17 @@ export default function AdminDiscounts() {
     setEditingDiscount({
       ...discount,
       discount_type: discount.discount_percent ? "percentage" : "fixed",
-      discount_value: discount.discount_percent || discount.discount_amount || 0,
+      discount_value:
+        discount.discount_percent || discount.discount_amount || 0,
       description_en: discount.description_en || "",
       description_ar: discount.description_ar || "",
       min_purchase_amount: discount.min_purchase_amount || 0,
-      valid_from: discount.valid_from ? new Date(discount.valid_from).toISOString().split('T')[0] : "",
-      valid_until: discount.valid_until ? new Date(discount.valid_until).toISOString().split('T')[0] : ""
+      valid_from: discount.valid_from
+        ? new Date(discount.valid_from).toISOString().split("T")[0]
+        : "",
+      valid_until: discount.valid_until
+        ? new Date(discount.valid_until).toISOString().split("T")[0]
+        : "",
     });
     setIsDialogOpen(true);
   };
@@ -97,15 +137,25 @@ export default function AdminDiscounts() {
     try {
       const data = {
         code: editingDiscount.code.toUpperCase(),
-        discount_percent: editingDiscount.discount_type === "percentage" ? editingDiscount.discount_value : null,
-        discount_amount: editingDiscount.discount_type === "fixed" ? editingDiscount.discount_value : null,
+        discount_percent:
+          editingDiscount.discount_type === "percentage"
+            ? editingDiscount.discount_value
+            : null,
+        discount_amount:
+          editingDiscount.discount_type === "fixed"
+            ? editingDiscount.discount_value
+            : null,
         description_en: editingDiscount.description_en || "",
         description_ar: editingDiscount.description_ar || "",
         min_purchase_amount: editingDiscount.min_purchase_amount || 0,
         max_uses: editingDiscount.max_uses,
         is_active: editingDiscount.is_active,
-        valid_from: editingDiscount.valid_from ? new Date(editingDiscount.valid_from).toISOString() : null,
-        valid_until: editingDiscount.valid_until ? new Date(editingDiscount.valid_until).toISOString() : null
+        valid_from: editingDiscount.valid_from
+          ? new Date(editingDiscount.valid_from).toISOString()
+          : null,
+        valid_until: editingDiscount.valid_until
+          ? new Date(editingDiscount.valid_until).toISOString()
+          : null,
       };
 
       if (editingDiscount.id) {
@@ -153,15 +203,23 @@ export default function AdminDiscounts() {
     }
   };
 
-  const isArabic = currentUser?.preferred_language === 'arabic';
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-50 via-purple-50/20 to-orange-50/10" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
       <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
           title={isArabic ? "إدارة أكواد الخصم" : "Discount Code Management"}
-          description={isArabic ? "إنشاء وإدارة أكواد الخصم" : "Create and manage discount codes"}
-          backUrl={createPageUrl("Dashboard")}
+          description={
+            isArabic
+              ? "إنشاء وإدارة أكواد الخصم"
+              : "Create and manage discount codes"
+          }
+          // backUrl={createPageUrl("Dashboard")}
           icon={Tag}
           isArabic={isArabic}
           actions={
@@ -170,16 +228,29 @@ export default function AdminDiscounts() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const success = exportToExcel(discounts, getDiscountsExportColumns(), 'discount_codes', 'Discount Codes');
-                  if (success) toast.success(isArabic ? 'تم التصدير بنجاح' : 'Discounts exported to Excel');
-                  else toast.error(isArabic ? 'لا توجد بيانات للتصدير' : 'No data to export');
+                  const success = exportToExcel(
+                    discounts,
+                    getDiscountsExportColumns(),
+                    "discount_codes",
+                    "Discount Codes"
+                  );
+                  if (success)
+                    toast.success(
+                      isArabic
+                        ? "تم التصدير بنجاح"
+                        : "Discounts exported to Excel"
+                    );
+                  else
+                    toast.error(
+                      isArabic ? "لا توجد بيانات للتصدير" : "No data to export"
+                    );
                 }}
                 className="gap-2"
               >
                 <Download className="w-4 h-4" />
                 {isArabic ? "تصدير" : "Export"}
               </Button>
-              <Button onClick={handleCreate} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 gap-2">
+              <Button variant="outline" onClick={handleCreate} size="sm">
                 <Plus className="w-4 h-4" />
                 {isArabic ? "كود جديد" : "New Code"}
               </Button>
@@ -189,7 +260,10 @@ export default function AdminDiscounts() {
 
         <div className="grid gap-6">
           {discounts.map((discount) => (
-            <Card key={discount.id} className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all bg-white">
+            <Card
+              key={discount.id}
+              className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all bg-white"
+            >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
@@ -198,9 +272,23 @@ export default function AdminDiscounts() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-slate-800">{discount.code}</h3>
-                        <Badge className={discount.is_active ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-800"}>
-                          {discount.is_active ? (isArabic ? "نشط" : "Active") : (isArabic ? "غير نشط" : "Inactive")}
+                        <h3 className="text-xl font-bold text-slate-800">
+                          {discount.code}
+                        </h3>
+                        <Badge
+                          className={
+                            discount.is_active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-slate-100 text-slate-800"
+                          }
+                        >
+                          {discount.is_active
+                            ? isArabic
+                              ? "نشط"
+                              : "Active"
+                            : isArabic
+                            ? "غير نشط"
+                            : "Inactive"}
                         </Badge>
                         {discount.discount_percent ? (
                           <Badge className="bg-orange-100 text-orange-800">
@@ -209,46 +297,73 @@ export default function AdminDiscounts() {
                           </Badge>
                         ) : (
                           <Badge className="bg-green-100 text-green-800">
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            ${discount.discount_amount} OFF
+                            <DollarSign className="w-3 h-3 mr-1" />$
+                            {discount.discount_amount} OFF
                           </Badge>
                         )}
                       </div>
-                      <p className="text-slate-600 mb-3">{isArabic ? discount.description_ar : discount.description_en}</p>
+                      <p className="text-slate-600 mb-3">
+                        {isArabic
+                          ? discount.description_ar
+                          : discount.description_en}
+                      </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="text-slate-500">{isArabic ? "استخدم:" : "Used:"}</span>
-                          <span className="font-semibold ml-1">{discount.times_used}/{discount.max_uses || '∞'}</span>
+                          <span className="text-slate-500">
+                            {isArabic ? "استخدم:" : "Used:"}
+                          </span>
+                          <span className="font-semibold ml-1">
+                            {discount.times_used}/{discount.max_uses || "∞"}
+                          </span>
                         </div>
                         {discount.min_purchase_amount > 0 && (
                           <div>
-                            <span className="text-slate-500">{isArabic ? "حد أدنى:" : "Min:"}</span>
-                            <span className="font-semibold ml-1">${discount.min_purchase_amount}</span>
+                            <span className="text-slate-500">
+                              {isArabic ? "حد أدنى:" : "Min:"}
+                            </span>
+                            <span className="font-semibold ml-1">
+                              ${discount.min_purchase_amount}
+                            </span>
                           </div>
                         )}
                         {discount.valid_until && (
                           <div>
-                            <span className="text-slate-500">{isArabic ? "ينتهي:" : "Expires:"}</span>
-                            <span className="font-semibold ml-1">{format(new Date(discount.valid_until), 'MMM d, yyyy')}</span>
+                            <span className="text-slate-500">
+                              {isArabic ? "ينتهي:" : "Expires:"}
+                            </span>
+                            <span className="font-semibold ml-1">
+                              {format(
+                                new Date(discount.valid_until),
+                                "MMM d, yyyy"
+                              )}
+                            </span>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleViewUsers(discount)}
                       className="gap-1"
                     >
                       <Users className="w-4 h-4" />
                       {discount.used_count || 0}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(discount)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(discount)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(discount)}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(discount)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -262,9 +377,17 @@ export default function AdminDiscounts() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingDiscount?.id ? (isArabic ? "تعديل الكود" : "Edit Code") : (isArabic ? "كود جديد" : "New Code")}</DialogTitle>
+            <DialogTitle>
+              {editingDiscount?.id
+                ? isArabic
+                  ? "تعديل الكود"
+                  : "Edit Code"
+                : isArabic
+                ? "كود جديد"
+                : "New Code"}
+            </DialogTitle>
           </DialogHeader>
-          
+
           {editingDiscount && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -272,65 +395,125 @@ export default function AdminDiscounts() {
                   <Label>{isArabic ? "الكود" : "Code"}</Label>
                   <Input
                     value={editingDiscount.code}
-                    onChange={(e) => setEditingDiscount({...editingDiscount, code: e.target.value.toUpperCase()})}
+                    onChange={(e) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        code: e.target.value.toUpperCase(),
+                      })
+                    }
                     placeholder="SAVE20"
                   />
                 </div>
                 <div>
                   <Label>{isArabic ? "نوع الخصم" : "Discount Type"}</Label>
-                  <Select value={editingDiscount.discount_type} onValueChange={(v) => setEditingDiscount({...editingDiscount, discount_type: v})}>
+                  <Select
+                    value={editingDiscount.discount_type}
+                    onValueChange={(v) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        discount_type: v,
+                      })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percentage">{isArabic ? "نسبة مئوية" : "Percentage"}</SelectItem>
-                      <SelectItem value="fixed">{isArabic ? "مبلغ ثابت" : "Fixed Amount"}</SelectItem>
+                      <SelectItem value="percentage">
+                        {isArabic ? "نسبة مئوية" : "Percentage"}
+                      </SelectItem>
+                      <SelectItem value="fixed">
+                        {isArabic ? "مبلغ ثابت" : "Fixed Amount"}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div>
-                <Label>{editingDiscount.discount_type === "percentage" ? (isArabic ? "نسبة الخصم (%)" : "Discount Percentage (%)") : (isArabic ? "مبلغ الخصم ($)" : "Discount Amount ($)")}</Label>
+                <Label>
+                  {editingDiscount.discount_type === "percentage"
+                    ? isArabic
+                      ? "نسبة الخصم (%)"
+                      : "Discount Percentage (%)"
+                    : isArabic
+                    ? "مبلغ الخصم ($)"
+                    : "Discount Amount ($)"}
+                </Label>
                 <Input
                   type="number"
                   value={editingDiscount.discount_value}
-                  onChange={(e) => setEditingDiscount({...editingDiscount, discount_value: parseFloat(e.target.value)})}
+                  onChange={(e) =>
+                    setEditingDiscount({
+                      ...editingDiscount,
+                      discount_value: parseFloat(e.target.value),
+                    })
+                  }
                 />
               </div>
 
               <div>
-                <Label>{isArabic ? "الوصف (إنجليزي)" : "Description (English)"}</Label>
+                <Label>
+                  {isArabic ? "الوصف (إنجليزي)" : "Description (English)"}
+                </Label>
                 <Input
                   value={editingDiscount.description_en}
-                  onChange={(e) => setEditingDiscount({...editingDiscount, description_en: e.target.value})}
+                  onChange={(e) =>
+                    setEditingDiscount({
+                      ...editingDiscount,
+                      description_en: e.target.value,
+                    })
+                  }
                 />
               </div>
 
               <div>
-                <Label>{isArabic ? "الوصف (عربي)" : "Description (Arabic)"}</Label>
+                <Label>
+                  {isArabic ? "الوصف (عربي)" : "Description (Arabic)"}
+                </Label>
                 <Input
                   value={editingDiscount.description_ar}
-                  onChange={(e) => setEditingDiscount({...editingDiscount, description_ar: e.target.value})}
+                  onChange={(e) =>
+                    setEditingDiscount({
+                      ...editingDiscount,
+                      description_ar: e.target.value,
+                    })
+                  }
                   dir="rtl"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>{isArabic ? "الحد الأدنى للشراء ($)" : "Min Purchase ($)"}</Label>
+                  <Label>
+                    {isArabic ? "الحد الأدنى للشراء ($)" : "Min Purchase ($)"}
+                  </Label>
                   <Input
                     type="number"
                     value={editingDiscount.min_purchase_amount}
-                    onChange={(e) => setEditingDiscount({...editingDiscount, min_purchase_amount: parseFloat(e.target.value)})}
+                    onChange={(e) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        min_purchase_amount: parseFloat(e.target.value),
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label>{isArabic ? "الحد الأقصى للاستخدام" : "Max Uses"}</Label>
+                  <Label>
+                    {isArabic ? "الحد الأقصى للاستخدام" : "Max Uses"}
+                  </Label>
                   <Input
                     type="number"
                     value={editingDiscount.max_uses || ""}
-                    onChange={(e) => setEditingDiscount({...editingDiscount, max_uses: e.target.value ? parseInt(e.target.value) : null})}
+                    onChange={(e) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        max_uses: e.target.value
+                          ? parseInt(e.target.value)
+                          : null,
+                      })
+                    }
                     placeholder={isArabic ? "غير محدود" : "Unlimited"}
                   />
                 </div>
@@ -342,7 +525,12 @@ export default function AdminDiscounts() {
                   <Input
                     type="date"
                     value={editingDiscount.valid_from}
-                    onChange={(e) => setEditingDiscount({...editingDiscount, valid_from: e.target.value})}
+                    onChange={(e) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        valid_from: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -350,7 +538,12 @@ export default function AdminDiscounts() {
                   <Input
                     type="date"
                     value={editingDiscount.valid_until}
-                    onChange={(e) => setEditingDiscount({...editingDiscount, valid_until: e.target.value})}
+                    onChange={(e) =>
+                      setEditingDiscount({
+                        ...editingDiscount,
+                        valid_until: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -358,7 +551,12 @@ export default function AdminDiscounts() {
               <div className="flex items-center gap-3">
                 <Switch
                   checked={editingDiscount.is_active}
-                  onCheckedChange={(checked) => setEditingDiscount({...editingDiscount, is_active: checked})}
+                  onCheckedChange={(checked) =>
+                    setEditingDiscount({
+                      ...editingDiscount,
+                      is_active: checked,
+                    })
+                  }
                 />
                 <Label>{isArabic ? "نشط" : "Active"}</Label>
               </div>
@@ -369,7 +567,10 @@ export default function AdminDiscounts() {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               {isArabic ? "إلغاء" : "Cancel"}
             </Button>
-            <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
+            <Button
+              onClick={handleSave}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
               {isArabic ? "حفظ" : "Save"}
             </Button>
           </DialogFooter>
@@ -381,10 +582,13 @@ export default function AdminDiscounts() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="w-5 h-5 text-purple-600" />
-              {isArabic ? "المستخدمون الذين استخدموا" : "Users who used"} <code className="bg-purple-100 text-purple-700 px-2 py-1 rounded">{selectedDiscountCode}</code>
+              {isArabic ? "المستخدمون الذين استخدموا" : "Users who used"}{" "}
+              <code className="bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                {selectedDiscountCode}
+              </code>
             </DialogTitle>
           </DialogHeader>
-          
+
           {isLoadingUsers ? (
             <div className="py-8 text-center text-slate-500">
               {isArabic ? "جار التحميل..." : "Loading..."}
@@ -392,7 +596,11 @@ export default function AdminDiscounts() {
           ) : selectedDiscountUsers.length === 0 ? (
             <div className="py-8 text-center text-slate-500">
               <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p>{isArabic ? "لم يستخدم أحد هذا الكود بعد" : "No one has used this code yet"}</p>
+              <p>
+                {isArabic
+                  ? "لم يستخدم أحد هذا الكود بعد"
+                  : "No one has used this code yet"}
+              </p>
             </div>
           ) : (
             <Table>
@@ -415,25 +623,39 @@ export default function AdminDiscounts() {
                           {usage.user_email?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-800 text-sm">{usage.user_name || usage.user_email}</p>
-                          <p className="text-xs text-slate-500">{usage.user_email}</p>
+                          <p className="font-medium text-slate-800 text-sm">
+                            {usage.user_name || usage.user_email}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {usage.user_email}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">${usage.amount?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className="text-green-600 font-medium">-${usage.discount_amount?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className="font-medium">
+                      ${usage.amount?.toFixed(2) || "0.00"}
+                    </TableCell>
+                    <TableCell className="text-green-600 font-medium">
+                      -${usage.discount_amount?.toFixed(2) || "0.00"}
+                    </TableCell>
                     <TableCell>{usage.credits || 0}</TableCell>
                     <TableCell>
-                      <Badge className={
-                        usage.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        usage.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                        'bg-slate-100 text-slate-800'
-                      }>
+                      <Badge
+                        className={
+                          usage.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : usage.status === "pending"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-slate-100 text-slate-800"
+                        }
+                      >
                         {usage.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-slate-500">
-                      {usage.created_at ? format(new Date(usage.created_at), 'MMM d, yyyy') : '-'}
+                      {usage.created_at
+                        ? format(new Date(usage.created_at), "MMM d, yyyy")
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))}

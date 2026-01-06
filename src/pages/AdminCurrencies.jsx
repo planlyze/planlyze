@@ -16,6 +16,7 @@ import { Coins, Plus, Pencil, Trash2, Star, Globe } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
 import { toast } from "sonner";
 import { hasPermission, PERMISSIONS } from "@/components/utils/permissions";
+import PageLoader from "@/components/common/PageLoader";
 
 export default function AdminCurrencies() {
   const navigate = useNavigate();
@@ -23,9 +24,7 @@ export default function AdminCurrencies() {
   const [currencies, setCurrencies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
-  
-  const isArabic = i18n.language === 'ar';
-  const t = (en, ar) => isArabic ? ar : en;
+  const { t } = useTranslation();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCurrency, setEditingCurrency] = useState(null);
@@ -189,26 +188,24 @@ export default function AdminCurrencies() {
       toast.error(t("Failed to set default currency", "فشل في تعيين العملة الافتراضية"));
     }
   };
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-[400px] w-full" />
-        </div>
-      </div>
-    );
+    return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
+      <div className="max-w-6xl mx-auto space-y-8">
+    
         <PageHeader
           title={t("Currency Management", "إدارة العملات")}
           description={t("Manage supported currencies and exchange rates", "إدارة العملات المدعومة وأسعار الصرف")}
-          icon={Coins}
-          backUrl={createPageUrl("AdminSettings")}
+          icon={Coins}          
         />
 
         <Card className="shadow-lg">
