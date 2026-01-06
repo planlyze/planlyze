@@ -11,15 +11,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
 import { api } from "@/api/client";
 import { toast } from "sonner";
+import { useTranslation } from 'react-i18next';
 
 const REPORT_LANGUAGES = [
   { value: "english", label: "English", flag: "🇺🇸" },
   { value: "arabic", label: "العربية", flag: "🇸🇾" }
 ];
 
-export default function AnalysisWizard({ onSubmit }) {
+export default function AnalysisWizard({ onSubmit  }) {
   const { user } = useAuth();
-  const isUIArabic = user?.language === 'arabic';
+  const {i18n} = useTranslation();
   const [autoTarget, setAutoTarget] = useState(true);
   const [formData, setFormData] = useState({
     business_idea: "",
@@ -29,11 +30,14 @@ export default function AnalysisWizard({ onSubmit }) {
     country: "Syria"
   });
 
+  const isUIArabic =
+    i18n.language === "ar" || user?.preferred_language === "arabic";
+
   useEffect(() => {
     if (user?.language) {
       setFormData(prev => ({
         ...prev,
-        report_language: user.language === 'arabic' ? 'arabic' : 'english'
+        report_language: isUIArabic ? 'arabic' : 'english'
       }));
     }
   }, [user]);
@@ -101,7 +105,7 @@ export default function AnalysisWizard({ onSubmit }) {
     try {
       const validationResp = await api.post('/analyses/validate-idea', {
         business_idea: formData.business_idea,
-        report_language: formData.report_language,
+        report_language: isUIArabic ? 'arabic' : 'english',
         industry: formData.industry
       });
       
