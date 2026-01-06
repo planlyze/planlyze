@@ -66,6 +66,7 @@ import LockedContent from "../components/results/LockedContent";
 import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
+import PageHeader from "@/components/common/PageHeader";
 
 const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
   const tabIcons = {
@@ -75,22 +76,22 @@ const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
     financial: Calculator,
     strategy: Target,
     risks: Shield,
-    overview: Sparkles
+    overview: Sparkles,
   };
-  
+
   const tabLabels = {
-    market: { en: 'Market Analysis', ar: 'تحليل السوق' },
-    business: { en: 'Business Model', ar: 'نموذج العمل' },
-    technical: { en: 'Technical Plan', ar: 'الخطة التقنية' },
-    financial: { en: 'Financial Projections', ar: 'التوقعات المالية' },
-    strategy: { en: 'Strategy & Growth', ar: 'الاستراتيجية والنمو' },
-    risks: { en: 'Risk Analysis', ar: 'تحليل المخاطر' },
-    overview: { en: 'Overview', ar: 'نظرة عامة' }
+    market: { en: "Market Analysis", ar: "تحليل السوق" },
+    business: { en: "Business Model", ar: "نموذج العمل" },
+    technical: { en: "Technical Plan", ar: "الخطة التقنية" },
+    financial: { en: "Financial Projections", ar: "التوقعات المالية" },
+    strategy: { en: "Strategy & Growth", ar: "الاستراتيجية والنمو" },
+    risks: { en: "Risk Analysis", ar: "تحليل المخاطر" },
+    overview: { en: "Overview", ar: "نظرة عامة" },
   };
-  
+
   const IconComponent = tabIcons[tabName] || Sparkles;
-  const label = tabLabels[tabName] || { en: 'Content', ar: 'المحتوى' };
-  
+  const label = tabLabels[tabName] || { en: "Content", ar: "المحتوى" };
+
   const formatElapsed = (seconds) => {
     if (!seconds || seconds < 5) return null;
     const mins = Math.floor(seconds / 60);
@@ -100,13 +101,13 @@ const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
     }
     return isUIArabic ? `${secs} ثانية` : `${secs}s`;
   };
-  
+
   const elapsedText = formatElapsed(elapsedSeconds);
-  
+
   return (
-    <div className="relative min-h-[400px] flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-orange-50/50 animate-pulse" />
-      
+    <div className="relative min-h-[400px] flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+      <div className="absolute inset-0  animate-pulse" />
+
       <div className="relative z-10 flex flex-col items-center justify-center space-y-6 p-8">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-orange-400 rounded-full blur-xl opacity-30 animate-pulse" />
@@ -115,35 +116,49 @@ const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
           </div>
           <div className="absolute -inset-2 rounded-2xl border-2 border-purple-200 animate-ping opacity-50" />
         </div>
-        
+
         <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold text-slate-800">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-400">
             {isUIArabic ? `جارٍ إنشاء ${label.ar}` : `Generating ${label.en}`}
           </h3>
           <p className="text-slate-500 text-sm max-w-xs">
-            {isUIArabic 
+            {isUIArabic
               ? "الذكاء الاصطناعي يحلل بياناتك ويعد محتوى مخصصاً..."
               : "AI is analyzing your data and preparing customized content..."}
           </p>
           {elapsedText && (
             <p className="text-purple-600 text-xs font-medium mt-2">
-              {isUIArabic ? `الوقت المنقضي: ${elapsedText}` : `Elapsed: ${elapsedText}`}
+              {isUIArabic
+                ? `الوقت المنقضي: ${elapsedText}`
+                : `Elapsed: ${elapsedText}`}
             </p>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-          <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '450ms' }} />
+          <div
+            className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"
+            style={{ animationDelay: "300ms" }}
+          />
+          <div
+            className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"
+            style={{ animationDelay: "450ms" }}
+          />
         </div>
-        
+
         <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-purple-500 to-orange-500 rounded-full animate-loading-bar" />
         </div>
       </div>
-      
+
       <style>{`
         @keyframes loading-bar {
           0% { width: 0%; transform: translateX(0); }
@@ -158,23 +173,33 @@ const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
   );
 };
 
-const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, onForceRetry, tabName, processingStatus, children }) => {
+const LazyTabContent = ({
+  isLoaded,
+  isLoading,
+  isUIArabic,
+  hasError,
+  onRetry,
+  onForceRetry,
+  tabName,
+  processingStatus,
+  children,
+}) => {
   // Show stuck status UI with force retry option
-  if (processingStatus?.status === 'stuck') {
+  if (processingStatus?.status === "stuck") {
     const minutes = Math.floor(processingStatus.elapsedSeconds / 60);
     return (
-      <div className="relative min-h-[300px] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/50" />
+      <div className="relative min-h-[300px] flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+        <div className="absolute inset-0" />
         <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-5">
           <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center">
             <Clock className="w-8 h-8 text-amber-500" />
           </div>
           <div className="text-center space-y-2">
-            <p className="text-slate-800 font-semibold text-lg">
+            <p className="text-slate-800 dark:text-slate-400 font-semibold text-lg">
               {isUIArabic ? "انتهت مهلة المعالجة" : "Processing Timed Out"}
             </p>
             <p className="text-slate-500 text-sm max-w-sm">
-              {isUIArabic 
+              {isUIArabic
                 ? `تجاوزت المعالجة ${minutes} دقيقة. قد يكون هناك خطأ.`
                 : `Processing exceeded ${minutes} minutes. There may have been an error.`}
             </p>
@@ -190,21 +215,23 @@ const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, on
       </div>
     );
   }
-  
+
   if (hasError) {
     return (
-      <div className="relative min-h-[300px] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 via-white to-orange-50/50" />
+      <div className="relative min-h-[300px] flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg overflow-hidden ">
+        <div className="absolute inset-0" />
         <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-5">
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <div className="text-center space-y-2">
-            <p className="text-slate-800 font-semibold text-lg">
-              {isUIArabic ? "حدث خطأ أثناء تحميل المحتوى" : "Error loading content"}
+            <p className="text-slate-800 dark:text-slate-400 font-semibold text-lg">
+              {isUIArabic
+                ? "حدث خطأ أثناء تحميل المحتوى"
+                : "Error loading content"}
             </p>
             <p className="text-slate-500 text-sm max-w-sm">
-              {isUIArabic 
+              {isUIArabic
                 ? "لم نتمكن من تحميل هذا القسم. يرجى المحاولة مرة أخرى."
                 : "We couldn't load this section. Please try again."}
             </p>
@@ -221,7 +248,13 @@ const LazyTabContent = ({ isLoaded, isLoading, isUIArabic, hasError, onRetry, on
     );
   }
   if (isLoading || !isLoaded) {
-    return <TabLoadingSpinner isUIArabic={isUIArabic} tabName={tabName} elapsedSeconds={processingStatus?.elapsedSeconds} />;
+    return (
+      <TabLoadingSpinner
+        isUIArabic={isUIArabic}
+        tabName={tabName}
+        elapsedSeconds={processingStatus?.elapsedSeconds}
+      />
+    );
   }
   return <>{children}</>;
 };
@@ -230,12 +263,16 @@ export default function AnalysisResult() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const { t, i18n } = useTranslation();
-  const isUIArabic = i18n.language === 'ar';
+  const isUIArabic = i18n.language === "ar";
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingCsv, setIsDownloadingCsv] = useState(false);
-  const [exportProgress, setExportProgress] = useState({ show: false, step: 'prepare', progress: 0 });
+  const [exportProgress, setExportProgress] = useState({
+    show: false,
+    step: "prepare",
+    progress: 0,
+  });
   const [canRate, setCanRate] = useState(false);
   const [rating, setRating] = useState(null);
   const [feedback, setFeedback] = useState("");
@@ -249,218 +286,266 @@ export default function AnalysisResult() {
   const [tabData, setTabData] = useState({});
   const [tabLoading, setTabLoading] = useState({});
   const [tabError, setTabError] = useState({});
-  const [tabProcessingStatus, setTabProcessingStatus] = useState({});  // Track processing status from backend
-  
+  const [tabProcessingStatus, setTabProcessingStatus] = useState({}); // Track processing status from backend
+
   // Helper to parse raw_response if present
   const parseTabData = (data) => {
     if (!data) return data;
-    
+
     // If data has raw_response as a string, parse it
-    if (data.raw_response && typeof data.raw_response === 'string') {
+    if (data.raw_response && typeof data.raw_response === "string") {
       try {
         const parsed = JSON.parse(data.raw_response);
         return parsed;
       } catch (e) {
-        console.error('Failed to parse raw_response:', e.message);
+        console.error("Failed to parse raw_response:", e.message);
         // If parsing fails, try removing leading/trailing whitespace and parse again
         try {
           const trimmed = data.raw_response.trim();
           return JSON.parse(trimmed);
         } catch (e2) {
           // Data is corrupted/truncated - return null to trigger error state
-          console.error('Failed to parse trimmed raw_response:', e2.message);
+          console.error("Failed to parse trimmed raw_response:", e2.message);
           return null;
         }
       }
     }
-    
+
     // If data already has expected structure (target_audiences, problems, etc.), use it directly
-    if (data.target_audiences || data.problems || data.solution || 
-        data.business_model || data.tech_stack || data.financial_projections ||
-        data.strategy || data.overview_summary) {
+    if (
+      data.target_audiences ||
+      data.problems ||
+      data.solution ||
+      data.business_model ||
+      data.tech_stack ||
+      data.financial_projections ||
+      data.strategy ||
+      data.overview_summary
+    ) {
       return data;
     }
-    
+
     return data;
   };
-  
+
   const pollingIntervalsRef = useRef({});
-  
-  const checkTabStatus = useCallback(async (tabName) => {
-    if (!analysis) return;
-    
-    try {
-      const response = await api.post('/ai/check-tab-status', {
-        analysis_id: analysis.id,
-        tab_name: tabName
-      });
-      
-      if (response?.status === 'completed' && response?.data) {
-        if (pollingIntervalsRef.current[tabName]) {
-          clearInterval(pollingIntervalsRef.current[tabName]);
-          delete pollingIntervalsRef.current[tabName];
-        }
-        setTabData(prev => ({ ...prev, [tabName]: parseTabData(response.data) }));
-        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
-        setTabLoading(prev => ({ ...prev, [tabName]: false }));
-        setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
-        return true;
-      }
-      
-      if (response?.status === 'stuck') {
-        if (pollingIntervalsRef.current[tabName]) {
-          clearInterval(pollingIntervalsRef.current[tabName]);
-          delete pollingIntervalsRef.current[tabName];
-        }
-        setTabProcessingStatus(prev => ({ 
-          ...prev, 
-          [tabName]: {
-            status: 'stuck',
-            startedAt: response.started_at,
-            elapsedSeconds: response.elapsed_seconds,
-            canRetry: true
+
+  const checkTabStatus = useCallback(
+    async (tabName) => {
+      if (!analysis) return;
+
+      try {
+        const response = await api.post("/ai/check-tab-status", {
+          analysis_id: analysis.id,
+          tab_name: tabName,
+        });
+
+        if (response?.status === "completed" && response?.data) {
+          if (pollingIntervalsRef.current[tabName]) {
+            clearInterval(pollingIntervalsRef.current[tabName]);
+            delete pollingIntervalsRef.current[tabName];
           }
-        }));
-        setTabLoading(prev => ({ ...prev, [tabName]: false }));
-        return true;
-      }
-      
-      if (response?.status === 'processing') {
-        setTabProcessingStatus(prev => ({ 
-          ...prev, 
-          [tabName]: {
-            status: 'processing',
-            startedAt: response.started_at,
-            elapsedSeconds: response.elapsed_seconds,
-            timeoutSeconds: response.timeout_seconds
+          setTabData((prev) => ({
+            ...prev,
+            [tabName]: parseTabData(response.data),
+          }));
+          setLoadedTabs((prev) => ({ ...prev, [tabName]: true }));
+          setTabLoading((prev) => ({ ...prev, [tabName]: false }));
+          setTabProcessingStatus((prev) => ({ ...prev, [tabName]: null }));
+          return true;
+        }
+
+        if (response?.status === "stuck") {
+          if (pollingIntervalsRef.current[tabName]) {
+            clearInterval(pollingIntervalsRef.current[tabName]);
+            delete pollingIntervalsRef.current[tabName];
           }
-        }));
+          setTabProcessingStatus((prev) => ({
+            ...prev,
+            [tabName]: {
+              status: "stuck",
+              startedAt: response.started_at,
+              elapsedSeconds: response.elapsed_seconds,
+              canRetry: true,
+            },
+          }));
+          setTabLoading((prev) => ({ ...prev, [tabName]: false }));
+          return true;
+        }
+
+        if (response?.status === "processing") {
+          setTabProcessingStatus((prev) => ({
+            ...prev,
+            [tabName]: {
+              status: "processing",
+              startedAt: response.started_at,
+              elapsedSeconds: response.elapsed_seconds,
+              timeoutSeconds: response.timeout_seconds,
+            },
+          }));
+        }
+
+        return false;
+      } catch (error) {
+        console.error(`Error checking tab status for ${tabName}:`, error);
+        return false;
       }
-      
-      return false;
-    } catch (error) {
-      console.error(`Error checking tab status for ${tabName}:`, error);
-      return false;
-    }
-  }, [analysis]);
-  
-  const startPolling = useCallback((tabName) => {
-    if (pollingIntervalsRef.current[tabName]) {
-      clearInterval(pollingIntervalsRef.current[tabName]);
-    }
-    
-    pollingIntervalsRef.current[tabName] = setInterval(async () => {
-      const isResolved = await checkTabStatus(tabName);
-      if (isResolved) {
+    },
+    [analysis]
+  );
+
+  const startPolling = useCallback(
+    (tabName) => {
+      if (pollingIntervalsRef.current[tabName]) {
         clearInterval(pollingIntervalsRef.current[tabName]);
-        delete pollingIntervalsRef.current[tabName];
       }
-    }, 5000);
-  }, [checkTabStatus]);
-  
+
+      pollingIntervalsRef.current[tabName] = setInterval(async () => {
+        const isResolved = await checkTabStatus(tabName);
+        if (isResolved) {
+          clearInterval(pollingIntervalsRef.current[tabName]);
+          delete pollingIntervalsRef.current[tabName];
+        }
+      }, 5000);
+    },
+    [checkTabStatus]
+  );
+
   useEffect(() => {
     return () => {
       Object.values(pollingIntervalsRef.current).forEach(clearInterval);
       pollingIntervalsRef.current = {};
     };
   }, []);
-  
-  const loadTabContent = useCallback(async (tabName, forceRegenerate = false) => {
-    const currentProcessingStatus = tabProcessingStatus[tabName];
-    if (!forceRegenerate && (currentProcessingStatus?.status === 'processing' || currentProcessingStatus?.status === 'stuck')) {
-      return;
-    }
-    
-    if (!forceRegenerate && (tabData[tabName] || tabLoading[tabName] || tabError[tabName] || !analysis)) return;
-    
-    const cachedData = analysis[`tab_${tabName}`];
-    if (!forceRegenerate && cachedData) {
-      const parsedData = parseTabData(cachedData);
-      if (parsedData === null) {
-        // Cached data is corrupted, show error state to allow regeneration
-        setTabError(prev => ({ ...prev, [tabName]: true }));
-        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
-        return;
-      }
-      setTabData(prev => ({ ...prev, [tabName]: parsedData }));
-      setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
-      return;
-    }
-    
-    setTabLoading(prev => ({ ...prev, [tabName]: true }));
-    setTabError(prev => ({ ...prev, [tabName]: false }));
-    if (!forceRegenerate) {
-      setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
-    }
-    const isAr = analysis?.report_language === 'arabic';
-    const lang = analysis?.report_language === 'arabic' ? 'ar' : 'en';
-    
-    try {
-      const response = await api.post('/ai/generate-tab-content', {
-        analysis_id: analysis.id,
-        tab_name: tabName,
-        language: lang,
-        force: forceRegenerate
-      });
-      
-      if (response?.status === 'processing') {
-        setTabProcessingStatus(prev => ({ 
-          ...prev, 
-          [tabName]: {
-            status: 'processing',
-            startedAt: response.started_at,
-            elapsedSeconds: response.elapsed_seconds,
-            timeoutSeconds: response.timeout_seconds
-          }
-        }));
-        startPolling(tabName);
-        return;
-      }
-      
-      if (response?.status === 'stuck') {
-        setTabProcessingStatus(prev => ({ 
-          ...prev, 
-          [tabName]: {
-            status: 'stuck',
-            startedAt: response.started_at,
-            elapsedSeconds: response.elapsed_seconds,
-            canRetry: true
-          }
-        }));
-        setTabLoading(prev => ({ ...prev, [tabName]: false }));
-        return;
-      }
-      
-      if (response?.data) {
-        setTabData(prev => ({ ...prev, [tabName]: parseTabData(response.data) }));
-        setLoadedTabs(prev => ({ ...prev, [tabName]: true }));
-        setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
-        setTabLoading(prev => ({ ...prev, [tabName]: false }));
-      }
-    } catch (error) {
-      console.error(`Error loading ${tabName} tab:`, error);
-      toast.error(isAr ? "خطأ في تحميل المحتوى. انقر للمحاولة مرة أخرى." : "Error loading content. Click to retry.");
-      setTabError(prev => ({ ...prev, [tabName]: true }));
-      setTabLoading(prev => ({ ...prev, [tabName]: false }));
-    }
-  }, [analysis, tabData, tabLoading, tabError, tabProcessingStatus, startPolling]);
 
-  const retryTab = useCallback((tabName) => {
-    setTabError(prev => ({ ...prev, [tabName]: false }));
-    setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
-    setTimeout(() => loadTabContent(tabName), 100);
-  }, [loadTabContent]);
-  
-  const forceRetryTab = useCallback((tabName) => {
-    setTabError(prev => ({ ...prev, [tabName]: false }));
-    setTabProcessingStatus(prev => ({ ...prev, [tabName]: null }));
-    setTabData(prev => ({ ...prev, [tabName]: null }));
-    setLoadedTabs(prev => ({ ...prev, [tabName]: false }));
-    setTimeout(() => loadTabContent(tabName, true), 100);
-  }, [loadTabContent]);
+  const loadTabContent = useCallback(
+    async (tabName, forceRegenerate = false) => {
+      const currentProcessingStatus = tabProcessingStatus[tabName];
+      if (
+        !forceRegenerate &&
+        (currentProcessingStatus?.status === "processing" ||
+          currentProcessingStatus?.status === "stuck")
+      ) {
+        return;
+      }
+
+      if (
+        !forceRegenerate &&
+        (tabData[tabName] ||
+          tabLoading[tabName] ||
+          tabError[tabName] ||
+          !analysis)
+      )
+        return;
+
+      const cachedData = analysis[`tab_${tabName}`];
+      if (!forceRegenerate && cachedData) {
+        const parsedData = parseTabData(cachedData);
+        if (parsedData === null) {
+          // Cached data is corrupted, show error state to allow regeneration
+          setTabError((prev) => ({ ...prev, [tabName]: true }));
+          setLoadedTabs((prev) => ({ ...prev, [tabName]: true }));
+          return;
+        }
+        setTabData((prev) => ({ ...prev, [tabName]: parsedData }));
+        setLoadedTabs((prev) => ({ ...prev, [tabName]: true }));
+        return;
+      }
+
+      setTabLoading((prev) => ({ ...prev, [tabName]: true }));
+      setTabError((prev) => ({ ...prev, [tabName]: false }));
+      if (!forceRegenerate) {
+        setTabProcessingStatus((prev) => ({ ...prev, [tabName]: null }));
+      }
+      const isAr = analysis?.report_language === "arabic";
+      const lang = analysis?.report_language === "arabic" ? "ar" : "en";
+
+      try {
+        const response = await api.post("/ai/generate-tab-content", {
+          analysis_id: analysis.id,
+          tab_name: tabName,
+          language: lang,
+          force: forceRegenerate,
+        });
+
+        if (response?.status === "processing") {
+          setTabProcessingStatus((prev) => ({
+            ...prev,
+            [tabName]: {
+              status: "processing",
+              startedAt: response.started_at,
+              elapsedSeconds: response.elapsed_seconds,
+              timeoutSeconds: response.timeout_seconds,
+            },
+          }));
+          startPolling(tabName);
+          return;
+        }
+
+        if (response?.status === "stuck") {
+          setTabProcessingStatus((prev) => ({
+            ...prev,
+            [tabName]: {
+              status: "stuck",
+              startedAt: response.started_at,
+              elapsedSeconds: response.elapsed_seconds,
+              canRetry: true,
+            },
+          }));
+          setTabLoading((prev) => ({ ...prev, [tabName]: false }));
+          return;
+        }
+
+        if (response?.data) {
+          setTabData((prev) => ({
+            ...prev,
+            [tabName]: parseTabData(response.data),
+          }));
+          setLoadedTabs((prev) => ({ ...prev, [tabName]: true }));
+          setTabProcessingStatus((prev) => ({ ...prev, [tabName]: null }));
+          setTabLoading((prev) => ({ ...prev, [tabName]: false }));
+        }
+      } catch (error) {
+        console.error(`Error loading ${tabName} tab:`, error);
+        toast.error(
+          isAr
+            ? "خطأ في تحميل المحتوى. انقر للمحاولة مرة أخرى."
+            : "Error loading content. Click to retry."
+        );
+        setTabError((prev) => ({ ...prev, [tabName]: true }));
+        setTabLoading((prev) => ({ ...prev, [tabName]: false }));
+      }
+    },
+    [analysis, tabData, tabLoading, tabError, tabProcessingStatus, startPolling]
+  );
+
+  const retryTab = useCallback(
+    (tabName) => {
+      setTabError((prev) => ({ ...prev, [tabName]: false }));
+      setTabProcessingStatus((prev) => ({ ...prev, [tabName]: null }));
+      setTimeout(() => loadTabContent(tabName), 100);
+    },
+    [loadTabContent]
+  );
+
+  const forceRetryTab = useCallback(
+    (tabName) => {
+      setTabError((prev) => ({ ...prev, [tabName]: false }));
+      setTabProcessingStatus((prev) => ({ ...prev, [tabName]: null }));
+      setTabData((prev) => ({ ...prev, [tabName]: null }));
+      setLoadedTabs((prev) => ({ ...prev, [tabName]: false }));
+      setTimeout(() => loadTabContent(tabName, true), 100);
+    },
+    [loadTabContent]
+  );
 
   useEffect(() => {
-    if (activeTab && analysis && !loadedTabs[activeTab] && !tabError[activeTab]) {
+    if (
+      activeTab &&
+      analysis &&
+      !loadedTabs[activeTab] &&
+      !tabError[activeTab]
+    ) {
       loadTabContent(activeTab);
     }
   }, [activeTab, analysis, loadedTabs, tabError, loadTabContent]);
@@ -473,8 +558,8 @@ export default function AnalysisResult() {
 
   const loadAnalysis = useCallback(async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    const userEmailParam = urlParams.get('user'); // NEW: preserve selected user context for admins
+    const id = urlParams.get("id");
+    const userEmailParam = urlParams.get("user"); // NEW: preserve selected user context for admins
 
     if (!id) {
       navigate(createPageUrl("Dashboard"));
@@ -495,8 +580,14 @@ export default function AnalysisResult() {
         // Admin viewing a specific user's report: use backend to bypass RLS
         const data = await Analysis.get(id);
 
-        if (!data || data.is_deleted === true || data.user_email !== userEmailParam) {
-          navigate(createPageUrl(`Reports?user=${encodeURIComponent(userEmailParam)}`));
+        if (
+          !data ||
+          data.is_deleted === true ||
+          data.user_email !== userEmailParam
+        ) {
+          navigate(
+            createPageUrl(`Reports?user=${encodeURIComponent(userEmailParam)}`)
+          );
           return;
         }
 
@@ -519,7 +610,10 @@ export default function AnalysisResult() {
         setAnalysis(analysisItem);
         setRating(analysisItem.user_rating ?? null);
         setFeedback(analysisItem.user_feedback ?? "");
-        setCanRate(analysisItem.user_email === user.email && analysisItem.status === 'completed');
+        setCanRate(
+          analysisItem.user_email === user.email &&
+            analysisItem.status === "completed"
+        );
         setLoadedTabs({});
       }
     } catch (error) {
@@ -536,23 +630,37 @@ export default function AnalysisResult() {
   const handleDownloadPdf = async () => {
     if (!analysis) return;
     setIsDownloadingPdf(true);
-    setExportProgress({ show: true, step: 'prepare', progress: 5 });
+    setExportProgress({ show: true, step: "prepare", progress: 5 });
 
     const sanitize = (s) => {
-      const base = String(s || "Report").trim().replace(/[/\\?%*:|"<>]/g, "_").replace(/\s+/g, "_");
+      const base = String(s || "Report")
+        .trim()
+        .replace(/[/\\?%*:|"<>]/g, "_")
+        .replace(/\s+/g, "_");
       return base.substring(0, 80);
     };
     const filename = `${sanitize(analysis.business_idea)}_Planlyze.pdf`;
-    const tabs = ['market', 'business', 'technical', 'financial', 'strategy', 'overview'];
+    const tabs = [
+      "market",
+      "business",
+      "technical",
+      "financial",
+      "strategy",
+      "overview",
+    ];
     const allTabData = { ...tabData };
 
     try {
-      setExportProgress({ show: true, step: 'sections', progress: 10 });
+      setExportProgress({ show: true, step: "sections", progress: 10 });
 
       for (let i = 0; i < tabs.length; i++) {
         const tabName = tabs[i];
         const progressPercent = 10 + Math.round((i / tabs.length) * 40);
-        setExportProgress({ show: true, step: 'sections', progress: progressPercent });
+        setExportProgress({
+          show: true,
+          step: "sections",
+          progress: progressPercent,
+        });
 
         if (!allTabData[tabName]) {
           const cachedData = analysis[`tab_${tabName}`];
@@ -560,11 +668,11 @@ export default function AnalysisResult() {
             allTabData[tabName] = cachedData;
           } else {
             try {
-              const lang = analysis?.report_language === 'arabic' ? 'ar' : 'en';
-              const response = await api.post('/ai/generate-tab-content', {
+              const lang = analysis?.report_language === "arabic" ? "ar" : "en";
+              const response = await api.post("/ai/generate-tab-content", {
                 analysis_id: analysis.id,
                 tab_name: tabName,
-                language: lang
+                language: lang,
               });
               if (response?.data) {
                 allTabData[tabName] = response.data;
@@ -576,174 +684,282 @@ export default function AnalysisResult() {
         }
       }
 
-      setExportProgress({ show: true, step: 'charts', progress: 55 });
-      await new Promise(resolve => setTimeout(resolve, 300));
+      setExportProgress({ show: true, step: "charts", progress: 55 });
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      setExportProgress({ show: true, step: 'generate', progress: 65 });
+      setExportProgress({ show: true, step: "generate", progress: 65 });
 
-      const isReportArabic = analysis?.report_language === 'arabic';
+      const isReportArabic = analysis?.report_language === "arabic";
       const pdfExporter = new PDFExporter({ isArabic: isReportArabic });
       const br = analysis.business_report || {};
       const tr = analysis.technical_report || {};
 
       pdfExporter.addCoverPage(
-        analysis.business_idea || 'Business Report',
-        br.problem_solution_framework?.value_proposition || '',
+        analysis.business_idea || "Business Report",
+        br.problem_solution_framework?.value_proposition || "",
         {
-          date: format(new Date(analysis.created_at), 'MMMM d, yyyy'),
+          date: format(new Date(analysis.created_at), "MMMM d, yyyy"),
           industry: analysis.industry,
           country: analysis.country,
           scores: {
-            viability: br.overall_viability_score || br.overall_business_viability_assessment,
+            viability:
+              br.overall_viability_score ||
+              br.overall_business_viability_assessment,
             complexity: tr.complexity_score,
             aiMvp: tr.mvp_by_ai_tool_score,
-            overall: br.overall_business_viability_assessment || br.overall_viability_score
-          }
+            overall:
+              br.overall_business_viability_assessment ||
+              br.overall_viability_score,
+          },
         }
       );
 
-      setExportProgress({ show: true, step: 'generate', progress: 72 });
+      setExportProgress({ show: true, step: "generate", progress: 72 });
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'نظرة عامة' : 'Executive Overview');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "نظرة عامة" : "Executive Overview"
+      );
       const overview = allTabData.overview || analysis.report || {};
       if (overview.value_proposition) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'القيمة المقترحة' : 'Value Proposition');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "القيمة المقترحة" : "Value Proposition"
+        );
         pdfExporter.addText(overview.value_proposition);
       }
       if (overview.executive_summary) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'الملخص التنفيذي' : 'Executive Summary');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "الملخص التنفيذي" : "Executive Summary"
+        );
         pdfExporter.addText(overview.executive_summary);
       }
       if (overview.market_fit_score !== undefined) {
         pdfExporter.addInfoCard(
-          isReportArabic ? 'ملاءمة السوق' : 'Market Fit Score',
+          isReportArabic ? "ملاءمة السوق" : "Market Fit Score",
           `${overview.market_fit_score}%`,
           [16, 185, 129]
         );
       }
 
-      setExportProgress({ show: true, step: 'generate', progress: 78 });
+      setExportProgress({ show: true, step: "generate", progress: 78 });
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'تحليل السوق' : 'Market Analysis');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "تحليل السوق" : "Market Analysis"
+      );
       const market = allTabData.market || {};
       if (market.target_audiences?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'الجمهور المستهدف' : 'Target Audiences');
-        pdfExporter.addBulletList(market.target_audiences.map(a => `${a.segment || a.name}: ${a.description || ''}`));
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "الجمهور المستهدف" : "Target Audiences"
+        );
+        pdfExporter.addBulletList(
+          market.target_audiences.map(
+            (a) => `${a.segment || a.name}: ${a.description || ""}`
+          )
+        );
       }
       if (market.swot) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'تحليل SWOT' : 'SWOT Analysis');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "تحليل SWOT" : "SWOT Analysis"
+        );
         pdfExporter.addSWOTGrid(market.swot);
       }
       if (market.syrian_competitors?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'المنافسون' : 'Competitors');
-        const compHeaders = [isReportArabic ? 'الاسم' : 'Name', isReportArabic ? 'الوصف' : 'Description'];
-        const compRows = market.syrian_competitors.slice(0, 5).map(c => 
-          typeof c === 'string' ? [c, ''] : [c.name || '', c.description || '']
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "المنافسون" : "Competitors"
         );
+        const compHeaders = [
+          isReportArabic ? "الاسم" : "Name",
+          isReportArabic ? "الوصف" : "Description",
+        ];
+        const compRows = market.syrian_competitors
+          .slice(0, 5)
+          .map((c) =>
+            typeof c === "string"
+              ? [c, ""]
+              : [c.name || "", c.description || ""]
+          );
         pdfExporter.addDataTable(compHeaders, compRows);
       }
 
-      setExportProgress({ show: true, step: 'generate', progress: 82 });
+      setExportProgress({ show: true, step: "generate", progress: 82 });
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'استراتيجية الأعمال' : 'Business Strategy');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "استراتيجية الأعمال" : "Business Strategy"
+      );
       const business = allTabData.business || {};
       if (business.go_to_market_strategy?.marketing_strategy?.overview) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'استراتيجية التسويق' : 'Marketing Strategy');
-        pdfExporter.addText(business.go_to_market_strategy.marketing_strategy.overview);
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "استراتيجية التسويق" : "Marketing Strategy"
+        );
+        pdfExporter.addText(
+          business.go_to_market_strategy.marketing_strategy.overview
+        );
       }
       if (business.kpis?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'مؤشرات الأداء' : 'KPIs');
-        const kpiHeaders = [isReportArabic ? 'المؤشر' : 'Metric', isReportArabic ? 'الهدف' : 'Target'];
-        const kpiRows = business.kpis.slice(0, 6).map(k => [k.metric || '', k.target || '']);
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "مؤشرات الأداء" : "KPIs"
+        );
+        const kpiHeaders = [
+          isReportArabic ? "المؤشر" : "Metric",
+          isReportArabic ? "الهدف" : "Target",
+        ];
+        const kpiRows = business.kpis
+          .slice(0, 6)
+          .map((k) => [k.metric || "", k.target || ""]);
         pdfExporter.addDataTable(kpiHeaders, kpiRows);
       }
       if (business.distribution_channels?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'قنوات التوزيع' : 'Distribution Channels');
-        pdfExporter.addBulletList(business.distribution_channels.map(c => c.channel_name || c));
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "قنوات التوزيع" : "Distribution Channels"
+        );
+        pdfExporter.addBulletList(
+          business.distribution_channels.map((c) => c.channel_name || c)
+        );
       }
 
-      setExportProgress({ show: true, step: 'generate', progress: 86 });
+      setExportProgress({ show: true, step: "generate", progress: 86 });
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'التنفيذ التقني' : 'Technical Implementation');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "التنفيذ التقني" : "Technical Implementation"
+      );
       const technical = allTabData.technical || {};
       if (technical.technical_stack?.recommended_stack?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'المكدس التقني' : 'Tech Stack');
-        const techHeaders = [isReportArabic ? 'الفئة' : 'Category', isReportArabic ? 'التقنية' : 'Technology'];
-        const techRows = technical.technical_stack.recommended_stack.slice(0, 8).map(t => [t.category || '', t.technology || '']);
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "المكدس التقني" : "Tech Stack"
+        );
+        const techHeaders = [
+          isReportArabic ? "الفئة" : "Category",
+          isReportArabic ? "التقنية" : "Technology",
+        ];
+        const techRows = technical.technical_stack.recommended_stack
+          .slice(0, 8)
+          .map((t) => [t.category || "", t.technology || ""]);
         pdfExporter.addDataTable(techHeaders, techRows);
       }
       if (technical.technical_stack?.team_requirements?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'متطلبات الفريق' : 'Team Requirements');
-        const teamHeaders = [isReportArabic ? 'الدور' : 'Role', isReportArabic ? 'العدد' : 'Count', isReportArabic ? 'التكلفة الشهرية' : 'Monthly Cost'];
-        const teamRows = technical.technical_stack.team_requirements.map(t => 
-          [t.role || '', String(t.count || 1), `$${(t.monthly_cost_usd || 0).toLocaleString()}`]
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "متطلبات الفريق" : "Team Requirements"
+        );
+        const teamHeaders = [
+          isReportArabic ? "الدور" : "Role",
+          isReportArabic ? "العدد" : "Count",
+          isReportArabic ? "التكلفة الشهرية" : "Monthly Cost",
+        ];
+        const teamRows = technical.technical_stack.team_requirements.map(
+          (t) => [
+            t.role || "",
+            String(t.count || 1),
+            `$${(t.monthly_cost_usd || 0).toLocaleString()}`,
+          ]
         );
         pdfExporter.addDataTable(teamHeaders, teamRows);
       }
       if (technical.mvp?.core_features?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'ميزات MVP' : 'MVP Features');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "ميزات MVP" : "MVP Features"
+        );
         pdfExporter.addBulletList(technical.mvp.core_features.slice(0, 8));
       }
 
-      setExportProgress({ show: true, step: 'generate', progress: 90 });
+      setExportProgress({ show: true, step: "generate", progress: 90 });
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'التحليل المالي' : 'Financial Analysis');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "التحليل المالي" : "Financial Analysis"
+      );
       const financial = allTabData.financial || {};
       if (financial.revenue_streams?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'مصادر الإيرادات' : 'Revenue Streams');
-        const revHeaders = [isReportArabic ? 'المصدر' : 'Stream', isReportArabic ? 'الإمكانية' : 'Potential'];
-        const revRows = financial.revenue_streams.slice(0, 6).map(s => [s.name || '', s.potential || '']);
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "مصادر الإيرادات" : "Revenue Streams"
+        );
+        const revHeaders = [
+          isReportArabic ? "المصدر" : "Stream",
+          isReportArabic ? "الإمكانية" : "Potential",
+        ];
+        const revRows = financial.revenue_streams
+          .slice(0, 6)
+          .map((s) => [s.name || "", s.potential || ""]);
         pdfExporter.addDataTable(revHeaders, revRows);
       }
       if (financial.pricing_strategy) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'استراتيجية التسعير' : 'Pricing Strategy');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "استراتيجية التسعير" : "Pricing Strategy"
+        );
         if (financial.pricing_strategy.model) {
-          pdfExporter.addText(`${isReportArabic ? 'النموذج:' : 'Model:'} ${financial.pricing_strategy.model}`);
+          pdfExporter.addText(
+            `${isReportArabic ? "النموذج:" : "Model:"} ${
+              financial.pricing_strategy.model
+            }`
+          );
         }
         if (financial.pricing_strategy.tiers?.length) {
-          const priceHeaders = [isReportArabic ? 'الفئة' : 'Tier', isReportArabic ? 'السعر' : 'Price'];
-          const priceRows = financial.pricing_strategy.tiers.map(t => [t.name || '', t.price || '']);
+          const priceHeaders = [
+            isReportArabic ? "الفئة" : "Tier",
+            isReportArabic ? "السعر" : "Price",
+          ];
+          const priceRows = financial.pricing_strategy.tiers.map((t) => [
+            t.name || "",
+            t.price || "",
+          ]);
           pdfExporter.addDataTable(priceHeaders, priceRows);
         }
       }
 
       pdfExporter.addPage();
-      pdfExporter.addSectionHeader(isReportArabic ? 'الاستراتيجية والمخاطر' : 'Strategy & Risk Assessment');
+      pdfExporter.addSectionHeader(
+        isReportArabic ? "الاستراتيجية والمخاطر" : "Strategy & Risk Assessment"
+      );
       const strategy = allTabData.strategy || {};
       if (strategy.risk_assessment?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'تقييم المخاطر' : 'Risk Assessment');
-        const riskHeaders = [isReportArabic ? 'المخاطرة' : 'Risk', isReportArabic ? 'الشدة' : 'Severity', isReportArabic ? 'التخفيف' : 'Mitigation'];
-        const riskRows = strategy.risk_assessment.slice(0, 6).map(r => 
-          [r.risk || '', r.severity || '', (r.mitigation || '').substring(0, 40)]
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "تقييم المخاطر" : "Risk Assessment"
         );
+        const riskHeaders = [
+          isReportArabic ? "المخاطرة" : "Risk",
+          isReportArabic ? "الشدة" : "Severity",
+          isReportArabic ? "التخفيف" : "Mitigation",
+        ];
+        const riskRows = strategy.risk_assessment
+          .slice(0, 6)
+          .map((r) => [
+            r.risk || "",
+            r.severity || "",
+            (r.mitigation || "").substring(0, 40),
+          ]);
         pdfExporter.addDataTable(riskHeaders, riskRows);
       }
       if (strategy.action_plan?.length) {
-        pdfExporter.addSubsectionHeader(isReportArabic ? 'خطة العمل' : 'Action Plan');
+        pdfExporter.addSubsectionHeader(
+          isReportArabic ? "خطة العمل" : "Action Plan"
+        );
         strategy.action_plan.slice(0, 8).forEach((step, idx) => {
           pdfExporter.addText(`${idx + 1}. ${step.title || step}`);
-          if (step.timeline) pdfExporter.addText(`   ${isReportArabic ? 'الجدول الزمني:' : 'Timeline:'} ${step.timeline}`);
+          if (step.timeline)
+            pdfExporter.addText(
+              `   ${isReportArabic ? "الجدول الزمني:" : "Timeline:"} ${
+                step.timeline
+              }`
+            );
         });
       }
 
-      setExportProgress({ show: true, step: 'save', progress: 95 });
+      setExportProgress({ show: true, step: "save", progress: 95 });
 
       pdfExporter.save(filename);
-      
-      setExportProgress({ show: true, step: 'done', progress: 100 });
-      setTimeout(() => {
-        setExportProgress({ show: false, step: 'prepare', progress: 0 });
-        toast.success(isUIArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully");
-      }, 1500);
 
+      setExportProgress({ show: true, step: "done", progress: 100 });
+      setTimeout(() => {
+        setExportProgress({ show: false, step: "prepare", progress: 0 });
+        toast.success(
+          isUIArabic ? "تم تنزيل PDF بنجاح" : "PDF downloaded successfully"
+        );
+      }, 1500);
     } catch (error) {
       console.error("Error downloading PDF:", error);
-      setExportProgress({ show: false, step: 'prepare', progress: 0 });
+      setExportProgress({ show: false, step: "prepare", progress: 0 });
       toast.error(isUIArabic ? "فشل تنزيل ملف PDF" : "Failed to download PDF");
     } finally {
       setIsDownloadingPdf(false);
@@ -757,109 +973,192 @@ export default function AnalysisResult() {
     try {
       const br = analysis.business_report || {};
       const tr = analysis.technical_report || {};
-      
+
       // Build CSV content
       const csvRows = [];
-      csvRows.push(['Section', 'Field', 'Value']);
-      
+      csvRows.push(["Section", "Field", "Value"]);
+
       // Business Idea
-      csvRows.push(['General', 'Business Idea', analysis.business_idea || '']);
-      csvRows.push(['General', 'Country', analysis.country || '']);
-      csvRows.push(['General', 'Industry', analysis.industry || '']);
-      csvRows.push(['General', 'Experience Level', analysis.experience_level || '']);
-      csvRows.push(['General', 'Report Language', analysis.report_language || '']);
-      csvRows.push(['General', 'Created Date', analysis.created_at || '']);
-      csvRows.push(['General', 'Premium', analysis.report_type === 'premium' ? 'Yes' : 'No']);
-      
+      csvRows.push(["General", "Business Idea", analysis.business_idea || ""]);
+      csvRows.push(["General", "Country", analysis.country || ""]);
+      csvRows.push(["General", "Industry", analysis.industry || ""]);
+      csvRows.push([
+        "General",
+        "Experience Level",
+        analysis.experience_level || "",
+      ]);
+      csvRows.push([
+        "General",
+        "Report Language",
+        analysis.report_language || "",
+      ]);
+      csvRows.push(["General", "Created Date", analysis.created_at || ""]);
+      csvRows.push([
+        "General",
+        "Premium",
+        analysis.report_type === "premium" ? "Yes" : "No",
+      ]);
+
       // Scores
-      csvRows.push(['Scores', 'Business Viability Score', br.overall_viability_score || '']);
-      csvRows.push(['Scores', 'Technical Complexity Score', tr.complexity_score || '']);
-      csvRows.push(['Scores', 'AI MVP Build Score', tr.mvp_by_ai_tool_score || '']);
-      
+      csvRows.push([
+        "Scores",
+        "Business Viability Score",
+        br.overall_viability_score || "",
+      ]);
+      csvRows.push([
+        "Scores",
+        "Technical Complexity Score",
+        tr.complexity_score || "",
+      ]);
+      csvRows.push([
+        "Scores",
+        "AI MVP Build Score",
+        tr.mvp_by_ai_tool_score || "",
+      ]);
+
       // Problem & Solution
       const psf = br.problem_solution_framework || {};
-      csvRows.push(['Problem & Solution', 'Core Problem', psf.core_problem || '']);
-      csvRows.push(['Problem & Solution', 'Solution Approach', psf.solution_approach || '']);
-      csvRows.push(['Problem & Solution', 'Value Proposition', psf.value_proposition || '']);
-      
+      csvRows.push([
+        "Problem & Solution",
+        "Core Problem",
+        psf.core_problem || "",
+      ]);
+      csvRows.push([
+        "Problem & Solution",
+        "Solution Approach",
+        psf.solution_approach || "",
+      ]);
+      csvRows.push([
+        "Problem & Solution",
+        "Value Proposition",
+        psf.value_proposition || "",
+      ]);
+
       // Market Opportunity
-      csvRows.push(['Market', 'Market Opportunity', br.market_opportunity || '']);
-      csvRows.push(['Market', 'Local Demand Assessment', br.local_demand_assessment || '']);
-      csvRows.push(['Market', 'Competition Analysis', br.competition_analysis || '']);
-      
+      csvRows.push([
+        "Market",
+        "Market Opportunity",
+        br.market_opportunity || "",
+      ]);
+      csvRows.push([
+        "Market",
+        "Local Demand Assessment",
+        br.local_demand_assessment || "",
+      ]);
+      csvRows.push([
+        "Market",
+        "Competition Analysis",
+        br.competition_analysis || "",
+      ]);
+
       // Market Size
       const ms = br.market_size || {};
-      csvRows.push(['Market Size', 'TAM', ms.tam || '']);
-      csvRows.push(['Market Size', 'SAM', ms.sam || '']);
-      csvRows.push(['Market Size', 'SOM', ms.som || '']);
-      
+      csvRows.push(["Market Size", "TAM", ms.tam || ""]);
+      csvRows.push(["Market Size", "SAM", ms.sam || ""]);
+      csvRows.push(["Market Size", "SOM", ms.som || ""]);
+
       // Target Audience
       const ta = psf.target_audience || {};
-      csvRows.push(['Target Audience', 'Description', ta.target_description || '']);
+      csvRows.push([
+        "Target Audience",
+        "Description",
+        ta.target_description || "",
+      ]);
       if (Array.isArray(ta.demographics)) {
-        ta.demographics.forEach((item, idx) => csvRows.push(['Target Audience', `Demographic ${idx + 1}`, item]));
+        ta.demographics.forEach((item, idx) =>
+          csvRows.push(["Target Audience", `Demographic ${idx + 1}`, item])
+        );
       }
-      
+
       // Revenue Streams
       if (Array.isArray(br.revenue_streams)) {
-        br.revenue_streams.forEach((item, idx) => csvRows.push(['Revenue', `Stream ${idx + 1}`, item]));
+        br.revenue_streams.forEach((item, idx) =>
+          csvRows.push(["Revenue", `Stream ${idx + 1}`, item])
+        );
       }
-      
+
       // Go-to-Market
-      csvRows.push(['Go-to-Market', 'Strategy', br.go_to_market || '']);
-      
+      csvRows.push(["Go-to-Market", "Strategy", br.go_to_market || ""]);
+
       // Technology Stack
       const ts = tr.technology_stack || {};
-      csvRows.push(['Technology', 'Frontend', ts.frontend || '']);
-      csvRows.push(['Technology', 'Backend', ts.backend || '']);
-      csvRows.push(['Technology', 'Database', ts.database || '']);
-      csvRows.push(['Technology', 'Cloud', ts.cloud || '']);
-      csvRows.push(['Technology', 'Mobile', ts.mobile || '']);
-      
+      csvRows.push(["Technology", "Frontend", ts.frontend || ""]);
+      csvRows.push(["Technology", "Backend", ts.backend || ""]);
+      csvRows.push(["Technology", "Database", ts.database || ""]);
+      csvRows.push(["Technology", "Cloud", ts.cloud || ""]);
+      csvRows.push(["Technology", "Mobile", ts.mobile || ""]);
+
       // MVP Core Features
       if (Array.isArray(tr.mvp_core_features)) {
-        tr.mvp_core_features.forEach((item, idx) => csvRows.push(['MVP Features', `Feature ${idx + 1}`, item]));
+        tr.mvp_core_features.forEach((item, idx) =>
+          csvRows.push(["MVP Features", `Feature ${idx + 1}`, item])
+        );
       }
-      
+
       // SWOT
       const swot = br.swot_analysis || {};
       if (Array.isArray(swot.strengths)) {
-        swot.strengths.forEach((item, idx) => csvRows.push(['SWOT - Strengths', `Strength ${idx + 1}`, item]));
+        swot.strengths.forEach((item, idx) =>
+          csvRows.push(["SWOT - Strengths", `Strength ${idx + 1}`, item])
+        );
       }
       if (Array.isArray(swot.weaknesses)) {
-        swot.weaknesses.forEach((item, idx) => csvRows.push(['SWOT - Weaknesses', `Weakness ${idx + 1}`, item]));
+        swot.weaknesses.forEach((item, idx) =>
+          csvRows.push(["SWOT - Weaknesses", `Weakness ${idx + 1}`, item])
+        );
       }
       if (Array.isArray(swot.opportunities)) {
-        swot.opportunities.forEach((item, idx) => csvRows.push(['SWOT - Opportunities', `Opportunity ${idx + 1}`, item]));
+        swot.opportunities.forEach((item, idx) =>
+          csvRows.push(["SWOT - Opportunities", `Opportunity ${idx + 1}`, item])
+        );
       }
       if (Array.isArray(swot.threats)) {
-        swot.threats.forEach((item, idx) => csvRows.push(['SWOT - Threats', `Threat ${idx + 1}`, item]));
+        swot.threats.forEach((item, idx) =>
+          csvRows.push(["SWOT - Threats", `Threat ${idx + 1}`, item])
+        );
       }
-      
+
       // Risks
-      csvRows.push(['Risks', 'Business Risks & Mitigation', br.risks_and_mitigation || '']);
-      csvRows.push(['Risks', 'Technical Risks', tr.technical_risks || '']);
-      
+      csvRows.push([
+        "Risks",
+        "Business Risks & Mitigation",
+        br.risks_and_mitigation || "",
+      ]);
+      csvRows.push(["Risks", "Technical Risks", tr.technical_risks || ""]);
+
       // Funding
-      csvRows.push(['Funding', 'Recommendations', br.funding_recommendations || '']);
-      
+      csvRows.push([
+        "Funding",
+        "Recommendations",
+        br.funding_recommendations || "",
+      ]);
+
       // Success Metrics
       if (Array.isArray(br.success_metrics)) {
-        br.success_metrics.forEach((item, idx) => csvRows.push(['Success Metrics', `Metric ${idx + 1}`, item]));
+        br.success_metrics.forEach((item, idx) =>
+          csvRows.push(["Success Metrics", `Metric ${idx + 1}`, item])
+        );
       }
-      
+
       // Escape CSV values
       const escapeCsv = (val) => {
-        const str = String(val || '').replace(/"/g, '""');
-        return str.includes(',') || str.includes('\n') || str.includes('"') ? `"${str}"` : str;
+        const str = String(val || "").replace(/"/g, '""');
+        return str.includes(",") || str.includes("\n") || str.includes('"')
+          ? `"${str}"`
+          : str;
       };
-      
-      const csvContent = csvRows.map(row => row.map(escapeCsv).join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+      const csvContent = csvRows
+        .map((row) => row.map(escapeCsv).join(","))
+        .join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `${analysis.business_idea.replace(/[^a-zA-Z0-9]/g, '_')}_Planlyze.csv`;
+      a.download = `${analysis.business_idea.replace(
+        /[^a-zA-Z0-9]/g,
+        "_"
+      )}_Planlyze.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -892,7 +1191,7 @@ export default function AnalysisResult() {
   //       id: analysis.id,
   //       analysisId: analysis.id
   //     });
-  
+
   //     const blob = new Blob([data], { type: "application/pdf" });
   //     const url = window.URL.createObjectURL(blob);
   //     const a = document.createElement("a");
@@ -916,17 +1215,25 @@ export default function AnalysisResult() {
     try {
       await Analysis.update(analysis.id, {
         user_rating: rating ?? null,
-        user_feedback: feedback || ""
+        user_feedback: feedback || "",
       });
-      toast.success(analysis.report_language === 'arabic' ? "تم حفظ التقييم" : "Rating saved");
+      toast.success(
+        analysis.report_language === "arabic"
+          ? "تم حفظ التقييم"
+          : "Rating saved"
+      );
       setAnalysis((prevAnalysis) => ({
         ...prevAnalysis,
         user_rating: rating ?? null,
-        user_feedback: feedback || ""
+        user_feedback: feedback || "",
       }));
     } catch (error) {
       console.error("Error saving rating:", error);
-      toast.error(analysis.report_language === 'arabic' ? "فشل حفظ التقييم" : "Failed to save rating");
+      toast.error(
+        analysis.report_language === "arabic"
+          ? "فشل حفظ التقييم"
+          : "Failed to save rating"
+      );
     } finally {
       setSavingRating(false);
     }
@@ -934,7 +1241,11 @@ export default function AnalysisResult() {
 
   const handleUpgradeToPremium = async () => {
     if (userCredits <= 0) {
-      toast.error(analysis.report_language === 'arabic' ? 'ليس لديك أرصدة كافية' : 'Insufficient credits');
+      toast.error(
+        analysis.report_language === "arabic"
+          ? "ليس لديك أرصدة كافية"
+          : "Insufficient credits"
+      );
       navigate(createPageUrl("Credits"));
       return;
     }
@@ -942,29 +1253,48 @@ export default function AnalysisResult() {
     setIsUpgrading(true);
     try {
       await api.post(`/analyses/${analysis.id}/upgrade-premium`);
-      
+
       await refreshUser();
       emitCreditUpdate();
-      
-      toast.success(analysis.report_language === 'arabic' ? 'تمت الترقية بنجاح!' : 'Successfully upgraded!');
-      
+
+      toast.success(
+        analysis.report_language === "arabic"
+          ? "تمت الترقية بنجاح!"
+          : "Successfully upgraded!"
+      );
+
       setTimeout(() => window.location.reload(), 500);
     } catch (error) {
-      console.error('Upgrade failed:', error);
-      const errorMsg = error?.response?.data?.error || error?.message || 'Unknown error';
-      toast.error(`${analysis.report_language === 'arabic' ? 'فشلت الترقية: ' : 'Upgrade failed: '}${errorMsg}`);
+      console.error("Upgrade failed:", error);
+      const errorMsg =
+        error?.response?.data?.error || error?.message || "Unknown error";
+      toast.error(
+        `${
+          analysis.report_language === "arabic"
+            ? "فشلت الترقية: "
+            : "Upgrade failed: "
+        }${errorMsg}`
+      );
       setIsUpgrading(false);
     }
   };
 
   // Helper to build back URL preserving user param
   const backToReportsUrl = (() => {
-    const p = new URLSearchParams(window.location.search).get('user');
-    return createPageUrl(p ? `Reports?user=${encodeURIComponent(p)}` : "Reports");
+    const p = new URLSearchParams(window.location.search).get("user");
+    return createPageUrl(
+      p ? `Reports?user=${encodeURIComponent(p)}` : "Reports"
+    );
   })();
 
   // Check if all tabs are loaded for export
-  const allTabsLoaded = loadedTabs.market && loadedTabs.business && loadedTabs.technical && loadedTabs.financial && loadedTabs.strategy && loadedTabs.overview;
+  const allTabsLoaded =
+    loadedTabs.market &&
+    loadedTabs.business &&
+    loadedTabs.technical &&
+    loadedTabs.financial &&
+    loadedTabs.strategy &&
+    loadedTabs.overview;
 
   if (isLoading) {
     return (
@@ -979,52 +1309,62 @@ export default function AnalysisResult() {
           </div>
           <div className="h-64 bg-slate-200 rounded-lg animate-pulse" />
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
-  if (!analysis || analysis.status !== 'completed') {
+  if (!analysis || analysis.status !== "completed") {
     return (
       <div className="min-h-screen p-4 md:p-8">
         <div className="max-w-4xl mx-auto text-center py-16">
           <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">Report Not Available</h2>
-          <p className="text-slate-600 mb-6">This analysis is not completed or doesn't exist.</p>
-          <Button onClick={() => navigate(createPageUrl("Dashboard"))} className="gradient-primary text-white">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            Report Not Available
+          </h2>
+          <p className="text-slate-600 mb-6">
+            This analysis is not completed or doesn't exist.
+          </p>
+          <Button
+            onClick={() => navigate(createPageUrl("Dashboard"))}
+            className="gradient-primary text-white"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
-  const isReportArabic = analysis.report_language === 'arabic';
-  const isPremium = analysis.report_type === 'premium';
-  
+  const isReportArabic = analysis.report_language === "arabic";
+  const isPremium = analysis.report_type === "premium";
+
   // Map backend report structure to frontend expected structure
   const report = analysis.report || {};
   const businessReport = analysis.business_report || {
     overall_viability_score: report.score || analysis.score || 0,
-    executive_summary: report.executive_summary || analysis.executive_summary || '',
-    market_opportunity: report.market_analysis?.market_gap || '',
+    executive_summary:
+      report.executive_summary || analysis.executive_summary || "",
+    market_opportunity: report.market_analysis?.market_gap || "",
     market_size: report.market_analysis || {},
     swot_analysis: report.swot || {},
     revenue_streams: report.business_strategy?.revenue_streams || [],
     go_to_market: report.go_to_market || {},
     risks_and_mitigation: report.risk_assessment || {},
-    funding_recommendations: report.financial_projections?.funding_recommendations || '',
-    success_metrics: report.recommendations?.success_metrics || []
+    funding_recommendations:
+      report.financial_projections?.funding_recommendations || "",
+    success_metrics: report.recommendations?.success_metrics || [],
   };
   const technicalReport = analysis.technical_report || {
     complexity_score: 5,
     mvp_by_ai_tool_score: 7,
     technology_stack: report.technical_strategy?.recommended_stack || {},
     mvp_core_features: report.technical_strategy?.mvp_features || [],
-    architecture: report.technical_strategy?.architecture || '',
-    technical_risks: report.technical_strategy?.security || ''
+    architecture: report.technical_strategy?.architecture || "",
+    technical_risks: report.technical_strategy?.security || "",
   };
-  const fp = analysis.step10_financials_risks_swot || report.financial_projections || {};
+  const fp =
+    analysis.step10_financials_risks_swot || report.financial_projections || {};
 
   // Replace sectionsNav with the exact order requested - REMOVED as quick nav is removed
   // const sectionsNav = [
@@ -1046,7 +1386,10 @@ export default function AnalysisResult() {
   // ];
 
   return (
-    <div className={`min-h-screen p-4 md:p-8 ${isUIArabic ? 'rtl' : 'ltr'}`} dir={isUIArabic ? 'rtl' : 'ltr'}>
+    <div
+      className={`min-h-screen p-4 md:p-8 ${isUIArabic ? "rtl" : "ltr"}`}
+      dir={isUIArabic ? "rtl" : "ltr"}
+    >
       <style>{`
         [dir="rtl"] .rtl .list-disc { margin-right: 1.5rem; margin-left: 0; }
         [dir="rtl"] .rtl .list-decimal { margin-right: 1.5rem; margin-left: 0; }
@@ -1198,28 +1541,30 @@ export default function AnalysisResult() {
         }
         section#recommendations_next h2 { color: rgb(71 85 105); } /* slate-600 */
       `}</style>
-      <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header - improved responsiveness */}
+
+      <div
+        className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+        dir={isUIArabic ? "rtl" : "ltr"}
+      >
         {/* Header - improved responsiveness */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 no-print">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(backToReportsUrl)}
-              className="shadow-sm">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
-                {analysis.business_idea}
-              </h1>
+        <div className="max-w-6xl mx-auto space-y-8">
+          <PageHeader
+            title={analysis.business_idea}
+            isArabic={isUIArabic}
+            description={
               <div className="flex flex-wrap items-center gap-2 mt-1">
-                <p className="text-slate-600">
-                  {isUIArabic ? 'تم إكمال التحليل في' : 'Analysis completed on'} {analysis.created_at ? format(new Date(analysis.created_at), "MMMM d, yyyy") : ''}
+                <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm md:text-base">
+                  {isUIArabic ? "تم إكمال التحليل في" : "Analysis completed on"}{" "}
+                  {analysis.created_at
+                    ? format(new Date(analysis.created_at), "MMMM d, yyyy")
+                    : ""}
                 </p>
                 <Badge variant="outline" className="flex items-center gap-1">
-                  <Globe className="w-3 h-3" />
-                  {isUIArabic ? 'العربية' : 'English'}
+                  <Globe className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                  <p className="text-gray-600 dark:text-gray-400">
+                  {isUIArabic ? "العربية" : "English"}
+                  </p>
                 </Badge>
                 {analysis.country && (
                   <Badge variant="outline" className="flex items-center gap-1">
@@ -1228,58 +1573,81 @@ export default function AnalysisResult() {
                   </Badge>
                 )}
                 {isPremium && (
-                  <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white flex items-center gap-1">
-                    ✨ {isUIArabic ? 'متميز' : 'Premium'}
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white flex items-center gap-1">
+                    ✨ {isUIArabic ? "متميز" : "Premium"}
                   </Badge>
                 )}
               </div>
-            </div>
-          </div>
-          {/* Premium Feature: Export Options */}
-          <div className="flex items-center gap-2">
-            {/* Share Button */}
-            <Button
-                            onClick={() => setShowShareModal(true)}
-                            variant="outline"
-                            className="gap-2 border-amber-400 hover:bg-amber-50 text-amber-600"
-                          >
-                            <Share2 className="w-4 h-4 text-amber-600" />
-                            {isUIArabic ? 'مشاركة' : 'Share'}
-            </Button>
-            
-            {isPremium ? (
-              <>
-                <Button
-                  onClick={handleDownloadPdf}
-                  disabled={isDownloadingPdf || !allTabsLoaded}
-                  className="gap-2 gradient-primary text-white"
-                  title={!allTabsLoaded ? (isUIArabic ? 'يرجى تحميل جميع التبويبات أولاً' : 'Please load all tabs first') : ''}
-                >
-                  <Download className="w-4 h-4" />
-                  {isDownloadingPdf ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'PDF'}
-                </Button>
-                <Button
-                  onClick={handleDownloadCsv}
-                  disabled={isDownloadingCsv || !allTabsLoaded}
+            }
+            backUrl={() => navigate(backToReportsUrl)}
+            actions={
+              <div className="flex items-center gap-2">
+                {/* Share Button */}
+                {/* <Button
+                  onClick={() => setShowShareModal(true)}
                   variant="outline"
-                  className="gap-2"
-                  title={!allTabsLoaded ? (isUIArabic ? 'يرجى تحميل جميع التبويبات أولاً' : 'Please load all tabs first') : ''}
+                  className="gap-2 border-amber-400 hover:bg-amber-50 text-amber-600"
                 >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  {isDownloadingCsv ? (isUIArabic ? 'جارٍ...' : 'Downloading...') : 'CSV'}
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate(createPageUrl("Credits"))}
-                variant="outline"
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                {isUIArabic ? 'فتح التصدير (متميز)' : 'Unlock Export (Premium)'}
-              </Button>
-            )}
-          </div>
+                  <Share2 className="w-4 h-4 text-amber-600" />
+                  {isUIArabic ? "مشاركة" : "Share"}
+                </Button> */}
+
+                {isPremium ? (
+                  <>
+                    <Button
+                      onClick={handleDownloadPdf}
+                      disabled={isDownloadingPdf || !allTabsLoaded}
+                      className="gap-2 gradient-primary text-white"
+                      title={
+                        !allTabsLoaded
+                          ? isUIArabic
+                            ? "يرجى تحميل جميع التبويبات أولاً"
+                            : "Please load all tabs first"
+                          : ""
+                      }
+                    >
+                      <Download className="w-4 h-4" />
+                      {isDownloadingPdf
+                        ? isUIArabic
+                          ? "جارٍ..."
+                          : "Downloading..."
+                        : "PDF"}
+                    </Button>
+                    {/* <Button
+                      onClick={handleDownloadCsv}
+                      disabled={isDownloadingCsv || !allTabsLoaded}
+                      variant="outline"
+                      className="gap-2"
+                      title={
+                        !allTabsLoaded
+                          ? isUIArabic
+                            ? "يرجى تحميل جميع التبويبات أولاً"
+                            : "Please load all tabs first"
+                          : ""
+                      }
+                    >
+                      <FileSpreadsheet className="w-4 h-4" />
+                      {isDownloadingCsv
+                        ? isUIArabic
+                          ? "جارٍ..."
+                          : "Downloading..."
+                        : "CSV"}
+                    </Button> */}
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => navigate(createPageUrl("Credits"))}
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105"
+                  >
+                    <Download className="w-4 h-4" />
+                    {isUIArabic
+                      ? "فتح التصدير (متميز)"
+                      : "Unlock Export (Premium)"}
+                  </Button>
+                )}
+              </div>
+            }
+          />
         </div>
 
         {/* Share Modal */}
@@ -1301,268 +1669,525 @@ export default function AnalysisResult() {
         />
 
         {/* Tabbed Analysis Results */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-1 bg-slate-100/80 p-1 rounded-xl mb-6">
-            <TabsTrigger 
-              value="market" 
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto space-y-8" dir={isUIArabic ? "rtl" : "ltr"}>
+          <TabsList className="grid grid-cols-3 md:grid-cols-6 h-auto gap-1 bg-white dark:bg-gray-800 p-1 rounded-xl mb-6">
+            <TabsTrigger
+              value="market"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white rounded-lg"
             >
               <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "السوق" : "Market"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "السوق" : "Market"}
+              </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="business" 
+            <TabsTrigger
+              value="business"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white rounded-lg"
             >
               <Briefcase className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "الأعمال" : "Business"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "الأعمال" : "Business"}
+              </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="technical" 
+            <TabsTrigger
+              value="technical"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-500 data-[state=active]:text-white rounded-lg"
             >
               <Code className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "التقني" : "Technical"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "التقني" : "Technical"}
+              </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="financial" 
+            <TabsTrigger
+              value="financial"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white rounded-lg"
             >
               <Calculator className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "المالي" : "Financial"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "المالي" : "Financial"}
+              </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="strategy" 
+            <TabsTrigger
+              value="strategy"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-pink-500 data-[state=active]:text-white rounded-lg"
             >
               <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "الاستراتيجية" : "Strategy"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "الاستراتيجية" : "Strategy"}
+              </span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="overview" 
+            <TabsTrigger
+              value="overview"
               className="flex items-center gap-2 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-amber-500 data-[state=active]:text-white rounded-lg"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">{isUIArabic ? "نظرة عامة" : "Overview"}</span>
+              <span className="hidden sm:inline">
+                {isUIArabic ? "نظرة عامة" : "Overview"}
+              </span>
             </TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Market & Competition */}
           <TabsContent value="market" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.market} isLoading={tabLoading.market} isUIArabic={isUIArabic} hasError={tabError.market} onRetry={() => retryTab('market')} onForceRetry={() => forceRetryTab('market')} tabName="market" processingStatus={tabProcessingStatus.market}>
-            
-            {tabData.market ? (
-              <MarketSection data={tabData.market} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
-            ) : (
-              <>
-                <section id="market_opportunity">
-                  <MarketOpportunity
-                    report={{
-                      market_opportunity: analysis.step3_market_opportunity?.market_opportunity ?? report.market_analysis?.market_gap ?? businessReport.market_opportunity,
-                      market_size: analysis.step4_market_size || report.market_analysis || {},
-                      local_demand_assessment: analysis.step5_local_demand?.local_demand_assessment || report.market_analysis?.growth_potential,
-                      competition_analysis: analysis.step6_competition?.competition_analysis || report.market_analysis?.competition,
-                      infrastructure_readiness: analysis.step3_market_opportunity?.infrastructure_readiness
-                    }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+            <LazyTabContent
+              isLoaded={loadedTabs.market}
+              isLoading={tabLoading.market}
+              isUIArabic={isUIArabic}
+              hasError={tabError.market}
+              onRetry={() => retryTab("market")}
+              onForceRetry={() => forceRetryTab("market")}
+              tabName="market"
+              processingStatus={tabProcessingStatus.market}
+            >
+              {tabData.market ? (
+                <MarketSection
+                  data={tabData.market}
+                  isArabic={isReportArabic}
+                  isPremium={isPremium}
+                  onUnlock={handleUpgradeToPremium}
+                  isUnlocking={isUpgrading}
+                />
+              ) : (
+                <>
+                  <section id="market_opportunity">
+                    <MarketOpportunity
+                      report={{
+                        market_opportunity:
+                          analysis.step3_market_opportunity
+                            ?.market_opportunity ??
+                          report.market_analysis?.market_gap ??
+                          businessReport.market_opportunity,
+                        market_size:
+                          analysis.step4_market_size ||
+                          report.market_analysis ||
+                          {},
+                        local_demand_assessment:
+                          analysis.step5_local_demand
+                            ?.local_demand_assessment ||
+                          report.market_analysis?.growth_potential,
+                        competition_analysis:
+                          analysis.step6_competition?.competition_analysis ||
+                          report.market_analysis?.competition,
+                        infrastructure_readiness:
+                          analysis.step3_market_opportunity
+                            ?.infrastructure_readiness,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="competitors">
-                  {isPremium ? (
-                    <CompetitorMatrix businessReport={businessReport} isArabic={isReportArabic} />
-                  ) : (
-                    <Card className="glass-effect border-2 border-purple-300">
-                      <CardContent className="p-6 text-center">
-                        <Badge className="bg-purple-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "تحليل المنافسين الشامل" : "Comprehensive Competitor Analysis"}</h3>
-                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية تحليل مفصل للمنافسين" : "Upgrade to see detailed competitor analysis"}</p>
-                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "تحليل المنافسين" : "Competitor Analysis"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                      </CardContent>
-                    </Card>
-                  )}
-                </section>
+                  <section id="competitors">
+                    {isPremium ? (
+                      <CompetitorMatrix
+                        businessReport={businessReport}
+                        isArabic={isReportArabic}
+                      />
+                    ) : (
+                      <Card className="glass-effect border-2 border-purple-300">
+                        <CardContent className="p-6 text-center">
+                          <Badge className="bg-purple-600 text-white mb-4">
+                            {isUIArabic ? "متميز" : "PREMIUM"}
+                          </Badge>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">
+                            {isUIArabic
+                              ? "تحليل المنافسين الشامل"
+                              : "Comprehensive Competitor Analysis"}
+                          </h3>
+                          <p className="text-slate-600 mb-4">
+                            {isUIArabic
+                              ? "قم بالترقية لرؤية تحليل مفصل للمنافسين"
+                              : "Upgrade to see detailed competitor analysis"}
+                          </p>
+                          <UpgradePrompt
+                            isUIArabic={isUIArabic}
+                            variant="inline"
+                            feature={
+                              isUIArabic
+                                ? "تحليل المنافسين"
+                                : "Competitor Analysis"
+                            }
+                            userCredits={userCredits}
+                            onUpgrade={handleUpgradeToPremium}
+                            isUpgrading={isUpgrading}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </section>
 
-                <section id="competitors_syrian">
-                  {isPremium ? (
-                    <SyrianCompetitors businessReport={businessReport} isArabic={isReportArabic} />
-                  ) : (
-                    <Card className="glass-effect border-2 border-rose-300">
-                      <CardContent className="p-6 text-center">
-                        <Badge className="bg-rose-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "تحليل السوق السوري والإقليمي" : "Syrian & Regional Market Analysis"}</h3>
-                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية بيانات السوق السوري" : "Upgrade to see Syrian market data"}</p>
-                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "بيانات السوق السوري" : "Syrian Market Data"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                      </CardContent>
-                    </Card>
-                  )}
-                </section>
+                  <section id="competitors_syrian">
+                    {isPremium ? (
+                      <SyrianCompetitors
+                        businessReport={businessReport}
+                        isArabic={isReportArabic}
+                      />
+                    ) : (
+                      <Card className="glass-effect border-2 border-rose-300">
+                        <CardContent className="p-6 text-center">
+                          <Badge className="bg-rose-600 text-white mb-4">
+                            {isUIArabic ? "متميز" : "PREMIUM"}
+                          </Badge>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">
+                            {isUIArabic
+                              ? "تحليل السوق السوري والإقليمي"
+                              : "Syrian & Regional Market Analysis"}
+                          </h3>
+                          <p className="text-slate-600 mb-4">
+                            {isUIArabic
+                              ? "قم بالترقية لرؤية بيانات السوق السوري"
+                              : "Upgrade to see Syrian market data"}
+                          </p>
+                          <UpgradePrompt
+                            isUIArabic={isUIArabic}
+                            variant="inline"
+                            feature={
+                              isUIArabic
+                                ? "بيانات السوق السوري"
+                                : "Syrian Market Data"
+                            }
+                            userCredits={userCredits}
+                            onUpgrade={handleUpgradeToPremium}
+                            isUpgrading={isUpgrading}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </section>
 
-                <section id="target_audience">
-                  <TargetAudience
-                    report={{ problem_solution_framework: { target_audience: analysis.step2_target_audience || { target_description: report.market_analysis?.target_segments?.join(', ') || '', demographics: report.market_analysis?.target_segments || [] } } }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
-              </>
-            )}
+                  <section id="target_audience">
+                    <TargetAudience
+                      report={{
+                        problem_solution_framework: {
+                          target_audience: analysis.step2_target_audience || {
+                            target_description:
+                              report.market_analysis?.target_segments?.join(
+                                ", "
+                              ) || "",
+                            demographics:
+                              report.market_analysis?.target_segments || [],
+                          },
+                        },
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
+                </>
+              )}
             </LazyTabContent>
           </TabsContent>
 
           {/* Tab 3: Business Model */}
           <TabsContent value="business" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.business} isLoading={tabLoading.business} isUIArabic={isUIArabic} hasError={tabError.business} onRetry={() => retryTab('business')} onForceRetry={() => forceRetryTab('business')} tabName="business" processingStatus={tabProcessingStatus.business}>
-            {tabData.business ? (
-              <BusinessSection data={tabData.business} isArabic={isReportArabic} />
-            ) : (
-              <>
-                <section id="business_model_revenue">
-                  <BusinessModelRevenue
-                    report={{ business_model: analysis.step7_goto_market_revenue?.business_model || report.business_strategy?.business_model, revenue_streams: analysis.step7_goto_market_revenue?.revenue_streams || report.business_strategy?.revenue_streams }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+            <LazyTabContent
+              isLoaded={loadedTabs.business}
+              isLoading={tabLoading.business}
+              isUIArabic={isUIArabic}
+              hasError={tabError.business}
+              onRetry={() => retryTab("business")}
+              onForceRetry={() => forceRetryTab("business")}
+              tabName="business"
+              processingStatus={tabProcessingStatus.business}
+            >
+              {tabData.business ? (
+                <BusinessSection
+                  data={tabData.business}
+                  isArabic={isReportArabic}
+                />
+              ) : (
+                <>
+                  <section id="business_model_revenue">
+                    <BusinessModelRevenue
+                      report={{
+                        business_model:
+                          analysis.step7_goto_market_revenue?.business_model ||
+                          report.business_strategy?.business_model,
+                        revenue_streams:
+                          analysis.step7_goto_market_revenue?.revenue_streams ||
+                          report.business_strategy?.revenue_streams,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="go_to_market">
-                  <GoToMarket
-                    report={{ go_to_market: analysis.step7_goto_market_revenue?.go_to_market || report.go_to_market }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+                  <section id="go_to_market">
+                    <GoToMarket
+                      report={{
+                        go_to_market:
+                          analysis.step7_goto_market_revenue?.go_to_market ||
+                          report.go_to_market,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="partnerships">
-                  <Partnerships
-                    report={{ partnerships_opportunities: fp.partnerships_opportunities || report.business_strategy?.partnerships }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
-              </>
-            )}
+                  <section id="partnerships">
+                    <Partnerships
+                      report={{
+                        partnerships_opportunities:
+                          fp.partnerships_opportunities ||
+                          report.business_strategy?.partnerships,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
+                </>
+              )}
             </LazyTabContent>
           </TabsContent>
 
           {/* Tab 4: Technical */}
           <TabsContent value="technical" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.technical} isLoading={tabLoading.technical} isUIArabic={isUIArabic} hasError={tabError.technical} onRetry={() => retryTab('technical')} onForceRetry={() => forceRetryTab('technical')} tabName="technical" processingStatus={tabProcessingStatus.technical}>
-            {tabData.technical ? (
-              <TechnicalSection data={tabData.technical} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
-            ) : (
-              <>
-                <section id="tech_stack_suggestions">
-                  <TechStackSuggestions
-                    suggestionsData={analysis.step8_tech_stack_suggestions || { technology_stack_suggestions: technicalReport.technology_stack ? [technicalReport.technology_stack] : [], recommended_option_index: 0, recommended_rationale: report.technical_strategy?.architecture || "" }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+            <LazyTabContent
+              isLoaded={loadedTabs.technical}
+              isLoading={tabLoading.technical}
+              isUIArabic={isUIArabic}
+              hasError={tabError.technical}
+              onRetry={() => retryTab("technical")}
+              onForceRetry={() => forceRetryTab("technical")}
+              tabName="technical"
+              processingStatus={tabProcessingStatus.technical}
+            >
+              {tabData.technical ? (
+                <TechnicalSection
+                  data={tabData.technical}
+                  isArabic={isReportArabic}
+                  isPremium={isPremium}
+                  onUnlock={handleUpgradeToPremium}
+                  isUnlocking={isUpgrading}
+                />
+              ) : (
+                <>
+                  <section id="tech_stack_suggestions">
+                    <TechStackSuggestions
+                      suggestionsData={
+                        analysis.step8_tech_stack_suggestions || {
+                          technology_stack_suggestions:
+                            technicalReport.technology_stack
+                              ? [technicalReport.technology_stack]
+                              : [],
+                          recommended_option_index: 0,
+                          recommended_rationale:
+                            report.technical_strategy?.architecture || "",
+                        }
+                      }
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="ai_tools">
-                  {isPremium ? (
-                    <AIToolsSuggestions technicalReport={technicalReport} isArabic={isReportArabic} />
-                  ) : (
-                    <Card className="glass-effect border-2 border-purple-300">
-                      <CardContent className="p-6 text-center">
-                        <Badge className="bg-purple-600 text-white mb-4">{isUIArabic ? "متميز" : "PREMIUM"}</Badge>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">{isUIArabic ? "توصيات أدوات الذكاء الاصطناعي" : "AI Tools Recommendations"}</h3>
-                        <p className="text-slate-600 mb-4">{isUIArabic ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي" : "Upgrade to see AI tool recommendations"}</p>
-                        <UpgradePrompt isUIArabic={isUIArabic} variant="inline" feature={isUIArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"} userCredits={userCredits} onUpgrade={handleUpgradeToPremium} isUpgrading={isUpgrading} />
-                      </CardContent>
-                    </Card>
-                  )}
-                </section>
+                  <section id="ai_tools">
+                    {isPremium ? (
+                      <AIToolsSuggestions
+                        technicalReport={technicalReport}
+                        isArabic={isReportArabic}
+                      />
+                    ) : (
+                      <Card className="glass-effect border-2 border-purple-300">
+                        <CardContent className="p-6 text-center">
+                          <Badge className="bg-purple-600 text-white mb-4">
+                            {isUIArabic ? "متميز" : "PREMIUM"}
+                          </Badge>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">
+                            {isUIArabic
+                              ? "توصيات أدوات الذكاء الاصطناعي"
+                              : "AI Tools Recommendations"}
+                          </h3>
+                          <p className="text-slate-600 mb-4">
+                            {isUIArabic
+                              ? "قم بالترقية لرؤية توصيات الذكاء الاصطناعي"
+                              : "Upgrade to see AI tool recommendations"}
+                          </p>
+                          <UpgradePrompt
+                            isUIArabic={isUIArabic}
+                            variant="inline"
+                            feature={
+                              isUIArabic ? "أدوات الذكاء الاصطناعي" : "AI Tools"
+                            }
+                            userCredits={userCredits}
+                            onUpgrade={handleUpgradeToPremium}
+                            isUpgrading={isUpgrading}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </section>
 
-                <section id="technical_impl">
-                  <TechnicalImplementation
-                    report={analysis.step8_technical_implementation || { architecture_overview: report.technical_strategy?.architecture || '', mvp_features: technicalReport.mvp_core_features || [], technology_stack: technicalReport.technology_stack || {}, scalability: report.technical_strategy?.scalability || '', security_considerations: report.technical_strategy?.security || '' }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+                  <section id="technical_impl">
+                    <TechnicalImplementation
+                      report={
+                        analysis.step8_technical_implementation || {
+                          architecture_overview:
+                            report.technical_strategy?.architecture || "",
+                          mvp_features: technicalReport.mvp_core_features || [],
+                          technology_stack:
+                            technicalReport.technology_stack || {},
+                          scalability:
+                            report.technical_strategy?.scalability || "",
+                          security_considerations:
+                            report.technical_strategy?.security || "",
+                        }
+                      }
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="dev_plan">
-                  <DevelopmentPlan
-                    report={analysis.step9_development_plan || report.development_roadmap || {}}
-                    isArabic={isReportArabic}
-                  />
-                </section>
-              </>
-            )}
+                  <section id="dev_plan">
+                    <DevelopmentPlan
+                      report={
+                        analysis.step9_development_plan ||
+                        report.development_roadmap ||
+                        {}
+                      }
+                      isArabic={isReportArabic}
+                    />
+                  </section>
+                </>
+              )}
             </LazyTabContent>
           </TabsContent>
 
           {/* Tab 5: Financial */}
           <TabsContent value="financial" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.financial} isLoading={tabLoading.financial} isUIArabic={isUIArabic} hasError={tabError.financial} onRetry={() => retryTab('financial')} onForceRetry={() => forceRetryTab('financial')} tabName="financial" processingStatus={tabProcessingStatus.financial}>
-            {tabData.financial ? (
-              <FinancialSection data={tabData.financial} isArabic={isReportArabic} />
-            ) : (
-              <>
-                <section id="financial_proj">
-                  <FinancialProjections
-                    report={{ country_pricing_basis: fp.country_pricing_basis || analysis.location, pricing_country: fp.pricing_country || analysis.location, pricing_currency: fp.pricing_currency || 'USD', cost_breakdown: fp.cost_breakdown || report.financial_projections?.startup_costs, timeline_pricing: fp.timeline_pricing || report.financial_projections?.monthly_expenses }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+            <LazyTabContent
+              isLoaded={loadedTabs.financial}
+              isLoading={tabLoading.financial}
+              isUIArabic={isUIArabic}
+              hasError={tabError.financial}
+              onRetry={() => retryTab("financial")}
+              onForceRetry={() => forceRetryTab("financial")}
+              tabName="financial"
+              processingStatus={tabProcessingStatus.financial}
+            >
+              {tabData.financial ? (
+                <FinancialSection
+                  data={tabData.financial}
+                  isArabic={isReportArabic}
+                />
+              ) : (
+                <>
+                  <section id="financial_proj">
+                    <FinancialProjections
+                      report={{
+                        country_pricing_basis:
+                          fp.country_pricing_basis || analysis.location,
+                        pricing_country:
+                          fp.pricing_country || analysis.location,
+                        pricing_currency: fp.pricing_currency || "USD",
+                        cost_breakdown:
+                          fp.cost_breakdown ||
+                          report.financial_projections?.startup_costs,
+                        timeline_pricing:
+                          fp.timeline_pricing ||
+                          report.financial_projections?.monthly_expenses,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="funding">
-                  <FundingRecommendations
-                    report={{ funding_recommendations: fp.funding_recommendations || report.financial_projections?.funding_recommendations }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
-              </>
-            )}
+                  <section id="funding">
+                    <FundingRecommendations
+                      report={{
+                        funding_recommendations:
+                          fp.funding_recommendations ||
+                          report.financial_projections?.funding_recommendations,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
+                </>
+              )}
             </LazyTabContent>
           </TabsContent>
 
           {/* Tab 6: Strategy & Risks */}
           <TabsContent value="strategy" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.strategy} isLoading={tabLoading.strategy} isUIArabic={isUIArabic} hasError={tabError.strategy} onRetry={() => retryTab('strategy')} onForceRetry={() => forceRetryTab('strategy')} tabName="strategy" processingStatus={tabProcessingStatus.strategy}>
-            {tabData.strategy ? (
-              <StrategySection data={tabData.strategy} isArabic={isReportArabic} isPremium={isPremium} onUnlock={handleUpgradeToPremium} isUnlocking={isUpgrading} />
-            ) : (
-              <>
-                <section id="swot">
-                  <SwotSimple
-                    report={{ swot_analysis: fp.swot_analysis || report.swot }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+            <LazyTabContent
+              isLoaded={loadedTabs.strategy}
+              isLoading={tabLoading.strategy}
+              isUIArabic={isUIArabic}
+              hasError={tabError.strategy}
+              onRetry={() => retryTab("strategy")}
+              onForceRetry={() => forceRetryTab("strategy")}
+              tabName="strategy"
+              processingStatus={tabProcessingStatus.strategy}
+            >
+              {tabData.strategy ? (
+                <StrategySection
+                  data={tabData.strategy}
+                  isArabic={isReportArabic}
+                  isPremium={isPremium}
+                  onUnlock={handleUpgradeToPremium}
+                  isUnlocking={isUpgrading}
+                />
+              ) : (
+                <>
+                  <section id="swot">
+                    <SwotSimple
+                      report={{
+                        swot_analysis: fp.swot_analysis || report.swot,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="risk_mitigation">
-                  <RiskMitigation
-                    businessReport={{ risks_and_mitigation: fp.risks_and_mitigation || report.risk_assessment }}
-                    technicalReport={technicalReport}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+                  <section id="risk_mitigation">
+                    <RiskMitigation
+                      businessReport={{
+                        risks_and_mitigation:
+                          fp.risks_and_mitigation || report.risk_assessment,
+                      }}
+                      technicalReport={technicalReport}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="success_validation">
-                  <SuccessMetricsValidation
-                    report={{ success_metrics: fp.success_metrics || report.recommendations?.success_metrics || [], validation_methodology: fp.validation_methodology }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
+                  <section id="success_validation">
+                    <SuccessMetricsValidation
+                      report={{
+                        success_metrics:
+                          fp.success_metrics ||
+                          report.recommendations?.success_metrics ||
+                          [],
+                        validation_methodology: fp.validation_methodology,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
 
-                <section id="recommendations_next">
-                  <RecommendationsNext
-                    report={{ recommendation_summary: fp.recommendation_summary || report.recommendations }}
-                    isArabic={isReportArabic}
-                  />
-                </section>
-              </>
-            )}
+                  <section id="recommendations_next">
+                    <RecommendationsNext
+                      report={{
+                        recommendation_summary:
+                          fp.recommendation_summary || report.recommendations,
+                      }}
+                      isArabic={isReportArabic}
+                    />
+                  </section>
+                </>
+              )}
             </LazyTabContent>
           </TabsContent>
 
           {/* Tab 6: Overview */}
           <TabsContent value="overview" className="space-y-6">
-            <LazyTabContent isLoaded={loadedTabs.overview} isLoading={tabLoading.overview} isUIArabic={isUIArabic} hasError={tabError.overview} onRetry={() => retryTab('overview')} onForceRetry={() => forceRetryTab('overview')} tabName="overview" processingStatus={tabProcessingStatus.overview}>
+            <LazyTabContent
+              isLoaded={loadedTabs.overview}
+              isLoading={tabLoading.overview}
+              isUIArabic={isUIArabic}
+              hasError={tabError.overview}
+              onRetry={() => retryTab("overview")}
+              onForceRetry={() => forceRetryTab("overview")}
+              tabName="overview"
+              processingStatus={tabProcessingStatus.overview}
+            >
               {tabData.overview && (
                 <>
                   <Card className="border shadow-lg overflow-hidden">
                     <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <Sparkles className="w-6 h-6" />
-                        {isUIArabic ? "نظرة عامة على التحليل" : "Analysis Overview"}
+                        {isUIArabic
+                          ? "نظرة عامة على التحليل"
+                          : "Analysis Overview"}
                       </h2>
                     </div>
                     <CardContent className="p-6">
@@ -1576,30 +2201,47 @@ export default function AnalysisResult() {
                           </p>
                         </div>
                       )}
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {tabData.overview.market_fit_score !== undefined && (
                           <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200 text-center">
-                            <div className="text-3xl font-bold text-emerald-600">{tabData.overview.market_fit_score}%</div>
-                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "ملاءمة السوق" : "Market Fit"}</div>
+                            <div className="text-3xl font-bold text-emerald-600">
+                              {tabData.overview.market_fit_score}%
+                            </div>
+                            <div className="text-sm text-slate-600 mt-1">
+                              {isUIArabic ? "ملاءمة السوق" : "Market Fit"}
+                            </div>
                           </div>
                         )}
                         {tabData.overview.time_to_build_months && (
                           <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
-                            <div className="text-3xl font-bold text-blue-600">{tabData.overview.time_to_build_months}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "أشهر للبناء" : "Months to Build"}</div>
+                            <div className="text-3xl font-bold text-blue-600">
+                              {tabData.overview.time_to_build_months}
+                            </div>
+                            <div className="text-sm text-slate-600 mt-1">
+                              {isUIArabic ? "أشهر للبناء" : "Months to Build"}
+                            </div>
                           </div>
                         )}
                         {tabData.overview.competitors_count !== undefined && (
                           <div className="bg-purple-50 rounded-xl p-4 border border-purple-200 text-center">
-                            <div className="text-3xl font-bold text-purple-600">{tabData.overview.competitors_count}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "المنافسون" : "Competitors"}</div>
+                            <div className="text-3xl font-bold text-purple-600">
+                              {tabData.overview.competitors_count}
+                            </div>
+                            <div className="text-sm text-slate-600 mt-1">
+                              {isUIArabic ? "المنافسون" : "Competitors"}
+                            </div>
                           </div>
                         )}
                         {tabData.overview.starting_cost_usd && (
                           <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 text-center">
-                            <div className="text-2xl font-bold text-amber-600">${tabData.overview.starting_cost_usd?.toLocaleString()}</div>
-                            <div className="text-sm text-slate-600 mt-1">{isUIArabic ? "تكلفة البداية" : "Starting Cost"}</div>
+                            <div className="text-2xl font-bold text-amber-600">
+                              $
+                              {tabData.overview.starting_cost_usd?.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-slate-600 mt-1">
+                              {isUIArabic ? "تكلفة البداية" : "Starting Cost"}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1610,26 +2252,28 @@ export default function AnalysisResult() {
                     <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-4">
                       <h2 className="text-xl font-bold text-white flex items-center gap-3">
                         <Download className="w-6 h-6" />
-                        {isUIArabic ? "تصدير ومشاركة" : "Export & Share"}
+                        {isUIArabic ? "تصدير " : "Export "}
                       </h2>
                     </div>
                     <CardContent className="p-6">
                       {isPremium && !allTabsLoaded && (
                         <p className="text-amber-600 text-sm mb-4 flex items-center gap-2">
                           <Clock className="w-4 h-4" />
-                          {isUIArabic ? "يرجى تحميل جميع التبويبات قبل تصدير التقرير" : "Please load all tabs before exporting the report"}
+                          {isUIArabic
+                            ? "يرجى تحميل جميع التبويبات قبل تصدير التقرير"
+                            : "Please load all tabs before exporting the report"}
                         </p>
                       )}
                       <div className="flex flex-wrap gap-4">
-                        <Button
+                        {/* <Button
                           onClick={() => setShowShareModal(true)}
                           variant="outline"
                           className="gap-2 flex-1 min-w-[150px] h-12 border-amber-400 hover:bg-amber-50"
                         >
                           <Share2 className="w-5 h-5 text-amber-600" />
                           {isUIArabic ? "مشاركة التقرير" : "Share Report"}
-                        </Button>
-                        
+                        </Button> */}
+
                         {isPremium && (
                           <>
                             <Button
@@ -1638,25 +2282,29 @@ export default function AnalysisResult() {
                               className="gap-2 flex-1 min-w-[150px] h-12 gradient-primary text-white"
                             >
                               <Download className="w-5 h-5" />
-                              {isDownloadingPdf ? (isUIArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isUIArabic ? 'تحميل PDF' : 'Download PDF')}
+                              {isDownloadingPdf
+                                ? isUIArabic
+                                  ? "جارٍ التحميل..."
+                                  : "Downloading..."
+                                : isUIArabic
+                                ? "تحميل PDF"
+                                : "Download PDF"}
                             </Button>
-                            <Button
-                              onClick={handleDownloadCsv}
-                              disabled={isDownloadingCsv || !allTabsLoaded}
-                              variant="outline"
-                              className="gap-2 flex-1 min-w-[150px] h-12"
-                            >
-                              <FileSpreadsheet className="w-5 h-5" />
-                              {isDownloadingCsv ? (isUIArabic ? 'جارٍ التحميل...' : 'Downloading...') : (isUIArabic ? 'تحميل CSV' : 'Download CSV')}
-                            </Button>
+                          
                           </>
                         )}
                       </div>
                       {!isPremium && (
                         <div className="mt-4">
                           <LockedContent
-                            title={isUIArabic ? "تصدير التقرير" : "Export Report"}
-                            description={isUIArabic ? "قم بالترقية إلى التقرير المتميز لتصدير التحليل كملف PDF أو CSV" : "Upgrade to premium report to export your analysis as PDF or CSV"}
+                            title={
+                              isUIArabic ? "تصدير التقرير" : "Export Report"
+                            }
+                            description={
+                              isUIArabic
+                                ? "قم بالترقية إلى التقرير المتميز لتصدير التحليل كملف PDF"
+                                : "Upgrade to premium report to export your analysis as PDF"
+                            }
                             isArabic={isUIArabic}
                             onUnlock={handleUpgradeToPremium}
                             isUnlocking={isUpgrading}
@@ -1670,66 +2318,87 @@ export default function AnalysisResult() {
               )}
             </LazyTabContent>
 
-            {loadedTabs.market && loadedTabs.business && loadedTabs.technical && loadedTabs.financial && loadedTabs.strategy && loadedTabs.overview && (
-              <Card className="border shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-3">
-                    <Sparkles className="w-6 h-6" />
-                    {isUIArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
-                  </h2>
-                </div>
-                <CardContent className="p-6">
-                  <p className="text-slate-600 mb-4">
-                    {isUIArabic ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك." : "Help us improve by leaving your rating and feedback."}
-                  </p>
-
-                  <div className="flex items-center gap-4 mb-4">
-                    <StarRating
-                      value={rating || 0}
-                      onChange={setRating}
-                      disabled={!canRate}
-                      size={32}
-                    />
-                    <span className="text-lg font-semibold text-slate-700">
-                      {rating ? `${rating}/5` : (isUIArabic ? "بدون تقييم" : "No rating")}
-                    </span>
+            {loadedTabs.market &&
+              loadedTabs.business &&
+              loadedTabs.technical &&
+              loadedTabs.financial &&
+              loadedTabs.strategy &&
+              loadedTabs.overview && (
+                <Card className="border shadow-lg overflow-hidden">
+                  <div className="bg-gradient-to-r from-yellow-500 to-amber-500 p-4">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                      <Sparkles className="w-6 h-6" />
+                      {isUIArabic ? "قيِّم هذا التقرير" : "Rate this Report"}
+                    </h2>
                   </div>
-
-                  <div className="space-y-4">
-                    <Textarea
-                      placeholder={isUIArabic ? "اكتب ملاحظاتك هنا (اختياري)" : "Write your feedback here (optional)"}
-                      value={feedback}
-                      onChange={(e) => setFeedback(e.target.value)}
-                      disabled={!canRate}
-                      className="min-h-[100px]"
-                    />
-                    <div className="flex justify-end">
-                      <Button
-                        onClick={handleSaveRating}
-                        disabled={!canRate || savingRating}
-                        className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
-                      >
-                        {savingRating ? (isUIArabic ? "جارٍ الحفظ..." : "Saving...") : (isUIArabic ? "حفظ التقييم" : "Save Rating")}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {!canRate && rating != null && (
-                    <p className="text-sm text-slate-500 mt-4 text-center">
-                      {isUIArabic ? "عرض تقييم المالك." : "Viewing owner's rating."}
+                  <CardContent className="p-6">
+                    <p className="text-slate-600 mb-4">
+                      {isUIArabic
+                        ? "ساعدنا على التحسين بترك تقييمك وملاحظاتك."
+                        : "Help us improve by leaving your rating and feedback."}
                     </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+
+                    <div className="flex items-center gap-4 mb-4">
+                      <StarRating
+                        value={rating || 0}
+                        onChange={setRating}
+                        disabled={!canRate}
+                        size={32}
+                      />
+                      <span className="text-lg font-semibold text-slate-700">
+                        {rating
+                          ? `${rating}/5`
+                          : isUIArabic
+                          ? "بدون تقييم"
+                          : "No rating"}
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Textarea
+                        placeholder={
+                          isUIArabic
+                            ? "اكتب ملاحظاتك هنا (اختياري)"
+                            : "Write your feedback here (optional)"
+                        }
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        disabled={!canRate}
+                        className="min-h-[100px]"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={handleSaveRating}
+                          disabled={!canRate || savingRating}
+                          className="gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
+                        >
+                          {savingRating
+                            ? isUIArabic
+                              ? "جارٍ الحفظ..."
+                              : "Saving..."
+                            : isUIArabic
+                            ? "حفظ التقييم"
+                            : "Save Rating"}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {!canRate && rating != null && (
+                      <p className="text-sm text-slate-500 mt-4 text-center">
+                        {isUIArabic
+                          ? "عرض تقييم المالك."
+                          : "Viewing owner's rating."}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
           </TabsContent>
         </Tabs>
 
-
-
         {/* Floating AI Assistant - Locked for Free Reports */}
-        <FloatingAIAssistant 
-          analysis={analysis} 
+        <FloatingAIAssistant
+          analysis={analysis}
           isArabic={isUIArabic}
           isReportArabic={isReportArabic}
           isLocked={!isPremium}
@@ -1737,7 +2406,7 @@ export default function AnalysisResult() {
           onRegenerate={async (chatContext) => {
             const params = new URLSearchParams({
               regenerate: analysis.id,
-              context: encodeURIComponent(chatContext.substring(0, 2000))
+              context: encodeURIComponent(chatContext.substring(0, 2000)),
             });
             navigate(createPageUrl(`NewAnalysis?${params.toString()}`));
           }}

@@ -60,7 +60,7 @@ function ReportCard({
   isArabic,
 }) {
   return (
-    <Card className="border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-card rounded-xl">
+    <Card className="border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-card rounded-lg bg-white dark:bg-gray-800">
       <CardContent className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0 space-y-2">
@@ -80,12 +80,12 @@ function ReportCard({
               </span>
             </div>
 
-            {analysis.country && (
+            {/* {analysis.country && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4" />
                 <span>{analysis.country}</span>
               </div>
-            )}
+            )} */}
 
             <div className="flex items-center gap-2 pt-1">
               {analysis.is_premium ? (
@@ -108,12 +108,12 @@ function ReportCard({
                 size="icon"
                 onClick={() => onDelete(analysis)}
                 disabled={isDeleting}
-                className="h-10 w-10 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 rounded-lg"
+                className="h-10 w-10  rounded-lg"
               >
                 {isDeleting ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  <Loader2 className="w-4 h-4 " />
                 ) : (
-                  <Trash2 className="w-4 h-4 text-muted-foreground" />
+                  <Trash2 className="w-4 h-4 " />
                 )}
               </Button>
             )}
@@ -128,7 +128,7 @@ function ReportCard({
                   }`
                 )}
               >
-                <Button className="gap-2 h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
+                <Button className="gap-2 h-10 px-5 gradient-primary text-white rounded-lg">
                   <Eye className="w-4 h-4" />
                   {isArabic ? "عرض التقرير" : "View Report"}
                 </Button>
