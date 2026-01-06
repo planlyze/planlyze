@@ -165,9 +165,9 @@ export default function NewAnalysis() {
               <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white pb-8 pt-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <Sparkles className="w-6 h-6" />
-                    </div>
+                    {/* <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm"> */}
+                      {/* <Sparkles className="w-6 h-6" /> */}
+                    {/* </div> */}
                     <div>
                       <CardTitle className="text-xl font-bold">
                         {isUIArabic

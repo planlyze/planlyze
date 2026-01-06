@@ -1190,8 +1190,7 @@ def get_system_settings(user):
     return jsonify([s.to_dict() for s in settings])
 
 @entities_bp.route('/system-settings/<key>', methods=['GET'])
-@require_admin
-def get_system_setting(user, key):
+def get_system_setting(key):
     setting = SystemSettings.query.filter_by(key=key).first()
     if not setting:
         return jsonify({'error': 'Setting not found'}), 404
