@@ -24,6 +24,12 @@ import { toast } from "sonner";
 
 const notificationTypes = [
   {
+    id: "email_notifications",
+    icon: Mail,
+    titleKey: "emailNotifications",
+    descKey: "emailNotificationsDesc",
+  },
+  {
     id: "analysis_complete",
     icon: FileText,
     titleKey: "analysisComplete",
@@ -67,7 +73,7 @@ const notificationTypes = [
   },
 ];
 
-export default function NotificationPreferences({ user, onUpdate }) {
+export default function NotificationPreferences({ user, onUpdate, isArabic }) {
   const { t } = useTranslation();
   const [preferences, setPreferences] = useState(
     user?.notification_preferences || {
@@ -105,7 +111,10 @@ export default function NotificationPreferences({ user, onUpdate }) {
   };
 
   return (
-    <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-xl dark:bg-gray-800">
+    <Card
+      className="border-2 border-slate-200 dark:border-0 shadow-xl dark:bg-gray-800"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-purple-600" />
@@ -116,26 +125,6 @@ export default function NotificationPreferences({ user, onUpdate }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-              <Mail className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="font-medium text-slate-800">
-                {t("notifications.emailNotifications")}
-              </p>
-              <p className="text-sm text-slate-500">
-                {t("notifications.emailNotificationsDesc")}
-              </p>
-            </div>
-          </div>
-          <Switch
-            checked={preferences.email_notifications}
-            onCheckedChange={() => handleToggle("email_notifications")}
-          />
-        </div>
-
         <div className="space-y-4">
           {notificationTypes.map((type) => {
             const Icon = type.icon;
@@ -151,7 +140,7 @@ export default function NotificationPreferences({ user, onUpdate }) {
                   <div>
                     <Label
                       htmlFor={type.id}
-                      className="font-medium text-slate-700 cursor-pointer dark:text-white" 
+                      className="font-medium text-slate-700 cursor-pointer dark:text-white"
                     >
                       {t(`notifications.${type.titleKey}`)}
                     </Label>
@@ -161,6 +150,7 @@ export default function NotificationPreferences({ user, onUpdate }) {
                   </div>
                 </div>
                 <Switch
+                  isArabic={isArabic}
                   id={type.id}
                   checked={preferences[type.id] !== false}
                   onCheckedChange={() => handleToggle(type.id)}
@@ -173,7 +163,7 @@ export default function NotificationPreferences({ user, onUpdate }) {
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+          className="w-full bg-purple-500 hover:bg-purple-600 rounded-lg text-white"
         >
           {isSaving
             ? t("notifications.savingPreferences")

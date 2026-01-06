@@ -553,7 +553,7 @@ def forgot_password_request():
     
     user = User.query.filter_by(email=email).first()
     
-    if user and user.is_active:
+    if user:
         reset_token = generate_verification_token()
         reset_expires = datetime.utcnow() + timedelta(minutes=15)
         

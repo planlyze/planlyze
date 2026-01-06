@@ -156,3 +156,8 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .dark .bg-sidebar {
+    @apply bg-gray-800;
+  }
+}

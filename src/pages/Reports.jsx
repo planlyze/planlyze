@@ -4,8 +4,15 @@ import { auth, Analysis } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PageLoader from "@/components/common/PageLoader";
+import EmptyList from "@/components/common/EmptyList";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,23 +37,28 @@ import {
   Trash2,
   Loader2,
   MapPin,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { canAccessAdmin } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
-import FilterBar, { SearchInput, SELECT_TRIGGER_CLASS } from "@/components/common/FilterBar";
+import FilterBar, {
+  FILTER_CARD_CLASS,
+  SEARCH_INPUT_CLASS,
+  SEARCH_WRAPPER_CLASS,
+  SearchInput,
+  SELECT_TRIGGER_CLASS,
+} from "@/components/common/FilterBar";
 
-function ReportCard({ 
-  analysis, 
-  isOwnReports, 
-  viewingEmail, 
-  isDeleting, 
-  onDelete, 
-  isArabic 
+function ReportCard({
+  analysis,
+  isOwnReports,
+  viewingEmail,
+  isDeleting,
+  onDelete,
+  isArabic,
 }) {
-
   return (
     <Card className="border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-card rounded-xl">
       <CardContent className="p-6">
@@ -55,21 +67,26 @@ function ReportCard({
             <h3 className="text-lg font-bold text-foreground line-clamp-2">
               {analysis.business_idea}
             </h3>
-            
+
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Clock className="w-4 h-4" />
               <span>
-                {analysis.created_at ? format(new Date(analysis.created_at), "MMM d, yyyy 'at' h:mm a") : ''}
+                {analysis.created_at
+                  ? format(
+                      new Date(analysis.created_at),
+                      "MMM d, yyyy 'at' h:mm a"
+                    )
+                  : ""}
               </span>
             </div>
-            
+
             {analysis.country && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4" />
                 <span>{analysis.country}</span>
               </div>
             )}
-            
+
             <div className="flex items-center gap-2 pt-1">
               {analysis.is_premium ? (
                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
@@ -83,7 +100,7 @@ function ReportCard({
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 flex-shrink-0">
             {isOwnReports && (
               <Button
@@ -100,11 +117,15 @@ function ReportCard({
                 )}
               </Button>
             )}
-            
-            {analysis.status === 'completed' ? (
-              <Link 
+
+            {analysis.status === "completed" ? (
+              <Link
                 to={createPageUrl(
-                  `AnalysisResult?id=${analysis.id}${!isOwnReports && viewingEmail ? `&user=${encodeURIComponent(viewingEmail)}` : ''}`
+                  `AnalysisResult?id=${analysis.id}${
+                    !isOwnReports && viewingEmail
+                      ? `&user=${encodeURIComponent(viewingEmail)}`
+                      : ""
+                  }`
                 )}
               >
                 <Button className="gap-2 h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
@@ -112,15 +133,29 @@ function ReportCard({
                   {isArabic ? "عرض التقرير" : "View Report"}
                 </Button>
               </Link>
-            ) : analysis.status === 'analyzing' ? (
-              <Button variant="outline" disabled className="gap-2 h-10 px-5 rounded-lg">
+            ) : analysis.status === "analyzing" ? (
+              <Button
+                variant="outline"
+                disabled
+                className="gap-2 h-10 px-5 rounded-lg"
+              >
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {isArabic ? "قيد المعالجة..." : "Processing..."}
               </Button>
             ) : (
-              <Button variant="outline" disabled className="gap-2 h-10 px-5 rounded-lg text-muted-foreground">
+              <Button
+                variant="outline"
+                disabled
+                className="gap-2 h-10 px-5 rounded-lg text-muted-foreground"
+              >
                 <AlertCircle className="w-4 h-4" />
-                {analysis.status === 'failed' ? (isArabic ? 'فشل' : 'Failed') : (isArabic ? 'مسودة' : 'Draft')}
+                {analysis.status === "failed"
+                  ? isArabic
+                    ? "فشل"
+                    : "Failed"
+                  : isArabic
+                  ? "مسودة"
+                  : "Draft"}
               </Button>
             )}
           </div>
@@ -146,21 +181,30 @@ export default function Reports() {
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [analysisToDelete, setAnalysisToDelete] = useState(null);
-  
-  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
 
-  const loadAnalyses = async (userEmail, admin, myEmailParam, selectedUserPresent = false) => {
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
+
+  const loadAnalyses = async (
+    userEmail,
+    admin,
+    myEmailParam,
+    selectedUserPresent = false
+  ) => {
     setIsLoading(true);
     try {
       let fetchedAnalyses = [];
       if (admin && selectedUserPresent) {
-        const { data } = await Analysis.list();        
+        const { data } = await Analysis.list();
         fetchedAnalyses = data?.items || [];
       } else {
-        const data = await Analysis.filter({ user_email: userEmail }, "-created_at");
+        const data = await Analysis.filter(
+          { user_email: userEmail },
+          "-created_at"
+        );
         fetchedAnalyses = data;
       }
-      setAnalyses(fetchedAnalyses.filter(a => a.is_deleted !== true));
+      setAnalyses(fetchedAnalyses.filter((a) => a.is_deleted !== true));
     } catch (error) {
       console.error("Error loading analyses:", error);
     }
@@ -185,7 +229,12 @@ export default function Reports() {
         setViewingEmail(emailToLoad);
         setIsOwnReports(emailToLoad === user.email);
 
-        await loadAnalyses(emailToLoad, userIsAdmin, user.email, selectedUserPresent);
+        await loadAnalyses(
+          emailToLoad,
+          userIsAdmin,
+          user.email,
+          selectedUserPresent
+        );
       } catch (error) {
         window.location.href = "/login";
       }
@@ -203,32 +252,45 @@ export default function Reports() {
     setDeletingId(analysisToDelete.id);
     setDeleteDialogOpen(false);
     try {
-      await Analysis.update(analysisToDelete.id, { is_deleted: true, deleted_at: new Date().toISOString() });
-      toast.success(t('reports.deleteSuccess'));
+      await Analysis.update(analysisToDelete.id, {
+        is_deleted: true,
+        deleted_at: new Date().toISOString(),
+      });
+      toast.success(t("reports.deleteSuccess"));
       await loadAnalyses(viewingEmail, isAdmin, myEmail, hasSelectedUser);
     } catch (e) {
       console.error("Error deleting analysis:", e);
-      toast.error(t('reports.deleteFailed'));
+      toast.error(t("reports.deleteFailed"));
     } finally {
       setDeletingId(null);
       setAnalysisToDelete(null);
     }
   };
 
-  const filteredAnalyses = analyses.filter(analysis => {
-    const matchesSearch = analysis.business_idea.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPremium = premiumFilter === "all" || 
+  const filteredAnalyses = analyses.filter((analysis) => {
+    const matchesSearch = analysis.business_idea
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesPremium =
+      premiumFilter === "all" ||
       (premiumFilter === "premium" && analysis.is_premium) ||
       (premiumFilter === "free" && !analysis.is_premium);
     return matchesSearch && matchesPremium;
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
       <div className="max-w-6xl mx-auto space-y-8">
         <PageHeader
-          title={viewingEmail && !isOwnReports ? `${t('reports.titleOther')} - ${viewingEmail}` : t('reports.title')}
-          description={t('reports.subtitle')}
+          title={
+            viewingEmail && !isOwnReports
+              ? `${t("reports.titleOther")} - ${viewingEmail}`
+              : t("reports.title")
+          }
+          description={t("reports.subtitle")}
           // backUrl={createPageUrl("Dashboard")}
           icon={FileText}
           isArabic={isArabic}
@@ -236,7 +298,7 @@ export default function Reports() {
             <Link to={createPageUrl("NewAnalysis")}>
               <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105">
                 <Plus className="w-4 h-4" />
-                {t('reports.newAnalysis')}
+                {t("reports.newAnalysis")}
               </Button>
             </Link>
           }
@@ -246,19 +308,19 @@ export default function Reports() {
           <SearchInput
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('reports.searchPlaceholder')}
+            placeholder={t("reports.searchPlaceholder")}
             isArabic={isArabic}
           />
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-400" />
             <Select value={premiumFilter} onValueChange={setPremiumFilter}>
               <SelectTrigger className={`w-40 ${SELECT_TRIGGER_CLASS}`}>
-                <SelectValue placeholder={t('reports.filterByType')} />
+                <SelectValue placeholder={t("reports.filterByType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t('reports.all')}</SelectItem>
-                <SelectItem value="premium">{t('reports.premium')}</SelectItem>
-                <SelectItem value="free">{t('reports.free')}</SelectItem>
+                <SelectItem value="all">{t("reports.all")}</SelectItem>
+                <SelectItem value="premium">{t("reports.premium")}</SelectItem>
+                <SelectItem value="free">{t("reports.free")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -267,32 +329,26 @@ export default function Reports() {
         {isLoading ? (
           <PageLoader isArabic={isArabic} />
         ) : filteredAnalyses.length === 0 ? (
-          <Card className="border shadow-sm">
-            <CardContent className="text-center py-16">
-              <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-10 h-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                {searchQuery || premiumFilter !== "all" 
-                  ? t('reports.noMatchingReports')
-                  : t('reports.noReportsYet')}
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {searchQuery || premiumFilter !== "all"
-                  ? t('reports.adjustFilters')
-                  : t('reports.startFirstAnalysis')
-                }
-              </p>
-              {(!searchQuery && premiumFilter === "all") && (
-                <Link to={createPageUrl("NewAnalysis")}>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    {t('reports.createFirstAnalysis')}
-                  </Button>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
+          <EmptyList
+            title={
+              searchQuery || premiumFilter !== "all"
+                ? t("reports.noMatchingReports")
+                : t("reports.noReportsYet")
+            }
+            description={
+              searchQuery || premiumFilter !== "all"
+                ? t("reports.adjustFilters")
+                : t("reports.startFirstAnalysis")
+            }
+            icon={FileText}
+            isArabic={isArabic}
+            actionIcon={Plus}
+            actionTitle={
+              !searchQuery && premiumFilter === "all"
+                ? t("reports.createFirstAnalysis")
+                : null
+            }           
+          />
         ) : (
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
@@ -321,31 +377,34 @@ export default function Reports() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent dir={isArabic ? 'rtl' : 'ltr'}>
+        <AlertDialogContent dir={isArabic ? "rtl" : "ltr"}>
           <AlertDialogHeader>
-            <AlertDialogTitle className={isArabic ? 'text-right' : ''}>
-              {isArabic ? 'تأكيد الحذف' : 'Confirm Delete'}
+            <AlertDialogTitle className={isArabic ? "text-right" : ""}>
+              {isArabic ? "تأكيد الحذف" : "Confirm Delete"}
             </AlertDialogTitle>
-            <AlertDialogDescription className={isArabic ? 'text-right' : ''}>
-              {isArabic 
-                ? 'هل أنت متأكد من حذف هذا التقرير؟ لا يمكن التراجع عن هذا الإجراء.'
-                : 'Are you sure you want to delete this report? This action cannot be undone.'}
+            <AlertDialogDescription className={isArabic ? "text-right" : ""}>
+              {isArabic
+                ? "هل أنت متأكد من حذف هذا التقرير؟ لا يمكن التراجع عن هذا الإجراء."
+                : "Are you sure you want to delete this report? This action cannot be undone."}
               {analysisToDelete && (
                 <span className="block mt-2 font-medium text-foreground">
-                  "{analysisToDelete.business_idea?.substring(0, 100)}{analysisToDelete.business_idea?.length > 100 ? '...' : ''}"
+                  "{analysisToDelete.business_idea?.substring(0, 100)}
+                  {analysisToDelete.business_idea?.length > 100 ? "..." : ""}"
                 </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className={isArabic ? 'flex-row-reverse gap-2' : ''}>
+          <AlertDialogFooter
+            className={isArabic ? "flex-row-reverse gap-2" : ""}
+          >
             <AlertDialogCancel onClick={() => setAnalysisToDelete(null)}>
-              {isArabic ? 'إلغاء' : 'Cancel'}
+              {isArabic ? "إلغاء" : "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              {isArabic ? 'حذف' : 'Delete'}
+              {isArabic ? "حذف" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

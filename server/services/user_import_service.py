@@ -206,6 +206,7 @@ def validate_rows(rows):
         validated_data['country'] = str(row.get('country', '')).strip() if row.get('country') else None
         validated_data['city'] = str(row.get('city', '')).strip() if row.get('city') else None
         
+        
         status = 'valid' if not errors else 'invalid'
         validated_rows.append({
             'row_number': row_num,
@@ -258,8 +259,8 @@ def import_users(validated_rows, skip_invalid=True):
                 country=data.get('country'),
                 city=data.get('city'),
                 referral_code=referral_code,
-                email_verified=True,
-                is_active=True
+                email_verified=False,
+                is_active=False
             )
             
             db.session.add(user)

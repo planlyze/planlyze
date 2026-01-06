@@ -8,12 +8,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PageLoader from "@/components/common/PageLoader";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Clock, Check, Banknote, ChevronLeft, ChevronRight, Search, Eye, X, FileText } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  Clock,
+  Check,
+  Banknote,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Eye,
+  X,
+  FileText,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import PageHeader from "@/components/common/PageHeader";
+import EmptyList from "@/components/common/EmptyList";
 
 export default function Subscriptions() {
   const { t, i18n } = useTranslation();
@@ -41,13 +64,21 @@ export default function Subscriptions() {
     try {
       const user = await auth.me();
       setCurrentUser(user);
-      
+
       const txs = await Transaction.filter({ user_email: user.email });
-      const sortedTxs = Array.isArray(txs) ? txs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 50) : [];
+      const sortedTxs = Array.isArray(txs)
+        ? txs
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 50)
+        : [];
       setTransactions(sortedTxs);
 
       const allPaymentsData = await Payment.filter({ user_email: user.email });
-      const sortedPayments = Array.isArray(allPaymentsData) ? allPaymentsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
+      const sortedPayments = Array.isArray(allPaymentsData)
+        ? allPaymentsData.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          )
+        : [];
       setAllPayments(sortedPayments);
     } catch (error) {
       console.error("Error loading subscription data:", error);
@@ -57,43 +88,48 @@ export default function Subscriptions() {
     }
   };
 
-  const isArabic = i18n.language === 'ar' || currentUser?.preferred_language === 'arabic';
+  const isArabic =
+    i18n.language === "ar" || currentUser?.preferred_language === "arabic";
 
   if (isLoading) {
     return <PageLoader isArabic={isArabic} />;
   }
 
   return (
-     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8" dir={isArabic ? 'rtl' : 'ltr'}>
-     
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8"
+      dir={isArabic ? "rtl" : "ltr"}
+    >
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-          
-           <PageHeader
-                  title={t('subscriptions.title')}
-                  description={t('subscriptions.subtitle')}
-                  // backUrl={createPageUrl("Dashboard")}
-                  icon={FileText}
-                  isArabic={isArabic}
-                />
-          
+
+        <PageHeader
+          title={t("subscriptions.title")}
+          description={t("subscriptions.subtitle")}
+          // backUrl={createPageUrl("Dashboard")}
+          icon={FileText}
+          isArabic={isArabic}
+        />
+
         {/* Tabs at the top */}
-        <Tabs value={historyTab} onValueChange={setHistoryTab} className="animate-in fade-in slide-in-from-top-4 duration-500"  dir={isArabic ? 'rtl' : 'ltr'}>
+        <Tabs
+          value={historyTab}
+          onValueChange={setHistoryTab}
+          className="animate-in fade-in slide-in-from-top-4 duration-500"
+          dir={isArabic ? "rtl" : "ltr"}
+        >
           <div className="flex items-center gap-4 mb-6">
-            
             <TabsList className="grid w-full grid-cols-2 mb-6 [&>button]:text-slate-600 [&>button[data-state=inactive]]:text-slate-500">
               <TabsTrigger value="payments">
-                <Banknote className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                {t('subscriptions.paymentRequests')}
+                <Banknote className={`w-5 h-5 ${isArabic ? "ml-2" : "mr-2"}`} />
+                {t("subscriptions.paymentRequests")}
               </TabsTrigger>
               <TabsTrigger value="transactions">
-                <Clock className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                {t('subscriptions.transactions')}
+                <Clock className={`w-5 h-5 ${isArabic ? "ml-2" : "mr-2"}`} />
+                {t("subscriptions.transactions")}
               </TabsTrigger>
             </TabsList>
           </div>
-
-          
 
           {/* Payment Requests Tab */}
           <TabsContent value="payments" className="mt-6">
@@ -104,24 +140,35 @@ export default function Subscriptions() {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
                       <Banknote className="w-5 h-5 text-white" />
                     </div>
-                    {t('subscriptions.paymentRequestsHistory')}
+                    {t("subscriptions.paymentRequestsHistory")}
                   </CardTitle>
-                  <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+                  <Select
+                    value={paymentStatusFilter}
+                    onValueChange={setPaymentStatusFilter}
+                  >
                     <SelectTrigger className="w-48 h-11 border-2 border-slate-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-colors dark:bg-gray-700 dark:text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t('subscriptions.allStatus')}</SelectItem>
-                      <SelectItem value="pending">{t('subscriptions.pending')}</SelectItem>
-                      <SelectItem value="approved">{t('subscriptions.approved')}</SelectItem>
-                      <SelectItem value="rejected">{t('subscriptions.rejected')}</SelectItem>
+                      <SelectItem value="all">
+                        {t("subscriptions.allStatus")}
+                      </SelectItem>
+                      <SelectItem value="pending">
+                        {t("subscriptions.pending")}
+                      </SelectItem>
+                      <SelectItem value="approved">
+                        {t("subscriptions.approved")}
+                      </SelectItem>
+                      <SelectItem value="rejected">
+                        {t("subscriptions.rejected")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-gray-500" />
                   <Input
-                    placeholder={t('subscriptions.searchByPaymentId')}
+                    placeholder={t("subscriptions.searchByPaymentId")}
                     value={paymentSearchQuery}
                     onChange={(e) => setPaymentSearchQuery(e.target.value)}
                     className="pl-11 h-12 border-2 border-slate-300 dark:border-gray-600 focus:border-purple-400 dark:focus:border-purple-500 transition-colors dark:bg-gray-700 dark:text-white"
@@ -130,26 +177,36 @@ export default function Subscriptions() {
               </CardHeader>
               <CardContent>
                 {(() => {
-                  let filtered = paymentStatusFilter === "all" ? allPayments : allPayments.filter(p => p.status === paymentStatusFilter);
+                  let filtered =
+                    paymentStatusFilter === "all"
+                      ? allPayments
+                      : allPayments.filter(
+                          (p) => p.status === paymentStatusFilter
+                        );
                   if (paymentSearchQuery.trim()) {
                     const query = paymentSearchQuery.toLowerCase();
-                    filtered = filtered.filter(p => p.unique_id?.toLowerCase().includes(query));
+                    filtered = filtered.filter((p) =>
+                      p.unique_id?.toLowerCase().includes(query)
+                    );
                   }
-                  
+
                   return filtered.length === 0 ? (
-                    <div className="text-center py-16">
-                      <Banknote className="w-16 h-16 mx-auto text-slate-300 dark:text-gray-600 mb-4" />
-                      <p className="text-slate-500 dark:text-gray-400 text-lg">{t('subscriptions.noPaymentRequests')}</p>
-                    </div>
+                    <EmptyList
+                      title={t("subscriptions.noPaymentRequests")}
+                      icon={Banknote}
+                      isArabic={isArabic}
+                    />
                   ) : (
                     <div className="space-y-4">
                       {filtered.map((payment) => (
                         <div
                           key={payment.id}
                           className={`p-5 rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
-                            payment.status === 'pending' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700 hover:border-amber-400' :
-                            payment.status === 'approved' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 hover:border-green-400' :
-                            'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 hover:border-red-400'
+                            payment.status === "pending"
+                              ? "bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700 hover:border-amber-400"
+                              : payment.status === "approved"
+                              ? "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 hover:border-green-400"
+                              : "bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 hover:border-red-400"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-4">
@@ -163,38 +220,58 @@ export default function Subscriptions() {
                               )}
                               <div className="flex items-center gap-3 mb-2">
                                 <p className="text-lg font-bold text-slate-800 dark:text-white">
-                                  {payment.credits} {t('credits.credits')}
+                                  {payment.credits} {t("credits.credits")}
                                 </p>
-                                <span className="text-slate-400 dark:text-gray-500">•</span>
+                                <span className="text-slate-400 dark:text-gray-500">
+                                  •
+                                </span>
                                 <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
                                   ${payment.amount_usd}
                                 </p>
                               </div>
                               <p className="text-sm text-slate-600 dark:text-gray-400 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {t('subscriptions.submitted')}: {payment.created_at && format(new Date(payment.created_at), "MMM d, yyyy 'at' h:mm a")}
+                                {t("subscriptions.submitted")}:{" "}
+                                {payment.created_at &&
+                                  format(
+                                    new Date(payment.created_at),
+                                    "MMM d, yyyy 'at' h:mm a"
+                                  )}
                               </p>
                               {payment.approved_at && (
                                 <p className="text-sm text-slate-600 dark:text-gray-400 flex items-center gap-2 mt-1">
                                   <Check className="w-4 h-4" />
-                                  {t('subscriptions.processed')}: {format(new Date(payment.approved_at), "MMM d, yyyy 'at' h:mm a")}
+                                  {t("subscriptions.processed")}:{" "}
+                                  {format(
+                                    new Date(payment.approved_at),
+                                    "MMM d, yyyy 'at' h:mm a"
+                                  )}
                                 </p>
                               )}
                               {payment.admin_notes && (
                                 <p className="text-sm text-slate-700 dark:text-gray-300 bg-white/60 dark:bg-gray-800/60 px-3 py-2 rounded-lg mt-3 border border-slate-200 dark:border-gray-600">
-                                  <span className="font-semibold">{t('subscriptions.note')}:</span> {payment.admin_notes}
+                                  <span className="font-semibold">
+                                    {t("subscriptions.note")}:
+                                  </span>{" "}
+                                  {payment.admin_notes}
                                 </p>
                               )}
                             </div>
                             <div className="flex flex-col items-end gap-2">
-                              <Badge className={`px-4 py-2 text-sm font-semibold shadow-sm ${
-                                payment.status === 'pending' ? 'bg-amber-500 text-white border-amber-600' :
-                                payment.status === 'approved' ? 'bg-green-500 text-white border-green-600' :
-                                'bg-red-500 text-white border-red-600'
-                              }`}>
-                                {payment.status === 'pending' ? t('subscriptions.pending') :
-                                 payment.status === 'approved' ? t('subscriptions.approved') :
-                                 t('subscriptions.rejected')}
+                              <Badge
+                                className={`px-4 py-2 text-sm font-semibold shadow-sm ${
+                                  payment.status === "pending"
+                                    ? "bg-amber-500 text-white border-amber-600"
+                                    : payment.status === "approved"
+                                    ? "bg-green-500 text-white border-green-600"
+                                    : "bg-red-500 text-white border-red-600"
+                                }`}
+                              >
+                                {payment.status === "pending"
+                                  ? t("subscriptions.pending")
+                                  : payment.status === "approved"
+                                  ? t("subscriptions.approved")
+                                  : t("subscriptions.rejected")}
                               </Badge>
                               <Button
                                 variant="outline"
@@ -228,37 +305,61 @@ export default function Subscriptions() {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
                       <Clock className="w-5 h-5 text-white" />
                     </div>
-                    {t('subscriptions.transactionHistory')}
+                    {t("subscriptions.transactionHistory")}
                   </CardTitle>
-                  <Select value={txTypeFilter} onValueChange={(val) => { setTxTypeFilter(val); setTxCurrentPage(1); }}>
+                  <Select
+                    value={txTypeFilter}
+                    onValueChange={(val) => {
+                      setTxTypeFilter(val);
+                      setTxCurrentPage(1);
+                    }}
+                  >
                     <SelectTrigger className="w-48 h-11 border-2 border-slate-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 transition-colors dark:bg-gray-700 dark:text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t('subscriptions.allTypes')}</SelectItem>
-                      <SelectItem value="purchase">{t('subscriptions.purchase')}</SelectItem>
-                      <SelectItem value="usage">{t('subscriptions.usage')}</SelectItem>
-                      <SelectItem value="bonus">{t('subscriptions.bonus')}</SelectItem>
-                      <SelectItem value="refund">{t('subscriptions.refund')}</SelectItem>
+                      <SelectItem value="all">
+                        {t("subscriptions.allTypes")}
+                      </SelectItem>
+                      <SelectItem value="purchase">
+                        {t("subscriptions.purchase")}
+                      </SelectItem>
+                      <SelectItem value="usage">
+                        {t("subscriptions.usage")}
+                      </SelectItem>
+                      <SelectItem value="bonus">
+                        {t("subscriptions.bonus")}
+                      </SelectItem>
+                      <SelectItem value="refund">
+                        {t("subscriptions.refund")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-gray-500" />
                   <Input
-                    placeholder={t('subscriptions.searchByTransactionId')}
+                    placeholder={t("subscriptions.searchByTransactionId")}
                     value={txSearchQuery}
-                    onChange={(e) => { setTxSearchQuery(e.target.value); setTxCurrentPage(1); }}
+                    onChange={(e) => {
+                      setTxSearchQuery(e.target.value);
+                      setTxCurrentPage(1);
+                    }}
                     className="pl-11 h-12 border-2 border-slate-300 dark:border-gray-600 focus:border-purple-400 dark:focus:border-purple-500 transition-colors dark:bg-gray-700 dark:text-white"
                   />
                 </div>
               </CardHeader>
               <CardContent>
                 {(() => {
-                  let filtered = txTypeFilter === "all" ? transactions : transactions.filter(tx => tx.type === txTypeFilter);
+                  let filtered =
+                    txTypeFilter === "all"
+                      ? transactions
+                      : transactions.filter((tx) => tx.type === txTypeFilter);
                   if (txSearchQuery.trim()) {
                     const query = txSearchQuery.toLowerCase();
-                    filtered = filtered.filter(tx => tx.unique_id?.toLowerCase().includes(query));
+                    filtered = filtered.filter((tx) =>
+                      tx.unique_id?.toLowerCase().includes(query)
+                    );
                   }
                   const start = (txCurrentPage - 1) * txPerPage;
                   const end = start + txPerPage;
@@ -283,73 +384,109 @@ export default function Subscriptions() {
                               )}
                               <div className="flex items-center gap-3 mb-2">
                                 <p className="font-semibold text-lg text-slate-800 dark:text-white">
-                                  {tx.type === 'purchase' && t('subscriptions.creditPurchase')}
-                                  {tx.type === 'usage' && t('subscriptions.creditUsed')}
-                                  {tx.type === 'bonus' && t('subscriptions.bonusCredit')}
-                                  {tx.type === 'refund' && t('subscriptions.refund')}
+                                  {tx.type === "purchase" &&
+                                    t("subscriptions.creditPurchase")}
+                                  {tx.type === "usage" &&
+                                    t("subscriptions.creditUsed")}
+                                  {tx.type === "bonus" &&
+                                    t("subscriptions.bonusCredit")}
+                                  {tx.type === "refund" &&
+                                    t("subscriptions.refund")}
                                 </p>
-                                <Badge className={`px-3 py-1 font-semibold ${
-                                  tx.type === 'purchase' ? 'bg-green-500 text-white border-green-600' :
-                                  tx.type === 'usage' ? 'bg-blue-500 text-white border-blue-600' :
-                                  tx.type === 'bonus' ? 'bg-purple-500 text-white border-purple-600' :
-                                  'bg-red-500 text-white border-red-600'
-                                }`}>
+                                <Badge
+                                  className={`px-3 py-1 font-semibold ${
+                                    tx.type === "purchase"
+                                      ? "bg-green-500 text-white border-green-600"
+                                      : tx.type === "usage"
+                                      ? "bg-blue-500 text-white border-blue-600"
+                                      : tx.type === "bonus"
+                                      ? "bg-purple-500 text-white border-purple-600"
+                                      : "bg-red-500 text-white border-red-600"
+                                  }`}
+                                >
                                   {t(`subscriptions.${tx.type}`)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-slate-600 dark:text-gray-400 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {tx.created_at && format(new Date(tx.created_at), "MMM d, yyyy 'at' h:mm a")}
+                                {tx.created_at &&
+                                  format(
+                                    new Date(tx.created_at),
+                                    "MMM d, yyyy 'at' h:mm a"
+                                  )}
                               </p>
                             </div>
                             <div className="text-right pl-4">
-                              <p className={`text-2xl font-bold ${tx.credits > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                {tx.credits > 0 ? '+' : ''}{tx.credits}
+                              <p
+                                className={`text-2xl font-bold ${
+                                  tx.credits > 0
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
+                                }`}
+                              >
+                                {tx.credits > 0 ? "+" : ""}
+                                {tx.credits}
                               </p>
                               <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-                                {t('credits.credits')}
+                                {t("credits.credits")}
                               </p>
                               {tx.amount_usd && (
-                                <p className="text-sm text-slate-500 dark:text-gray-500 font-semibold mt-1">${tx.amount_usd}</p>
+                                <p className="text-sm text-slate-500 dark:text-gray-500 font-semibold mt-1">
+                                  ${tx.amount_usd}
+                                </p>
                               )}
                             </div>
                           </div>
                         ))}
                         {paginated.length === 0 && (
-                          <div className="text-center py-16">
-                            <Clock className="w-16 h-16 mx-auto text-slate-300 dark:text-gray-600 mb-4" />
-                            <p className="text-slate-500 dark:text-gray-400 text-lg">{t('subscriptions.noTransactions')}</p>
-                          </div>
+                          <EmptyList
+                            title={t("subscriptions.noTransactions")}
+                            icon={Clock}
+                            isArabic={isArabic}
+                          />
                         )}
                       </div>
 
                       {totalPages > 1 && (
                         <div className="flex items-center justify-between pt-6 border-t-2 dark:border-gray-700 mt-6">
                           <div className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-                            {t('subscriptions.showing', { start: start + 1, end: Math.min(end, filtered.length), total: filtered.length })}
+                            {t("subscriptions.showing", {
+                              start: start + 1,
+                              end: Math.min(end, filtered.length),
+                              total: filtered.length,
+                            })}
                           </div>
                           <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="default"
-                              onClick={() => setTxCurrentPage(p => Math.max(1, p - 1))}
+                              onClick={() =>
+                                setTxCurrentPage((p) => Math.max(1, p - 1))
+                              }
                               disabled={txCurrentPage === 1}
                               className="border-2 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 disabled:opacity-50 dark:bg-gray-700"
                             >
                               <ChevronLeft className="w-4 h-4 mr-1" />
-                              {t('subscriptions.previous')}
+                              {t("subscriptions.previous")}
                             </Button>
                             <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-gray-700 rounded-lg border-2 border-slate-200 dark:border-gray-600 font-semibold dark:text-white">
-                              {t('subscriptions.page', { current: txCurrentPage, total: totalPages })}
+                              {t("subscriptions.page", {
+                                current: txCurrentPage,
+                                total: totalPages,
+                              })}
                             </div>
                             <Button
                               variant="outline"
                               size="default"
-                              onClick={() => setTxCurrentPage(p => Math.min(totalPages, p + 1))}
+                              onClick={() =>
+                                setTxCurrentPage((p) =>
+                                  Math.min(totalPages, p + 1)
+                                )
+                              }
                               disabled={txCurrentPage === totalPages}
                               className="border-2 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 disabled:opacity-50 dark:bg-gray-700"
                             >
-                              {t('subscriptions.next')}
+                              {t("subscriptions.next")}
                               <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                           </div>
@@ -366,7 +503,10 @@ export default function Subscriptions() {
 
       {/* Payment Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border dark:border-gray-700" dir={isArabic ? 'rtl' : 'ltr'}>
+        <DialogContent
+          className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border dark:border-gray-700"
+          dir={isArabic ? "rtl" : "ltr"}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl text-slate-800 dark:text-white">
               <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
@@ -375,7 +515,7 @@ export default function Subscriptions() {
               {isArabic ? "تفاصيل الدفع" : "Payment Details"}
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedPayment && (
             <div className="space-y-6 py-4">
               {/* Payment ID */}
@@ -389,61 +529,104 @@ export default function Subscriptions() {
 
               {/* Status Badge */}
               <div className="flex items-center gap-3">
-                <span className="text-slate-600 dark:text-gray-400 font-medium">{isArabic ? "الحالة:" : "Status:"}</span>
-                <Badge className={`px-4 py-2 text-sm font-semibold ${
-                  selectedPayment.status === 'pending' ? 'bg-amber-500 text-white' :
-                  selectedPayment.status === 'approved' ? 'bg-green-500 text-white' :
-                  'bg-red-500 text-white'
-                }`}>
-                  {selectedPayment.status === 'pending' ? t('subscriptions.pending') :
-                   selectedPayment.status === 'approved' ? t('subscriptions.approved') :
-                   t('subscriptions.rejected')}
+                <span className="text-slate-600 dark:text-gray-400 font-medium">
+                  {isArabic ? "الحالة:" : "Status:"}
+                </span>
+                <Badge
+                  className={`px-4 py-2 text-sm font-semibold ${
+                    selectedPayment.status === "pending"
+                      ? "bg-amber-500 text-white"
+                      : selectedPayment.status === "approved"
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white"
+                  }`}
+                >
+                  {selectedPayment.status === "pending"
+                    ? t("subscriptions.pending")
+                    : selectedPayment.status === "approved"
+                    ? t("subscriptions.approved")
+                    : t("subscriptions.rejected")}
                 </Badge>
               </div>
 
               {/* Payment Info */}
               <div className="bg-slate-50 dark:bg-gray-700 rounded-xl p-5 border-2 border-slate-200 dark:border-gray-600 space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-gray-400">{isArabic ? "الأرصدة:" : "Credits:"}</span>
-                  <span className="font-bold text-purple-700 dark:text-purple-400">{selectedPayment.credits}</span>
+                  <span className="text-slate-600 dark:text-gray-400">
+                    {isArabic ? "الأرصدة:" : "Credits:"}
+                  </span>
+                  <span className="font-bold text-purple-700 dark:text-purple-400">
+                    {selectedPayment.credits}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-gray-400">{isArabic ? "المبلغ:" : "Amount:"}</span>
-                  <span className="font-bold text-purple-700 dark:text-purple-400">${selectedPayment.amount_usd}</span>
+                  <span className="text-slate-600 dark:text-gray-400">
+                    {isArabic ? "المبلغ:" : "Amount:"}
+                  </span>
+                  <span className="font-bold text-purple-700 dark:text-purple-400">
+                    ${selectedPayment.amount_usd}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-gray-400">{isArabic ? "طريقة الدفع:" : "Payment Method:"}</span>
-                  <span className="font-semibold text-slate-800 dark:text-white">{selectedPayment.payment_method || '-'}</span>
+                  <span className="text-slate-600 dark:text-gray-400">
+                    {isArabic ? "طريقة الدفع:" : "Payment Method:"}
+                  </span>
+                  <span className="font-semibold text-slate-800 dark:text-white">
+                    {selectedPayment.payment_method || "-"}
+                  </span>
                 </div>
                 {selectedPayment.discount_code && (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-gray-400">{isArabic ? "كود الخصم:" : "Discount Code:"}</span>
-                      <span className="font-semibold text-orange-600 dark:text-orange-400">{selectedPayment.discount_code}</span>
+                      <span className="text-slate-600 dark:text-gray-400">
+                        {isArabic ? "كود الخصم:" : "Discount Code:"}
+                      </span>
+                      <span className="font-semibold text-orange-600 dark:text-orange-400">
+                        {selectedPayment.discount_code}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-gray-400">{isArabic ? "مبلغ الخصم:" : "Discount Amount:"}</span>
-                      <span className="font-semibold text-orange-600 dark:text-orange-400">-${selectedPayment.discount_amount || 0}</span>
+                      <span className="text-slate-600 dark:text-gray-400">
+                        {isArabic ? "مبلغ الخصم:" : "Discount Amount:"}
+                      </span>
+                      <span className="font-semibold text-orange-600 dark:text-orange-400">
+                        -${selectedPayment.discount_amount || 0}
+                      </span>
                     </div>
                     {selectedPayment.original_amount && (
                       <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-gray-400">{isArabic ? "المبلغ الأصلي:" : "Original Amount:"}</span>
-                        <span className="font-medium text-slate-500 dark:text-gray-500 line-through">${selectedPayment.original_amount}</span>
+                        <span className="text-slate-600 dark:text-gray-400">
+                          {isArabic ? "المبلغ الأصلي:" : "Original Amount:"}
+                        </span>
+                        <span className="font-medium text-slate-500 dark:text-gray-500 line-through">
+                          ${selectedPayment.original_amount}
+                        </span>
                       </div>
                     )}
                   </>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-gray-400">{isArabic ? "تاريخ الإرسال:" : "Submitted:"}</span>
+                  <span className="text-slate-600 dark:text-gray-400">
+                    {isArabic ? "تاريخ الإرسال:" : "Submitted:"}
+                  </span>
                   <span className="font-medium text-slate-700 dark:text-gray-300">
-                    {selectedPayment.created_at && format(new Date(selectedPayment.created_at), "MMM d, yyyy 'at' h:mm a")}
+                    {selectedPayment.created_at &&
+                      format(
+                        new Date(selectedPayment.created_at),
+                        "MMM d, yyyy 'at' h:mm a"
+                      )}
                   </span>
                 </div>
                 {selectedPayment.approved_at && (
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-gray-400">{isArabic ? "تاريخ المعالجة:" : "Processed:"}</span>
+                    <span className="text-slate-600 dark:text-gray-400">
+                      {isArabic ? "تاريخ المعالجة:" : "Processed:"}
+                    </span>
                     <span className="font-medium text-slate-700 dark:text-gray-300">
-                      {format(new Date(selectedPayment.approved_at), "MMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(selectedPayment.approved_at),
+                        "MMM d, yyyy 'at' h:mm a"
+                      )}
                     </span>
                   </div>
                 )}
@@ -455,7 +638,9 @@ export default function Subscriptions() {
                   <p className="text-sm font-semibold text-amber-800 dark:text-amber-400 mb-1">
                     {isArabic ? "ملاحظات الإدارة:" : "Admin Notes:"}
                   </p>
-                  <p className="text-slate-700 dark:text-gray-300">{selectedPayment.admin_notes}</p>
+                  <p className="text-slate-700 dark:text-gray-300">
+                    {selectedPayment.admin_notes}
+                  </p>
                 </div>
               )}
 
@@ -466,9 +651,9 @@ export default function Subscriptions() {
                     {isArabic ? "صورة الإيصال:" : "Receipt Image:"}
                   </p>
                   <div className="border-2 border-slate-200 dark:border-gray-600 rounded-xl overflow-hidden">
-                    <img 
-                      src={selectedPayment.payment_proof} 
-                      alt="Payment proof" 
+                    <img
+                      src={selectedPayment.payment_proof}
+                      alt="Payment proof"
                       className="w-full max-h-96 object-contain bg-slate-100 dark:bg-gray-700"
                     />
                   </div>
@@ -477,7 +662,11 @@ export default function Subscriptions() {
 
               {/* Close Button */}
               <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-                <Button onClick={() => setIsDetailsOpen(false)} variant="outline" className="px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                <Button
+                  onClick={() => setIsDetailsOpen(false)}
+                  variant="outline"
+                  className="px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
                   {isArabic ? "إغلاق" : "Close"}
                 </Button>
               </div>
