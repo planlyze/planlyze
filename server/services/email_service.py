@@ -344,6 +344,7 @@ def send_referral_bonus_email_to_referrer(referrer_email, referrer_name, referre
 
 def get_template_and_send(template_key, to_email, to_name, variables, lang='en'):
     """Get email template from database and send email with variable substitution"""
+    import re
     from server.models import EmailTemplate
     
     template = EmailTemplate.query.filter_by(template_key=template_key, is_active=True).first()
@@ -358,9 +359,17 @@ def get_template_and_send(template_key, to_email, to_name, variables, lang='en')
         subject = subject.replace('{{' + key + '}}', str(value) if value else '')
         body = body.replace('{{' + key + '}}', str(value) if value else '')
     
-    body = body.replace('{{#if approved}}', '' if variables.get('approved') else '<!--')
-    body = body.replace('{{/if}}', '' if variables.get('approved') or variables.get('rejected') else '-->')
-    body = body.replace('{{#if rejected}}', '' if variables.get('rejected') else '<!--')
+    def process_conditionals(text, vars_dict):
+        pattern = r'\{\{#if (\w+)\}\}(.*?)\{\{/if\}\}'
+        def replacer(match):
+            condition_var = match.group(1)
+            content = match.group(2)
+            if vars_dict.get(condition_var):
+                return content
+            return ''
+        return re.sub(pattern, replacer, text, flags=re.DOTALL)
+    
+    body = process_conditionals(body, variables)
     
     return send_email(to_email, to_name, subject, body)
 
