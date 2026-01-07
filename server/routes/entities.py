@@ -191,6 +191,14 @@ def generate_analysis_entry(user):
             if linked_count >= voucher.linked_ideas_count:
                 return jsonify({'error': 'Voucher has reached maximum linked ideas'}), 400
         
+        from server.services.settings_service import get_premium_report_cost
+        premium_cost = get_premium_report_cost()
+        user_record = User.query.filter_by(email=user.email).first()
+        if not user_record or user_record.credits < premium_cost:
+            is_arabic = report_language == 'arabic'
+            error_msg = f'يجب أن يكون لديك {premium_cost} رصيد على الأقل لاستخدام رمز القسيمة' if is_arabic else f'You need at least {premium_cost} credits to use a voucher code'
+            return jsonify({'error': error_msg}), 400
+        
         validated_voucher = voucher
     
     expected_report_type = get_report_type_for_user(user.email)
@@ -2787,7 +2795,36 @@ def get_ngo_vouchers(user):
         return jsonify({'error': 'No approved NGO request found'}), 404
     
     vouchers = ProjectVoucher.query.filter_by(ngo_request_id=ngo_request.id).order_by(ProjectVoucher.created_at.desc()).all()
-    return jsonify([v.to_dict() for v in vouchers])
+    result = []
+    for v in vouchers:
+        voucher_data = v.to_dict()
+        voucher_data['reports_count'] = Analysis.query.filter_by(voucher_id=v.id, is_deleted=False).count()
+        result.append(voucher_data)
+    return jsonify(result)
+
+@entities_bp.route('/ngo/vouchers/<voucher_id>/analyses', methods=['GET'])
+@require_auth
+def get_voucher_analyses(user, voucher_id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    voucher = ProjectVoucher.query.get(voucher_id)
+    if not voucher or voucher.ngo_request_id != ngo_request.id:
+        return jsonify({'error': 'Voucher not found'}), 404
+    
+    analyses = Analysis.query.filter_by(voucher_id=voucher_id, is_deleted=False).order_by(Analysis.created_at.desc()).all()
+    return jsonify([{
+        'id': a.id,
+        'business_idea': a.business_idea,
+        'industry': a.industry,
+        'report_type': a.report_type,
+        'status': a.status,
+        'created_at': a.created_at.isoformat() if a.created_at else None
+    } for a in analyses])
 
 @entities_bp.route('/ngo/vouchers/available', methods=['GET'])
 @require_auth

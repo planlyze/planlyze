@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar, Settings, Loader2 } from 'lucide-react';
+import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar, Settings, Loader2, Eye, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NGODashboard() {
@@ -44,6 +44,10 @@ export default function NGODashboard() {
   });
   const [voucherSubmitting, setVoucherSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [showAnalysesDialog, setShowAnalysesDialog] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [voucherAnalyses, setVoucherAnalyses] = useState([]);
+  const [loadingAnalyses, setLoadingAnalyses] = useState(false);
 
   const isArabic = user?.language === 'ar';
 
@@ -72,6 +76,21 @@ export default function NGODashboard() {
       setVouchers(data);
     } catch (error) {
       console.error('Failed to fetch vouchers:', error);
+    }
+  };
+
+  const viewVoucherAnalyses = async (voucher) => {
+    setSelectedVoucher(voucher);
+    setShowAnalysesDialog(true);
+    setLoadingAnalyses(true);
+    try {
+      const data = await NGO.getVoucherAnalyses(voucher.id);
+      setVoucherAnalyses(data);
+    } catch (error) {
+      console.error('Failed to fetch voucher analyses:', error);
+      toast.error(isArabic ? 'فشل تحميل التقارير' : 'Failed to load reports');
+    } finally {
+      setLoadingAnalyses(false);
     }
   };
 
@@ -239,8 +258,9 @@ export default function NGODashboard() {
                     <TableHead>{isArabic ? 'الرمز' : 'Code'}</TableHead>
                     <TableHead>{isArabic ? 'الاسم' : 'Name'}</TableHead>
                     <TableHead>{isArabic ? 'الوصف' : 'Description'}</TableHead>
-                    <TableHead>{isArabic ? 'تاريخ التفعيل' : 'Activation Period'}</TableHead>
-                    <TableHead>{isArabic ? 'الأفكار المرتبطة' : 'Linked Ideas'}</TableHead>
+                    <TableHead>{isArabic ? 'تاريخ التفعيل' : 'Activation'}</TableHead>
+                    <TableHead>{isArabic ? 'الحد' : 'Limit'}</TableHead>
+                    <TableHead>{isArabic ? 'التقارير' : 'Reports'}</TableHead>
                     <TableHead>{isArabic ? 'الحالة' : 'Status'}</TableHead>
                     <TableHead>{isArabic ? 'الإجراءات' : 'Actions'}</TableHead>
                   </TableRow>
@@ -254,7 +274,7 @@ export default function NGODashboard() {
                         </code>
                       </TableCell>
                       <TableCell className="font-medium">{voucher.name}</TableCell>
-                      <TableCell className="max-w-xs truncate">{voucher.description || '-'}</TableCell>
+                      <TableCell className="max-w-xs truncate text-sm text-gray-600">{voucher.description || '-'}</TableCell>
                       <TableCell>
                         {voucher.activation_start || voucher.activation_end ? (
                           <div className="flex items-center gap-1 text-sm">
@@ -264,6 +284,21 @@ export default function NGODashboard() {
                         ) : '-'}
                       </TableCell>
                       <TableCell>{voucher.linked_ideas_count ?? '-'}</TableCell>
+                      <TableCell>
+                        {(voucher.reports_count || 0) > 0 ? (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-600 hover:text-blue-700"
+                            onClick={() => viewVoucherAnalyses(voucher)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            {voucher.reports_count}
+                          </Button>
+                        ) : (
+                          <span className="text-gray-400 text-sm">0</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge className={voucher.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
                           {voucher.is_active ? (isArabic ? 'نشط' : 'Active') : (isArabic ? 'غير نشط' : 'Inactive')}
@@ -432,6 +467,67 @@ export default function NGODashboard() {
               </Button>
               <Button variant="destructive" onClick={() => handleDeleteVoucher(deleteConfirmId)}>
                 {isArabic ? 'حذف' : 'Delete'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAnalysesDialog} onOpenChange={setShowAnalysesDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                {isArabic ? 'التقارير المرتبطة' : 'Linked Reports'}
+                {selectedVoucher && (
+                  <Badge variant="outline" className="font-mono">{selectedVoucher.code}</Badge>
+                )}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedVoucher?.name} - {voucherAnalyses.length} {isArabic ? 'تقرير' : 'reports'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-96 overflow-y-auto">
+              {loadingAnalyses ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                </div>
+              ) : voucherAnalyses.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>{isArabic ? 'لا توجد تقارير مرتبطة بعد' : 'No reports linked yet'}</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{isArabic ? 'الفكرة' : 'Business Idea'}</TableHead>
+                      <TableHead>{isArabic ? 'المجال' : 'Industry'}</TableHead>
+                      <TableHead>{isArabic ? 'النوع' : 'Type'}</TableHead>
+                      <TableHead>{isArabic ? 'التاريخ' : 'Date'}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {voucherAnalyses.map((analysis) => (
+                      <TableRow key={analysis.id}>
+                        <TableCell className="font-medium max-w-xs truncate">{analysis.business_idea}</TableCell>
+                        <TableCell>{analysis.industry}</TableCell>
+                        <TableCell>
+                          <Badge className={analysis.report_type === 'premium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}>
+                            {analysis.report_type === 'premium' ? (isArabic ? 'متميز' : 'Premium') : (isArabic ? 'مجاني' : 'Free')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-500">
+                          {analysis.created_at ? new Date(analysis.created_at).toLocaleDateString() : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAnalysesDialog(false)}>
+                {isArabic ? 'إغلاق' : 'Close'}
               </Button>
             </DialogFooter>
           </DialogContent>
