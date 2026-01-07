@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { NGO } from '@/api/client';
 import PageHeader from '@/components/common/PageHeader';
@@ -15,6 +16,7 @@ import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash
 import { toast } from 'sonner';
 
 export default function NGODashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [ngoStatus, setNgoStatus] = useState(null);
@@ -44,10 +46,6 @@ export default function NGODashboard() {
   });
   const [voucherSubmitting, setVoucherSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [showAnalysesDialog, setShowAnalysesDialog] = useState(false);
-  const [selectedVoucher, setSelectedVoucher] = useState(null);
-  const [voucherAnalyses, setVoucherAnalyses] = useState([]);
-  const [loadingAnalyses, setLoadingAnalyses] = useState(false);
 
   const isArabic = user?.language === 'ar';
 
@@ -79,19 +77,8 @@ export default function NGODashboard() {
     }
   };
 
-  const viewVoucherAnalyses = async (voucher) => {
-    setSelectedVoucher(voucher);
-    setShowAnalysesDialog(true);
-    setLoadingAnalyses(true);
-    try {
-      const data = await NGO.getVoucherAnalyses(voucher.id);
-      setVoucherAnalyses(data);
-    } catch (error) {
-      console.error('Failed to fetch voucher analyses:', error);
-      toast.error(isArabic ? 'فشل تحميل التقارير' : 'Failed to load reports');
-    } finally {
-      setLoadingAnalyses(false);
-    }
+  const viewVoucherAnalyses = (voucher) => {
+    navigate(`/ngo-dashboard/voucher/${voucher.id}`);
   };
 
   const openVoucherDialog = (voucher = null) => {
@@ -472,66 +459,6 @@ export default function NGODashboard() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showAnalysesDialog} onOpenChange={setShowAnalysesDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                {isArabic ? 'التقارير المرتبطة' : 'Linked Reports'}
-                {selectedVoucher && (
-                  <Badge variant="outline" className="font-mono">{selectedVoucher.code}</Badge>
-                )}
-              </DialogTitle>
-              <DialogDescription>
-                {selectedVoucher?.name} - {voucherAnalyses.length} {isArabic ? 'تقرير' : 'reports'}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="max-h-96 overflow-y-auto">
-              {loadingAnalyses ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                </div>
-              ) : voucherAnalyses.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>{isArabic ? 'لا توجد تقارير مرتبطة بعد' : 'No reports linked yet'}</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{isArabic ? 'الفكرة' : 'Business Idea'}</TableHead>
-                      <TableHead>{isArabic ? 'المجال' : 'Industry'}</TableHead>
-                      <TableHead>{isArabic ? 'النوع' : 'Type'}</TableHead>
-                      <TableHead>{isArabic ? 'التاريخ' : 'Date'}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {voucherAnalyses.map((analysis) => (
-                      <TableRow key={analysis.id}>
-                        <TableCell className="font-medium max-w-xs truncate">{analysis.business_idea}</TableCell>
-                        <TableCell>{analysis.industry}</TableCell>
-                        <TableCell>
-                          <Badge className={analysis.report_type === 'premium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'}>
-                            {analysis.report_type === 'premium' ? (isArabic ? 'متميز' : 'Premium') : (isArabic ? 'مجاني' : 'Free')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-gray-500">
-                          {analysis.created_at ? new Date(analysis.created_at).toLocaleDateString() : '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAnalysesDialog(false)}>
-                {isArabic ? 'إغلاق' : 'Close'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }

@@ -2816,15 +2816,104 @@ def get_voucher_analyses(user, voucher_id):
     if not voucher or voucher.ngo_request_id != ngo_request.id:
         return jsonify({'error': 'Voucher not found'}), 404
     
-    analyses = Analysis.query.filter_by(voucher_id=voucher_id, is_deleted=False).order_by(Analysis.created_at.desc()).all()
-    return jsonify([{
-        'id': a.id,
-        'business_idea': a.business_idea,
-        'industry': a.industry,
-        'report_type': a.report_type,
-        'status': a.status,
-        'created_at': a.created_at.isoformat() if a.created_at else None
-    } for a in analyses])
+    show_archived = request.args.get('show_archived', 'false').lower() == 'true'
+    query = Analysis.query.filter_by(voucher_id=voucher_id, is_deleted=False)
+    if not show_archived:
+        query = query.filter_by(is_ngo_archived=False)
+    analyses = query.order_by(Analysis.created_at.desc()).all()
+    
+    result = []
+    for a in analyses:
+        overview = a.tab_overview or {}
+        user = User.query.filter_by(email=a.user_email).first()
+        result.append({
+            'id': a.id,
+            'business_idea': a.business_idea,
+            'industry': a.industry,
+            'report_type': a.report_type,
+            'status': a.status,
+            'created_at': a.created_at.isoformat() if a.created_at else None,
+            'market_fit_score': overview.get('market_fit_score'),
+            'time_to_build_months': overview.get('time_to_build_months'),
+            'competitors_count': overview.get('competitors_count'),
+            'starting_cost_usd': overview.get('starting_cost_usd'),
+            'is_ngo_favourite': a.is_ngo_favourite,
+            'is_ngo_archived': a.is_ngo_archived,
+            'user': {
+                'id': user.id if user else None,
+                'email': user.email if user else a.user_email,
+                'full_name': user.full_name if user else None
+            }
+        })
+    return jsonify(result)
+
+@entities_bp.route('/ngo/analyses/<analysis_id>/favourite', methods=['PUT'])
+@require_auth
+def toggle_ngo_analysis_favourite(user, analysis_id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis or analysis.is_deleted:
+        return jsonify({'error': 'Analysis not found'}), 404
+    
+    voucher = ProjectVoucher.query.get(analysis.voucher_id) if analysis.voucher_id else None
+    if not voucher or voucher.ngo_request_id != ngo_request.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    analysis.is_ngo_favourite = not analysis.is_ngo_favourite
+    db.session.commit()
+    return jsonify({'is_ngo_favourite': analysis.is_ngo_favourite})
+
+@entities_bp.route('/ngo/analyses/<analysis_id>/archive', methods=['PUT'])
+@require_auth
+def toggle_ngo_analysis_archive(user, analysis_id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis or analysis.is_deleted:
+        return jsonify({'error': 'Analysis not found'}), 404
+    
+    voucher = ProjectVoucher.query.get(analysis.voucher_id) if analysis.voucher_id else None
+    if not voucher or voucher.ngo_request_id != ngo_request.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    analysis.is_ngo_archived = not analysis.is_ngo_archived
+    db.session.commit()
+    return jsonify({'is_ngo_archived': analysis.is_ngo_archived})
+
+@entities_bp.route('/ngo/analyses/<analysis_id>/unlink', methods=['PUT'])
+@require_auth
+def unlink_ngo_analysis(user, analysis_id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis or analysis.is_deleted:
+        return jsonify({'error': 'Analysis not found'}), 404
+    
+    voucher = ProjectVoucher.query.get(analysis.voucher_id) if analysis.voucher_id else None
+    if not voucher or voucher.ngo_request_id != ngo_request.id:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    analysis.voucher_id = None
+    analysis.is_ngo_favourite = False
+    analysis.is_ngo_archived = False
+    db.session.commit()
+    return jsonify({'success': True})
 
 @entities_bp.route('/ngo/vouchers/available', methods=['GET'])
 @require_auth

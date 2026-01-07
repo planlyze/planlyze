@@ -147,6 +147,8 @@ class Analysis(db.Model):
     
     # NGO voucher linking
     voucher_id = db.Column(db.String(36), db.ForeignKey('project_vouchers.id'), nullable=True)
+    is_ngo_favourite = db.Column(db.Boolean, default=False)
+    is_ngo_archived = db.Column(db.Boolean, default=False)
     
     # Relationship to pending transaction
     pending_transaction = db.relationship('Transaction', foreign_keys=[pending_transaction_id])
@@ -192,7 +194,9 @@ class Analysis(db.Model):
                 'id': self.voucher.id,
                 'name': self.voucher.name,
                 'ngo_name': self.voucher.ngo_request.organization_name if self.voucher.ngo_request else None
-            } if self.voucher else None
+            } if self.voucher else None,
+            'is_ngo_favourite': self.is_ngo_favourite,
+            'is_ngo_archived': self.is_ngo_archived
         }
 
 class Transaction(db.Model):

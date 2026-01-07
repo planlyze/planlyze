@@ -18,6 +18,7 @@ import TermsOfServicePage from '@/landing/pages/TermsOfService';
 import IdeaSecurityPage from '@/landing/pages/IdeaSecurity';
 import i18n from '@/i18n/config';
 import { ThemeProvider } from 'next-themes';
+import VoucherReports from '@/pages/VoucherReports';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -138,6 +139,16 @@ const AuthenticatedApp = () => {
           } 
         />
       ))}
+      <Route 
+        path="/ngo-dashboard/voucher/:voucherId" 
+        element={
+          <ProtectedRoute>
+            <LayoutWrapper currentPageName="VoucherReports">
+              <VoucherReports />
+            </LayoutWrapper>
+          </ProtectedRoute>
+        } 
+      />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

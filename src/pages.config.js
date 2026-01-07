@@ -26,6 +26,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminCurrencies from './pages/AdminCurrencies';
 import NGODashboard from './pages/NGODashboard';
 import AdminNGORequests from './pages/AdminNGORequests';
+import VoucherReports from './pages/VoucherReports';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "AdminCurrencies": AdminCurrencies,
     "NGODashboard": NGODashboard,
     "AdminNGORequests": AdminNGORequests,
+    "VoucherReports": VoucherReports,
 }
 
 export const pagesConfig = {

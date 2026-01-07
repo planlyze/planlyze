@@ -37,11 +37,27 @@ The platform includes an NGO (Non-Governmental Organization) dashboard feature f
 
 ### Project Vouchers (NGO Feature)
 Approved NGOs can manage project vouchers to support beneficiary ideas:
-- **Database Model**: `ProjectVoucher` model with name, description, activation_start, activation_end, linked_ideas_count, is_active
+- **Database Model**: `ProjectVoucher` model with name, description, activation_start, activation_end, linked_ideas_count, is_active, code (unique 8-char format: ORGNAME_123)
+- **Voucher Code Format**: Generated as `ORGNAME_123` - org name prefix (up to 10 chars) + underscore + 3 random digits
 - **API Endpoints**: CRUD operations at `/api/ngo/vouchers` (requires approved NGO status)
 - **Date Validation**: ISO format (YYYY-MM-DD) with proper error handling returning 400 on invalid formats
 - **Frontend UI**: Voucher management table, add/edit dialog, delete confirmation, statistics card showing total/active counts
 - **Access Control**: Only users with approved NGO status can access voucher endpoints
+- **Credit Validation**: Users must have enough credits for premium report before using voucher code (validated after voucher existence check)
+
+### Voucher Reports Page (NGO Feature)
+NGOs can view and manage analyses linked to their vouchers:
+- **Separate Page**: `/ngo-dashboard/voucher/:voucherId` shows card-based report listing
+- **Report Cards Display**: Business idea, category, Market Fit %, Months to Build, Competitors count, Starting Cost
+- **User Details**: Clickable user name shows modal with user info (email, name)
+- **NGO Actions**: Favourite toggle (star), Archive with confirmation, Unlink with confirmation
+- **Archive Filter**: Toggle switch to show/hide archived reports
+- **Analysis Model Fields**: `is_ngo_favourite`, `is_ngo_archived` boolean flags
+- **API Endpoints**: 
+  - GET `/api/ngo/vouchers/<id>/analyses` - detailed list with overview data
+  - PUT `/api/ngo/analyses/<id>/favourite` - toggle favourite
+  - PUT `/api/ngo/analyses/<id>/archive` - toggle archive  
+  - PUT `/api/ngo/analyses/<id>/unlink` - remove voucher link
 
 ### Syrian Competitors Analysis
 Enhanced competitor analysis using hardcoded Syrian competitor data:

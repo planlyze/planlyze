@@ -460,8 +460,11 @@ export const NGO = {
   updateRequest: (id, data) => api.put(`/ngo/requests/${id}`, data),
   getVouchers: () => api.get("/ngo/vouchers"),
   getAvailableVouchers: () => api.get("/ngo/vouchers/available"),
-  getVoucherAnalyses: (voucherId) => api.get(`/ngo/vouchers/${voucherId}/analyses`),
+  getVoucherAnalyses: (voucherId, showArchived = false) => api.get(`/ngo/vouchers/${voucherId}/analyses?show_archived=${showArchived}`),
   createVoucher: (data) => api.post("/ngo/vouchers", data),
   updateVoucher: (id, data) => api.put(`/ngo/vouchers/${id}`, data),
   deleteVoucher: (id) => api.delete(`/ngo/vouchers/${id}`),
+  toggleAnalysisFavourite: (analysisId) => api.put(`/ngo/analyses/${analysisId}/favourite`),
+  toggleAnalysisArchive: (analysisId) => api.put(`/ngo/analyses/${analysisId}/archive`),
+  unlinkAnalysis: (analysisId) => api.put(`/ngo/analyses/${analysisId}/unlink`),
 };
