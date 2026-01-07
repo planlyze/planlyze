@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Building2, CheckCircle, XCircle, Clock, Send } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NGODashboard() {
@@ -29,6 +30,19 @@ export default function NGODashboard() {
     description: ''
   });
 
+  const [vouchers, setVouchers] = useState([]);
+  const [showVoucherDialog, setShowVoucherDialog] = useState(false);
+  const [editingVoucher, setEditingVoucher] = useState(null);
+  const [voucherForm, setVoucherForm] = useState({
+    name: '',
+    description: '',
+    activation_start: '',
+    activation_end: '',
+    linked_ideas_count: ''
+  });
+  const [voucherSubmitting, setVoucherSubmitting] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
   const isArabic = user?.language === 'ar';
 
   useEffect(() => {
@@ -40,6 +54,9 @@ export default function NGODashboard() {
       const response = await NGO.getMyRequest();
       setNgoStatus(response.status);
       setNgoRequest(response.request);
+      if (response.status === 'approved') {
+        fetchVouchers();
+      }
     } catch (error) {
       console.error('Failed to fetch NGO status:', error);
     } finally {
@@ -47,9 +64,85 @@ export default function NGODashboard() {
     }
   };
 
+  const fetchVouchers = async () => {
+    try {
+      const data = await NGO.getVouchers();
+      setVouchers(data);
+    } catch (error) {
+      console.error('Failed to fetch vouchers:', error);
+    }
+  };
+
+  const openVoucherDialog = (voucher = null) => {
+    if (voucher) {
+      setEditingVoucher(voucher);
+      setVoucherForm({
+        name: voucher.name || '',
+        description: voucher.description || '',
+        activation_start: voucher.activation_start || '',
+        activation_end: voucher.activation_end || '',
+        linked_ideas_count: voucher.linked_ideas_count ?? ''
+      });
+    } else {
+      setEditingVoucher(null);
+      setVoucherForm({
+        name: '',
+        description: '',
+        activation_start: '',
+        activation_end: '',
+        linked_ideas_count: ''
+      });
+    }
+    setShowVoucherDialog(true);
+  };
+
+  const handleVoucherSubmit = async (e) => {
+    e.preventDefault();
+    if (!voucherForm.name) {
+      toast.error(isArabic ? 'اسم القسيمة مطلوب' : 'Voucher name is required');
+      return;
+    }
+    
+    setVoucherSubmitting(true);
+    try {
+      const payload = {
+        name: voucherForm.name,
+        description: voucherForm.description || null,
+        activation_start: voucherForm.activation_start || null,
+        activation_end: voucherForm.activation_end || null,
+        linked_ideas_count: voucherForm.linked_ideas_count ? parseInt(voucherForm.linked_ideas_count) : null
+      };
+      
+      if (editingVoucher) {
+        await NGO.updateVoucher(editingVoucher.id, payload);
+        toast.success(isArabic ? 'تم تحديث القسيمة بنجاح' : 'Voucher updated successfully');
+      } else {
+        await NGO.createVoucher(payload);
+        toast.success(isArabic ? 'تم إنشاء القسيمة بنجاح' : 'Voucher created successfully');
+      }
+      setShowVoucherDialog(false);
+      fetchVouchers();
+    } catch (error) {
+      toast.error(error.message || (isArabic ? 'فشل حفظ القسيمة' : 'Failed to save voucher'));
+    } finally {
+      setVoucherSubmitting(false);
+    }
+  };
+
+  const handleDeleteVoucher = async (id) => {
+    try {
+      await NGO.deleteVoucher(id);
+      toast.success(isArabic ? 'تم حذف القسيمة بنجاح' : 'Voucher deleted successfully');
+      setDeleteConfirmId(null);
+      fetchVouchers();
+    } catch (error) {
+      toast.error(error.message || (isArabic ? 'فشل حذف القسيمة' : 'Failed to delete voucher'));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.organization_name || !formData.contact_name || !formData.contact_email) {
+    if (!formData.organization_name || !formData.contact_name || !formData.contact_email || !formData.contact_phone) {
       toast.error(isArabic ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
       return;
     }
@@ -116,7 +209,7 @@ export default function NGODashboard() {
               <div className="space-y-2">
                 <p><strong>{isArabic ? 'الاسم:' : 'Name:'}</strong> {ngoRequest?.contact_name}</p>
                 <p><strong>{isArabic ? 'البريد:' : 'Email:'}</strong> {ngoRequest?.contact_email}</p>
-                <p><strong>{isArabic ? 'الهاتف:' : 'Phone:'}</strong> {ngoRequest?.contact_phone || '-'}</p>
+                <p><strong>{isArabic ? 'الهاتف:' : 'Phone:'}</strong> {ngoRequest?.contact_phone}</p>
               </div>
             </CardContent>
           </Card>
@@ -126,12 +219,177 @@ export default function NGODashboard() {
               <CardTitle>{isArabic ? 'الإحصائيات' : 'Statistics'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-4">
-                <p className="text-gray-500">{isArabic ? 'قريباً' : 'Coming soon'}</p>
+              <div className="space-y-2">
+                <p><strong>{isArabic ? 'عدد القسائم:' : 'Total Vouchers:'}</strong> {vouchers.length}</p>
+                <p><strong>{isArabic ? 'القسائم النشطة:' : 'Active Vouchers:'}</strong> {vouchers.filter(v => v.is_active).length}</p>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Ticket className="w-5 h-5" />
+                {isArabic ? 'قسائم المشاريع' : 'Project Vouchers'}
+              </CardTitle>
+              <CardDescription>
+                {isArabic ? 'إدارة قسائم مشاريع منظمتك' : 'Manage your organization project vouchers'}
+              </CardDescription>
+            </div>
+            <Button onClick={() => openVoucherDialog()} className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="w-4 h-4 mr-2" />
+              {isArabic ? 'إضافة قسيمة' : 'Add Voucher'}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {vouchers.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Ticket className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>{isArabic ? 'لا توجد قسائم بعد' : 'No vouchers yet'}</p>
+                <p className="text-sm">{isArabic ? 'أنشئ أول قسيمة لمشاريعك' : 'Create your first project voucher'}</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{isArabic ? 'الاسم' : 'Name'}</TableHead>
+                    <TableHead>{isArabic ? 'الوصف' : 'Description'}</TableHead>
+                    <TableHead>{isArabic ? 'تاريخ التفعيل' : 'Activation Period'}</TableHead>
+                    <TableHead>{isArabic ? 'الأفكار المرتبطة' : 'Linked Ideas'}</TableHead>
+                    <TableHead>{isArabic ? 'الحالة' : 'Status'}</TableHead>
+                    <TableHead>{isArabic ? 'الإجراءات' : 'Actions'}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {vouchers.map((voucher) => (
+                    <TableRow key={voucher.id}>
+                      <TableCell className="font-medium">{voucher.name}</TableCell>
+                      <TableCell className="max-w-xs truncate">{voucher.description || '-'}</TableCell>
+                      <TableCell>
+                        {voucher.activation_start || voucher.activation_end ? (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="w-4 h-4" />
+                            {voucher.activation_start || '...'} - {voucher.activation_end || '...'}
+                          </div>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>{voucher.linked_ideas_count ?? '-'}</TableCell>
+                      <TableCell>
+                        <Badge className={voucher.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
+                          {voucher.is_active ? (isArabic ? 'نشط' : 'Active') : (isArabic ? 'غير نشط' : 'Inactive')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => openVoucherDialog(voucher)}>
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-600" onClick={() => setDeleteConfirmId(voucher.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        <Dialog open={showVoucherDialog} onOpenChange={setShowVoucherDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>
+                {editingVoucher 
+                  ? (isArabic ? 'تعديل القسيمة' : 'Edit Voucher') 
+                  : (isArabic ? 'إضافة قسيمة جديدة' : 'Add New Voucher')}
+              </DialogTitle>
+              <DialogDescription>
+                {isArabic ? 'أدخل تفاصيل قسيمة المشروع' : 'Enter the project voucher details'}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleVoucherSubmit} className="space-y-4">
+              <div>
+                <Label>{isArabic ? 'اسم القسيمة *' : 'Voucher Name *'}</Label>
+                <Input
+                  value={voucherForm.name}
+                  onChange={(e) => setVoucherForm({...voucherForm, name: e.target.value})}
+                  placeholder={isArabic ? 'أدخل اسم القسيمة' : 'Enter voucher name'}
+                  required
+                />
+              </div>
+              <div>
+                <Label>{isArabic ? 'الوصف' : 'Description'}</Label>
+                <Textarea
+                  value={voucherForm.description}
+                  onChange={(e) => setVoucherForm({...voucherForm, description: e.target.value})}
+                  placeholder={isArabic ? 'وصف القسيمة' : 'Voucher description'}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{isArabic ? 'تاريخ البداية' : 'Start Date'}</Label>
+                  <Input
+                    type="date"
+                    value={voucherForm.activation_start}
+                    onChange={(e) => setVoucherForm({...voucherForm, activation_start: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>{isArabic ? 'تاريخ النهاية' : 'End Date'}</Label>
+                  <Input
+                    type="date"
+                    value={voucherForm.activation_end}
+                    onChange={(e) => setVoucherForm({...voucherForm, activation_end: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>{isArabic ? 'عدد الأفكار المرتبطة' : 'Linked Ideas Count'}</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={voucherForm.linked_ideas_count}
+                  onChange={(e) => setVoucherForm({...voucherForm, linked_ideas_count: e.target.value})}
+                  placeholder={isArabic ? 'اختياري' : 'Optional'}
+                />
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShowVoucherDialog(false)}>
+                  {isArabic ? 'إلغاء' : 'Cancel'}
+                </Button>
+                <Button type="submit" disabled={voucherSubmitting} className="bg-orange-500 hover:bg-orange-600">
+                  {voucherSubmitting 
+                    ? (isArabic ? 'جاري الحفظ...' : 'Saving...') 
+                    : (isArabic ? 'حفظ' : 'Save')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{isArabic ? 'تأكيد الحذف' : 'Confirm Delete'}</DialogTitle>
+              <DialogDescription>
+                {isArabic ? 'هل أنت متأكد من حذف هذه القسيمة؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this voucher? This action cannot be undone.'}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+                {isArabic ? 'إلغاء' : 'Cancel'}
+              </Button>
+              <Button variant="destructive" onClick={() => handleDeleteVoucher(deleteConfirmId)}>
+                {isArabic ? 'حذف' : 'Delete'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -250,10 +508,11 @@ export default function NGODashboard() {
                 />
               </div>
               <div className="col-span-2">
-                <Label>{isArabic ? 'رقم الهاتف' : 'Phone Number'}</Label>
+                <Label>{isArabic ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
                 <Input
                   value={formData.contact_phone}
                   onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
+                  required
                 />
               </div>
               <div className="col-span-2">

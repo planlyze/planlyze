@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import (
     db, Analysis, Transaction, CreditPackage, Payment, EmailTemplate,
     PaymentMethod, DiscountCode, Role, AuditLog, ActivityFeed, 
-    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner, Currency, NGORequest
+    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner, Currency, NGORequest, ProjectVoucher
 )
 from server.routes.auth import get_current_user
 from datetime import datetime
@@ -2668,6 +2668,9 @@ def delete_currency(user, id):
 def submit_ngo_request(user):
     data = request.get_json()
     
+    if not data.get('contact_phone'):
+        return jsonify({'error': 'Phone number is required'}), 400
+    
     existing = NGORequest.query.filter_by(user_id=user.id).filter(
         NGORequest.status.in_(['pending', 'approved'])
     ).first()
@@ -2748,3 +2751,108 @@ def update_ngo_request(user, id):
     
     db.session.commit()
     return jsonify(ngo_request.to_dict())
+
+@entities_bp.route('/ngo/vouchers', methods=['GET'])
+@require_auth
+def get_ngo_vouchers(user):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    vouchers = ProjectVoucher.query.filter_by(ngo_request_id=ngo_request.id).order_by(ProjectVoucher.created_at.desc()).all()
+    return jsonify([v.to_dict() for v in vouchers])
+
+@entities_bp.route('/ngo/vouchers', methods=['POST'])
+@require_auth
+def create_ngo_voucher(user):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    data = request.get_json()
+    if not data.get('name'):
+        return jsonify({'error': 'Voucher name is required'}), 400
+    
+    from datetime import date
+    activation_start = None
+    activation_end = None
+    try:
+        if data.get('activation_start'):
+            activation_start = date.fromisoformat(data['activation_start'])
+        if data.get('activation_end'):
+            activation_end = date.fromisoformat(data['activation_end'])
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    
+    voucher = ProjectVoucher(
+        ngo_request_id=ngo_request.id,
+        name=data.get('name'),
+        description=data.get('description'),
+        activation_start=activation_start,
+        activation_end=activation_end,
+        linked_ideas_count=data.get('linked_ideas_count')
+    )
+    db.session.add(voucher)
+    db.session.commit()
+    return jsonify(voucher.to_dict()), 201
+
+@entities_bp.route('/ngo/vouchers/<id>', methods=['PUT'])
+@require_auth
+def update_ngo_voucher(user, id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    voucher = ProjectVoucher.query.filter_by(id=id, ngo_request_id=ngo_request.id).first()
+    if not voucher:
+        return jsonify({'error': 'Voucher not found'}), 404
+    
+    data = request.get_json()
+    
+    if 'name' in data:
+        voucher.name = data['name']
+    if 'description' in data:
+        voucher.description = data['description']
+    try:
+        if 'activation_start' in data:
+            from datetime import date
+            voucher.activation_start = date.fromisoformat(data['activation_start']) if data['activation_start'] else None
+        if 'activation_end' in data:
+            from datetime import date
+            voucher.activation_end = date.fromisoformat(data['activation_end']) if data['activation_end'] else None
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    if 'linked_ideas_count' in data:
+        voucher.linked_ideas_count = data['linked_ideas_count']
+    if 'is_active' in data:
+        voucher.is_active = data['is_active']
+    
+    db.session.commit()
+    return jsonify(voucher.to_dict())
+
+@entities_bp.route('/ngo/vouchers/<id>', methods=['DELETE'])
+@require_auth
+def delete_ngo_voucher(user, id):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    voucher = ProjectVoucher.query.filter_by(id=id, ngo_request_id=ngo_request.id).first()
+    if not voucher:
+        return jsonify({'error': 'Voucher not found'}), 404
+    
+    db.session.delete(voucher)
+    db.session.commit()
+    return jsonify({'success': True})

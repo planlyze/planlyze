@@ -731,7 +731,7 @@ class NGORequest(db.Model):
     organization_type = db.Column(db.String(100))
     contact_name = db.Column(db.String(255), nullable=False)
     contact_email = db.Column(db.String(255), nullable=False)
-    contact_phone = db.Column(db.String(50))
+    contact_phone = db.Column(db.String(50), nullable=False)
     website = db.Column(db.String(255))
     description = db.Column(db.Text)
     status = db.Column(db.String(50), default='pending')
@@ -760,6 +760,36 @@ class NGORequest(db.Model):
             'admin_notes': self.admin_notes,
             'reviewed_by': self.reviewed_by,
             'reviewed_at': self.reviewed_at.isoformat() if self.reviewed_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class ProjectVoucher(db.Model):
+    __tablename__ = 'project_vouchers'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    ngo_request_id = db.Column(db.String(36), db.ForeignKey('ngo_requests.id'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    activation_start = db.Column(db.Date)
+    activation_end = db.Column(db.Date)
+    linked_ideas_count = db.Column(db.Integer, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    ngo_request = db.relationship('NGORequest', backref=db.backref('vouchers', lazy='dynamic'))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ngo_request_id': self.ngo_request_id,
+            'name': self.name,
+            'description': self.description,
+            'activation_start': self.activation_start.isoformat() if self.activation_start else None,
+            'activation_end': self.activation_end.isoformat() if self.activation_end else None,
+            'linked_ideas_count': self.linked_ideas_count,
+            'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
