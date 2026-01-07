@@ -482,12 +482,15 @@ def invoke_llm(user):
         return jsonify({'error': 'Prompt is required'}), 400
     
     try:
-        response = client.messages.create(
-            model=DEFAULT_MODEL,
-            max_tokens=max_tokens,
-            system=[{"type": "text", "text": system}] if system else None,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        kwargs = {
+            "model": DEFAULT_MODEL,
+            "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        if system:
+            kwargs["system"] = system
+        
+        response = client.messages.create(**kwargs)
         
         return jsonify({
             'response': response.content[0].text
