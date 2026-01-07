@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { NGO } from '@/api/client';
+import PageHeader from '@/components/common/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar } from 'lucide-react';
+import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar, Settings, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NGODashboard() {
@@ -19,6 +20,7 @@ export default function NGODashboard() {
   const [ngoStatus, setNgoStatus] = useState(null);
   const [ngoRequest, setNgoRequest] = useState(null);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     organization_name: '',
@@ -163,7 +165,7 @@ export default function NGODashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
       </div>
     );
   }
@@ -171,61 +173,41 @@ export default function NGODashboard() {
   if (ngoStatus === 'approved') {
     return (
       <div className="p-6 max-w-6xl mx-auto space-y-6" dir={isArabic ? 'rtl' : 'ltr'}>
-        <div className="flex items-center gap-3 mb-6">
-          <Building2 className="w-8 h-8 text-green-600" />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {isArabic ? 'لوحة تحكم المنظمة غير الربحية' : 'NGO Dashboard'}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              {isArabic ? 'مرحباً بك في لوحة تحكم منظمتك' : 'Welcome to your organization dashboard'}
-            </p>
-          </div>
-          <Badge className="bg-green-100 text-green-700 ml-auto">
-            <CheckCircle className="w-4 h-4 mr-1" />
-            {isArabic ? 'معتمد' : 'Approved'}
-          </Badge>
-        </div>
+        <PageHeader
+          title={isArabic ? 'لوحة تحكم المنظمة غير الربحية' : 'NGO Dashboard'}
+          description={isArabic ? 'مرحباً بك في لوحة تحكم منظمتك' : 'Welcome to your organization dashboard'}
+          icon={Building2}
+          isArabic={isArabic}
+          actions={
+            <div className="flex items-center gap-2">
+              <Badge className="bg-green-100 text-green-700">
+                <CheckCircle className="w-4 h-4 mr-1" />
+                {isArabic ? 'معتمد' : 'Approved'}
+              </Badge>
+              <Button variant="outline" size="icon" onClick={() => setShowSettingsDialog(true)}>
+                <Settings className="w-4 h-4" />
+              </Button>
+            </div>
+          }
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{isArabic ? 'معلومات المنظمة' : 'Organization Info'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p><strong>{isArabic ? 'الاسم:' : 'Name:'}</strong> {ngoRequest?.organization_name}</p>
-                <p><strong>{isArabic ? 'النوع:' : 'Type:'}</strong> {ngoRequest?.organization_type || '-'}</p>
-                <p><strong>{isArabic ? 'الموقع:' : 'Website:'}</strong> {ngoRequest?.website || '-'}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>{isArabic ? 'الإحصائيات' : 'Statistics'}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-8">
+              <div>
+                <span className="text-2xl font-bold text-orange-500">{vouchers.length}</span>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? 'إجمالي القسائم' : 'Total Vouchers'}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{isArabic ? 'معلومات الاتصال' : 'Contact Info'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p><strong>{isArabic ? 'الاسم:' : 'Name:'}</strong> {ngoRequest?.contact_name}</p>
-                <p><strong>{isArabic ? 'البريد:' : 'Email:'}</strong> {ngoRequest?.contact_email}</p>
-                <p><strong>{isArabic ? 'الهاتف:' : 'Phone:'}</strong> {ngoRequest?.contact_phone}</p>
+              <div>
+                <span className="text-2xl font-bold text-green-500">{vouchers.filter(v => v.is_active).length}</span>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? 'القسائم النشطة' : 'Active Vouchers'}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{isArabic ? 'الإحصائيات' : 'Statistics'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p><strong>{isArabic ? 'عدد القسائم:' : 'Total Vouchers:'}</strong> {vouchers.length}</p>
-                <p><strong>{isArabic ? 'القسائم النشطة:' : 'Active Vouchers:'}</strong> {vouchers.filter(v => v.is_active).length}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -298,6 +280,64 @@ export default function NGODashboard() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{isArabic ? 'إعدادات المنظمة' : 'Organization Settings'}</DialogTitle>
+              <DialogDescription>
+                {isArabic ? 'معلومات منظمتك وجهة الاتصال' : 'Your organization and contact information'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-gray-500">{isArabic ? 'معلومات المنظمة' : 'Organization Info'}</h4>
+                <div className="grid gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'الاسم:' : 'Name:'}</span>
+                    <span className="font-medium">{ngoRequest?.organization_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'النوع:' : 'Type:'}</span>
+                    <span className="font-medium">{ngoRequest?.organization_type || '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'الموقع:' : 'Website:'}</span>
+                    <span className="font-medium">{ngoRequest?.website || '-'}</span>
+                  </div>
+                  {ngoRequest?.description && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-500">{isArabic ? 'الوصف:' : 'Description:'}</span>
+                      <span className="font-medium">{ngoRequest.description}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="border-t pt-4 space-y-3">
+                <h4 className="font-medium text-sm text-gray-500">{isArabic ? 'معلومات الاتصال' : 'Contact Info'}</h4>
+                <div className="grid gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'الاسم:' : 'Name:'}</span>
+                    <span className="font-medium">{ngoRequest?.contact_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'البريد:' : 'Email:'}</span>
+                    <span className="font-medium">{ngoRequest?.contact_email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{isArabic ? 'الهاتف:' : 'Phone:'}</span>
+                    <span className="font-medium">{ngoRequest?.contact_phone}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={showVoucherDialog} onOpenChange={setShowVoucherDialog}>
           <DialogContent className="max-w-lg">
@@ -396,6 +436,19 @@ export default function NGODashboard() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto" dir={isArabic ? 'rtl' : 'ltr'}>
+      <PageHeader
+        title={isArabic ? 'لوحة تحكم المنظمات غير الربحية' : 'NGO Dashboard'}
+        description={
+          ngoStatus === 'pending' 
+            ? (isArabic ? 'طلبك قيد المراجعة' : 'Your request is pending review')
+            : ngoStatus === 'rejected'
+            ? (isArabic ? 'تم رفض طلبك' : 'Your request was rejected')
+            : (isArabic ? 'تقدم للحصول على حساب منظمة غير ربحية' : 'Apply to become an NGO')
+        }
+        icon={ngoStatus === 'pending' ? Clock : ngoStatus === 'rejected' ? XCircle : Lock}
+        isArabic={isArabic}
+      />
+
       <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
@@ -455,10 +508,14 @@ export default function NGODashboard() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{isArabic ? 'طلب حساب منظمة غير ربحية' : 'NGO Account Request'}</DialogTitle>
+            <DialogDescription>
+              {isArabic ? 'أدخل معلومات منظمتك وجهة الاتصال' : 'Enter your organization and contact information'}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm text-gray-500">{isArabic ? 'معلومات المنظمة' : 'Organization Info'}</h4>
+              <div>
                 <Label>{isArabic ? 'اسم المنظمة *' : 'Organization Name *'}</Label>
                 <Input
                   value={formData.organization_name}
@@ -467,61 +524,69 @@ export default function NGODashboard() {
                   required
                 />
               </div>
-              <div>
-                <Label>{isArabic ? 'نوع المنظمة' : 'Organization Type'}</Label>
-                <Select value={formData.organization_type} onValueChange={(v) => setFormData({...formData, organization_type: v})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={isArabic ? 'اختر النوع' : 'Select type'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="charity">{isArabic ? 'خيرية' : 'Charity'}</SelectItem>
-                    <SelectItem value="nonprofit">{isArabic ? 'غير ربحية' : 'Non-profit'}</SelectItem>
-                    <SelectItem value="foundation">{isArabic ? 'مؤسسة' : 'Foundation'}</SelectItem>
-                    <SelectItem value="social_enterprise">{isArabic ? 'مشروع اجتماعي' : 'Social Enterprise'}</SelectItem>
-                    <SelectItem value="other">{isArabic ? 'أخرى' : 'Other'}</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{isArabic ? 'نوع المنظمة' : 'Organization Type'}</Label>
+                  <Select value={formData.organization_type} onValueChange={(v) => setFormData({...formData, organization_type: v})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={isArabic ? 'اختر النوع' : 'Select type'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="charity">{isArabic ? 'خيرية' : 'Charity'}</SelectItem>
+                      <SelectItem value="nonprofit">{isArabic ? 'غير ربحية' : 'Non-profit'}</SelectItem>
+                      <SelectItem value="foundation">{isArabic ? 'مؤسسة' : 'Foundation'}</SelectItem>
+                      <SelectItem value="social_enterprise">{isArabic ? 'مشروع اجتماعي' : 'Social Enterprise'}</SelectItem>
+                      <SelectItem value="other">{isArabic ? 'أخرى' : 'Other'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{isArabic ? 'الموقع الإلكتروني' : 'Website'}</Label>
+                  <Input
+                    value={formData.website}
+                    onChange={(e) => setFormData({...formData, website: e.target.value})}
+                    placeholder="https://"
+                  />
+                </div>
               </div>
               <div>
-                <Label>{isArabic ? 'الموقع الإلكتروني' : 'Website'}</Label>
-                <Input
-                  value={formData.website}
-                  onChange={(e) => setFormData({...formData, website: e.target.value})}
-                  placeholder="https://"
+                <Label>{isArabic ? 'الوصف' : 'Description'}</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder={isArabic ? 'وصف مختصر عن منظمتك' : 'Brief description about your organization'}
+                  rows={2}
                 />
               </div>
-              <div>
-                <Label>{isArabic ? 'اسم جهة الاتصال *' : 'Contact Name *'}</Label>
-                <Input
-                  value={formData.contact_name}
-                  onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
-                  required
-                />
+            </div>
+            <div className="border-t pt-4 space-y-3">
+              <h4 className="font-medium text-sm text-gray-500">{isArabic ? 'معلومات الاتصال' : 'Contact Info'}</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{isArabic ? 'اسم جهة الاتصال *' : 'Contact Name *'}</Label>
+                  <Input
+                    value={formData.contact_name}
+                    onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>{isArabic ? 'البريد الإلكتروني *' : 'Contact Email *'}</Label>
+                  <Input
+                    type="email"
+                    value={formData.contact_email}
+                    onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+                    required
+                  />
+                </div>
               </div>
               <div>
-                <Label>{isArabic ? 'البريد الإلكتروني *' : 'Contact Email *'}</Label>
-                <Input
-                  type="email"
-                  value={formData.contact_email}
-                  onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="col-span-2">
                 <Label>{isArabic ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
                 <Input
                   value={formData.contact_phone}
                   onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
+                  placeholder={isArabic ? 'أدخل رقم الهاتف' : 'Enter phone number'}
                   required
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>{isArabic ? 'وصف المنظمة' : 'Organization Description'}</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder={isArabic ? 'أخبرنا عن منظمتك وأهدافها' : 'Tell us about your organization and its goals'}
-                  rows={3}
                 />
               </div>
             </div>
