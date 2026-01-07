@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar, Settings, Loader2, Eye, FileText } from 'lucide-react';
+import { Lock, Building2, CheckCircle, XCircle, Clock, Send, Plus, Pencil, Trash2, Ticket, Calendar, Settings, Loader2, Eye, FileText, Star, Archive, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NGODashboard() {
@@ -35,6 +35,7 @@ export default function NGODashboard() {
   });
 
   const [vouchers, setVouchers] = useState([]);
+  const [stats, setStats] = useState(null);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState(null);
   const [voucherForm, setVoucherForm] = useState({
@@ -60,11 +61,21 @@ export default function NGODashboard() {
       setNgoRequest(response.request);
       if (response.status === 'approved') {
         fetchVouchers();
+        fetchStats();
       }
     } catch (error) {
       console.error('Failed to fetch NGO status:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const data = await NGO.getStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Failed to fetch NGO stats:', error);
     }
   };
 
@@ -197,23 +208,73 @@ export default function NGODashboard() {
           }
         />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{isArabic ? 'الإحصائيات' : 'Statistics'}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-8">
-              <div>
-                <span className="text-2xl font-bold text-orange-500">{vouchers.length}</span>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? 'إجمالي القسائم' : 'Total Vouchers'}</p>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                  <Ticket className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-orange-600">{stats?.total_vouchers ?? vouchers.length}</p>
+                  <p className="text-sm text-gray-500">{isArabic ? 'إجمالي القسائم' : 'Total Vouchers'}</p>
+                </div>
               </div>
-              <div>
-                <span className="text-2xl font-bold text-green-500">{vouchers.filter(v => v.is_active).length}</span>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{isArabic ? 'القسائم النشطة' : 'Active Vouchers'}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-600">{stats?.active_vouchers ?? vouchers.filter(v => v.is_active).length}</p>
+                  <p className="text-sm text-gray-500">{isArabic ? 'القسائم النشطة' : 'Active Vouchers'}</p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-600">{stats?.total_reports ?? 0}</p>
+                  <p className="text-sm text-gray-500">{isArabic ? 'إجمالي التقارير' : 'Total Reports'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                  <Star className="h-5 w-5 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-yellow-600">{stats?.favourite_reports ?? 0}</p>
+                  <p className="text-sm text-gray-500">{isArabic ? 'التقارير المفضلة' : 'Favourites'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-900/30 rounded-lg">
+                  <Archive className="h-5 w-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-600">{stats?.archived_reports ?? 0}</p>
+                  <p className="text-sm text-gray-500">{isArabic ? 'التقارير المؤرشفة' : 'Archived'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

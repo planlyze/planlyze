@@ -2784,6 +2784,37 @@ def update_ngo_request(user, id):
     db.session.commit()
     return jsonify(ngo_request.to_dict())
 
+@entities_bp.route('/ngo/stats', methods=['GET'])
+@require_auth
+def get_ngo_stats(user):
+    if user.ngo_status != 'approved':
+        return jsonify({'error': 'NGO access required'}), 403
+    
+    ngo_request = NGORequest.query.filter_by(user_id=user.id, status='approved').first()
+    if not ngo_request:
+        return jsonify({'error': 'No approved NGO request found'}), 404
+    
+    voucher_ids = [v.id for v in ProjectVoucher.query.filter_by(ngo_request_id=ngo_request.id).all()]
+    total_vouchers = len(voucher_ids)
+    active_vouchers = ProjectVoucher.query.filter_by(ngo_request_id=ngo_request.id, is_active=True).count()
+    
+    if voucher_ids:
+        total_reports = Analysis.query.filter(Analysis.voucher_id.in_(voucher_ids), Analysis.is_deleted == False).count()
+        favourite_reports = Analysis.query.filter(Analysis.voucher_id.in_(voucher_ids), Analysis.is_deleted == False, Analysis.is_ngo_favourite == True).count()
+        archived_reports = Analysis.query.filter(Analysis.voucher_id.in_(voucher_ids), Analysis.is_deleted == False, Analysis.is_ngo_archived == True).count()
+    else:
+        total_reports = 0
+        favourite_reports = 0
+        archived_reports = 0
+    
+    return jsonify({
+        'total_vouchers': total_vouchers,
+        'active_vouchers': active_vouchers,
+        'total_reports': total_reports,
+        'favourite_reports': favourite_reports,
+        'archived_reports': archived_reports
+    })
+
 @entities_bp.route('/ngo/vouchers', methods=['GET'])
 @require_auth
 def get_ngo_vouchers(user):

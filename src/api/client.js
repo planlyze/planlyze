@@ -458,6 +458,7 @@ export const NGO = {
   getMyRequest: () => api.get("/ngo/my-request"),
   getAllRequests: (status) => api.get(`/ngo/requests${status ? `?status=${status}` : ''}`),
   updateRequest: (id, data) => api.put(`/ngo/requests/${id}`, data),
+  getStats: () => api.get("/ngo/stats"),
   getVouchers: () => api.get("/ngo/vouchers"),
   getAvailableVouchers: () => api.get("/ngo/vouchers/available"),
   getVoucherAnalyses: (voucherId, showArchived = false) => api.get(`/ngo/vouchers/${voucherId}/analyses?show_archived=${showArchived}`),
