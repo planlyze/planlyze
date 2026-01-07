@@ -401,12 +401,12 @@ export default function AnalysisWizard({ onSubmit  }) {
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
               {isUIArabic ? "يمكنك ربط تحليلك بمنظمة غير ربحية لمشاركة التقرير معهم" : "You can link your analysis to an NGO to share the report with them"}
             </p>
-            <Select value={formData.voucher_id} onValueChange={(value) => handleInputChange('voucher_id', value)}>
+            <Select value={formData.voucher_id || "none"} onValueChange={(value) => handleInputChange('voucher_id', value === "none" ? "" : value)}>
               <SelectTrigger className="border-2 bg-white dark:bg-gray-700 border-orange-200 dark:border-orange-700">
                 <SelectValue placeholder={isUIArabic ? "اختر قسيمة (اختياري)" : "Select a voucher (optional)"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{isUIArabic ? "بدون قسيمة" : "No voucher"}</SelectItem>
+                <SelectItem value="none">{isUIArabic ? "بدون قسيمة" : "No voucher"}</SelectItem>
                 {availableVouchers.map((voucher) => (
                   <SelectItem key={voucher.id} value={voucher.id}>
                     <div className="flex flex-col">
