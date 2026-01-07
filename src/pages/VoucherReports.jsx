@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Star, Archive, Unlink, Loader2, TrendingUp, Clock, Users, DollarSign, User, Mail, Phone, Search, Filter, X } from 'lucide-react';
+import { ArrowLeft, Star, Archive, Unlink, Loader2, TrendingUp, Clock, Users, DollarSign, User, Mail, Phone, Search, Filter, X, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -267,7 +267,12 @@ export default function VoucherReports() {
                 </div>
               )}
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg line-clamp-2">{report.business_idea}</CardTitle>
+                <CardTitle 
+                  className="text-lg line-clamp-2 cursor-pointer hover:text-orange-600 transition-colors"
+                  onClick={() => navigate(`/analysis-result?id=${report.id}`)}
+                >
+                  {report.business_idea}
+                </CardTitle>
                 <Badge variant="outline" className="w-fit mt-1">
                   {report.industry || (isArabic ? 'غير محدد' : 'Not specified')}
                 </Badge>
@@ -304,44 +309,54 @@ export default function VoucherReports() {
                   <span className="underline">{report.user?.full_name || report.user?.email || (isArabic ? 'مستخدم غير معروف' : 'Unknown User')}</span>
                 </button>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-between">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleToggleFavourite(report)}
+                      disabled={actionLoading[`fav_${report.id}`]}
+                      className={report.is_ngo_favourite ? 'text-yellow-500' : ''}
+                    >
+                      {actionLoading[`fav_${report.id}`] ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Star className={`h-4 w-4 ${report.is_ngo_favourite ? 'fill-yellow-500' : ''}`} />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmDialog({ open: true, type: 'archive', report })}
+                      disabled={actionLoading[`archive_${report.id}`]}
+                    >
+                      {actionLoading[`archive_${report.id}`] ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Archive className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmDialog({ open: true, type: 'unlink', report })}
+                      disabled={actionLoading[`unlink_${report.id}`]}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      {actionLoading[`unlink_${report.id}`] ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Unlink className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleToggleFavourite(report)}
-                    disabled={actionLoading[`fav_${report.id}`]}
-                    className={report.is_ngo_favourite ? 'text-yellow-500' : ''}
+                    onClick={() => navigate(`/analysis-result?id=${report.id}`)}
                   >
-                    {actionLoading[`fav_${report.id}`] ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Star className={`h-4 w-4 ${report.is_ngo_favourite ? 'fill-yellow-500' : ''}`} />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setConfirmDialog({ open: true, type: 'archive', report })}
-                    disabled={actionLoading[`archive_${report.id}`]}
-                  >
-                    {actionLoading[`archive_${report.id}`] ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Archive className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setConfirmDialog({ open: true, type: 'unlink', report })}
-                    disabled={actionLoading[`unlink_${report.id}`]}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    {actionLoading[`unlink_${report.id}`] ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Unlink className="h-4 w-4" />
-                    )}
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    {isArabic ? 'عرض' : 'View'}
                   </Button>
                 </div>
               </CardContent>
