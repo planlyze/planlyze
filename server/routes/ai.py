@@ -398,7 +398,7 @@ Be concise but helpful. If the user asks about their specific analysis, referenc
         response = client.messages.create(
             model=DEFAULT_MODEL,
             max_tokens=2048,
-            system=[{"type": "text", "text": system_prompt}],
+            system=system_prompt,
             messages=messages
         )
         
