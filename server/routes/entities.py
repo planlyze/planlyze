@@ -191,6 +191,12 @@ def generate_analysis_entry(user):
             if linked_count >= voucher.linked_ideas_count:
                 return jsonify({'error': 'Voucher has reached maximum linked ideas'}), 400
         
+        existing_user_voucher = Analysis.query.filter_by(voucher_id=voucher.id, user_email=user.email, is_deleted=False).first()
+        if existing_user_voucher:
+            is_arabic = report_language == 'arabic'
+            error_msg = 'لقد استخدمت هذه القسيمة من قبل' if is_arabic else 'You have already used this voucher'
+            return jsonify({'error': error_msg}), 400
+        
         from server.services.settings_service import get_premium_report_cost
         premium_cost = get_premium_report_cost()
         user_record = User.query.filter_by(email=user.email).first()
