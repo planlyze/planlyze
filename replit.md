@@ -24,6 +24,17 @@ Admin-configurable credit settings stored in SystemSettings table:
 - **Referral Flow**: Signup sets referral status='pending' → First premium report completion → Award bonus to referrer + send notification
 - **Admin UI**: "Credit Settings" tab in Admin Settings page for managing these values
 
+### NGO Dashboard
+The platform includes an NGO (Non-Governmental Organization) dashboard feature for verified organizations:
+- **Request System**: Users can submit NGO status requests with organization name, description, website, and contact information
+- **Database Model**: `NGORequest` model stores requests with status tracking (pending/approved/rejected) and admin review fields
+- **User Status**: `ngo_status` field on User model tracks approval status (none/pending/approved/rejected)
+- **Admin Management**: Admins with `view_ngo_requests` or `manage_ngo_requests` permissions can view and process requests
+- **Permission Checks**: Backend uses `has_permission()` helper with eager-loaded role data via `joinedload(User.role)`
+- **API Endpoints**: POST/GET `/api/ngo/request`, GET/PUT `/api/ngo/requests` (admin)
+- **Frontend Pages**: `NGODashboard.jsx` (user-facing with locked/unlocked states), `AdminNGORequests.jsx` (admin management)
+- **Navigation**: NGO Dashboard shows lock icon when not approved, pending badge when under review
+
 ### Syrian Competitors Analysis
 Enhanced competitor analysis using hardcoded Syrian competitor data:
 - **Data Source**: `server/services/competitor_service.py` contains hardcoded competitor data (20 Syrian apps/services across delivery, e-commerce, jobs, taxi, health, real estate, etc.)
