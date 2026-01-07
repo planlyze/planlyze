@@ -236,6 +236,7 @@ export default function NGODashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>{isArabic ? 'الرمز' : 'Code'}</TableHead>
                     <TableHead>{isArabic ? 'الاسم' : 'Name'}</TableHead>
                     <TableHead>{isArabic ? 'الوصف' : 'Description'}</TableHead>
                     <TableHead>{isArabic ? 'تاريخ التفعيل' : 'Activation Period'}</TableHead>
@@ -247,6 +248,11 @@ export default function NGODashboard() {
                 <TableBody>
                   {vouchers.map((voucher) => (
                     <TableRow key={voucher.id}>
+                      <TableCell>
+                        <code className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded font-mono text-sm">
+                          {voucher.code}
+                        </code>
+                      </TableCell>
                       <TableCell className="font-medium">{voucher.name}</TableCell>
                       <TableCell className="max-w-xs truncate">{voucher.description || '-'}</TableCell>
                       <TableCell>

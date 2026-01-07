@@ -167,16 +167,16 @@ def generate_analysis_entry(user):
     data = request.get_json() or {}
     business_idea = data.get('business_idea', '').strip()
     report_language = data.get('report_language', 'english').lower()
-    voucher_id = data.get('voucher_id')
+    voucher_code = data.get('voucher_code', '').strip().upper()
     
     if not business_idea:
         return jsonify({'error': 'Business idea is required'}), 400
     
     validated_voucher = None
-    if voucher_id:
-        voucher = ProjectVoucher.query.get(voucher_id)
+    if voucher_code:
+        voucher = ProjectVoucher.query.filter_by(code=voucher_code).first()
         if not voucher:
-            return jsonify({'error': 'Voucher not found'}), 400
+            return jsonify({'error': 'Invalid voucher code'}), 400
         if not voucher.is_active:
             return jsonify({'error': 'Voucher is not active'}), 400
         

@@ -774,11 +774,18 @@ class NGORequest(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+def generate_voucher_code():
+    import random
+    import string
+    chars = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(chars, k=8))
+
 class ProjectVoucher(db.Model):
     __tablename__ = 'project_vouchers'
     
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
     ngo_request_id = db.Column(db.String(36), db.ForeignKey('ngo_requests.id'), nullable=False)
+    code = db.Column(db.String(20), unique=True, nullable=False, default=generate_voucher_code)
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     activation_start = db.Column(db.Date)
@@ -794,6 +801,7 @@ class ProjectVoucher(db.Model):
         return {
             'id': self.id,
             'ngo_request_id': self.ngo_request_id,
+            'code': self.code,
             'name': self.name,
             'description': self.description,
             'activation_start': self.activation_start.isoformat() if self.activation_start else None,

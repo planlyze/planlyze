@@ -9,7 +9,7 @@ import { Globe, Sparkles, Lightbulb, AlertCircle, CheckCircle2, Target, Building
 import { INDUSTRIES as WIZARD_INDUSTRIES } from "@/components/constants/industries";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
-import { api, NGO } from "@/api/client";
+import { api } from "@/api/client";
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
 
@@ -28,10 +28,8 @@ export default function AnalysisWizard({ onSubmit  }) {
     industry: "",
     report_language: "english",
     country: "Syria",
-    voucher_id: ""
+    voucher_code: ""
   });
-
-  const [availableVouchers, setAvailableVouchers] = useState([]);
 
   const isUIArabic =
     i18n.language === "ar" || user?.preferred_language === "arabic";
@@ -44,18 +42,6 @@ export default function AnalysisWizard({ onSubmit  }) {
       }));
     }
   }, [user]);
-
-  useEffect(() => {
-    const fetchVouchers = async () => {
-      try {
-        const vouchers = await NGO.getAvailableVouchers();
-        setAvailableVouchers(vouchers || []);
-      } catch (error) {
-        console.error('Failed to fetch available vouchers:', error);
-      }
-    };
-    fetchVouchers();
-  }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -385,43 +371,29 @@ export default function AnalysisWizard({ onSubmit  }) {
           </div>
         </div>
 
-        {availableVouchers.length > 0 && (
-          <div className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 font-bold text-sm">
-                <Ticket className="w-4 h-4" />
-              </div>
-              <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                {isUIArabic ? "قسيمة منظمة غير ربحية" : "NGO Voucher"}
-              </Label>
-              <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 text-xs">
-                {isUIArabic ? "اختياري" : "Optional"}
-              </Badge>
+        <div className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 font-bold text-sm">
+              <Ticket className="w-4 h-4" />
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-              {isUIArabic ? "يمكنك ربط تحليلك بمنظمة غير ربحية لمشاركة التقرير معهم" : "You can link your analysis to an NGO to share the report with them"}
-            </p>
-            <Select value={formData.voucher_id || "none"} onValueChange={(value) => handleInputChange('voucher_id', value === "none" ? "" : value)}>
-              <SelectTrigger className="border-2 bg-white dark:bg-gray-700 border-orange-200 dark:border-orange-700">
-                <SelectValue placeholder={isUIArabic ? "اختر قسيمة (اختياري)" : "Select a voucher (optional)"} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{isUIArabic ? "بدون قسيمة" : "No voucher"}</SelectItem>
-                {availableVouchers.map((voucher) => (
-                  <SelectItem key={voucher.id} value={voucher.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{voucher.name}</span>
-                      <span className="text-xs text-slate-500">
-                        {voucher.ngo_name}
-                        {voucher.remaining_slots !== null && ` • ${voucher.remaining_slots} ${isUIArabic ? 'متبقية' : 'slots left'}`}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-base font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              {isUIArabic ? "رمز القسيمة" : "Voucher Code"}
+            </Label>
+            <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 text-xs">
+              {isUIArabic ? "اختياري" : "Optional"}
+            </Badge>
           </div>
-        )}
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+            {isUIArabic ? "أدخل رمز القسيمة إذا كان لديك واحد من منظمة غير ربحية" : "Enter your voucher code if you have one from an NGO"}
+          </p>
+          <Input
+            value={formData.voucher_code}
+            onChange={(e) => handleInputChange('voucher_code', e.target.value.toUpperCase())}
+            placeholder={isUIArabic ? "مثال: ABC12345" : "e.g., ABC12345"}
+            className="border-2 bg-white dark:bg-gray-700 border-orange-200 dark:border-orange-700 uppercase"
+            maxLength={20}
+          />
+        </div>
 
         <div className="pt-4">
           <Button
