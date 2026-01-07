@@ -60,6 +60,15 @@ NGOs can view and manage analyses linked to their vouchers:
   - PUT `/api/ngo/analyses/<id>/archive` - toggle archive  
   - PUT `/api/ngo/analyses/<id>/unlink` - remove voucher link
 
+### NGO Email Notifications
+Automated email notifications for NGO-related events:
+- **Admin Notification**: Sent to all admins when a new NGO request is submitted
+- **Status Change Email**: Sent to NGO user when their request is approved or rejected (bilingual support)
+- **Report Linked Email**: Sent to NGO owner when a beneficiary links a report to their voucher
+- **Template System**: Uses `EmailTemplate` model with `template_key` for database-stored templates
+- **Variable Substitution**: Templates support `{{variable}}` placeholders and `{{#if condition}}...{{/if}}` conditional blocks
+- **Error Handling**: All email sending wrapped in try-catch to prevent blocking core operations
+
 ### Syrian Competitors Analysis
 Enhanced competitor analysis using hardcoded Syrian competitor data:
 - **Data Source**: `server/services/competitor_service.py` contains hardcoded competitor data (20 Syrian apps/services across delivery, e-commerce, jobs, taxi, health, real estate, etc.)
