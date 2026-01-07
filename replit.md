@@ -26,7 +26,7 @@ Admin-configurable credit settings stored in SystemSettings table:
 
 ### NGO Dashboard
 The platform includes an NGO (Non-Governmental Organization) dashboard feature for verified organizations:
-- **Request System**: Users can submit NGO status requests with organization name, description, website, and contact information
+- **Request System**: Users can submit NGO status requests with organization name, description, website, phone (required), and contact information
 - **Database Model**: `NGORequest` model stores requests with status tracking (pending/approved/rejected) and admin review fields
 - **User Status**: `ngo_status` field on User model tracks approval status (none/pending/approved/rejected)
 - **Admin Management**: Admins with `view_ngo_requests` or `manage_ngo_requests` permissions can view and process requests
@@ -34,6 +34,14 @@ The platform includes an NGO (Non-Governmental Organization) dashboard feature f
 - **API Endpoints**: POST/GET `/api/ngo/request`, GET/PUT `/api/ngo/requests` (admin)
 - **Frontend Pages**: `NGODashboard.jsx` (user-facing with locked/unlocked states), `AdminNGORequests.jsx` (admin management)
 - **Navigation**: NGO Dashboard shows lock icon when not approved, pending badge when under review
+
+### Project Vouchers (NGO Feature)
+Approved NGOs can manage project vouchers to support beneficiary ideas:
+- **Database Model**: `ProjectVoucher` model with name, description, activation_start, activation_end, linked_ideas_count, is_active
+- **API Endpoints**: CRUD operations at `/api/ngo/vouchers` (requires approved NGO status)
+- **Date Validation**: ISO format (YYYY-MM-DD) with proper error handling returning 400 on invalid formats
+- **Frontend UI**: Voucher management table, add/edit dialog, delete confirmation, statistics card showing total/active counts
+- **Access Control**: Only users with approved NGO status can access voucher endpoints
 
 ### Syrian Competitors Analysis
 Enhanced competitor analysis using hardcoded Syrian competitor data:
