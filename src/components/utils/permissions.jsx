@@ -40,6 +40,10 @@ export const PERMISSIONS = {
   // Discount permissions
   VIEW_DISCOUNTS: 'view_discounts',
   MANAGE_DISCOUNTS: 'manage_discounts',
+  
+  // NGO permissions
+  VIEW_NGO_REQUESTS: 'view_ngo_requests',
+  MANAGE_NGO_REQUESTS: 'manage_ngo_requests',
 };
 
 // Predefined role templates
@@ -92,6 +96,8 @@ export const PERMISSION_LABELS = {
   [PERMISSIONS.VIEW_AUDIT_LOGS]: 'View Audit Logs',
   [PERMISSIONS.VIEW_DISCOUNTS]: 'View Discount Codes',
   [PERMISSIONS.MANAGE_DISCOUNTS]: 'Manage Discount Codes',
+  [PERMISSIONS.VIEW_NGO_REQUESTS]: 'View NGO Requests',
+  [PERMISSIONS.MANAGE_NGO_REQUESTS]: 'Manage NGO Requests',
 };
 
 // Check if user is an admin (admin or super_admin role) - kept for backwards compatibility

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'next-themes';
 import { createPageUrl } from "@/utils";
-import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell, ChevronRight, Sparkles, Sun, Moon } from "lucide-react";
+import { BarChart3, Brain, FileText, Plus, Settings, User as UserIcon, LogOut, Shield, Globe, Pencil, Wallet, Bell, ChevronRight, Sparkles, Sun, Moon, Building2, Lock } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { User } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
@@ -81,6 +81,13 @@ const baseNavigationItems = [
         title: "Notifications",
         url: createPageUrl("Notifications"),
         icon: Bell
+      },
+      {
+        id: "ngo_dashboard",
+        title: "NGO Dashboard",
+        url: createPageUrl("NGODashboard"),
+        icon: Building2,
+        isNGO: true
       }
     ];
 
@@ -183,6 +190,13 @@ const adminNavigationItems = [
     url: createPageUrl("AdminCurrencies"),
     icon: Wallet,
     requiredPermissions: [PERMISSIONS.MANAGE_SETTINGS]
+  },
+  {
+    id: "admin_ngo_requests",
+    title: "NGO Requests",
+    url: createPageUrl("AdminNGORequests"),
+    icon: Building2,
+    requiredPermissions: [PERMISSIONS.VIEW_USERS]
   }
 ];
 
@@ -234,6 +248,8 @@ export default function Layout({ children, currentPageName }) {
         case "admin_users": return "جميع المستخدمين";
         case "admin_reports": return "جميع التقارير";
         case "admin_referrals": return "جميع الإحالات";
+        case "ngo_dashboard": return "لوحة المنظمات";
+        case "admin_ngo_requests": return "طلبات المنظمات";
         default: return en;
       }
     };
@@ -456,26 +472,37 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu className="space-y-1">
-                    {navigationItems.filter(item => item.id !== 'new_analysis').map((item) =>
+                    {navigationItems.filter(item => item.id !== 'new_analysis').map((item) => {
+                      const isNGOLocked = item.isNGO && currentUser?.ngo_status !== 'approved';
+                      return (
                       <SidebarMenuItem key={item.id}>
                         <SidebarMenuButton
                           asChild
                           className={`transition-all duration-200 rounded-lg px-3 py-2.5 ${
                             location.pathname === item.url
                               ? `bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-semibold ${isArabic ? 'border-r-4' : 'border-l-4'} border-orange-500`
-                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                              : isNGOLocked 
+                                ? 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                           }`}
                         >
                           <Link to={item.url} className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-                            <item.icon className={`w-5 h-5 ${location.pathname === item.url ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                            {isNGOLocked ? (
+                              <Lock className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                            ) : (
+                              <item.icon className={`w-5 h-5 ${location.pathname === item.url ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                            )}
                             <span className="flex-1">{item.title}</span>
-                            {location.pathname === item.url && (
+                            {isNGOLocked && (
+                              <span className="text-xs text-gray-400">{currentUser?.ngo_status === 'pending' ? (isArabic ? 'قيد الانتظار' : 'Pending') : ''}</span>
+                            )}
+                            {location.pathname === item.url && !isNGOLocked && (
                               <ChevronRight className={`w-4 h-4 text-orange-400 ${isArabic ? 'rotate-180' : ''}`} />
                             )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                    )}
+                    )})}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>

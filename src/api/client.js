@@ -452,3 +452,10 @@ export const InvokeLLM = async (prompt, options = {}) => {
   });
   return response.response;
 };
+
+export const NGO = {
+  submitRequest: (data) => api.post("/ngo/request", data),
+  getMyRequest: () => api.get("/ngo/my-request"),
+  getAllRequests: (status) => api.get(`/ngo/requests${status ? `?status=${status}` : ''}`),
+  updateRequest: (id, data) => api.put(`/ngo/requests/${id}`, data),
+};

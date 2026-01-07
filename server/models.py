@@ -47,6 +47,7 @@ class User(db.Model):
     password_reset_token_expires = db.Column(db.DateTime)
     password_reset_attempts = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
+    ngo_status = db.Column(db.String(50), default=None)
     last_login = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -96,6 +97,7 @@ class User(db.Model):
             'notification_preferences': self.notification_preferences or {},
             'email_verified': self.email_verified,
             'is_active': self.is_active,
+            'ngo_status': self.ngo_status,
             'last_login': self.last_login.isoformat() if self.last_login else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
@@ -718,4 +720,46 @@ class SocialMedia(db.Model):
             'display_order': self.display_order,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class NGORequest(db.Model):
+    __tablename__ = 'ngo_requests'
+    
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    organization_name = db.Column(db.String(255), nullable=False)
+    organization_type = db.Column(db.String(100))
+    contact_name = db.Column(db.String(255), nullable=False)
+    contact_email = db.Column(db.String(255), nullable=False)
+    contact_phone = db.Column(db.String(50))
+    website = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    status = db.Column(db.String(50), default='pending')
+    admin_notes = db.Column(db.Text)
+    reviewed_by = db.Column(db.String(255))
+    reviewed_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('ngo_requests', lazy='dynamic'))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'user_email': self.user.email if self.user else None,
+            'user_name': self.user.full_name if self.user else None,
+            'organization_name': self.organization_name,
+            'organization_type': self.organization_type,
+            'contact_name': self.contact_name,
+            'contact_email': self.contact_email,
+            'contact_phone': self.contact_phone,
+            'website': self.website,
+            'description': self.description,
+            'status': self.status,
+            'admin_notes': self.admin_notes,
+            'reviewed_by': self.reviewed_by,
+            'reviewed_at': self.reviewed_at.isoformat() if self.reviewed_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

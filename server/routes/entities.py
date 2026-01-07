@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from server.models import (
     db, Analysis, Transaction, CreditPackage, Payment, EmailTemplate,
     PaymentMethod, DiscountCode, Role, AuditLog, ActivityFeed, 
-    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner, Currency
+    Notification, ReportShare, ChatConversation, Referral, User, SystemSettings, Partner, Currency, NGORequest
 )
 from server.routes.auth import get_current_user
 from datetime import datetime
@@ -2652,3 +2652,85 @@ def delete_currency(user, id):
     db.session.delete(currency)
     db.session.commit()
     return jsonify({'success': True})
+
+@entities_bp.route('/ngo/request', methods=['POST'])
+@require_auth
+def submit_ngo_request(user):
+    data = request.get_json()
+    
+    existing = NGORequest.query.filter_by(user_id=user.id).filter(
+        NGORequest.status.in_(['pending', 'approved'])
+    ).first()
+    if existing:
+        if existing.status == 'approved':
+            return jsonify({'error': 'You are already approved as an NGO'}), 400
+        return jsonify({'error': 'You already have a pending NGO request'}), 400
+    
+    ngo_request = NGORequest(
+        user_id=user.id,
+        organization_name=data.get('organization_name'),
+        organization_type=data.get('organization_type'),
+        contact_name=data.get('contact_name'),
+        contact_email=data.get('contact_email'),
+        contact_phone=data.get('contact_phone'),
+        website=data.get('website'),
+        description=data.get('description')
+    )
+    db.session.add(ngo_request)
+    user.ngo_status = 'pending'
+    db.session.commit()
+    return jsonify(ngo_request.to_dict()), 201
+
+@entities_bp.route('/ngo/my-request', methods=['GET'])
+@require_auth
+def get_my_ngo_request(user):
+    ngo_request = NGORequest.query.filter_by(user_id=user.id).order_by(
+        NGORequest.created_at.desc()
+    ).first()
+    if not ngo_request:
+        return jsonify({'request': None, 'status': user.ngo_status})
+    return jsonify({'request': ngo_request.to_dict(), 'status': user.ngo_status})
+
+@entities_bp.route('/ngo/requests', methods=['GET'])
+@require_admin
+def get_all_ngo_requests(user):
+    status = request.args.get('status')
+    query = NGORequest.query.order_by(NGORequest.created_at.desc())
+    if status:
+        query = query.filter_by(status=status)
+    requests_list = query.all()
+    return jsonify([r.to_dict() for r in requests_list])
+
+@entities_bp.route('/ngo/requests/<id>', methods=['PUT'])
+@require_admin
+def update_ngo_request(user, id):
+    ngo_request = NGORequest.query.get(id)
+    if not ngo_request:
+        return jsonify({'error': 'NGO request not found'}), 404
+    
+    data = request.get_json()
+    new_status = data.get('status')
+    
+    if new_status and new_status in ['approved', 'rejected', 'pending']:
+        ngo_request.status = new_status
+        ngo_request.reviewed_by = user.email
+        ngo_request.reviewed_at = datetime.utcnow()
+        
+        target_user = User.query.get(ngo_request.user_id)
+        if target_user:
+            target_user.ngo_status = new_status
+            
+            notification = Notification(
+                user_email=target_user.email,
+                type='ngo_status',
+                title='NGO Request ' + ('Approved' if new_status == 'approved' else 'Rejected' if new_status == 'rejected' else 'Updated'),
+                message=f'Your NGO request for {ngo_request.organization_name} has been {new_status}.',
+                meta_data={'ngo_request_id': id, 'status': new_status}
+            )
+            db.session.add(notification)
+    
+    if 'admin_notes' in data:
+        ngo_request.admin_notes = data['admin_notes']
+    
+    db.session.commit()
+    return jsonify(ngo_request.to_dict())
