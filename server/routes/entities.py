@@ -40,6 +40,16 @@ def is_admin(user):
     role_name = get_user_role_name(user)
     return role_name in ['admin', 'super_admin', 'owner']
 
+def has_permission(user, permission):
+    if not user or not user.role:
+        return False
+    role_name = user.role.name
+    if role_name in ['super_admin', 'owner']:
+        return True
+    if not user.role.permissions:
+        return False
+    return permission in user.role.permissions
+
 # Analysis endpoints
 @entities_bp.route('/analyses', methods=['GET'])
 @require_auth
@@ -2694,6 +2704,8 @@ def get_my_ngo_request(user):
 @entities_bp.route('/ngo/requests', methods=['GET'])
 @require_admin
 def get_all_ngo_requests(user):
+    if not has_permission(user, 'view_ngo_requests') and not has_permission(user, 'manage_ngo_requests'):
+        return jsonify({'error': 'Permission denied'}), 403
     status = request.args.get('status')
     query = NGORequest.query.order_by(NGORequest.created_at.desc())
     if status:
@@ -2704,6 +2716,8 @@ def get_all_ngo_requests(user):
 @entities_bp.route('/ngo/requests/<id>', methods=['PUT'])
 @require_admin
 def update_ngo_request(user, id):
+    if not has_permission(user, 'manage_ngo_requests'):
+        return jsonify({'error': 'Permission denied'}), 403
     ngo_request = NGORequest.query.get(id)
     if not ngo_request:
         return jsonify({'error': 'NGO request not found'}), 404

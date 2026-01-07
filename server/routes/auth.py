@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy.orm import joinedload
 from server.models import db, User, Role, Referral, Notification, Transaction
 from server.utils.translations import get_message, get_language
 from server.services.email_service import (
@@ -52,7 +53,7 @@ def get_current_user():
     if not payload:
         return None
     
-    user = User.query.filter_by(email=payload['email']).first()
+    user = User.query.options(joinedload(User.role)).filter_by(email=payload['email']).first()
     return user
 
 @auth_bp.route('/register', methods=['POST'])

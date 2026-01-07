@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { NGO } from '@/api/client';
+import { hasPermission, PERMISSIONS } from '@/components/utils/permissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +16,7 @@ import { toast } from 'sonner';
 
 export default function AdminNGORequests() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
@@ -24,10 +27,16 @@ export default function AdminNGORequests() {
   const [updating, setUpdating] = useState(false);
 
   const isArabic = user?.language === 'ar';
+  const canView = hasPermission(user, PERMISSIONS.VIEW_NGO_REQUESTS) || hasPermission(user, PERMISSIONS.MANAGE_NGO_REQUESTS);
+  const canManage = hasPermission(user, PERMISSIONS.MANAGE_NGO_REQUESTS);
 
   useEffect(() => {
+    if (!canView) {
+      navigate('/Dashboard');
+      return;
+    }
     fetchRequests();
-  }, [statusFilter]);
+  }, [statusFilter, canView]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -118,12 +127,12 @@ export default function AdminNGORequests() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || 'all'} onValueChange={(v) => setStatusFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder={isArabic ? 'كل الحالات' : 'All Status'} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{isArabic ? 'كل الحالات' : 'All Status'}</SelectItem>
+                <SelectItem value="all">{isArabic ? 'كل الحالات' : 'All Status'}</SelectItem>
                 <SelectItem value="pending">{isArabic ? 'قيد الانتظار' : 'Pending'}</SelectItem>
                 <SelectItem value="approved">{isArabic ? 'موافق' : 'Approved'}</SelectItem>
                 <SelectItem value="rejected">{isArabic ? 'مرفوض' : 'Rejected'}</SelectItem>
@@ -243,7 +252,7 @@ export default function AdminNGORequests() {
             <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
               {isArabic ? 'إغلاق' : 'Close'}
             </Button>
-            {selectedRequest?.status !== 'rejected' && (
+            {canManage && selectedRequest?.status !== 'rejected' && (
               <Button
                 variant="destructive"
                 onClick={() => handleStatusChange(selectedRequest.id, 'rejected')}
@@ -253,7 +262,7 @@ export default function AdminNGORequests() {
                 {isArabic ? 'رفض' : 'Reject'}
               </Button>
             )}
-            {selectedRequest?.status !== 'approved' && (
+            {canManage && selectedRequest?.status !== 'approved' && (
               <Button
                 className="bg-green-600 hover:bg-green-700"
                 onClick={() => handleStatusChange(selectedRequest.id, 'approved')}
