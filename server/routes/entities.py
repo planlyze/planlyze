@@ -258,6 +258,19 @@ def generate_analysis_entry(user):
     
     db.session.commit()
     
+    if expected_report_type == 'premium':
+        try:
+            from server.services.referral_service import check_and_award_referral_bonus
+            referral_result = check_and_award_referral_bonus(
+                user_email=user.email,
+                analysis_id=analysis.id,
+                is_premium_completed=True
+            )
+            if referral_result.get('awarded'):
+                print(f"[Referral Bonus] Awarded {referral_result['credits']} credits to {referral_result['referrer_email']}")
+        except Exception as referral_error:
+            print(f"[Referral Bonus] Check failed: {referral_error}")
+    
     if validated_voucher:
         try:
             from server.services.email_service import send_ngo_report_linked_email
