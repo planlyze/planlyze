@@ -9,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Star, Archive, Unlink, Loader2, TrendingUp, Clock, Users, DollarSign, User, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Star, Archive, Unlink, Loader2, TrendingUp, Clock, Users, DollarSign, User, Mail, Phone, Search, Filter, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 export default function VoucherReports() {
@@ -22,8 +24,50 @@ export default function VoucherReports() {
   const [actionLoading, setActionLoading] = useState({});
   const [confirmDialog, setConfirmDialog] = useState({ open: false, type: null, report: null });
   const [userDialog, setUserDialog] = useState({ open: false, user: null });
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterFavourite, setFilterFavourite] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('none');
 
   const isArabic = user?.language === 'ar';
+
+  const categories = [...new Set(reports.map(r => r.industry).filter(Boolean))];
+
+  const filteredReports = reports.filter(report => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesIdea = report.business_idea?.toLowerCase().includes(query);
+      const matchesUser = report.user?.full_name?.toLowerCase().includes(query) || 
+                          report.user?.email?.toLowerCase().includes(query);
+      if (!matchesIdea && !matchesUser) return false;
+    }
+    if (filterFavourite === 'favourite' && !report.is_ngo_favourite) return false;
+    if (filterFavourite === 'not_favourite' && report.is_ngo_favourite) return false;
+    if (filterCategory !== 'all' && report.industry !== filterCategory) return false;
+    return true;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'market_fit_high': return (b.market_fit_score ?? 0) - (a.market_fit_score ?? 0);
+      case 'market_fit_low': return (a.market_fit_score ?? 0) - (b.market_fit_score ?? 0);
+      case 'build_time_high': return (b.time_to_build_months ?? 0) - (a.time_to_build_months ?? 0);
+      case 'build_time_low': return (a.time_to_build_months ?? 0) - (b.time_to_build_months ?? 0);
+      case 'competitors_high': return (b.competitors_count ?? 0) - (a.competitors_count ?? 0);
+      case 'competitors_low': return (a.competitors_count ?? 0) - (b.competitors_count ?? 0);
+      case 'cost_high': return (b.starting_cost_usd ?? 0) - (a.starting_cost_usd ?? 0);
+      case 'cost_low': return (a.starting_cost_usd ?? 0) - (b.starting_cost_usd ?? 0);
+      default: return 0;
+    }
+  });
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterFavourite('all');
+    setFilterCategory('all');
+    setSortBy('none');
+  };
+
+  const hasActiveFilters = searchQuery || filterFavourite !== 'all' || filterCategory !== 'all' || sortBy !== 'none';
 
   useEffect(() => {
     fetchReports();
@@ -118,15 +162,83 @@ export default function VoucherReports() {
         />
       </div>
 
-      <div className="flex items-center gap-2 mb-6">
-        <Switch 
-          id="show-archived" 
-          checked={showArchived} 
-          onCheckedChange={setShowArchived}
-        />
-        <Label htmlFor="show-archived" className="text-sm">
-          {isArabic ? 'عرض المؤرشفة' : 'Show Archived'}
-        </Label>
+      <div className="space-y-4 mb-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder={isArabic ? 'بحث بفكرة العمل أو اسم المستخدم...' : 'Search by idea or user name...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <Select value={filterFavourite} onValueChange={setFilterFavourite}>
+            <SelectTrigger className="w-[140px]">
+              <Star className="h-4 w-4 mr-2" />
+              <SelectValue placeholder={isArabic ? 'المفضلة' : 'Favourite'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{isArabic ? 'الكل' : 'All'}</SelectItem>
+              <SelectItem value="favourite">{isArabic ? 'مفضلة' : 'Favourites'}</SelectItem>
+              <SelectItem value="not_favourite">{isArabic ? 'غير مفضلة' : 'Not Favourite'}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <SelectTrigger className="w-[160px]">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder={isArabic ? 'الفئة' : 'Category'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{isArabic ? 'كل الفئات' : 'All Categories'}</SelectItem>
+              {categories.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={isArabic ? 'ترتيب حسب' : 'Sort by'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{isArabic ? 'بدون ترتيب' : 'No sorting'}</SelectItem>
+              <SelectItem value="market_fit_high">{isArabic ? 'ملاءمة السوق (الأعلى)' : 'Market Fit (High)'}</SelectItem>
+              <SelectItem value="market_fit_low">{isArabic ? 'ملاءمة السوق (الأدنى)' : 'Market Fit (Low)'}</SelectItem>
+              <SelectItem value="build_time_high">{isArabic ? 'وقت البناء (الأطول)' : 'Build Time (Longest)'}</SelectItem>
+              <SelectItem value="build_time_low">{isArabic ? 'وقت البناء (الأقصر)' : 'Build Time (Shortest)'}</SelectItem>
+              <SelectItem value="competitors_high">{isArabic ? 'المنافسون (الأكثر)' : 'Competitors (Most)'}</SelectItem>
+              <SelectItem value="competitors_low">{isArabic ? 'المنافسون (الأقل)' : 'Competitors (Least)'}</SelectItem>
+              <SelectItem value="cost_high">{isArabic ? 'التكلفة (الأعلى)' : 'Cost (Highest)'}</SelectItem>
+              <SelectItem value="cost_low">{isArabic ? 'التكلفة (الأدنى)' : 'Cost (Lowest)'}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="h-4 w-4 mr-1" />
+              {isArabic ? 'مسح الفلاتر' : 'Clear'}
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="show-archived" 
+            checked={showArchived} 
+            onCheckedChange={setShowArchived}
+          />
+          <Label htmlFor="show-archived" className="text-sm">
+            {isArabic ? 'عرض المؤرشفة' : 'Show Archived'}
+          </Label>
+          {filteredReports.length !== reports.length && (
+            <span className="text-sm text-gray-500 ml-4">
+              {isArabic ? `عرض ${filteredReports.length} من ${reports.length}` : `Showing ${filteredReports.length} of ${reports.length}`}
+            </span>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -139,9 +251,15 @@ export default function VoucherReports() {
             {isArabic ? 'لا توجد تقارير مرتبطة بهذه القسيمة' : 'No reports linked to this voucher'}
           </CardContent>
         </Card>
+      ) : filteredReports.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-gray-500">
+            {isArabic ? 'لا توجد نتائج تطابق الفلاتر' : 'No results match your filters'}
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {reports.map((report) => (
+          {filteredReports.map((report) => (
             <Card key={report.id} className={`relative ${report.is_ngo_archived ? 'opacity-60' : ''}`}>
               {report.is_ngo_favourite && (
                 <div className="absolute top-2 right-2">

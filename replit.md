@@ -52,6 +52,7 @@ NGOs can view and manage analyses linked to their vouchers:
 - **User Details**: Clickable user name shows modal with user info (email, name)
 - **NGO Actions**: Favourite toggle (star), Archive with confirmation, Unlink with confirmation
 - **Archive Filter**: Toggle switch to show/hide archived reports
+- **Search & Filters**: Search by business idea/user name, filter by favourite status, category, sort by metrics (Market Fit, Build Time, Competitors, Cost - high/low)
 - **Analysis Model Fields**: `is_ngo_favourite`, `is_ngo_archived` boolean flags
 - **API Endpoints**: 
   - GET `/api/ngo/vouchers/<id>/analyses` - detailed list with overview data
