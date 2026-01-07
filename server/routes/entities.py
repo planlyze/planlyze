@@ -2887,8 +2887,14 @@ def create_ngo_voucher(user):
     except ValueError:
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
     
+    from server.models import generate_voucher_code
+    code = generate_voucher_code(ngo_request.organization_name)
+    while ProjectVoucher.query.filter_by(code=code).first():
+        code = generate_voucher_code(ngo_request.organization_name)
+    
     voucher = ProjectVoucher(
         ngo_request_id=ngo_request.id,
+        code=code,
         name=data.get('name'),
         description=data.get('description'),
         activation_start=activation_start,

@@ -774,11 +774,15 @@ class NGORequest(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
-def generate_voucher_code():
+def generate_voucher_code(org_name=None):
     import random
-    import string
-    chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(chars, k=8))
+    import re
+    random_digits = ''.join([str(random.randint(0, 9)) for _ in range(3)])
+    if org_name:
+        clean_name = re.sub(r'[^a-zA-Z0-9]', '', org_name).upper()
+        prefix = clean_name[:10] if len(clean_name) > 10 else clean_name
+        return f"{prefix}_{random_digits}"
+    return f"VOUCHER_{random_digits}"
 
 class ProjectVoucher(db.Model):
     __tablename__ = 'project_vouchers'
