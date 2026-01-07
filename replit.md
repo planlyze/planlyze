@@ -44,12 +44,13 @@ Approved NGOs can manage project vouchers to support beneficiary ideas:
 - **Frontend UI**: Voucher management table, add/edit dialog, delete confirmation, statistics card showing total/active counts
 - **Access Control**: Only users with approved NGO status can access voucher endpoints
 - **Credit Validation**: Users must have enough credits for premium report before using voucher code (validated after voucher existence check)
+- **Profile Requirement**: Users must complete their profile (full name and phone number) before using a voucher code
 
 ### Voucher Reports Page (NGO Feature)
 NGOs can view and manage analyses linked to their vouchers:
 - **Separate Page**: `/ngo-dashboard/voucher/:voucherId` shows card-based report listing
 - **Report Cards Display**: Business idea, category, Market Fit %, Months to Build, Competitors count, Starting Cost
-- **User Details**: Clickable user name shows modal with user info (email, name)
+- **User Details**: Clickable user name shows modal with user info (email, name, phone number)
 - **NGO Actions**: Favourite toggle (star), Archive with confirmation, Unlink with confirmation
 - **Archive Filter**: Toggle switch to show/hide archived reports
 - **Search & Filters**: Search by business idea/user name, filter by favourite status, category, sort by metrics (Market Fit, Build Time, Competitors, Cost - high/low)

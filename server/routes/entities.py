@@ -197,6 +197,16 @@ def generate_analysis_entry(user):
             error_msg = 'لقد استخدمت هذه القسيمة من قبل' if is_arabic else 'You have already used this voucher'
             return jsonify({'error': error_msg}), 400
         
+        user_record = User.query.filter_by(email=user.email).first()
+        if user_record:
+            is_arabic = report_language == 'arabic'
+            if not user_record.full_name or not user_record.full_name.strip():
+                error_msg = 'يرجى إكمال ملفك الشخصي (الاسم الكامل) قبل استخدام القسيمة' if is_arabic else 'Please complete your profile (full name) before using a voucher'
+                return jsonify({'error': error_msg, 'profile_incomplete': True}), 400
+            if not user_record.phone_number or not user_record.phone_number.strip():
+                error_msg = 'يرجى إكمال ملفك الشخصي (رقم الهاتف) قبل استخدام القسيمة' if is_arabic else 'Please complete your profile (phone number) before using a voucher'
+                return jsonify({'error': error_msg, 'profile_incomplete': True}), 400
+        
         from server.services.settings_service import get_premium_report_cost
         premium_cost = get_premium_report_cost()
         user_record = User.query.filter_by(email=user.email).first()
@@ -2914,7 +2924,8 @@ def get_voucher_analyses(user, voucher_id):
             'user': {
                 'id': user.id if user else None,
                 'email': user.email if user else a.user_email,
-                'full_name': user.full_name if user else None
+                'full_name': user.full_name if user else None,
+                'phone_number': user.phone_number if user else None
             }
         })
     return jsonify(result)

@@ -415,6 +415,13 @@ export default function VoucherReports() {
                 <p className="font-medium">{userDialog.user?.email || '-'}</p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <Phone className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">{isArabic ? 'رقم الهاتف' : 'Phone Number'}</p>
+                <p className="font-medium">{userDialog.user?.phone_number || '-'}</p>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
