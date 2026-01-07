@@ -888,6 +888,16 @@ For each relevant competitor, you MUST use their actual name and links from this
 === END COMPETITOR DATA ===
 """
         
+        regeneration_section = ""
+        if analysis.regeneration_context:
+            regeneration_section = f"""
+
+=== USER FEEDBACK FROM AI ASSISTANT CHAT ===
+The user has provided the following feedback and refinements through the AI assistant. Please incorporate these insights into your analysis:
+{analysis.regeneration_context}
+=== END USER FEEDBACK ===
+"""
+        
         prompt = f"""You are an expert business and technology strategist specializing in helping tech entrepreneurs turn their ideas into successful startups.
 
 Business Idea: {analysis.business_idea}
@@ -895,7 +905,7 @@ Industry: {analysis.industry or 'Not specified'}
 Target Market: {analysis.target_market or 'Not specified'}
 Location: {analysis.location or 'Not specified'}
 Budget: {analysis.budget or 'Not specified'}
-{competitor_section}
+{competitor_section}{regeneration_section}
 {language_instruction}
 
 {TAB_PROMPTS[tab_name]}"""
@@ -1001,4 +1011,68 @@ def check_tab_status(user):
     return jsonify({
         'status': 'pending',
         'can_generate': True
+    })
+
+
+@ai_bp.route('/regenerate-report', methods=['POST'])
+@require_auth
+def regenerate_report(user):
+    """
+    Regenerate all tabs of a report using chat context from AI assistant
+    ---
+    tags:
+      - AI Analysis
+    security:
+      - Bearer: []
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            analysis_id:
+              type: string
+              description: The ID of the analysis to regenerate
+            chat_context:
+              type: string
+              description: The chat conversation context to incorporate
+    responses:
+      200:
+        description: Regeneration started
+      400:
+        description: Missing analysis_id
+      403:
+        description: Access denied
+      404:
+        description: Analysis not found
+    """
+    data = request.get_json()
+    analysis_id = data.get('analysis_id')
+    chat_context = data.get('chat_context', '')
+    
+    if not analysis_id:
+        return jsonify({'error': 'analysis_id is required'}), 400
+    
+    analysis = Analysis.query.get(analysis_id)
+    if not analysis:
+        return jsonify({'error': 'Analysis not found'}), 404
+    if analysis.user_email != user.email:
+        return jsonify({'error': 'Access denied'}), 403
+    
+    analysis.regeneration_context = chat_context[:2000] if chat_context else None
+    
+    analysis.tab_overview = None
+    analysis.tab_market = None
+    analysis.tab_business = None
+    analysis.tab_technical = None
+    analysis.tab_financial = None
+    analysis.tab_strategy = None
+    analysis.tab_processing_started = {}
+    
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Report regeneration started. Tabs will regenerate with your feedback incorporated.'
     })

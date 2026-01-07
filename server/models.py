@@ -145,6 +145,9 @@ class Analysis(db.Model):
     # Track when each tab started processing (for timeout detection)
     tab_processing_started = db.Column(db.JSON, default=dict)
     
+    # Regeneration context from AI assistant chat
+    regeneration_context = db.Column(db.Text, nullable=True)
+    
     # NGO voucher linking
     voucher_id = db.Column(db.String(36), db.ForeignKey('project_vouchers.id'), nullable=True)
     is_ngo_favourite = db.Column(db.Boolean, default=False)
@@ -189,6 +192,7 @@ class Analysis(db.Model):
             'tab_financial': self.tab_financial,
             'tab_strategy': self.tab_strategy,
             'tab_processing_started': self.tab_processing_started or {},
+            'regeneration_context': self.regeneration_context,
             'voucher_id': self.voucher_id,
             'voucher': {
                 'id': self.voucher.id,

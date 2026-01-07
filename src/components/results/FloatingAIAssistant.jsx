@@ -182,7 +182,6 @@ When answering:
   const handleRegenerate = async () => {
     if (!canRegenerate || isRegenerating) return;
 
-    // Collect chat context for regeneration
     const chatContext = messages
       .filter(m => m.role === 'user')
       .map(m => m.content)
@@ -196,17 +195,20 @@ When answering:
     setIsRegenerating(true);
 
     try {
-      // Update regeneration count
+      await api.post('/ai/regenerate-report', {
+        analysis_id: analysis.id,
+        chat_context: chatContext
+      });
+
       const newCount = regenerationCount + 1;
       await Analysis.update(analysis.id, { regeneration_count: newCount });
       setRegenerationCount(newCount);
 
-      // Call the onRegenerate callback with chat context
-      if (onRegenerate) {
-        await onRegenerate(chatContext);
-      }
-
-      toast.success(isArabic ? 'بدأت إعادة توليد التقرير!' : 'Report regeneration started!');
+      toast.success(isArabic ? 'بدأت إعادة توليد التقرير! جارٍ إعادة التحميل...' : 'Report regeneration started! Reloading...');
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error("Error regenerating report:", error);
       toast.error(isArabic ? 'فشل في إعادة توليد التقرير' : 'Failed to regenerate report');
