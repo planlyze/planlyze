@@ -87,7 +87,7 @@ function ReportCard({
               </div>
             )} */}
 
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
               {analysis.is_premium ? (
                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                   <Sparkles className="w-4 h-4" />
@@ -96,6 +96,11 @@ function ReportCard({
               ) : (
                 <span className="text-muted-foreground text-sm font-medium">
                   Free
+                </span>
+              )}
+              {analysis.voucher && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-medium rounded-full">
+                  {isArabic ? 'مرتبط بـ' : 'Linked to'} {analysis.voucher.ngo_name}
                 </span>
               )}
             </div>

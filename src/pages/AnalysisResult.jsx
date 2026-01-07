@@ -1577,6 +1577,11 @@ export default function AnalysisResult() {
                     ✨ {isUIArabic ? "متميز" : "Premium"}
                   </Badge>
                 )}
+                {analysis.voucher && (
+                  <Badge className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 flex items-center gap-1">
+                    🏢 {isUIArabic ? 'مرتبط بـ' : 'Linked to'} {analysis.voucher.ngo_name}
+                  </Badge>
+                )}
               </div>
             }
             backUrl={() => navigate(backToReportsUrl)}

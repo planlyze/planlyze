@@ -145,8 +145,12 @@ class Analysis(db.Model):
     # Track when each tab started processing (for timeout detection)
     tab_processing_started = db.Column(db.JSON, default=dict)
     
+    # NGO voucher linking
+    voucher_id = db.Column(db.String(36), db.ForeignKey('project_vouchers.id'), nullable=True)
+    
     # Relationship to pending transaction
     pending_transaction = db.relationship('Transaction', foreign_keys=[pending_transaction_id])
+    voucher = db.relationship('ProjectVoucher', backref=db.backref('linked_analyses', lazy='dynamic'))
     
     def to_dict(self):
         return {
@@ -182,7 +186,13 @@ class Analysis(db.Model):
             'tab_technical': self.tab_technical,
             'tab_financial': self.tab_financial,
             'tab_strategy': self.tab_strategy,
-            'tab_processing_started': self.tab_processing_started or {}
+            'tab_processing_started': self.tab_processing_started or {},
+            'voucher_id': self.voucher_id,
+            'voucher': {
+                'id': self.voucher.id,
+                'name': self.voucher.name,
+                'ngo_name': self.voucher.ngo_request.organization_name if self.voucher.ngo_request else None
+            } if self.voucher else None
         }
 
 class Transaction(db.Model):

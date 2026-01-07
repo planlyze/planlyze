@@ -459,6 +459,7 @@ export const NGO = {
   getAllRequests: (status) => api.get(`/ngo/requests${status ? `?status=${status}` : ''}`),
   updateRequest: (id, data) => api.put(`/ngo/requests/${id}`, data),
   getVouchers: () => api.get("/ngo/vouchers"),
+  getAvailableVouchers: () => api.get("/ngo/vouchers/available"),
   createVoucher: (data) => api.post("/ngo/vouchers", data),
   updateVoucher: (id, data) => api.put(`/ngo/vouchers/${id}`, data),
   deleteVoucher: (id) => api.delete(`/ngo/vouchers/${id}`),

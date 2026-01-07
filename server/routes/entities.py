@@ -162,13 +162,36 @@ def generate_analysis_entry(user):
         description: Missing required fields
     """
     from server.services.analysis_service import get_report_type_for_user
+    from datetime import date
     
     data = request.get_json() or {}
     business_idea = data.get('business_idea', '').strip()
     report_language = data.get('report_language', 'english').lower()
+    voucher_id = data.get('voucher_id')
     
     if not business_idea:
         return jsonify({'error': 'Business idea is required'}), 400
+    
+    validated_voucher = None
+    if voucher_id:
+        voucher = ProjectVoucher.query.get(voucher_id)
+        if not voucher:
+            return jsonify({'error': 'Voucher not found'}), 400
+        if not voucher.is_active:
+            return jsonify({'error': 'Voucher is not active'}), 400
+        
+        today = date.today()
+        if voucher.activation_start and voucher.activation_start > today:
+            return jsonify({'error': 'Voucher is not yet active'}), 400
+        if voucher.activation_end and voucher.activation_end < today:
+            return jsonify({'error': 'Voucher has expired'}), 400
+        
+        if voucher.linked_ideas_count is not None:
+            linked_count = Analysis.query.filter_by(voucher_id=voucher.id, is_deleted=False).count()
+            if linked_count >= voucher.linked_ideas_count:
+                return jsonify({'error': 'Voucher has reached maximum linked ideas'}), 400
+        
+        validated_voucher = voucher
     
     expected_report_type = get_report_type_for_user(user.email)
     
@@ -180,7 +203,8 @@ def generate_analysis_entry(user):
         location=data.get('country', ''),
         report_language=report_language,
         status='completed',  # Set to completed since tab content is lazy-loaded on demand
-        report_type=expected_report_type
+        report_type=expected_report_type,
+        voucher_id=validated_voucher.id if validated_voucher else None
     )
     db.session.add(analysis)
     
@@ -2764,6 +2788,42 @@ def get_ngo_vouchers(user):
     
     vouchers = ProjectVoucher.query.filter_by(ngo_request_id=ngo_request.id).order_by(ProjectVoucher.created_at.desc()).all()
     return jsonify([v.to_dict() for v in vouchers])
+
+@entities_bp.route('/ngo/vouchers/available', methods=['GET'])
+@require_auth
+def get_available_vouchers(user):
+    from datetime import date
+    today = date.today()
+    
+    vouchers = ProjectVoucher.query.filter_by(is_active=True).all()
+    
+    available = []
+    for v in vouchers:
+        if v.activation_start and v.activation_start > today:
+            continue
+        if v.activation_end and v.activation_end < today:
+            continue
+        
+        linked_count = Analysis.query.filter_by(voucher_id=v.id, is_deleted=False).count()
+        if v.linked_ideas_count is not None and linked_count >= v.linked_ideas_count:
+            continue
+        
+        remaining = None
+        if v.linked_ideas_count is not None:
+            remaining = v.linked_ideas_count - linked_count
+        
+        ngo_request = v.ngo_request
+        available.append({
+            'id': v.id,
+            'name': v.name,
+            'description': v.description,
+            'ngo_name': ngo_request.organization_name if ngo_request else None,
+            'activation_start': v.activation_start.isoformat() if v.activation_start else None,
+            'activation_end': v.activation_end.isoformat() if v.activation_end else None,
+            'remaining_slots': remaining
+        })
+    
+    return jsonify(available)
 
 @entities_bp.route('/ngo/vouchers', methods=['POST'])
 @require_auth
