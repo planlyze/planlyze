@@ -33,7 +33,7 @@ SEED_VERSIONS = {
     'roles': 1,
     'credit_packages': 1,
     'payment_methods': 1,
-    'email_templates': 1,
+    'email_templates': 2,
     'system_settings': 2,
     'partners': 1,
     'social_media' : 1,
@@ -518,6 +518,109 @@ def seed_email_templates():
   <a href="{{verification_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">تأكيد البريد الإلكتروني</a>
   <p style="color: #64748b; font-size: 14px;">سينتهي هذا الرابط خلال 24 ساعة.</p>
   <p style="color: #64748b; font-size: 14px;">إذا لم تقم بإنشاء حساب، يرجى تجاهل هذا البريد الإلكتروني.</p>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'ngo_request_new',
+            'name': 'New NGO Request (Admin)',
+            'subject_en': 'New NGO Request Submitted',
+            'subject_ar': 'طلب منظمة جديد',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">New NGO Request</h2>
+  <p>A new NGO registration request has been submitted and requires review.</p>
+  <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0;">
+    <p style="margin: 5px 0;"><strong>Organization:</strong> {{organization_name}}</p>
+    <p style="margin: 5px 0;"><strong>Type:</strong> {{organization_type}}</p>
+    <p style="margin: 5px 0;"><strong>Contact:</strong> {{contact_name}} ({{contact_email}})</p>
+    <p style="margin: 5px 0;"><strong>Phone:</strong> {{contact_phone}}</p>
+    <p style="margin: 5px 0;"><strong>Website:</strong> {{website}}</p>
+  </div>
+  <a href="{{admin_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Review Request</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #7c3aed;">طلب منظمة جديد</h2>
+  <p>تم تقديم طلب تسجيل منظمة جديد ويتطلب المراجعة.</p>
+  <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0;">
+    <p style="margin: 5px 0;"><strong>المنظمة:</strong> {{organization_name}}</p>
+    <p style="margin: 5px 0;"><strong>النوع:</strong> {{organization_type}}</p>
+    <p style="margin: 5px 0;"><strong>جهة الاتصال:</strong> {{contact_name}} ({{contact_email}})</p>
+    <p style="margin: 5px 0;"><strong>الهاتف:</strong> {{contact_phone}}</p>
+    <p style="margin: 5px 0;"><strong>الموقع:</strong> {{website}}</p>
+  </div>
+  <a href="{{admin_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #7c3aed, #6366f1); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">مراجعة الطلب</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'ngo_request_status_change',
+            'name': 'NGO Request Status Change',
+            'subject_en': 'Your NGO Request Has Been {{status}}',
+            'subject_ar': 'تم {{status}} طلب منظمتك',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: {{status_color}};">NGO Request {{status}}</h2>
+  <p>Hi {{user_name}},</p>
+  <p>Your NGO registration request for "<strong>{{organization_name}}</strong>" has been <strong>{{status}}</strong>.</p>
+  {{#if approved}}
+  <p>You now have access to the NGO Dashboard where you can create vouchers and manage beneficiary reports.</p>
+  <a href="{{dashboard_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #22c55e, #16a34a); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Go to NGO Dashboard</a>
+  {{/if}}
+  {{#if rejected}}
+  <p>If you have questions about this decision, please contact our support team.</p>
+  {{/if}}
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: {{status_color}};">تم {{status}} طلب المنظمة</h2>
+  <p>مرحباً {{user_name}}،</p>
+  <p>تم <strong>{{status}}</strong> طلب تسجيل منظمتك "<strong>{{organization_name}}</strong>".</p>
+  {{#if approved}}
+  <p>يمكنك الآن الوصول إلى لوحة تحكم المنظمة حيث يمكنك إنشاء قسائم وإدارة تقارير المستفيدين.</p>
+  <a href="{{dashboard_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #22c55e, #16a34a); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">الذهاب إلى لوحة التحكم</a>
+  {{/if}}
+  {{#if rejected}}
+  <p>إذا كانت لديك أسئلة حول هذا القرار، يرجى التواصل مع فريق الدعم.</p>
+  {{/if}}
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
+</div>''',
+            'is_active': True
+        },
+        {
+            'template_key': 'ngo_report_linked',
+            'name': 'New Report Linked to Voucher',
+            'subject_en': 'New Report Linked to Your Voucher',
+            'subject_ar': 'تقرير جديد مرتبط بقسيمتك',
+            'body_en': '''<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #ea580c;">New Report Linked</h2>
+  <p>Hi {{user_name}},</p>
+  <p>A new business analysis report has been linked to your voucher.</p>
+  <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0;">
+    <p style="margin: 5px 0;"><strong>Voucher:</strong> {{voucher_name}} ({{voucher_code}})</p>
+    <p style="margin: 5px 0;"><strong>Business Idea:</strong> {{business_idea}}</p>
+    <p style="margin: 5px 0;"><strong>User:</strong> {{beneficiary_name}} ({{beneficiary_email}})</p>
+  </div>
+  <a href="{{voucher_reports_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">View Voucher Reports</a>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. All rights reserved.</p>
+</div>''',
+            'body_ar': '''<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 10px;">
+  <h2 style="color: #ea580c;">تقرير جديد مرتبط</h2>
+  <p>مرحباً {{user_name}}،</p>
+  <p>تم ربط تقرير تحليل أعمال جديد بقسيمتك.</p>
+  <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0;">
+    <p style="margin: 5px 0;"><strong>القسيمة:</strong> {{voucher_name}} ({{voucher_code}})</p>
+    <p style="margin: 5px 0;"><strong>فكرة العمل:</strong> {{business_idea}}</p>
+    <p style="margin: 5px 0;"><strong>المستخدم:</strong> {{beneficiary_name}} ({{beneficiary_email}})</p>
+  </div>
+  <a href="{{voucher_reports_url}}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(to right, #ea580c, #f97316); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">عرض تقارير القسيمة</a>
   <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
   <p style="color: #94a3b8; font-size: 12px;">© 2024 Planlyze. جميع الحقوق محفوظة.</p>
 </div>''',

@@ -248,6 +248,18 @@ def generate_analysis_entry(user):
     
     db.session.commit()
     
+    if validated_voucher:
+        try:
+            from server.services.email_service import send_ngo_report_linked_email
+            import os
+            app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+            if app_url and not app_url.startswith('http'):
+                app_url = f"https://{app_url}"
+            beneficiary_user = User.query.filter_by(email=user.email).first()
+            send_ngo_report_linked_email(validated_voucher, analysis, beneficiary_user, app_url)
+        except Exception as e:
+            print(f"Failed to send NGO report linked email: {e}")
+    
     response_data = analysis.to_dict()
     response_data['expected_report_type'] = expected_report_type
     
@@ -2730,6 +2742,17 @@ def submit_ngo_request(user):
     db.session.add(ngo_request)
     user.ngo_status = 'pending'
     db.session.commit()
+    
+    try:
+        from server.services.email_service import send_ngo_request_admin_notification
+        import os
+        app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+        if app_url and not app_url.startswith('http'):
+            app_url = f"https://{app_url}"
+        send_ngo_request_admin_notification(ngo_request, app_url)
+    except Exception as e:
+        print(f"Failed to send NGO request admin notification: {e}")
+    
     return jsonify(ngo_request.to_dict()), 201
 
 @entities_bp.route('/ngo/my-request', methods=['GET'])
@@ -2788,6 +2811,18 @@ def update_ngo_request(user, id):
         ngo_request.admin_notes = data['admin_notes']
     
     db.session.commit()
+    
+    if new_status and new_status in ['approved', 'rejected']:
+        try:
+            from server.services.email_service import send_ngo_status_change_email
+            import os
+            app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+            if app_url and not app_url.startswith('http'):
+                app_url = f"https://{app_url}"
+            send_ngo_status_change_email(ngo_request, new_status, app_url)
+        except Exception as e:
+            print(f"Failed to send NGO status change email: {e}")
+    
     return jsonify(ngo_request.to_dict())
 
 @entities_bp.route('/ngo/stats', methods=['GET'])

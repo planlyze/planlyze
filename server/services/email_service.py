@@ -342,6 +342,129 @@ def send_referral_bonus_email_to_referrer(referrer_email, referrer_name, referre
     return success
 
 
+def get_template_and_send(template_key, to_email, to_name, variables, lang='en'):
+    """Get email template from database and send email with variable substitution"""
+    from server.models import EmailTemplate
+    
+    template = EmailTemplate.query.filter_by(template_key=template_key, is_active=True).first()
+    if not template:
+        print(f"Email template '{template_key}' not found or inactive")
+        return False, f"Template '{template_key}' not found"
+    
+    subject = template.subject_ar if lang == 'ar' else template.subject_en
+    body = template.body_ar if lang == 'ar' else template.body_en
+    
+    for key, value in variables.items():
+        subject = subject.replace('{{' + key + '}}', str(value) if value else '')
+        body = body.replace('{{' + key + '}}', str(value) if value else '')
+    
+    body = body.replace('{{#if approved}}', '' if variables.get('approved') else '<!--')
+    body = body.replace('{{/if}}', '' if variables.get('approved') or variables.get('rejected') else '-->')
+    body = body.replace('{{#if rejected}}', '' if variables.get('rejected') else '<!--')
+    
+    return send_email(to_email, to_name, subject, body)
+
+
+def send_ngo_request_admin_notification(ngo_request, app_url):
+    """Send email to admin when new NGO request is submitted"""
+    from server.models import User, Role
+    
+    admins = User.query.join(Role).filter(Role.name == 'admin').all()
+    
+    variables = {
+        'organization_name': ngo_request.organization_name,
+        'organization_type': ngo_request.organization_type,
+        'contact_name': ngo_request.contact_name,
+        'contact_email': ngo_request.contact_email,
+        'contact_phone': ngo_request.contact_phone,
+        'website': ngo_request.website or 'N/A',
+        'admin_url': f"{app_url}/admin/ngo-requests"
+    }
+    
+    for admin in admins:
+        success, error = get_template_and_send(
+            'ngo_request_new',
+            admin.email,
+            admin.full_name,
+            variables,
+            lang=admin.language or 'en'
+        )
+        if success:
+            print(f"NGO request admin notification sent to {admin.email}")
+    
+    return True
+
+
+def send_ngo_status_change_email(ngo_request, new_status, app_url):
+    """Send email to NGO when their request status changes"""
+    from server.models import User
+    
+    user = User.query.get(ngo_request.user_id)
+    if not user:
+        return False, "User not found"
+    
+    status_text = 'Approved' if new_status == 'approved' else 'Rejected' if new_status == 'rejected' else new_status.capitalize()
+    status_text_ar = 'الموافقة على' if new_status == 'approved' else 'رفض' if new_status == 'rejected' else new_status
+    status_color = '#22c55e' if new_status == 'approved' else '#ef4444' if new_status == 'rejected' else '#f59e0b'
+    
+    lang = user.language or 'en'
+    
+    variables = {
+        'user_name': user.full_name or user.email,
+        'organization_name': ngo_request.organization_name,
+        'status': status_text_ar if lang == 'ar' else status_text,
+        'status_color': status_color,
+        'approved': new_status == 'approved',
+        'rejected': new_status == 'rejected',
+        'dashboard_url': f"{app_url}/ngo-dashboard"
+    }
+    
+    success, error = get_template_and_send(
+        'ngo_request_status_change',
+        user.email,
+        user.full_name,
+        variables,
+        lang=lang
+    )
+    
+    return success, error
+
+
+def send_ngo_report_linked_email(voucher, analysis, beneficiary_user, app_url):
+    """Send email to NGO when a new report is linked to their voucher"""
+    from server.models import User, NGORequest
+    
+    ngo_request = NGORequest.query.get(voucher.ngo_request_id)
+    if not ngo_request:
+        return False, "NGO request not found"
+    
+    ngo_user = User.query.get(ngo_request.user_id)
+    if not ngo_user:
+        return False, "NGO user not found"
+    
+    lang = ngo_user.language or 'en'
+    
+    variables = {
+        'user_name': ngo_user.full_name or ngo_user.email,
+        'voucher_name': voucher.name,
+        'voucher_code': voucher.code,
+        'business_idea': analysis.business_idea,
+        'beneficiary_name': beneficiary_user.full_name or beneficiary_user.email if beneficiary_user else 'Unknown',
+        'beneficiary_email': beneficiary_user.email if beneficiary_user else 'Unknown',
+        'voucher_reports_url': f"{app_url}/ngo-dashboard/voucher/{voucher.id}"
+    }
+    
+    success, error = get_template_and_send(
+        'ngo_report_linked',
+        ngo_user.email,
+        ngo_user.full_name,
+        variables,
+        lang=lang
+    )
+    
+    return success, error
+
+
 def send_referral_bonus_email_to_referred(referred_email, referred_name, referrer_email, app_url, lang='en'):
     """Send referral bonus notification to the new user"""
     analysis_url = f"{app_url}/NewAnalysis"
