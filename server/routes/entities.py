@@ -709,41 +709,7 @@ def contact_public():
             print(f"Admin notification error: {notify_error}")
 
         email_sent = False
-        zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
-        zepto_api_url = os.environ.get('ZEPTOMAIL_API_URL', 'https://api.zeptomail.com/v1.1/email')
-        if zepto_api_key:
-            payload = {
-                'from': {
-                    'address': os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com'),
-                    'name': os.environ.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze')
-                },
-                'to': [
-                    {
-                        'email_address': {
-                            'address': os.environ.get('CONTACT_RECEIVER_EMAIL', 'info@planlyze.com'),
-                            'name': os.environ.get('CONTACT_RECEIVER_NAME', 'Planlyze Team')
-                        }
-                    }
-                ],
-                'subject': f'Contact from {name}',
-                'htmlbody': f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong></p><p>{message.replace(chr(10),'<br/>')}</p>",
-                'textbody': f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-            }
-
-            headers = {
-                'Authorization': zepto_api_key,
-                'Content-Type': 'application/json'
-            }
-
-            try:
-                resp = requests.post(zepto_api_url, json=payload, headers=headers, timeout=10)
-                if resp.ok:
-                    email_sent = True
-                    contact_msg.email_sent = True
-                    db.session.commit()
-            except Exception as email_error:
-                print(f"Email send error: {email_error}")
-
+        
         return jsonify({'success': True, 'email_sent': email_sent})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
