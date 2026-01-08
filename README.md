@@ -5,6 +5,7 @@ A bilingual (Arabic/English) business analysis platform that generates comprehen
 ## Overview
 
 Planlyze helps entrepreneurs and business analysts transform their ideas into actionable business strategies with:
+
 - AI-generated comprehensive business reports
 - 6-tab analysis format (Overview, Market, Business, Technical, Financial, Strategy)
 - Credit-based system with free/premium tiers
@@ -35,12 +36,14 @@ python wsgi.py
 ### Environment Variables
 
 Required:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `SECRET_KEY` - Flask secret key
 - `JWT_SECRET_KEY` - JWT signing key
 - `ANTHROPIC_API_KEY` - Claude API key for AI features
 
 Optional:
+
 - `ZEPTOMAIL_API_KEY` - Email verification
 - `ADMIN_EMAIL` - Admin notification email
 
@@ -66,6 +69,7 @@ Optional:
 ## Key Features
 
 ### Analysis System
+
 - AI-powered business idea validation
 - Lazy-loaded 6-tab report generation
 - Premium and free report tiers
@@ -73,12 +77,14 @@ Optional:
 - Floating AI assistant for follow-up questions
 
 ### Credit System
+
 - Credit packages with dynamic pricing
 - Multi-currency payment support (USD, EUR, SYP, SAR, AED, TRY)
 - Transaction history tracking
 - Discount codes with usage limits
 
 ### Admin Features
+
 - User management with role-based access (Owner, Admin, User)
 - Payment approval/rejection workflow
 - Email template management
@@ -86,12 +92,14 @@ Optional:
 - Excel export for all data tables
 
 ### User Features
+
 - Referral system with bonus credits
 - Notification preferences
 - Profile customization
 - Report sharing with public links
 
 ### Landing Page
+
 - Dynamic statistics from database
 - Pricing packages loaded from settings
 - Partner showcase
@@ -118,12 +126,14 @@ The seed script runs automatically on deployment to ensure default data exists.
 ## Database
 
 ### Migrations
+
 ```bash
 FLASK_APP=server.app:create_app flask db migrate -m "description"
 FLASK_APP=server.app:create_app flask db upgrade
 ```
 
 ### Seeding
+
 ```bash
 python server/seed.py
 ```

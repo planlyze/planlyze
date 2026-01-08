@@ -2,10 +2,10 @@ import os
 import requests
 import json
 
-ZEPTOMAIL_API_URL = "https://api.zeptomail.com/v1.1/email"
+ZEPTOMAIL_API_URL =  os.environ.get('ZEPTOMAIL_API_URL')
 ZEPTOMAIL_API_KEY = os.environ.get('ZEPTOMAIL_API_KEY')
 SENDER_EMAIL = os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com')
-SENDER_NAME = "Planlyze"
+SENDER_NAME = os.environ.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze')
 
 def send_email(to_email, to_name, subject, html_body):
     """

@@ -36,18 +36,20 @@ Deno.serve(async (req) => {
     }
 
     // Send email via SMTP
-    const smtpHost = Deno.env.get('SMTP_HOST');
+    const smtpHost = Deno.env.get('ZEPTOMAIL_API_URL');
     const smtpApiKey = Deno.env.get('ZEPTOMAIL_API_KEY');
+    const senderName = Deno.env.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze');
+    const senderEmail = Deno.env.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com');
 
     if (!smtpHost || !smtpApiKey) {
       return Response.json({ error: 'SMTP configuration missing' }, { status: 500 });
     }
 
     const emailPayload = {
-      bounce_address: "no.reply@planlyze.com",
+      bounce_address: senderEmail,
       from: {
-        address: "no.reply@planlyze.com",
-        name: "Planlyze"
+        address: senderEmail,
+        name: senderName
       },
       to: [
         {
@@ -61,7 +63,7 @@ Deno.serve(async (req) => {
       htmlbody: body
     };
 
-    const response = await fetch(`${smtpHost}/email`, {
+    const response = await fetch(`${smtpHost}`, {
       method: 'POST',
       headers: {
         'Authorization': smtpApiKey,
@@ -72,7 +74,7 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('SMTP Error:', errorText);
+      console.error('ZeptoMail Error:', errorText);
       return Response.json({ 
         error: 'Failed to send email',
         details: errorText 

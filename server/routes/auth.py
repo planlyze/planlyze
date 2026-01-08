@@ -17,8 +17,8 @@ import secrets
 auth_bp = Blueprint('auth', __name__)
 
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
-JWT_EXPIRES = 86400  # 24 hours
-APP_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN', os.environ.get('REPLIT_DOMAINS', 'localhost:5000'))
+JWT_EXPIRES = int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES', 86400))  # Default to 24 hours
+APP_DOMAIN = os.environ.get('APP_DOMAIN', 'https://planlyze.com')
 
 def generate_referral_code():
     return uuid.uuid4().hex[:8].upper()

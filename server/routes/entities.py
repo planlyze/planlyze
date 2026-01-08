@@ -275,7 +275,7 @@ def generate_analysis_entry(user):
         try:
             from server.services.email_service import send_ngo_report_linked_email
             import os
-            app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+            app_url = os.environ.get('APP_DOMAIN', '')
             if app_url and not app_url.startswith('http'):
                 app_url = f"https://{app_url}"
             beneficiary_user = User.query.filter_by(email=user.email).first()
@@ -710,11 +710,12 @@ def contact_public():
 
         email_sent = False
         zepto_api_key = os.environ.get('ZEPTOMAIL_API_KEY')
+        zepto_api_url = os.environ.get('ZEPTOMAIL_API_URL', 'https://api.zeptomail.com/v1.1/email')
         if zepto_api_key:
             payload = {
                 'from': {
-                    'address': os.environ.get('SMTP_FROM_EMAIL', 'info@planlyze.com'),
-                    'name': os.environ.get('SMTP_FROM_NAME', 'Planlyze Contact Form')
+                    'address': os.environ.get('ZEPTOMAIL_SENDER_EMAIL', 'no.reply@planlyze.com'),
+                    'name': os.environ.get('ZEPTOMAIL_SENDER_NAME', 'Planlyze')
                 },
                 'to': [
                     {
@@ -735,7 +736,7 @@ def contact_public():
             }
 
             try:
-                resp = requests.post('https://api.zeptomail.com/v1.1/email', json=payload, headers=headers, timeout=10)
+                resp = requests.post(zepto_api_url, json=payload, headers=headers, timeout=10)
                 if resp.ok:
                     email_sent = True
                     contact_msg.email_sent = True
@@ -2769,7 +2770,7 @@ def submit_ngo_request(user):
     try:
         from server.services.email_service import send_ngo_request_admin_notification
         import os
-        app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+        app_url = os.environ.get('APP_DOMAIN', '')
         if app_url and not app_url.startswith('http'):
             app_url = f"https://{app_url}"
         send_ngo_request_admin_notification(ngo_request, app_url)
@@ -2839,7 +2840,7 @@ def update_ngo_request(user, id):
         try:
             from server.services.email_service import send_ngo_status_change_email
             import os
-            app_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
+            app_url = os.environ.get('APP_DOMAIN', '')
             if app_url and not app_url.startswith('http'):
                 app_url = f"https://{app_url}"
             send_ngo_status_change_email(ngo_request, new_status, app_url)

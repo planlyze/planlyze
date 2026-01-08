@@ -5,7 +5,7 @@ from server.services.settings_service import get_referral_bonus_credits
 from server.services.email_service import send_referral_bonus_email_to_referrer
 import os
 
-APP_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN', 'planlyze.com')
+APP_DOMAIN = os.environ.get('APP_DOMAIN', 'https://planlyze.com')
 
 def check_and_award_referral_bonus(user_email: str, analysis_id: str = None, is_premium_completed: bool = False) -> dict:
     """
@@ -108,14 +108,13 @@ def check_and_award_referral_bonus(user_email: str, analysis_id: str = None, is_
         
         db.session.commit()
         
-        try:
-            app_url = f"https://{APP_DOMAIN}"
+        try:            
             send_referral_bonus_email_to_referrer(
                 referrer_email=referrer.email,
                 referrer_name=referrer.full_name,
                 referred_email=user_email,
                 referral_code=referrer.referral_code,
-                app_url=app_url,
+                app_url=APP_DOMAIN,
                 lang=referrer_lang
             )
         except Exception as email_error:
