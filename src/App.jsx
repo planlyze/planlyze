@@ -140,7 +140,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route 
-        path="/ngo-dashboard/voucher/:voucherId" 
+        path="/NGODashboard/voucher/:voucherId" 
         element={
           <ProtectedRoute>
             <LayoutWrapper currentPageName="VoucherReports">

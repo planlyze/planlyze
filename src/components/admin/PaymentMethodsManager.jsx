@@ -201,7 +201,7 @@ export default function PaymentMethodsManager({ isArabic }) {
       )}
 
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" dir={isArabic ? "rtl" : "ltr"}>
           <DialogHeader>
             <DialogTitle>
               {currentMethod 

@@ -67,6 +67,7 @@ import UpgradePrompt from "../components/credits/UpgradePrompt";
 import ShareReportModal from "../components/sharing/ShareReportModal";
 import { canAccessAdmin } from "@/components/utils/permissions";
 import PageHeader from "@/components/common/PageHeader";
+import PageLoader from "@/components/common/PageLoader";
 
 const TabLoadingSpinner = ({ isUIArabic, tabName, elapsedSeconds }) => {
   const tabIcons = {
@@ -1297,20 +1298,7 @@ export default function AnalysisResult() {
     loadedTabs.overview;
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen p-4 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-slate-200 rounded-lg animate-pulse" />
-            <div className="space-y-2">
-              <div className="h-8 w-64 bg-slate-200 rounded animate-pulse" />
-              <div className="h-4 w-48 bg-slate-200 rounded animate-pulse" />
-            </div>
-          </div>
-          <div className="h-64 bg-slate-200 rounded-lg animate-pulse" />
-        </div>
-      </div>
-    );
+   return <PageLoader isArabic={isUIArabic} />;
   }
 
   if (!analysis || analysis.status !== "completed") {
@@ -1747,7 +1735,8 @@ export default function AnalysisResult() {
               {tabData.market ? (
                 <MarketSection
                   data={tabData.market}
-                  isArabic={isReportArabic}
+                  isArabic={isUIArabic}
+                  isReportArabic={isReportArabic}
                   isPremium={isPremium}
                   onUnlock={handleUpgradeToPremium}
                   isUnlocking={isUpgrading}
@@ -1873,7 +1862,9 @@ export default function AnalysisResult() {
                           },
                         },
                       }}
-                      isArabic={isReportArabic}
+                      isArabic={isUIArabic}
+                      isReportArabic={isReportArabic}
+                      
                     />
                   </section>
                 </>

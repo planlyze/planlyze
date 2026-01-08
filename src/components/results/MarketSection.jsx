@@ -5,7 +5,7 @@ import { Users, AlertCircle, Lightbulb, TrendingUp, Building2, Target, PieChart,
 import LockedContent from "./LockedContent";
 import { SWOTChart, MarketSizeChart } from "./charts/AnalysisCharts";
 
-export default function MarketSection({ data = {}, isArabic = false, isPremium = true, onUnlock, isUnlocking = false }) {
+export default function MarketSection({ data = {}, isArabic = false, isReportArabic=false, isPremium = true, onUnlock, isUnlocking = false }) {
   const t = (en, ar) => (isArabic ? ar : en);
 
   // Handle raw_response case where data is stored as JSON string
@@ -40,7 +40,7 @@ export default function MarketSection({ data = {}, isArabic = false, isPremium =
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4" dir={isArabic ? "rtl" : "ltr"}>
               {targetAudiences.slice(0, isPremium ? targetAudiences.length : 1).map((audience, idx) => (
                 <div key={idx} className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-2">

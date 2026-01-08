@@ -348,6 +348,7 @@ export default function Reports() {
             icon={FileText}
             isArabic={isArabic}
             actionIcon={Plus}
+            navigationPath="NewAnalysis"
             actionTitle={
               !searchQuery && premiumFilter === "all"
                 ? t("reports.createFirstAnalysis")

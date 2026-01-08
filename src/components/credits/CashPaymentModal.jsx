@@ -255,11 +255,7 @@ export default function CashPaymentModal({
             </div>
             {isArabic ? "إتمام عملية الدفع" : "Complete Payment"}
           </DialogTitle>
-          <DialogDescription className="text-base text-slate-600 dark:text-gray-400">
-            {isArabic
-              ? "قم بتحويل المبلغ ثم ارفع صورة الإيصال للمراجعة"
-              : "Transfer the amount and upload the receipt for review"}
-          </DialogDescription>
+          
         </DialogHeader>
 
         <div className="space-y-6 py-6">
@@ -418,7 +414,7 @@ export default function CashPaymentModal({
                     setAppliedDiscount(null);
                   }}
                   variant="outline"
-                  className="h-12 px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="h-12 px-6 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                   disabled={isUploading}
                 >
                   {isArabic ? "إزالة" : "Remove"}
@@ -441,7 +437,7 @@ export default function CashPaymentModal({
               <Label className="text-base font-semibold text-slate-800 dark:text-white">
                 {isArabic ? "اختر طريقة الدفع" : "Select Payment Method"}
               </Label>
-              <div className="grid gap-3">
+              <div className="grid gap-3" dir={isArabic ? "rtl" : "ltr"}>
                 {paymentMethods.map((method) => (
                   <button
                     key={method.id}

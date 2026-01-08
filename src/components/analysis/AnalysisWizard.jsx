@@ -290,11 +290,11 @@ export default function AnalysisWizard({ onSubmit  }) {
               </Label>
             </div>
             
-            <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+            <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)} dir={isUIArabic ? 'rtl' : 'ltr'}>
               <SelectTrigger className={`border-2 bg-slate-50/50 dark:bg-gray-700/50 dark:text-white ${validationErrors.industry ? 'border-red-300' : 'border-slate-200 dark:border-gray-600'}`}>
                 <SelectValue placeholder={isUIArabic ? "اختر المجال" : "Select industry"} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent >
                 {WIZARD_INDUSTRIES.map((industry) =>
                   <SelectItem key={industry.value} value={industry.value}>
                     {isUIArabic ? industry.label_ar || industry.label : industry.label}

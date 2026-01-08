@@ -425,7 +425,7 @@ def send_ngo_status_change_email(ngo_request, new_status, app_url):
         'status_color': status_color,
         'approved': new_status == 'approved',
         'rejected': new_status == 'rejected',
-        'dashboard_url': f"{app_url}/ngo-dashboard"
+        'dashboard_url': f"{app_url}/NGODashboard"
     }
     
     success, error = get_template_and_send(

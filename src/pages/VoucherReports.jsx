@@ -153,7 +153,7 @@ export default function VoucherReports() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/ngo-dashboard')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/NGODashboard')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <PageHeader 
@@ -269,7 +269,7 @@ export default function VoucherReports() {
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-lg line-clamp-2 cursor-pointer hover:text-orange-600 transition-colors"
-                  onClick={() => navigate(`/analysis-result?id=${report.id}`)}
+                  onClick={() => navigate(`/AnalysisResult?id=${report.id}`)}
                 >
                   {report.business_idea}
                 </CardTitle>
@@ -353,7 +353,7 @@ export default function VoucherReports() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/analysis-result?id=${report.id}`)}
+                    onClick={() => navigate(`/AnalysisResult?id=${report.id}`)}
                   >
                     <ExternalLink className="h-4 w-4 mr-1" />
                     {isArabic ? 'عرض' : 'View'}
