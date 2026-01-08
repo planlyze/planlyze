@@ -225,8 +225,8 @@ When answering:
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 z-50"
+            exit={{ scale: 0, opacity: 0 }}            
+            className={`fixed bottom-6 z-50 ${isArabic ? 'left-6' : 'right-6'}`}
           >
             <Button
               onClick={() => setIsOpen(true)}
@@ -245,7 +245,7 @@ When answering:
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-3rem)]"
+            className={`fixed bottom-6 ${isArabic ? 'left-6' : 'right-6'} z-50 w-[420px] max-w-[calc(100vw-3rem)]`}
           >
             <Card className="glass-effect border-2 border-slate-300 shadow-2xl">
               <CardHeader className="bg-gradient-to-r from-slate-500 to-slate-600 text-white p-4 rounded-t-lg">
@@ -304,9 +304,9 @@ When answering:
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-3rem)]"
+            className={`fixed bottom-6 ${isArabic ? 'left-6' : 'right-6'} z-50 w-[420px] max-w-[calc(100vw-3rem)]`}
           >
-            <Card className="glass-effect border-2 border-purple-300 shadow-2xl">
+            <Card className="glass-effect border-2 border-purple-300 dark:bg-gray-50 shadow-2xl">
               <CardHeader className="bg-gradient-to-r from-purple-600 to-orange-600 text-white p-4 rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ When answering:
                           <div className={`rounded-lg p-3 text-sm ${
                             message.role === 'user' 
                               ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white' 
-                              : 'bg-white border border-slate-200'
+                              : 'bg-white border border-slate-200 text-slate-800'
                           }`}>
                             {message.role === 'assistant' ? (
                               <div className="prose prose-sm max-w-none">
@@ -398,7 +398,7 @@ When answering:
                 </div>
 
                 {/* Regenerate Button */}
-                <div className="px-3 pt-3 border-t border-slate-200 bg-slate-50">
+                {/* <div className="px-3 pt-3 border-t border-slate-200 bg-slate-50">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Button
@@ -422,7 +422,7 @@ When answering:
                       {isArabic ? 'وصلت للحد الأقصى من إعادة التوليد' : 'Maximum regenerations reached'}
                     </p>
                   )}
-                </div>
+                </div> */}
 
                 {/* Input */}
                 <div className="p-3 bg-slate-50">
@@ -455,7 +455,7 @@ When answering:
                         }
                       }}
                       placeholder={isArabic ? "اسأل عن التقرير..." : "Ask about the report..."}
-                      className="flex-1 min-h-[60px] text-sm resize-none border-slate-300"
+                      className="flex-1 min-h-[60px] text-sm resize-none border-slate-300 dark:text-slate-900"
                       disabled={isSending}
                     />
                     <Button
