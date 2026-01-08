@@ -1572,7 +1572,8 @@ export default function AnalysisResult() {
                 )}
               </div>
             }
-            backUrl={() => navigate(backToReportsUrl)}
+            onBack={() => navigate(backToReportsUrl)}
+            
             actions={
               <div className="flex items-center gap-2">
                 {/* Share Button */}
