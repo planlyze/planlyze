@@ -153,11 +153,11 @@ export default function VoucherReports() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/NGODashboard')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+      
         <PageHeader 
           title={isArabic ? 'تقارير القسيمة' : 'Voucher Reports'}
+          backUrl={"/NGODashboard"}
+          isArabic={isArabic}
           description={isArabic ? 'عرض التقارير المرتبطة بهذه القسيمة' : 'View reports linked to this voucher'}
         />
       </div>
