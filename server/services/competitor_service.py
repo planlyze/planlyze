@@ -1,143 +1,80 @@
 SYRIAN_COMPETITORS = [
     {
-        "name": "Syriantel Delivery",
-        "features": ["Food Delivery", "Restaurant Orders", "Real-time Tracking", "Payment Integration", "Rating System"],
-        "social": {"facebook": "https://facebook.com/syrianteldelivery", "instagram": None, "whatsapp": "+963933000000", "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.syriantel.delivery", "ios": None, "website": "https://syriantel.sy"},
-        "cities": ["Damascus", "Aleppo", "Homs"]
+        "name": "Wadily",
+        "features": ["On-Demand Delivery", "Vehicle Selection", "Appointment Scheduling", "Real-time Tracking", "Large-Scale Logistics"],
+        "social": {"facebook": "https://facebook.com/wadily", "instagram": "https://instagram.com/wadily", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.rightware.wadily", "ios": None, "website": "https://wadily.com"},
+        "cities": ["Dubai", "Abu Dhabi", "Sharjah"]
     },
     {
-        "name": "Talabat Syria",
-        "features": ["Food Delivery", "Multiple Restaurants", "GPS Tracking", "Online Payment", "Promo Codes", "Customer Support"],
-        "social": {"facebook": "https://facebook.com/talabatsyria", "instagram": "https://instagram.com/talabatsyria", "whatsapp": None, "telegram": "https://t.me/talabatsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.talabat.syria", "ios": "https://apps.apple.com/app/talabat-syria", "website": "https://talabat.sy"},
-        "cities": ["Damascus", "Lattakia", "Tartous"]
+        "name": "Postajji",
+        "features": ["Multi-Vendor Shopping", "Order Management", "Live Tracking", "Store Categorization", "Express Delivery"],
+        "social": {"facebook": "https://facebook.com/postajji", "instagram": "https://instagram.com/postajji", "whatsapp": None, "telegram": "https://t.me/postajji"},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.syweb.postajji", "ios": "https://apps.apple.com/app/postajji/id6746733875", "website": "https://postajji.com"},
+        "cities": ["Damascus", "Aleppo", "Homs", "Lattakia"]
     },
     {
-        "name": "Haraj Syria",
-        "features": ["Buy & Sell", "Classifieds", "Car Sales", "Real Estate", "Electronics", "User Verification", "Chat System"],
-        "social": {"facebook": "https://facebook.com/harajsyria", "instagram": None, "whatsapp": "+963944000000", "telegram": "https://t.me/harajsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.haraj.syria", "ios": None, "website": "https://haraj.sy"},
-        "cities": ["Damascus", "Aleppo", "Homs", "Hama"]
-    },
-    {
-        "name": "Syriatel Pay",
-        "features": ["Mobile Payments", "Bill Pay", "Money Transfer", "QR Payments", "Account Management"],
-        "social": {"facebook": "https://facebook.com/syriatel", "instagram": "https://instagram.com/syriatel", "whatsapp": None, "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.syriatel.pay", "ios": "https://apps.apple.com/app/syriatel-pay", "website": "https://syriatel.sy"},
+        "name": "Mawshili",
+        "features": ["Web-to-App Interface", "Service Directory", "Push Notifications", "Biometric Login", "Native Navigation"],
+        "social": {"facebook": "https://facebook.com/mawshili", "instagram": None, "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=io.gonative.android.kyxdym", "ios": None, "website": "https://mawshili.com"},
         "cities": ["All Syria"]
     },
     {
-        "name": "MTN Cash",
-        "features": ["Mobile Wallet", "Money Transfer", "Bill Payment", "Merchant Payments", "Cash Out"],
-        "social": {"facebook": "https://facebook.com/mtnsyria", "instagram": "https://instagram.com/mtnsyria", "whatsapp": None, "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.mtn.cash", "ios": "https://apps.apple.com/app/mtn-cash", "website": "https://mtn.com.sy"},
-        "cities": ["All Syria"]
+        "name": "Wassili",
+        "features": ["Business Logistics", "Order Dispatch", "Admin Dashboard", "Fleet Management", "Rider Integration"],
+        "social": {"facebook": "https://facebook.com/wassili", "instagram": None, "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.innovsoft.wassili", "ios": None, "website": None},
+        "cities": ["Damascus", "Rif Dimashq"]
     },
     {
-        "name": "Waseet Syria",
-        "features": ["Job Listings", "CV Upload", "Company Profiles", "Job Alerts", "Search Filters"],
-        "social": {"facebook": "https://facebook.com/waseetsyria", "instagram": None, "whatsapp": None, "telegram": "https://t.me/waseetsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.waseet.syria", "ios": None, "website": "https://waseet.sy"},
-        "cities": ["Damascus", "Aleppo"]
-    },
-    {
-        "name": "Akkar Jobs",
-        "features": ["Job Board", "Resume Builder", "Company Reviews", "Salary Information", "Career Advice"],
-        "social": {"facebook": "https://facebook.com/akkarjobs", "instagram": "https://instagram.com/akkarjobs", "whatsapp": "+963955000000", "telegram": None},
-        "app_links": {"android": None, "ios": None, "website": "https://akkarjobs.com"},
-        "cities": ["Damascus", "All Syria"]
-    },
-    {
-        "name": "Syria Taxi",
-        "features": ["Ride Hailing", "GPS Navigation", "Fare Estimation", "Driver Rating", "Trip History"],
-        "social": {"facebook": "https://facebook.com/syriataxi", "instagram": None, "whatsapp": "+963988000000", "telegram": "https://t.me/syriataxi"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.syria.taxi", "ios": None, "website": None},
+        "name": "Target Market",
+        "features": ["Grocery Browsing", "Rapid Delivery", "Barcode Scanner", "Voucher Wallet", "Real-Time Tracking"],
+        "social": {"facebook": "https://facebook.com/TargetMarketApp", "instagram": "https://instagram.com/target_market", "whatsapp": None, "telegram": "https://t.me/TargetMarketBot"},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.DotCode.TargetMarket", "ios": None, "website": "https://target-market.net"},
         "cities": ["Damascus", "Aleppo", "Lattakia"]
     },
     {
-        "name": "Yalla Taxi",
-        "features": ["Taxi Booking", "Live Tracking", "Multiple Payment Options", "Scheduled Rides", "Female Driver Option"],
-        "social": {"facebook": "https://facebook.com/yallataxi", "instagram": "https://instagram.com/yallataxi", "whatsapp": None, "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.yalla.taxi", "ios": "https://apps.apple.com/app/yalla-taxi", "website": "https://yallataxi.sy"},
-        "cities": ["Damascus", "Homs"]
+        "name": "Movo",
+        "features": ["Food Delivery", "Pharmacy Access", "Order Tracking", "International Payments", "Address Management"],
+        "social": {"facebook": "https://facebook.com/movoapp", "instagram": "https://instagram.com/movo.app", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.movo.movouser", "ios": "https://apps.apple.com/app/movo-delivery/id1487602510", "website": "https://movo-app.com"},
+        "cities": ["Damascus", "Homs", "Aleppo", "Lattakia"]
     },
     {
-        "name": "Souq Syria",
-        "features": ["E-commerce", "Multiple Categories", "Seller Marketplace", "Secure Payments", "Delivery Service", "Product Reviews"],
-        "social": {"facebook": "https://facebook.com/souqsyria", "instagram": "https://instagram.com/souqsyria", "whatsapp": "+963933111000", "telegram": "https://t.me/souqsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.souq.syria", "ios": None, "website": "https://souq.sy"},
-        "cities": ["Damascus", "Aleppo", "Homs", "Lattakia"]
+        "name": "BeeOrder",
+        "features": ["Restaurant Marketplace", "Smart Search", "Voucher Wallet", "Loyalty System", "Live Order Tracking"],
+        "social": {"facebook": "https://facebook.com/beeorder", "instagram": "https://instagram.com/beeorder", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.beeorder.customer", "ios": "https://apps.apple.com/app/beeorder/id1143890251", "website": "https://beeorder.com"},
+        "cities": ["Damascus", "Aleppo", "Homs", "Tartous", "Lattakia"]
     },
     {
-        "name": "Syria Shop",
-        "features": ["Online Shopping", "Fashion", "Electronics", "Home Products", "Fast Delivery", "Return Policy"],
-        "social": {"facebook": "https://facebook.com/syriashop", "instagram": "https://instagram.com/syriashop", "whatsapp": None, "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.syria.shop", "ios": "https://apps.apple.com/app/syria-shop", "website": "https://syriashop.com"},
-        "cities": ["Damascus", "All Major Cities"]
-    },
-    {
-        "name": "Pharmacy Syria",
-        "features": ["Medicine Delivery", "Prescription Upload", "Pharmacy Locator", "Health Products", "24/7 Service"],
-        "social": {"facebook": "https://facebook.com/pharmacysyria", "instagram": None, "whatsapp": "+963944222000", "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.pharmacy.syria", "ios": None, "website": "https://pharmacy.sy"},
-        "cities": ["Damascus", "Aleppo"]
-    },
-    {
-        "name": "Doctor Syria",
-        "features": ["Doctor Appointments", "Telemedicine", "Medical Records", "Specialist Search", "Lab Results"],
-        "social": {"facebook": "https://facebook.com/doctorsyria", "instagram": "https://instagram.com/doctorsyria", "whatsapp": None, "telegram": "https://t.me/doctorsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.doctor.syria", "ios": "https://apps.apple.com/app/doctor-syria", "website": "https://doctor.sy"},
-        "cities": ["Damascus", "Aleppo", "Homs", "Lattakia"]
-    },
-    {
-        "name": "Aqar Syria",
-        "features": ["Real Estate Listings", "Buy/Sell/Rent", "Property Search", "Agent Connect", "Virtual Tours", "Price Comparison"],
-        "social": {"facebook": "https://facebook.com/aqarsyria", "instagram": "https://instagram.com/aqarsyria", "whatsapp": "+963955333000", "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.aqar.syria", "ios": None, "website": "https://aqar.sy"},
-        "cities": ["Damascus", "Aleppo", "Lattakia", "Tartous"]
-    },
-    {
-        "name": "Car Syria",
-        "features": ["Car Sales", "Car Rental", "Spare Parts", "Dealer Listings", "Price Estimates", "Vehicle History"],
-        "social": {"facebook": "https://facebook.com/carsyria", "instagram": None, "whatsapp": "+963988444000", "telegram": "https://t.me/carsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.car.syria", "ios": None, "website": "https://carsyria.com"},
-        "cities": ["Damascus", "Aleppo", "Homs"]
-    },
-    {
-        "name": "Fresh Market",
-        "features": ["Grocery Delivery", "Fresh Produce", "Daily Deals", "Subscription Service", "Same-day Delivery"],
-        "social": {"facebook": "https://facebook.com/freshmarketsy", "instagram": "https://instagram.com/freshmarketsy", "whatsapp": "+963933555000", "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.freshmarket.sy", "ios": None, "website": "https://freshmarket.sy"},
+        "name": "Khalifa Meat",
+        "features": ["Fresh Meat Catalog", "Custom Cuts", "Secure Payments", "Recipe Suggestions", "Holiday Pre-ordering"],
+        "social": {"facebook": "https://facebook.com/khalifameat", "instagram": "https://instagram.com/khalifameat", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.khalifameat.khalifa", "ios": None, "website": "https://khalifameat.com"},
         "cities": ["Damascus"]
     },
     {
-        "name": "Clothes Syria",
-        "features": ["Fashion E-commerce", "Men & Women", "Kids Clothing", "Accessories", "Size Guide", "Easy Returns"],
-        "social": {"facebook": "https://facebook.com/clothessyria", "instagram": "https://instagram.com/clothessyria", "whatsapp": None, "telegram": None},
-        "app_links": {"android": None, "ios": None, "website": "https://clothes.sy"},
+        "name": "Kammun",
+        "features": ["Grocery E-commerce", "Cash on Delivery", "Workplace Delivery", "Personalized Discounts", "Price Monitoring"],
+        "social": {"facebook": "https://facebook.com/kammunapp", "instagram": "https://instagram.com/kammun.app", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.kammun.app", "ios": None, "website": "https://kammun.com"},
         "cities": ["Damascus", "Aleppo"]
     },
     {
-        "name": "Beauty Syria",
-        "features": ["Cosmetics", "Skincare", "Perfumes", "Beauty Tools", "Brand Products", "Gift Sets"],
-        "social": {"facebook": "https://facebook.com/beautysyria", "instagram": "https://instagram.com/beautysyria", "whatsapp": "+963944666000", "telegram": None},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.beauty.syria", "ios": None, "website": "https://beauty.sy"},
-        "cities": ["Damascus", "Lattakia"]
-    },
-    {
-        "name": "Tech Syria",
-        "features": ["Electronics", "Computers", "Mobile Phones", "Accessories", "Warranty Service", "Tech Support"],
-        "social": {"facebook": "https://facebook.com/techsyria", "instagram": "https://instagram.com/techsyria", "whatsapp": "+963955777000", "telegram": "https://t.me/techsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.tech.syria", "ios": None, "website": "https://tech.sy"},
-        "cities": ["Damascus", "Aleppo", "Homs"]
-    },
-    {
-        "name": "Education Syria",
-        "features": ["Online Courses", "Tutoring", "Exam Prep", "Certificates", "Video Lessons", "Student Community"],
-        "social": {"facebook": "https://facebook.com/educationsyria", "instagram": "https://instagram.com/educationsyria", "whatsapp": None, "telegram": "https://t.me/educationsyria"},
-        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.education.syria", "ios": "https://apps.apple.com/app/education-syria", "website": "https://education.sy"},
+        "name": "DigiShi",
+        "features": ["E-Retail Marketplace", "Integrated Supermarket", "Free Delivery Thresholds", "After-Sales Support", "Flash Deals"],
+        "social": {"facebook": "https://facebook.com/digishi.sy", "instagram": "https://instagram.com/digishi.sy", "whatsapp": None, "telegram": "https://t.me/digishi"},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.digishi.android", "ios": None, "website": "https://digishi.net"},
         "cities": ["All Syria"]
+    },
+    {
+        "name": "Harbuk",
+        "features": ["Regional Marketplace", "Buyer Community", "Wishlist Management", "Universal Cart", "Flash Deals"],
+        "social": {"facebook": "https://facebook.com/harbuk", "instagram": "https://instagram.com/harbuk", "whatsapp": None, "telegram": None},
+        "app_links": {"android": "https://play.google.com/store/apps/details?id=com.c_od_e.harbukcom", "ios": None, "website": "https://harbuk.com"},
+        "cities": ["Damascus", "Aleppo", "Homs"]
     }
 ]
 
