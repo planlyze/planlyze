@@ -4,15 +4,17 @@ This guide covers deploying Planlyze to your own VPS with your own Claude API ke
 
 ## Minimum VPS Requirements
 
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| **CPU** | 1 vCPU | 2 vCPUs |
-| **RAM** | 2 GB | 4 GB |
-| **Storage** | 20 GB SSD | 40 GB SSD |
-| **OS** | Ubuntu 22.04 LTS | Ubuntu 22.04/24.04 LTS |
-| **Bandwidth** | 1 TB/month | 2+ TB/month |
+
+| Resource      | Minimum          | Recommended            |
+| ------------- | ---------------- | ---------------------- |
+| **CPU**       | 1 vCPU           | 2 vCPUs                |
+| **RAM**       | 2 GB             | 4 GB                   |
+| **Storage**   | 20 GB SSD        | 40 GB SSD              |
+| **OS**        | Ubuntu 22.04 LTS | Ubuntu 22.04/24.04 LTS |
+| **Bandwidth** | 1 TB/month       | 2+ TB/month            |
 
 ### Estimated Monthly Costs
+
 - **DigitalOcean/Vultr/Linode**: $12-24/month (2GB-4GB droplet)
 - **Hetzner**: $5-10/month (excellent value in EU)
 - **AWS Lightsail**: $10-20/month
@@ -20,6 +22,7 @@ This guide covers deploying Planlyze to your own VPS with your own Claude API ke
 ## Prerequisites
 
 Before starting, ensure you have:
+
 1. A VPS with root/sudo access
 2. A domain name pointed to your VPS IP (optional but recommended)
 3. An Anthropic API key from https://console.anthropic.com/
@@ -32,10 +35,10 @@ Before starting, ensure you have:
 ssh root@your-server-ip
 
 # Update system packages
-apt update && apt upgrade -y
+sudo apt update && apt upgrade -y
 
 # Install required system packages
-apt install -y python3.11 python3.11-venv python3-pip nodejs npm postgresql postgresql-contrib nginx certbot python3-certbot-nginx git curl
+sudo apt install -y python3.11 python3.11-venv python3-pip nodejs npm postgresql postgresql-contrib nginx certbot python3-certbot-nginx git curl
 
 # Install Node.js 20 (if not already at v20+)
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -53,7 +56,7 @@ usermod -aG sudo planlyze
 sudo -u postgres psql
 
 # Create database and user (replace 'your_secure_password' with a strong password)
-CREATE USER planlyze WITH PASSWORD 'your_secure_password';
+CREATE USER planlyze WITH PASSWORD 'NewPlanlyzePassword';
 CREATE DATABASE planlyze_db OWNER planlyze;
 GRANT ALL PRIVILEGES ON DATABASE planlyze_db TO planlyze;
 \q
@@ -119,6 +122,7 @@ JWT_ACCESS_TOKEN_EXPIRES=86400
 ```
 
 Generate secure secret keys:
+
 ```bash
 # Generate random secret keys
 python3 -c "import secrets; print(secrets.token_hex(32))"
@@ -305,6 +309,7 @@ echo "=== Deployment Complete ==="
 ```
 
 Make it executable:
+
 ```bash
 chmod +x ~/planlyze/deploy.sh
 ```
@@ -323,12 +328,14 @@ The Syrian competitor data is hardcoded in `server/services/competitor_service.p
 - **And more...**
 
 ### How It Works:
+
 1. When generating the Market Analysis tab, the AI receives all competitor data
 2. Claude AI analyzes which competitors are relevant based on the user's business idea
 3. The AI generates relevance scores, descriptions, pros/cons, and differentiation recommendations
 4. Results are displayed with clickable links to app stores and social media
 
 ### Adding New Competitors:
+
 Edit `server/services/competitor_service.py` and add entries to the `SYRIAN_COMPETITORS` list:
 
 ```python
@@ -354,12 +361,14 @@ Edit `server/services/competitor_service.py` and add entries to the `SYRIAN_COMP
 
 Planlyze uses Claude Sonnet 4.5 for AI analysis. Estimated costs:
 
-| Usage | Tokens per Report | Cost per Report |
-|-------|-------------------|-----------------|
-| Full Analysis (6 tabs) | ~50,000-80,000 | ~$0.15-0.25 |
-| Single Tab Regeneration | ~8,000-15,000 | ~$0.02-0.05 |
+
+| Usage                   | Tokens per Report | Cost per Report |
+| ----------------------- | ----------------- | --------------- |
+| Full Analysis (6 tabs)  | ~50,000-80,000    | ~$0.15-0.25     |
+| Single Tab Regeneration | ~8,000-15,000     | ~$0.02-0.05     |
 
 **Monthly estimates:**
+
 - 100 reports/month: ~$15-25
 - 500 reports/month: ~$75-125
 - 1000 reports/month: ~$150-250
@@ -367,6 +376,7 @@ Planlyze uses Claude Sonnet 4.5 for AI analysis. Estimated costs:
 ## Troubleshooting
 
 ### Check Service Logs
+
 ```bash
 # API logs
 sudo journalctl -u planlyze-api -f
@@ -379,6 +389,7 @@ sudo tail -f /var/log/nginx/access.log
 ### Common Issues
 
 **1. Database connection error:**
+
 ```bash
 # Check PostgreSQL is running
 sudo systemctl status postgresql
@@ -388,6 +399,7 @@ psql -U planlyze -d planlyze_db -h localhost
 ```
 
 **2. API not responding:**
+
 ```bash
 # Check if service is running
 sudo systemctl status planlyze-api
@@ -397,6 +409,7 @@ sudo systemctl restart planlyze-api
 ```
 
 **3. Frontend not loading:**
+
 ```bash
 # Verify build files exist
 ls -la /home/planlyze/planlyze/dist
@@ -406,6 +419,7 @@ cd ~/planlyze && npm run build
 ```
 
 **4. SSL certificate issues:**
+
 ```bash
 # Renew certificate manually
 sudo certbot renew
@@ -414,6 +428,7 @@ sudo certbot renew
 ## Backup Strategy
 
 ### Database Backup
+
 ```bash
 # Create backup
 pg_dump -U planlyze planlyze_db > backup_$(date +%Y%m%d).sql
@@ -424,6 +439,7 @@ crontab -e
 ```
 
 ### Application Backup
+
 ```bash
 # Backup entire application
 tar -czvf planlyze_backup_$(date +%Y%m%d).tar.gz ~/planlyze
@@ -432,6 +448,7 @@ tar -czvf planlyze_backup_$(date +%Y%m%d).tar.gz ~/planlyze
 ## Monitoring (Optional)
 
 Consider setting up:
+
 - **Uptime monitoring**: UptimeRobot (free tier available)
 - **Log aggregation**: Papertrail, Logtail
 - **APM**: New Relic, Sentry for error tracking
@@ -448,6 +465,7 @@ Consider setting up:
 ## Support
 
 For issues specific to:
+
 - **Anthropic API**: https://docs.anthropic.com/
 - **PostgreSQL**: https://www.postgresql.org/docs/
 - **Nginx**: https://nginx.org/en/docs/
