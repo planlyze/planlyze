@@ -69,7 +69,7 @@ GRANT ALL PRIVILEGES ON DATABASE planlyze_db TO planlyze;
 su - planlyze
 
 # Clone the repository (replace with your actual repo URL)
-git clone https://github.com/your-username/planlyze.git ~/planlyze
+git clone https://planlyze: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@github.com/planlyze/planlyze.git ~/planlyze
 cd ~/planlyze
 
 # Create Python virtual environment
@@ -139,6 +139,8 @@ flask db upgrade
 
 # Seed initial data (optional)
 python -c "from server.seed import seed_database; seed_database()"
+
+python server/seed.py
 ```
 
 ## Step 6: Create Systemd Service Files
@@ -188,7 +190,7 @@ sudo nano /etc/nginx/sites-available/planlyze
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name planlyze.ai www.planlyze.ai planlyze.com www.planlyze.com 160.153.183.214;
 
     # Root directory for frontend
     root /home/planlyze/planlyze/dist;
@@ -249,7 +251,7 @@ sudo systemctl reload nginx
 
 ```bash
 # Install SSL certificate with Let's Encrypt
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+sudo certbot --nginx -d 160.153.183.214
 
 # Auto-renewal is set up automatically, but you can test it:
 sudo certbot renew --dry-run
@@ -269,7 +271,7 @@ sudo ufw enable
 Create a deployment script for easy updates:
 
 ```bash
-nano ~/planlyze/deploy.sh
+nano ~/planlyze/planlyze/deploy.sh
 ```
 
 ```bash
@@ -311,7 +313,7 @@ echo "=== Deployment Complete ==="
 Make it executable:
 
 ```bash
-chmod +x ~/planlyze/deploy.sh
+chmod +x home/planlyze/planlyze/deploy.sh
 ```
 
 ## Syrian Competitors Data
