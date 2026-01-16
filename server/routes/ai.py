@@ -802,7 +802,7 @@ Respond in JSON format:
 }
 
 
-PROCESSING_TIMEOUT_SECONDS = 300  # 5 minutes
+PROCESSING_TIMEOUT_SECONDS = 600  # 10 minutes
 
 @ai_bp.route('/generate-tab-content', methods=['POST'])
 @require_auth
