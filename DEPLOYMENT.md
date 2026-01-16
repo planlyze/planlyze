@@ -53,7 +53,7 @@ usermod -aG sudo planlyze
 
 ```bash
 # Switch to postgres user
-sudo -u postgres psql
+sudo -u planlyze psql
 
 # Create database and user (replace 'your_secure_password' with a strong password)
 CREATE USER planlyze WITH PASSWORD 'NewPlanlyzePassword';
@@ -251,7 +251,7 @@ sudo systemctl reload nginx
 
 ```bash
 # Install SSL certificate with Let's Encrypt
-sudo certbot --nginx -d 160.153.183.214
+sudo certbot --nginx -d planlyze.com
 
 # Auto-renewal is set up automatically, but you can test it:
 sudo certbot renew --dry-run
